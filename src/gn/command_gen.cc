@@ -18,6 +18,7 @@
 #include "gn/compile_commands_writer.h"
 #include "gn/eclipse_writer.h"
 #include "gn/filesystem_utils.h"
+#include "gn/headers_map_writer.h"
 #include "gn/json_project_writer.h"
 #include "gn/label_pattern.h"
 #include "gn/ninja_outputs_writer.h"
@@ -836,6 +837,18 @@ int RunGen(const std::vector<std::string>& args) {
   }
 
   Err err;
+  base::FilePath output_path =
+      setup->build_settings()
+          .GetFullPath(setup->build_settings().build_dir())
+          .Append("header_to_targets.txt");
+  auto buf = HeadersMapWriter::RunAndGenerate(
+      setup->builder().GetAllResolvedTargets());
+  buf.WriteToFileIfChanged(output_path, &err);
+  if (err.has_error()) {
+    err.PrintToStdout();
+    return 1;
+  }
+
   // Write the root ninja files.
   if (!NinjaWriter::RunAndWriteFiles(&setup->build_settings(), setup->builder(),
                                      write_info.rules, &err)) {

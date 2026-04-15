@@ -18,6 +18,7 @@
 #include "gn/compile_commands_writer.h"
 #include "gn/eclipse_writer.h"
 #include "gn/filesystem_utils.h"
+#include "gn/headers_map_writer.h"
 #include "gn/json_project_writer.h"
 #include "gn/label_pattern.h"
 #include "gn/ninja_outputs_writer.h"
@@ -90,7 +91,6 @@ struct TargetWriteInfo {
   NinjaWriter::PerToolchainRules rules;
 
   NinjaOutputsMap ninja_outputs_map;
-
   std::unique_ptr<ResolvedTargetData> resolved =
       std::make_unique<ResolvedTargetData>();
 
@@ -834,6 +834,21 @@ int RunGen(const std::vector<std::string>& args) {
                 return a.first->label() < b.first->label();
               });
   }
+
+  base::FilePath output_path =
+      setup->build_settings()
+          .GetFullPath(setup->build_settings().build_dir())
+          .Append("headers.txt");
+  g_scheduler->IncrementWorkCount();
+  g_scheduler->ScheduleWork([&setup, &output_path]() {
+    auto buf = HeadersMapWriter::RunAndGenerate(
+        setup->builder().GetAllResolvedTargets());
+    Err err;
+    buf.WriteToFileIfChanged(output_path, &err);
+    if (err.has_error())
+      err.PrintNonfatalToStdout();
+    g_scheduler->DecrementWorkCount();
+  });
 
   Err err;
   // Write the root ninja files.

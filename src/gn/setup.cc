@@ -1208,6 +1208,17 @@ bool Setup::FillOtherConfig(const base::CommandLine& cmdline, Err* err) {
         std::make_unique<SourceFileSet>());
   }
 
+  // Fill allow_circular_includes_from_allowlist.
+  const Value* allow_circular_includes_from_allowlist_value =
+      dotfile_scope_.GetValue("allow_circular_includes_from_allowlist", true);
+  if (allow_circular_includes_from_allowlist_value) {
+    build_settings_.set_allow_circular_includes_from_allowlist(FillAllowlist(
+        allow_circular_includes_from_allowlist_value, current_dir, err));
+    if (err->has_error()) {
+      return false;
+    }
+  }
+
   // Fill optional default_args.
   const Value* default_args_value =
       dotfile_scope_.GetValue("default_args", true);

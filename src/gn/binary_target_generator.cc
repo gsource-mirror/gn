@@ -209,6 +209,20 @@ bool BinaryTargetGenerator::FillAllowCircularIncludesFrom() {
   if (!value)
     return true;
 
+  const BuildSettings* build_settings = scope_->settings()->build_settings();
+  if (!InSourceAllowList(
+          function_call_,
+          build_settings->allow_circular_includes_from_allowlist())) {
+    *err_ = Err(function_call_,
+                "Usage of allow_circular_includes_from is not allowed here.",
+                "New usages of allow_circular_includes_from are not allowed.\n"
+                "If you are creating a shared or static library with headers "
+                "that links many source_sets, "
+                "you should instead pull the sources and headers into a "
+                "source_set and depend on that.");
+    return false;
+  }
+
   UniqueVector<Label> circular;
   ExtractListOfUniqueLabels(scope_->settings()->build_settings(), *value,
                             scope_->GetSourceDir(),

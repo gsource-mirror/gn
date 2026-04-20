@@ -16,6 +16,24 @@
       "message": "I feel this kind of change is too specific to chromium build or plugin used by chromium clang.\n\nRather than having this kind of change in GN, can we start from showing command to get target having path/to/bar.h with GN and asking users to add that to deps of foo in clang plugin?",
       "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0130680e_238ff72a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-20T07:37:43Z",
+      "side": 1,
+      "message": "I can definitely see that perspective, I thought about it for a while myself.\n\nMy issue with that is that there\u0027s a massive user experience difference between telling the user:\n```\nsuggestion: add [ \":baz\" ] to the public_deps of \"//foo:bar\"\n```\n\nAnd telling the user:\n```\nsuggestion: run `gn refs \u003coutput directory\u003e foo/baz.h`, strip the toolchain, ensure there\u0027s only one, and add that as a public_dep of \"//foo:bar\n```\n\nAlso, `gn refs` basically just reruns most of the work of `gn gen` each time you run it, and I\u0027ve seen it output hundreds of these errors at once. This provides a fast, indexable way to do it. Although it\u0027s only being used for chromium currently, strict deps could in theory be used by anyone.\n\nIf you\u0027d like, we can lock it behind a gn arg instead?",
+      "parentUuid": "422aa963_881a3642",
+      "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

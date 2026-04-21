@@ -94,6 +94,7 @@
     *   [target_os: [string] The desired operating system for the build.](#var_target_os)
     *   [target_out_dir: [string] Directory for target output files.](#var_target_out_dir)
 *   [Variables you set in targets](#target_variables)
+    *   [additional_outputs: [string list] Additional outputs for the tool.](#var_additional_outputs)
     *   [aliased_deps: [scope] Set of crate-dependency pairs.](#var_aliased_deps)
     *   [all_dependent_configs: [label list] Configs to be forced on dependents.](#var_all_dependent_configs)
     *   [allow_circular_includes_from: [label list] Permit includes from deps.](#var_allow_circular_includes_from)
@@ -4959,6 +4960,24 @@
 ```
 ## <a name="target_variables"></a>Variables you set in targets
 
+### <a name="var_additional_outputs"></a>**additional_outputs**: [string list] Additional outputs for the tool.&nbsp;[Back to Top](#gn-reference)
+
+```
+  A list of files that will be added to the outputs of the tool (e.g. "cc")
+  when this config is applied to a target.
+
+  This is useful for tools that produce side-artifacts like .dwo files
+  when specific flags (like -gsplit-dwarf) are used.
+
+  Note: Currently, this feature is only supported for C-family targets (C, C++,
+  Objective C, Objective C++). It does not apply to Rust or Swift targets yet.
+
+  Example:
+    config("split_dwarf") {
+      cflags = [ "-gsplit-dwarf" ]
+      additional_outputs = [ "{{source_out_dir}}/{{source_name_part}}.dwo" ]
+    }
+```
 ### <a name="var_aliased_deps"></a>**aliased_deps**: [scope] Set of crate-dependency pairs.&nbsp;[Back to Top](#gn-reference)
 
 ```

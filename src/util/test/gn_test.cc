@@ -18,7 +18,11 @@
 #include <string.h>
 
 #include "base/command_line.h"
-#include "util/build_config.h"
+#include "base/files/file_util.h"
+#include "base/files/scoped_temp_dir.h"
+#include "base/strings/stringprintf.h"
+#include "gn/exec_process.h"
+#include "gn/standard_out.h"
 #include "util/test/test.h"
 
 #if defined(OS_WIN)
@@ -29,6 +33,50 @@
 
 namespace testing {
 Test* g_current_test;
+
+std::string DiffStrings(std::string_view got, std::string_view want) {
+  base::ScopedTempDir temp_dir;
+  auto fallback = [&]() {
+    return base::StringPrintf("Want:\n%s\nGot:\n%s", want.data(), got.data());
+  };
+  if (!temp_dir.CreateUniqueTempDir()) {
+    return fallback();
+  }
+
+  base::FilePath want_path = temp_dir.GetPath().AppendASCII("want.txt");
+  base::FilePath got_path = temp_dir.GetPath().AppendASCII("got.txt");
+
+  if (base::WriteFile(want_path, want.data(), want.size()) !=
+      static_cast<int>(want.size())) {
+    return fallback();
+  }
+  if (base::WriteFile(got_path, got.data(), got.size()) !=
+      static_cast<int>(got.size())) {
+    return fallback();
+  }
+
+  base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
+  cmdline.SetParseSwitches(false);
+  cmdline.SetProgram(base::FilePath("git"));
+  cmdline.AppendArg("diff");
+  cmdline.AppendArg("--no-index");
+  if (IsColorEnabled()) {
+    cmdline.AppendArg("--color");
+  }
+  cmdline.AppendArgPath(want_path);
+  cmdline.AppendArgPath(got_path);
+
+  std::string output;
+  std::string stderr_output;
+  int exit_code = 0;
+  ::internal::ExecProcess(cmdline, base::FilePath("."), &output, &stderr_output,
+                          &exit_code);
+  if (output.empty()) {
+    return fallback();
+  }
+  return output;
+}
+
 }  // namespace testing
 
 struct RegisteredTest {

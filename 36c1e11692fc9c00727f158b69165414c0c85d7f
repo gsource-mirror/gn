@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9bb2f47_3b2949d7",
+        "filename": "src/util/test/gn_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T06:12:01Z",
+      "side": 1,
+      "message": "`std::string_view` is not guaranteed to be null-terminated. Using `%s` with `data()` here is unsafe and can cause crashes or garbage output. \n\nUse `%.*s` and pass the size, or convert to `std::string`:\n```cpp\nreturn base::StringPrintf(\"Expected:\\n%.*s\\nActual:\\n%.*s\", \n                           static_cast\u003cint\u003e(expected.size()), expected.data(),\n                           static_cast\u003cint\u003e(actual.size()), actual.data());\n```",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 0
+      },
+      "revId": "36c1e11692fc9c00727f158b69165414c0c85d7f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03325a0f_39d16bc4",
+        "filename": "src/util/test/gn_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T06:12:01Z",
+      "side": 1,
+      "message": "The data is swapped here. `expected_path` should receive `expected.data()`, and `actual_path` should receive `actual.data()`.\n\nAs written, `git diff expected_path actual_path` will show how to turn the \u0027actual\u0027 string into the \u0027expected\u0027 string, which is the opposite of what is standard for test failures.",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 0
+      },
+      "revId": "36c1e11692fc9c00727f158b69165414c0c85d7f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef050bc8_5315f670",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T06:12:01Z",
+      "side": 1,
+      "message": "Putting templates in an anonymous namespace in a header file is generally discouraged as it creates a unique copy in every translation unit that includes it. Since templates are implicitly inline, you can just put this in the `testing` namespace directly.",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 0
+      },
+      "revId": "36c1e11692fc9c00727f158b69165414c0c85d7f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

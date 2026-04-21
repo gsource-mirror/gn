@@ -389,6 +389,19 @@ void NinjaCBinaryTargetWriter::WriteSources(
 
   std::vector<OutputFile> tool_outputs;  // Prevent reallocation in loop.
   std::vector<OutputFile> deps;
+
+  // Pre-collect unique additional outputs from configs.
+  std::vector<SubstitutionPattern> all_additional_outputs;
+  std::set<std::string> seen_patterns;
+  for (ConfigValuesIterator iter(target_); !iter.done(); iter.Next()) {
+    for (const auto& pattern : iter.cur().c_additional_outputs()) {
+      std::string pattern_str = pattern.AsString();
+      if (seen_patterns.insert(pattern_str).second) {
+        all_additional_outputs.push_back(std::move(pattern));
+      }
+    }
+  }
+
   for (const auto& source : target_->sources()) {
     DCHECK_NE(source.GetType(), SourceFile::SOURCE_SWIFT);
 
@@ -436,6 +449,20 @@ void NinjaCBinaryTargetWriter::WriteSources(
       for (const auto& module_dep : module_dep_info) {
         if (module_dep.pcm && tool_outputs[0] != *module_dep.pcm)
           deps.push_back(*module_dep.pcm);
+      }
+
+      for (const auto& pattern : all_additional_outputs) {
+        // Use ApplyPatternToCompilerAsOutputFile instead of
+        // ApplyPatternToSourceAsOutputFile to support target-level
+        // substitutions (e.g. {{target_out_dir}}) in addition to source-level
+        // substitutions.
+        OutputFile extra_output =
+            SubstitutionWriter::ApplyPatternToCompilerAsOutputFile(
+                target_, source, pattern);
+        if (std::find(tool_outputs.begin(), tool_outputs.end(), extra_output) ==
+            tool_outputs.end()) {
+          tool_outputs.push_back(std::move(extra_output));
+        }
       }
 
       WriteCompilerBuildLine({source}, deps, order_only_deps, tool,

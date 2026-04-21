@@ -1,0 +1,49 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f29137b_2463c01e",
+        "filename": "docs/reference.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 4978,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-04-21T13:49:46Z",
+      "side": 1,
+      "message": "How to do you know which tool this applies to? E.g. `ldflags` is for linker, `cflags` is for compile. Should this be `c_additional_outputs`?",
+      "fixSuggestions": [
+        {
+          "fixId": "4508d0ee_9832a776",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "docs/reference.md",
+              "range": {
+                "startLine": 4966,
+                "startChar": 0,
+                "endLine": 4968,
+                "endChar": 0
+              },
+              "replacement": "  A list of files that will be added to the outputs of the compiler tool\n  (\"cc\", \"cxx\", \"objc\", \"objcxx\") when this config is applied to a target.\n"
+            },
+            {
+              "path": "docs/reference.md",
+              "range": {
+                "startLine": 4972,
+                "startChar": 0,
+                "endLine": 4974,
+                "endChar": 0
+              },
+              "replacement": "  Note: This feature is only supported for the \"cc\", \"cxx\", \"objc\", and \"objcxx\"\n  tool types. It does not apply to Rust or Swift tools or other tool types.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "fd664a5f406fcb457e2c55bf580a0652328aa23c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b199608_efa8acb7",
+        "filename": "src/util/test/gn_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T05:43:14Z",
+      "side": 1,
+      "message": "The argument order here leads to reversed \"Want\" and \"Got\" labels.\n\nStandard convention (and most GN tests) use `EXPECT_EQ(expected, actual)`.\nIf `a` is expected and `b` is actual:\n`got` becomes `expected`.\n`want` becomes `actual`.\nThe output below becomes:\n`Want: [actual]`\n`Got: [expected]`\n\nThis should be:\n`return base::StringPrintf(\"Want:\\n%s\\nGot:\\n%s\", got.data(), want.data());`\n(And the parameters to `DiffStrings` should probably be renamed to `expected, actual` to match).",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 0
+      },
+      "revId": "aba1ce44b2758b158cb5d5fd07f57ef4b2b16598",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b665c9ba_7caeb992",
+        "filename": "src/util/test/gn_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T05:43:14Z",
+      "side": 1,
+      "message": "This is also reversed. `git diff` shows changes from the first file to the second.\nIf we want to see how the output (`actual`) differs from the baseline (`expected`), we should do `git diff expected actual`.\n\nCurrently:\n`want_path` has `actual`.\n`got_path` has `expected`.\n`git diff want_path got_path` results in `git diff actual expected`.\n\nThis should be:\n`cmdline.AppendArgPath(got_path);`\n`cmdline.AppendArgPath(want_path);`\n(Assuming `got` is renamed to `expected` and `want` is renamed to `actual`).",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 0
+      },
+      "revId": "aba1ce44b2758b158cb5d5fd07f57ef4b2b16598",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6b677b4_db2cf268",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T05:43:14Z",
+      "side": 1,
+      "message": "Using `std::string_view` for the template parameters `T` and `U` directly or ensuring they are compatible with the diff logic is good, but `DiffStrings` takes `string_view` by value. Passing by value is preferred for `string_view`. The current code is fine, but renaming the parameters in `DiffStrings` to `expected` and `actual` would make the logic much clearer.",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 0
+      },
+      "revId": "aba1ce44b2758b158cb5d5fd07f57ef4b2b16598",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfc19466_0d4f0f4f",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T05:43:14Z",
+      "side": 1,
+      "message": "This is not used?",
+      "revId": "aba1ce44b2758b158cb5d5fd07f57ef4b2b16598",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

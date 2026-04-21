@@ -51,6 +51,24 @@
       ],
       "revId": "f34146646d164426dbaf52f3751af6e71f31bc98",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "798b5f3d_f0f2776e",
+        "filename": "src/gn/variables.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T15:12:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7878aab_81cefd43",
+      "revId": "f34146646d164426dbaf52f3751af6e71f31bc98",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

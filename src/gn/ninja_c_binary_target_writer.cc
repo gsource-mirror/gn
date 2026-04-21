@@ -438,6 +438,14 @@ void NinjaCBinaryTargetWriter::WriteSources(
           deps.push_back(*module_dep.pcm);
       }
 
+      for (ConfigValuesIterator iter(target_); !iter.done(); iter.Next()) {
+        for (const auto& pattern : iter.cur().additional_outputs()) {
+          tool_outputs.push_back(
+              SubstitutionWriter::ApplyPatternToSourceAsOutputFile(
+                  target_, settings_, pattern, source));
+        }
+      }
+
       WriteCompilerBuildLine({source}, deps, order_only_deps, tool,
                              tool_outputs);
       WritePool(out_);

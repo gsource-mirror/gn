@@ -88,6 +88,24 @@
       "parentUuid": "253bc5e5_b528d042",
       "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2021d23_245a6a74",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-21T03:49:13Z",
+      "side": 1,
+      "message": "I\u0027m not a huge fan of changing the output format of an existing command. How about a new subcommand?\n\n```\ngn suggest //path/to:foo_Private\u003dpath/to/bar.h //path/to:bar\u003dbaz/baz.h //path/to:foo\u003dundeclared.h\n* Add `deps \u003d [ \":bar\" ]` to `//path/to:foo` (declared at path/to/BUILD.gn:123)\n* Add `public_deps \u003d [ \"//baz:baz\" ]` to `//path/to:bar` (declared at path/to/BUILD.gn:456)\n* Add `public \u003d [ \"undeclared.h\" ] to `//path/to:foo` (declared at path/to/BUILD.gn:123) (or perhaps to one of its dependencies)\n```",
+      "parentUuid": "e836e7ac_d9022935",
+      "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

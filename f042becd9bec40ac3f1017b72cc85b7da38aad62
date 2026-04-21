@@ -34,6 +34,24 @@
       "parentUuid": "422aa963_881a3642",
       "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf3a7dfe_232c7910",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T03:00:03Z",
+      "side": 1,
+      "message": "Considering that we can ask this kind of repetetive work to ai agent now, I think such difference is not a large problem if suggestion is understandable to ai. And I still think having this feature in GN is too specific to chromium and layer violation.\n\nIf running `gn refs` multiple times are problematic, we can pass multiple headers to the command to get targets including those headers.",
+      "parentUuid": "0130680e_238ff72a",
+      "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

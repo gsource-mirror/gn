@@ -70,6 +70,24 @@
       "parentUuid": "cf3a7dfe_232c7910",
       "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e836e7ac_d9022935",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T03:30:19Z",
+      "side": 1,
+      "message": "Oh, what do you think changing output format of `gn refs` for multiple inputs then?",
+      "parentUuid": "253bc5e5_b528d042",
+      "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

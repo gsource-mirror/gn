@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19716dcc_d8338191",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-04-21T15:07:09Z",
+      "side": 1,
+      "message": "LGTM, but I\u0027ll let Andrew confirm he\u0027s good with it too.",
+      "revId": "f34146646d164426dbaf52f3751af6e71f31bc98",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7878aab_81cefd43",
+        "filename": "src/gn/variables.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-04-21T15:07:09Z",
+      "side": 1,
+      "message": "nit: Can you clarify that these are a list of substitution expressions that will be evaluated in the context of the final toolchain tool (from what I understand)?",
+      "fixSuggestions": [
+        {
+          "fixId": "e5b87483_1847ce95",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/variables.cc",
+              "range": {
+                "startLine": 426,
+                "startChar": 0,
+                "endLine": 428,
+                "endChar": 0
+              },
+              "replacement": "  A list of substitution expressions that will be evaluated in the context of\n  the final toolchain. These paths will be added to the outputs of the compiler\n  (e.g. \"cc\") when this config is applied to a target.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "f34146646d164426dbaf52f3751af6e71f31bc98",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

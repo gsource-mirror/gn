@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "20d30d5e_8b4f043f",
+        "filename": "src/util/test/gn_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-21T06:22:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9bb2f47_3b2949d7",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 0
+      },
+      "revId": "36c1e11692fc9c00727f158b69165414c0c85d7f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "03325a0f_39d16bc4",
@@ -47,6 +71,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "020e324a_2f13cbe0",
+        "filename": "src/util/test/gn_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-21T06:22:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03325a0f_39d16bc4",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 0
+      },
+      "revId": "36c1e11692fc9c00727f158b69165414c0c85d7f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ef050bc8_5315f670",
@@ -60,6 +108,30 @@
       "writtenOn": "2026-04-21T06:12:01Z",
       "side": 1,
       "message": "Putting templates in an anonymous namespace in a header file is generally discouraged as it creates a unique copy in every translation unit that includes it. Since templates are implicitly inline, you can just put this in the `testing` namespace directly.",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 0
+      },
+      "revId": "36c1e11692fc9c00727f158b69165414c0c85d7f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0d6e494_621c8bfc",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-21T06:22:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef050bc8_5315f670",
       "range": {
         "startLine": 87,
         "startChar": 0,

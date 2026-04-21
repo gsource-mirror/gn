@@ -212,4 +212,19 @@ void ConfigValuesGenerator::Run() {
     if (err_->has_error())
       return;
   }
+
+  // Additional Outputs
+  const Value* additional_outputs_value =
+      scope_->GetValue(variables::kAdditionalOutputs, true);
+  if (additional_outputs_value) {
+    if (!additional_outputs_value->VerifyTypeIs(Value::LIST, err_))
+      return;
+
+    for (const Value& val : additional_outputs_value->list_value()) {
+      SubstitutionPattern pattern;
+      if (!pattern.Parse(val, err_))
+        return;
+      config_values_->additional_outputs().push_back(std::move(pattern));
+    }
+  }
 }

@@ -86,6 +86,10 @@ extern const char kGenerateModulemap_Help[];
 
 // Target vars -----------------------------------------------------------------
 
+extern const char kAdditionalOutputs[];
+extern const char kAdditionalOutputs_HelpShort[];
+extern const char kAdditionalOutputs_Help[];
+
 extern const char kAllDependentConfigs[];
 extern const char kAllDependentConfigs_HelpShort[];
 extern const char kAllDependentConfigs_Help[];

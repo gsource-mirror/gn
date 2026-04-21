@@ -417,6 +417,28 @@ Possible values:
     All public headers will be marked as textual.
 )";
 
+const char kAdditionalOutputs[] = "additional_outputs";
+const char kAdditionalOutputs_HelpShort[] =
+    "additional_outputs: [string list] Additional outputs for the tool.";
+const char kAdditionalOutputs_Help[] =
+    R"(additional_outputs: [string list] Additional outputs for the tool.
+
+  A list of files that will be added to the outputs of the tool (e.g. "cc")
+  when this config is applied to a target.
+
+  This is useful for tools that produce side-artifacts like .dwo files
+  when specific flags (like -gsplit-dwarf) are used.
+
+  Note: Currently, this feature is only supported for C-family targets (C, C++,
+  Objective C, Objective C++). It does not apply to Rust or Swift targets yet.
+
+  Example:
+    config("split_dwarf") {
+      cflags = [ "-gsplit-dwarf" ]
+      additional_outputs = [ "{{source_out_dir}}/{{source_name_part}}.dwo" ]
+    }
+)";
+
 // Target variables ------------------------------------------------------------
 
 #define COMMON_ORDERING_HELP                                                 \
@@ -2462,6 +2484,7 @@ const VariableInfoMap& GetBuiltinVariables() {
 const VariableInfoMap& GetTargetVariables() {
   static VariableInfoMap info_map;
   if (info_map.empty()) {
+    INSERT_VARIABLE(AdditionalOutputs)
     INSERT_VARIABLE(AllDependentConfigs)
     INSERT_VARIABLE(AllowCircularIncludesFrom)
     INSERT_VARIABLE(GenDeps)

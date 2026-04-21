@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6cecace_70023136",
+        "filename": "src/util/test/gn_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-21T06:03:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b199608_efa8acb7",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 0
+      },
+      "revId": "aba1ce44b2758b158cb5d5fd07f57ef4b2b16598",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b665c9ba_7caeb992",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-04-21T05:43:14Z",
       "side": 1,
       "message": "This is also reversed. `git diff` shows changes from the first file to the second.\nIf we want to see how the output (`actual`) differs from the baseline (`expected`), we should do `git diff expected actual`.\n\nCurrently:\n`want_path` has `actual`.\n`got_path` has `expected`.\n`git diff want_path got_path` results in `git diff actual expected`.\n\nThis should be:\n`cmdline.AppendArgPath(got_path);`\n`cmdline.AppendArgPath(want_path);`\n(Assuming `got` is renamed to `expected` and `want` is renamed to `actual`).",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 0
+      },
+      "revId": "aba1ce44b2758b158cb5d5fd07f57ef4b2b16598",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc0225ad_ac49ecca",
+        "filename": "src/util/test/gn_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-21T06:03:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b665c9ba_7caeb992",
       "range": {
         "startLine": 66,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "317f2fff_0219cbe3",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-21T06:03:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6b677b4_db2cf268",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 0
+      },
+      "revId": "aba1ce44b2758b158cb5d5fd07f57ef4b2b16598",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bfc19466_0d4f0f4f",
@@ -83,6 +155,24 @@
       "writtenOn": "2026-04-21T05:43:14Z",
       "side": 1,
       "message": "This is not used?",
+      "revId": "aba1ce44b2758b158cb5d5fd07f57ef4b2b16598",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "869a84b3_b03ccc4d",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-21T06:03:42Z",
+      "side": 1,
+      "message": "Not currently, I\u0027m happy to remove it but I intentionally put it there so that the user could choose to do their own error message. WDYT?",
+      "parentUuid": "bfc19466_0d4f0f4f",
       "revId": "aba1ce44b2758b158cb5d5fd07f57ef4b2b16598",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

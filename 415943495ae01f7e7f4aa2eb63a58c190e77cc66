@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "33c8cb3c_e81ce85f",
+        "filename": "src/gn/config_values_generator.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T10:23:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d17aabc2_461b882d",
+      "range": {
+        "startLine": 218,
+        "startChar": 0,
+        "endLine": 218,
+        "endChar": 0
+      },
+      "revId": "415943495ae01f7e7f4aa2eb63a58c190e77cc66",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f1b086c4_1a8b83d7",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-04-21T10:17:00Z",
       "side": 1,
       "message": "Performance: Iterating over all configs for every source file can be slow for large targets. Consider collecting all unique `additional_outputs` patterns from the target and its configs into a temporary vector once before starting the `for (const auto\u0026 source : target_-\u003esources())` loop.",
+      "range": {
+        "startLine": 441,
+        "startChar": 0,
+        "endLine": 441,
+        "endChar": 0
+      },
+      "revId": "415943495ae01f7e7f4aa2eb63a58c190e77cc66",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9901bf7c_3a23492d",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T10:23:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1b086c4_1a8b83d7",
       "range": {
         "startLine": 441,
         "startChar": 0,
@@ -93,6 +141,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "34e92cb7_3ffc81b8",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T10:23:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee308724_62b4a1e4",
+      "range": {
+        "startLine": 443,
+        "startChar": 0,
+        "endLine": 443,
+        "endChar": 0
+      },
+      "revId": "415943495ae01f7e7f4aa2eb63a58c190e77cc66",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa7b5da1_5eb36924",
@@ -106,6 +178,30 @@
       "writtenOn": "2026-04-21T10:17:00Z",
       "side": 1,
       "message": "Note: The help text mentions it applies to tools like \"cc\", but currently this feature is only implemented for C-family targets (C, C++, ObjC). It will not work for Rust or Swift targets yet. It might be worth mentioning this limitation or updating the other writers as well.",
+      "range": {
+        "startLine": 426,
+        "startChar": 0,
+        "endLine": 426,
+        "endChar": 0
+      },
+      "revId": "415943495ae01f7e7f4aa2eb63a58c190e77cc66",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "806b7715_16ed9f69",
+        "filename": "src/gn/variables.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-21T10:23:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa7b5da1_5eb36924",
       "range": {
         "startLine": 426,
         "startChar": 0,

@@ -52,6 +52,24 @@
       "parentUuid": "0130680e_238ff72a",
       "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "253bc5e5_b528d042",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-21T03:08:11Z",
+      "side": 1,
+      "message": "\u003e we can pass multiple headers to the command to get targets including those headers.\n\nThis doesn\u0027t work. You won\u0027t be able to identify which header corresponds to which build target.",
+      "parentUuid": "cf3a7dfe_232c7910",
+      "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

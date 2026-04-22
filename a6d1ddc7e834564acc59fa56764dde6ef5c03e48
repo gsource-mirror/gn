@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a00d4575_4bf27685",
+        "filename": "src/gn/ninja_action_target_writer_unittest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 1000120
+      },
+      "writtenOn": "2026-04-22T02:06:14Z",
+      "side": 1,
+      "message": "I think this needs to stay as an explicit dependency, working on a fix",
+      "revId": "a6d1ddc7e834564acc59fa56764dde6ef5c03e48",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

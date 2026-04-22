@@ -284,7 +284,7 @@ TEST(NinjaActionTargetWriter, ForEach) {
 #endif
       "  description = ACTION //foo:bar()\n"
       "  restat = 1\n"
-      "build phony/foo/bar.inputdeps: phony ../../foo/script.py "
+      "build phony/foo/bar.inputdeps: phony || ../../foo/script.py "
       "../../foo/included.txt phony/foo/dep\n"
       "\n"
       "build input1.out: __foo_bar___rule ../../foo/input1.txt | "
@@ -351,7 +351,7 @@ TEST(NinjaActionTargetWriter, ForEachWithDepfile) {
 #endif
       "  description = ACTION //foo:bar()\n"
       "  restat = 1\n"
-      "build phony/foo/bar.inputdeps: phony ../../foo/script.py "
+      "build phony/foo/bar.inputdeps: phony || ../../foo/script.py "
       "../../foo/included.txt\n"
       "\n"
       "build input1.out: __foo_bar___rule ../../foo/input1.txt"

@@ -208,7 +208,7 @@ TEST(NinjaCopyTargetWriter, NoSourcesInOutputs) {
     writer.Run();
 
     const char expected_linux[] =
-        "build phony/foo/bar.inputdeps: phony phony/foo/action1 "
+        "build phony/foo/bar.inputdeps: phony || phony/foo/action1 "
         "phony/foo/action2\n"
         "build action1.copy: copy action1.out || phony/foo/bar.inputdeps\n"
         "build action2.copy: copy action2.out || phony/foo/bar.inputdeps\n"

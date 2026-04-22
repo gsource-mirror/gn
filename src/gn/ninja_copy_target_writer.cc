@@ -72,8 +72,11 @@ void NinjaCopyTargetWriter::WriteCopyRules(
       GetNinjaRulePrefixForToolchain(settings_) + GeneralTool::kGeneralToolCopy;
 
   size_t num_output_uses = target_->sources().size();
-  std::vector<OutputFile> input_deps = WriteInputDepsStampOrPhonyAndGetDep(
+  NinjaTargetWriter::InputDeps stamp_deps = WriteInputDepsStampOrPhonyAndGetDep(
       std::vector<const Target*>(), num_output_uses);
+  std::vector<OutputFile> input_deps = stamp_deps.implicit;
+  input_deps.insert(input_deps.end(), stamp_deps.order_only.begin(),
+                    stamp_deps.order_only.end());
 
   std::vector<OutputFile> data_outs;
   for (const Target* data_dep : resolved().GetDataDeps(target_)) {

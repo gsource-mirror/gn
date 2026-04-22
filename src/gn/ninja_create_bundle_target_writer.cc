@@ -81,8 +81,11 @@ void NinjaCreateBundleTargetWriter::Run() {
   // Stamp users are CopyBundleData, CompileAssetsCatalog, PostProcessing and
   // StampForTarget.
   size_t num_stamp_uses = 4;
-  std::vector<OutputFile> order_only_deps = WriteInputDepsStampOrPhonyAndGetDep(
+  NinjaTargetWriter::InputDeps stamp_deps = WriteInputDepsStampOrPhonyAndGetDep(
       std::vector<const Target*>(), num_stamp_uses);
+  std::vector<OutputFile> order_only_deps = stamp_deps.implicit;
+  order_only_deps.insert(order_only_deps.end(), stamp_deps.order_only.begin(),
+                         stamp_deps.order_only.end());
 
   std::string post_processing_rule_name = WritePostProcessingRuleDefinition();
 

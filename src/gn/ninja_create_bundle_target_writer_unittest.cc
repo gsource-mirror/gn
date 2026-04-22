@@ -75,7 +75,7 @@ TEST(NinjaCreateBundleTargetWriter, Run) {
   writer.Run();
 
   const char expected[] =
-      "build phony/baz/bar.inputdeps: phony phony/foo/bar "
+      "build phony/baz/bar.inputdeps: phony || phony/foo/bar "
       "phony/foo/data\n"
       "build bar.bundle/Contents/Resources/input1.txt: copy_bundle_data "
       "../../foo/input1.txt || phony/baz/bar.inputdeps\n"
@@ -124,7 +124,7 @@ TEST(NinjaCreateBundleTargetWriter, InSubDirectory) {
   writer.Run();
 
   const char expected[] =
-      "build phony/baz/bar.inputdeps: phony phony/foo/bar "
+      "build phony/baz/bar.inputdeps: phony || phony/foo/bar "
       "phony/foo/data\n"
       "build gen/bar.bundle/Contents/Resources/input1.txt: copy_bundle_data "
       "../../foo/input1.txt || phony/baz/bar.inputdeps\n"
@@ -229,7 +229,7 @@ TEST(NinjaCreateBundleTargetWriter, AssetCatalog) {
   writer.Run();
 
   const char expected[] =
-      "build phony/baz/bar.inputdeps: phony phony/foo/bar "
+      "build phony/baz/bar.inputdeps: phony || phony/foo/bar "
       "phony/foo/data\n"
       "build bar.bundle/Contents/Resources/Assets.car: compile_xcassets "
       "../../foo/Foo.xcassets | phony/foo/data || "
@@ -393,7 +393,7 @@ TEST(NinjaCreateBundleTargetWriter, Complex) {
   writer.Run();
 
   const char expected[] =
-      "build phony/baz/bar.inputdeps: phony phony/biz/assets "
+      "build phony/baz/bar.inputdeps: phony || phony/biz/assets "
       "phony/foo/assets phony/foo/bar phony/foo/data "
       "phony/qux/info_plist phony/quz/assets\n"
       "build bar.bundle/Contents/Info.plist: copy_bundle_data "
@@ -475,7 +475,7 @@ TEST(NinjaCreateBundleTargetWriter, PostProcessing) {
   writer.Run();
 
   const char expected[] =
-      "build phony/baz/bar.inputdeps: phony ./quz phony/foo/bar "
+      "build phony/baz/bar.inputdeps: phony || ./quz phony/foo/bar "
       "phony/foo/data\n"
       "rule __baz_bar___toolchain_default__post_processing_rule\n"
       "  command =  ../../build/codesign.py -b=quz bar.bundle\n"
@@ -558,7 +558,7 @@ TEST(NinjaCreateBundleTargetWriter, PostProcessingNoStampFilesCustomToolchain) {
   writer.Run();
 
   const char expected[] =
-      "build toolchain/phony/baz/bar.inputdeps: phony ./quz "
+      "build toolchain/phony/baz/bar.inputdeps: phony || ./quz "
       "toolchain/phony/foo/bar "
       "toolchain/phony/foo/data\n"
       "rule __baz_bar___toolchain_default__post_processing_rule\n"

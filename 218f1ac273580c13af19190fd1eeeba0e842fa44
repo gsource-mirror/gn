@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "095486fa_7a644112",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T04:05:06Z",
+      "side": 1,
+      "message": "The vast majority of this CL is achieved via find-and-replace with a regex.\n\nFor the sake of your sanity, I\u0027ve marked all code that is not just a boilerplate find/replace.",
+      "revId": "218f1ac273580c13af19190fd1eeeba0e842fa44",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2430dced_881ae844",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T04:05:06Z",
+      "side": 1,
+      "message": "Meaningful stuff happens here",
+      "fixSuggestions": [
+        {
+          "fixId": "a171fdee_15da3498",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/util/test/test.h",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "#define TEST_SUCCESS(err) EXPECT_SUCCESS(err)\n\n"
+            }
+          ]
+        }
+      ],
+      "revId": "218f1ac273580c13af19190fd1eeeba0e842fa44",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

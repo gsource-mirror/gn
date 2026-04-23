@@ -295,6 +295,10 @@ void NinjaBinaryTargetWriter::ClassifyDependency(
     // can be complete. Otherwise, these will be skipped since this target
     // will depend only on the source set's object files.
     classified_deps->non_linkable_deps.push_back(dep);
+  } else if (target_->complete_static_lib() &&
+             dep->output_type() == Target::RUST_LIBRARY) {
+    // Link in the rust library directly.
+    classified_deps->extra_object_files.push_back(dep->link_output_file());
   } else if (target_->complete_static_lib() && dep->IsFinal()) {
     classified_deps->non_linkable_deps.push_back(dep);
   } else if (can_link_libs && dep->IsLinkable()) {

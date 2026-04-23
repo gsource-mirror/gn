@@ -366,6 +366,54 @@ TEST_F(NinjaCBinaryTargetWriterTest, CompleteStaticLibrary) {
   }
 }
 
+TEST_F(NinjaCBinaryTargetWriterTest, CompleteStaticLibraryWithRustDep) {
+  TestWithScope setup;
+  Err err;
+
+  TestTarget rust_lib(setup, "//foo:rust_lib", Target::RUST_LIBRARY);
+  rust_lib.sources().push_back(SourceFile("//foo/lib.rs"));
+  rust_lib.source_types_used().Set(SourceFile::SOURCE_RS);
+  rust_lib.rust_values().crate_name() = "rust_lib";
+  SourceFile crate_root("//foo/lib.rs");
+  rust_lib.rust_values().set_crate_root(crate_root);
+  ASSERT_TRUE(rust_lib.OnResolved(&err));
+
+  TestTarget target(setup, "//foo:bar", Target::STATIC_LIBRARY);
+  target.sources().push_back(SourceFile("//foo/input1.cc"));
+  target.source_types_used().Set(SourceFile::SOURCE_CPP);
+  target.set_complete_static_lib(true);
+  target.public_deps().push_back(LabelTargetPair(&rust_lib));
+
+  ASSERT_TRUE(target.OnResolved(&err));
+
+  std::ostringstream out;
+  NinjaCBinaryTargetWriter writer(&target, out);
+  writer.Run();
+
+  const char expected[] =
+      "defines =\n"
+      "include_dirs =\n"
+      "cflags =\n"
+      "cflags_cc =\n"
+      "root_out_dir = .\n"
+      "target_gen_dir = gen/foo\n"
+      "target_out_dir = obj/foo\n"
+      "target_output_name = libbar\n"
+      "\n"
+      "build obj/foo/libbar.input1.o: cxx ../../foo/input1.cc\n"
+      "  source_file_part = input1.cc\n"
+      "  source_name_part = input1\n"
+      "\n"
+      "build obj/foo/libbar.a: alink obj/foo/libbar.input1.o "
+      "obj/foo/librust_lib.rlib | obj/foo/librust_lib.rlib\n"
+      "  arflags =\n"
+      "  output_extension =\n"
+      "  output_dir =\n"
+      "  rlibs = obj/foo/librust_lib.rlib\n";
+  std::string out_str = out.str();
+  EXPECT_EQ(expected, out_str);
+}
+
 // This tests that output extension and output dir overrides apply, and input
 // dependencies are applied.
 TEST_F(NinjaCBinaryTargetWriterTest, OutputExtensionAndInputDeps) {

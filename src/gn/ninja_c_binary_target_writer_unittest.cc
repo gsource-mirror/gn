@@ -218,7 +218,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, AdditionalOutputs) {
       "  source_file_part = input1.cc\n"
       "  source_name_part = input1\n"
       "\n"
-      "build phony/foo/bar: phony obj/foo/bar.input1.o obj/foo/input1.dwo\n";
+      "build phony/foo/bar: phony obj/foo/bar.input1.o\n";
 
   EXPECT_EQ(expected, out.str());
 }

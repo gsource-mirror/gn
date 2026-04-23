@@ -22,6 +22,170 @@
       },
       "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fddc35a_5b870757",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T04:58:23Z",
+      "side": 1,
+      "message": "This is unnecessary?",
+      "range": {
+        "startLine": 140,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 20
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "f5c6b90e_04a3c877",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/util/test/test.h",
+              "range": {
+                "startLine": 140,
+                "startChar": 0,
+                "endLine": 141,
+                "endChar": 0
+              },
+              "replacement": "  return Pretty(value.get());\n"
+            }
+          ]
+        }
+      ],
+      "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef4916b2_5de17640",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T04:58:23Z",
+      "side": 1,
+      "message": "Better to show that this is \"std::unique_ptr\"?",
+      "range": {
+        "startLine": 140,
+        "startChar": 21,
+        "endLine": 140,
+        "endChar": 27
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "337d2aed_b9e1f4db",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/util/test/test.h",
+              "range": {
+                "startLine": 140,
+                "startChar": 0,
+                "endLine": 141,
+                "endChar": 0
+              },
+              "replacement": "  if (value \u003d\u003d nullptr) {\n    return \"null unique_ptr\";\n  }\n  return \"unique_ptr(\" + Pretty(value.get()) + \")\";\n"
+            }
+          ]
+        }
+      ],
+      "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5b6a164_d6fe4272",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T04:58:23Z",
+      "side": 1,
+      "message": "Better to show that this is \"std::optional\"?",
+      "range": {
+        "startLine": 149,
+        "startChar": 9,
+        "endLine": 149,
+        "endChar": 37
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "129460b6_7c66412d",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/util/test/test.h",
+              "range": {
+                "startLine": 149,
+                "startChar": 0,
+                "endLine": 150,
+                "endChar": 0
+              },
+              "replacement": "  return \"Optional(\" + Pretty(*value) + \")\";\n"
+            }
+          ]
+        }
+      ],
+      "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e91f88c4_25076eb0",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T04:58:23Z",
+      "side": 1,
+      "message": "This std::string cast is not necessary?",
+      "range": {
+        "startLine": 187,
+        "startChar": 25,
+        "endLine": 187,
+        "endChar": 36
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "6ed8f272_207badf1",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/util/test/test.h",
+              "range": {
+                "startLine": 187,
+                "startChar": 0,
+                "endLine": 189,
+                "endChar": 0
+              },
+              "replacement": "      return DiffStrings(expected_pretty + \"\\n\", actual_pretty + \"\\n\");\n"
+            }
+          ]
+        }
+      ],
+      "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6ede802_c72b21be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T09:10:51Z",
+      "side": 1,
+      "message": "I addressed some comments from AI review agent. PTAL again.",
+      "revId": "0125d54d08605fc37b129f1576c92997c1fc0814",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

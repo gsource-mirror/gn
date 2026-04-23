@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4747c7dc_a557da25",
+        "filename": "tools/run_formatter.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T05:54:11Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: \n\nConsider using `#!/bin/bash -eu` for consistency with `update_reference.sh` and better error handling.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 0
+      },
+      "revId": "1b72286bd67f4ea4ea6b254062c48f803b183d04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ea01ea0_8fc78db2",
+        "filename": "tools/run_formatter.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T05:54:11Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: \n\nThis `for` loop introduces two issues:\n1. Performance: Calling `clang-format` once per file is much slower than the previous `xargs` approach.\n2. Robustness: This will fail if any file path contains a space.\n\nFor the non-diff case, you should continue using `xargs`. For the `--diff` case, if your version of `clang-format` supports it, `--dry-run --Werror` is a faster way to check for formatting issues. If you need the actual diff output, you might consider a `while read` loop or a separate helper function to keep it efficient.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 0
+      },
+      "revId": "1b72286bd67f4ea4ea6b254062c48f803b183d04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c541a914_76f2dce2",
+        "filename": "tools/update_reference.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T05:54:11Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: \n\nCapturing output in a variable like `content\u003d$(...)` strips all trailing newlines. When you `echo \"$content\"`, a single newline is added back. This is why `docs/reference.md` changed in this CL.\n\nTo preserve the exact output of the command, use a temporary file:\n```bash\nout/gn help --markdown all \u003e docs/reference.md.tmp\nif \"${check}\"; then\n  diff -u docs/reference.md docs/reference.md.tmp\n  rm docs/reference.md.tmp\nelse\n  mv docs/reference.md.tmp docs/reference.md\nfi\n```",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 0
+      },
+      "revId": "1b72286bd67f4ea4ea6b254062c48f803b183d04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb6a0ae0_62ce75e6",
+        "filename": "tools/update_reference.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T05:54:11Z",
+      "side": 1,
+      "message": "Remove trailing space?",
+      "revId": "1b72286bd67f4ea4ea6b254062c48f803b183d04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

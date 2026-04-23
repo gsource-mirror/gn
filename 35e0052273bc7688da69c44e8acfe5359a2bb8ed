@@ -41,6 +41,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "edaeac3b_ae5d0243",
+        "filename": "src/gn/ninja_bundle_data_target_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000120
+      },
+      "writtenOn": "2026-04-23T23:53:56Z",
+      "side": 1,
+      "message": "The order-only deps are passed into WriteStampOrPhonyForTarget, so the dependency still exists. The only difference this causes is that the phony rule now has an order-only dependency on the dependencies, instead of an implicit dependency. But I think this doesn\u0027t matter, because all dependencies on the bundle_data phony rule are order-only.\n\n- create_bundle targets depending on bundle_data will have an order-only dependency on the bundle_data phony rule. So transitive dependencies via the bundle_data edge will be treated as order-only.\n- Non-action, non-create_bundle targets will not have a dependency on the phony rule because of the check for BUNDLE_DATA in WriteInputDepsStampOrPhonyAndGetDep.\n- Action targets will have a dependency on the phony rule, created by the check for IsDataOnly() in NinjaActionTargetWriter::Run. However, this dependency is order-only, so the same reasoning applies as for create_bundle targets.\n\n(I also had Gemini double check my reasoning, and it agrees with me.)",
+      "parentUuid": "0e3fd9dc_b0dbf7c0",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 0
+      },
+      "revId": "35e0052273bc7688da69c44e8acfe5359a2bb8ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6ce0424_3986e756",
@@ -54,6 +78,30 @@
       "writtenOn": "2026-04-23T07:27:07Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: By returning the stamp file solely as an implicit dependency, you are effectively promoting all `order_only` dependencies contained within the stamp to `implicit` dependencies for the caller. \n\nIn Ninja, if `target` depends on `stamp` via `|`, and `stamp` depends on `hard_dep` via `||`, then whenever `hard_dep` changes, `stamp` is rebuilt, and consequently `target` is rebuilt because it\u0027s an implicit dependency of `stamp`.\n\nThis will cause unintended rebuilds, especially for C++ targets where hard dependencies (like generated headers) are supposed to be order-only to avoid recompiling every file when a header changes.\n\nTo fix this, you might need to return two separate stamp files (one for implicit and one for order-only) or find a way to let the caller handle the two sets of dependencies even when grouped.",
+      "range": {
+        "startLine": 615,
+        "startChar": 0,
+        "endLine": 615,
+        "endChar": 0
+      },
+      "revId": "35e0052273bc7688da69c44e8acfe5359a2bb8ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57356fee_5edc69ae",
+        "filename": "src/gn/ninja_target_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 1000120
+      },
+      "writtenOn": "2026-04-23T23:53:56Z",
+      "side": 1,
+      "message": "I don\u0027t think this is correct. The implicit dependency is on the stamp or phony, which has the correct order-only dependencies. So the path from the target to the dependency still has an order-only edge, but now it\u0027s between the stamp/phony and the dependency instead of between the target and the stamp/phony.",
+      "parentUuid": "c6ce0424_3986e756",
       "range": {
         "startLine": 615,
         "startChar": 0,

@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e96505da_c3bff8c6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T05:08:00Z",
+      "side": 1,
+      "message": "Not easily. The indentation makes it impossible with a std::ostream. Consider a vector\u003cHowTargetContainsFile\u003e as an example\n\nWe currently write:\n```\n[\n  Pair(\n    Target //path/to:target,\n    Enum value 2\n  )\n]\n```\n\nIn order to indent correctly, we would need to either not use a standard ostream, or pass it around as additional context. Both would break the PrintTo interface.\n\nIMO this isn\u0027t too much of an issue because if you want to interop with a value that defines PrintTo, you can just create a pretty method that creates a string stream and calls `PrintTo` on it, returning the buffer it wrote to.",
+      "parentUuid": "8626f0aa_fb403e61",
+      "range": {
+        "startLine": 9,
+        "startChar": 72,
+        "endLine": 9,
+        "endChar": 78
+      },
+      "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2fddc35a_5b870757",
@@ -106,6 +130,54 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12c4aeb2_a1c66223",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T05:08:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef4916b2_5de17640",
+      "range": {
+        "startLine": 140,
+        "startChar": 21,
+        "endLine": 140,
+        "endChar": 27
+      },
+      "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ad4b965_b566e540",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T05:08:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fddc35a_5b870757",
+      "range": {
+        "startLine": 140,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 20
+      },
+      "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a5b6a164_d6fe4272",
@@ -147,6 +219,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71d15f07_80000d72",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T05:08:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5b6a164_d6fe4272",
+      "range": {
+        "startLine": 149,
+        "startChar": 9,
+        "endLine": 149,
+        "endChar": 37
+      },
+      "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e91f88c4_25076eb0",
@@ -184,6 +280,30 @@
           ]
         }
       ],
+      "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33a4cdf1_fdefd7c0",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T05:08:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e91f88c4_25076eb0",
+      "range": {
+        "startLine": 187,
+        "startChar": 25,
+        "endLine": 187,
+        "endChar": 36
+      },
       "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

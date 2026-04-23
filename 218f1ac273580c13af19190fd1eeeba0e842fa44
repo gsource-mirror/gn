@@ -18,6 +18,41 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0277be6_048abb89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T04:45:24Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "095486fa_7a644112",
+      "revId": "218f1ac273580c13af19190fd1eeeba0e842fa44",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31ec9190_cb9e1a4f",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T04:45:24Z",
+      "side": 1,
+      "message": "This is not related to this CL? Better to extract unrelated format change separately.",
+      "revId": "218f1ac273580c13af19190fd1eeeba0e842fa44",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2430dced_881ae844",

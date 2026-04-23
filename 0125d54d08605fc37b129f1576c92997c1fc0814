@@ -33,6 +33,24 @@
       "message": "You can also pass linker scripts as inputs. Might be safer to exclude .dwo rather than include .o?",
       "revId": "0125d54d08605fc37b129f1576c92997c1fc0814",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "443f494d_7b0b0b65",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T14:14:56Z",
+      "side": 1,
+      "message": "This only collects obj files from output of sources, but linker script is specified as inputs of tool config of linker?",
+      "parentUuid": "a0b4cf03_14f3ad61",
+      "revId": "0125d54d08605fc37b129f1576c92997c1fc0814",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

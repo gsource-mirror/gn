@@ -16,6 +16,24 @@
       "message": "This line is different",
       "revId": "99041e6f58232c8d5c836a9d562c737f018786e4",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97bd7b1a_edba80bd",
+        "filename": "src/gn/test_with_scope.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T04:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc26e350_fcb01efd",
+      "revId": "99041e6f58232c8d5c836a9d562c737f018786e4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

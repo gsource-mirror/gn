@@ -53,6 +53,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec9108ae_36dd9aae",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T04:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31ec9190_cb9e1a4f",
+      "revId": "218f1ac273580c13af19190fd1eeeba0e842fa44",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2430dced_881ae844",
@@ -84,6 +102,24 @@
           ]
         }
       ],
+      "revId": "218f1ac273580c13af19190fd1eeeba0e842fa44",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "287e795d_253c52ce",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T04:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2430dced_881ae844",
       "revId": "218f1ac273580c13af19190fd1eeeba0e842fa44",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

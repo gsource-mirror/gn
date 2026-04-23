@@ -139,6 +139,8 @@ struct hash<Label> {
   std::size_t operator()(const Label& v) const { return v.hash(); }
 };
 
+std::string Pretty(const Label& label);
+
 }  // namespace std
 
 extern const char kLabels_Help[];

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8626f0aa_fb403e61",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T04:53:59Z",
+      "side": 1,
+      "message": "Can we use the same interface with gtest e.g. PrintTo?\nhttps://google.github.io/googletest/advanced.html#teaching-googletest-how-to-print-your-values",
+      "range": {
+        "startLine": 9,
+        "startChar": 72,
+        "endLine": 9,
+        "endChar": 78
+      },
+      "revId": "57c68c00e3591cd43f410ab641c7e87eba2b595f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

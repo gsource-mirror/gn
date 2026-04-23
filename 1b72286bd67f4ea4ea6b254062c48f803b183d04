@@ -70,6 +70,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e71a069_847c6f02",
+        "filename": "tools/update_reference.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-23T06:37:54Z",
+      "side": 1,
+      "message": "It strips all trailing newlines, but then it\u0027s added back by `echo`. I think that\u0027s better, because now we only have one newline at the end of the file instead of two. Also now we don\u0027t write to temporary files.",
+      "parentUuid": "c541a914_76f2dce2",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 0
+      },
+      "revId": "1b72286bd67f4ea4ea6b254062c48f803b183d04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb6a0ae0_62ce75e6",

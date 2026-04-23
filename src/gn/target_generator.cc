@@ -42,6 +42,11 @@ TargetGenerator::TargetGenerator(Target* target,
 TargetGenerator::~TargetGenerator() = default;
 
 void TargetGenerator::Run() {
+  const auto& entries = scope_->GetTemplateInvocationEntries();
+  if (!entries.empty()) {
+    target_->set_user_friendly_location(entries.front().location);
+  }
+
   // All target types use these.
   if (!FillDependentConfigs())
     return;

@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07f1421f_1a2425c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T07:27:07Z",
+      "side": 1,
+      "message": "Sorry for the delayed review, I still need to understand detail of behavior change. Let me post review comments from AI for now.",
+      "revId": "35e0052273bc7688da69c44e8acfe5359a2bb8ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e3fd9dc_b0dbf7c0",
+        "filename": "src/gn/ninja_bundle_data_target_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T07:27:07Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: The `order_only` dependencies from `stamp_deps` are ignored here. They should be added to `output_files` just like they were before this change (when they were part of the single `input_deps` vector).",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 0
+      },
+      "revId": "35e0052273bc7688da69c44e8acfe5359a2bb8ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6ce0424_3986e756",
+        "filename": "src/gn/ninja_target_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-23T07:27:07Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: By returning the stamp file solely as an implicit dependency, you are effectively promoting all `order_only` dependencies contained within the stamp to `implicit` dependencies for the caller. \n\nIn Ninja, if `target` depends on `stamp` via `|`, and `stamp` depends on `hard_dep` via `||`, then whenever `hard_dep` changes, `stamp` is rebuilt, and consequently `target` is rebuilt because it\u0027s an implicit dependency of `stamp`.\n\nThis will cause unintended rebuilds, especially for C++ targets where hard dependencies (like generated headers) are supposed to be order-only to avoid recompiling every file when a header changes.\n\nTo fix this, you might need to return two separate stamp files (one for implicit and one for order-only) or find a way to let the caller handle the two sets of dependencies even when grouped.",
+      "range": {
+        "startLine": 615,
+        "startChar": 0,
+        "endLine": 615,
+        "endChar": 0
+      },
+      "revId": "35e0052273bc7688da69c44e8acfe5359a2bb8ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -33,6 +33,23 @@
       "message": "Bah, IIRC gn code reviews need two googlers now, and so my vote doesn\u0027t count? \n\ndigit@, can you take a look at this?",
       "revId": "8c920ae5e1cf5418be57cc815306367910701932",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85e2b7dd_af8e1a76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000031
+      },
+      "writtenOn": "2026-04-24T06:18:23Z",
+      "side": 1,
+      "message": "Kindly ping 😊",
+      "revId": "8c920ae5e1cf5418be57cc815306367910701932",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

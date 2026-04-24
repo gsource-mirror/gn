@@ -18,6 +18,7 @@
 #include "gn/err.h"
 #include "gn/escape.h"
 #include "gn/filesystem_utils.h"
+#include "gn/builtin_tool.h"
 #include "gn/general_tool.h"
 #include "gn/ninja_module_writer_util.h"
 #include "gn/ninja_target_command_util.h"
@@ -414,6 +415,8 @@ void NinjaCBinaryTargetWriter::WriteSources(
       continue;  // No output for this source.
     }
 
+    size_t original_output_count = tool_outputs.size();
+
     std::copy(input_deps.begin(), input_deps.end(), std::back_inserter(deps));
 
     if (tool_name != Tool::kToolNone) {
@@ -545,11 +548,46 @@ void NinjaCBinaryTargetWriter::WriteSourceSetStamp(
   std::vector<OutputFile> order_only_deps;
   for (auto* dep : classified_deps.non_linkable_deps) {
     if (dep->has_dependency_output()) {
-      order_only_deps.push_back(dep->dependency_output());
+      OutputFile dep_output = dep->dependency_output();
+      if (dep->output_type() == Target::SOURCE_SET) {
+        dep_output.value().append(".link");
+      }
+      order_only_deps.push_back(dep_output);
     }
   }
 
-  WriteStampOrPhonyForTarget(object_files, order_only_deps);
+  // 1. Link-only phony target (.link) containing only object files.
+  std::vector<OutputFile> link_files;
+  const BuildSettings* build_settings = settings_->build_settings();
+  for (const auto& file : object_files) {
+    if (file.AsSourceFile(build_settings).IsObjectType()) {
+      link_files.push_back(file);
+    }
+  }
+
+  OutputFile link_phony = target_->dependency_output();
+  link_phony.value().append(".link");
+
+  out_ << "build ";
+  path_output_.WriteFile(out_, link_phony);
+  out_ << ": " << BuiltinTool::kBuiltinToolPhony;
+  path_output_.WriteFiles(out_, link_files);
+  if (!order_only_deps.empty()) {
+    out_ << " ||";
+    path_output_.WriteFiles(out_, order_only_deps);
+  }
+  out_ << std::endl;
+
+  // 2. Default phony target containing all files (including additional outputs).
+  out_ << "build ";
+  path_output_.WriteFile(out_, target_->dependency_output());
+  out_ << ": " << BuiltinTool::kBuiltinToolPhony;
+  path_output_.WriteFiles(out_, object_files);
+  if (!order_only_deps.empty()) {
+    out_ << " ||";
+    path_output_.WriteFiles(out_, order_only_deps);
+  }
+  out_ << std::endl;
 }
 
 void NinjaCBinaryTargetWriter::WriteLinkerStuff(
@@ -763,7 +801,11 @@ void NinjaCBinaryTargetWriter::WriteOrderOnlyDependencies(
     for (auto* non_linkable_dep : non_linkable_deps) {
       if (non_linkable_dep->has_dependency_output()) {
         out_ << " ";
-        path_output_.WriteFile(out_, non_linkable_dep->dependency_output());
+        OutputFile dep_output = non_linkable_dep->dependency_output();
+        if (non_linkable_dep->output_type() == Target::SOURCE_SET) {
+          dep_output.value().append(".link");
+        }
+        path_output_.WriteFile(out_, dep_output);
       }
     }
   }

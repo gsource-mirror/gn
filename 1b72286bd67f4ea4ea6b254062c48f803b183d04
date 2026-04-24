@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "656bab80_38ea7dab",
+        "filename": "tools/run_formatter.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-24T00:41:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4747c7dc_a557da25",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 0
+      },
+      "revId": "1b72286bd67f4ea4ea6b254062c48f803b183d04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ea01ea0_8fc78db2",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-04-23T05:54:11Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: \n\nThis `for` loop introduces two issues:\n1. Performance: Calling `clang-format` once per file is much slower than the previous `xargs` approach.\n2. Robustness: This will fail if any file path contains a space.\n\nFor the non-diff case, you should continue using `xargs`. For the `--diff` case, if your version of `clang-format` supports it, `--dry-run --Werror` is a faster way to check for formatting issues. If you need the actual diff output, you might consider a `while read` loop or a separate helper function to keep it efficient.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 0
+      },
+      "revId": "1b72286bd67f4ea4ea6b254062c48f803b183d04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d54a689_0737bcc6",
+        "filename": "tools/run_formatter.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-24T00:41:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ea01ea0_8fc78db2",
       "range": {
         "startLine": 19,
         "startChar": 0,
@@ -107,6 +155,24 @@
       "writtenOn": "2026-04-23T05:54:11Z",
       "side": 1,
       "message": "Remove trailing space?",
+      "revId": "1b72286bd67f4ea4ea6b254062c48f803b183d04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8cc7e1f_9c87fe65",
+        "filename": "tools/update_reference.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-24T00:41:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb6a0ae0_62ce75e6",
       "revId": "1b72286bd67f4ea4ea6b254062c48f803b183d04",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

@@ -1,0 +1,213 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fe444c3_eb444900",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-24T07:56:42Z",
+      "side": 1,
+      "message": "Run formatter?",
+      "revId": "85518deb73a268356496f1dd9f0453405b4c98fe",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8e2e014_b6e31df8",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-24T07:56:42Z",
+      "side": 1,
+      "message": "Add an empty line for C library and C++ library includes.",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 17
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "b82d9311_e40dcd43",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "\n"
+            }
+          ]
+        }
+      ],
+      "revId": "85518deb73a268356496f1dd9f0453405b4c98fe",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2ca9211_b2a776c7",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-24T07:56:42Z",
+      "side": 1,
+      "message": "Can we use string_view?",
+      "range": {
+        "startLine": 78,
+        "startChar": 38,
+        "endLine": 78,
+        "endChar": 44
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "e9331977_9f5295ce",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 78,
+                "startChar": 0,
+                "endLine": 79,
+                "endChar": 0
+              },
+              "replacement": "                           std::string_view input) {\n"
+            },
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 202,
+                "startChar": 0,
+                "endLine": 203,
+                "endChar": 0
+              },
+              "replacement": "  SourceFile file \u003d ResolveFilePath(build_settings, input);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "85518deb73a268356496f1dd9f0453405b4c98fe",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a942882e_aef69940",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-24T07:56:42Z",
+      "side": 1,
+      "message": "Can we use std::string_view here and belows?",
+      "fixSuggestions": [
+        {
+          "fixId": "68a0cd3f_76aac28d",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 114,
+                "startChar": 0,
+                "endLine": 115,
+                "endChar": 0
+              },
+              "replacement": "void OutputSuggestion(std::string_view message) {\n"
+            },
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 119,
+                "startChar": 0,
+                "endLine": 120,
+                "endChar": 0
+              },
+              "replacement": "void OutputWarning(std::string_view message \u003d \"\") {\n"
+            },
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 124,
+                "startChar": 0,
+                "endLine": 125,
+                "endChar": 0
+              },
+              "replacement": "void OutputError(std::string_view message \u003d \"\") {\n"
+            },
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 129,
+                "startChar": 0,
+                "endLine": 130,
+                "endChar": 0
+              },
+              "replacement": "void OutputQuoted(std::string_view message) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "85518deb73a268356496f1dd9f0453405b4c98fe",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d743b3e_4325904c",
+        "filename": "src/gn/commands.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-24T07:56:42Z",
+      "side": 1,
+      "message": "This is not used in this file?",
+      "fixSuggestions": [
+        {
+          "fixId": "83683128_5b0fcf14",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/commands.h",
+              "range": {
+                "startLine": 9,
+                "startChar": 0,
+                "endLine": 10,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "85518deb73a268356496f1dd9f0453405b4c98fe",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

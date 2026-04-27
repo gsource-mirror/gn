@@ -14,11 +14,13 @@
 #include <string_view>
 #include <utility>
 
+#include "base/command_line.h"
 #include "base/environment.h"
 #include "base/files/file_enumerator.h"
 #include "base/logging.h"
 #include "base/sha1.h"
 #include "base/stl_util.h"
+#include "base/strings/pattern.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
@@ -28,6 +30,7 @@
 #include "gn/bundle_data.h"
 #include "gn/commands.h"
 #include "gn/deps_iterator.h"
+#include "gn/exec_process.h"
 #include "gn/filesystem_utils.h"
 #include "gn/item.h"
 #include "gn/loader.h"
@@ -79,8 +82,9 @@ TargetOsType GetTargetOs(const Args& args) {
   const Value* target_os_value = args.GetArgOverride(variables::kTargetOs);
   if (target_os_value) {
     if (target_os_value->type() == Value::STRING) {
-      if (target_os_value->string_value() == "ios")
+      if (target_os_value->string_value() == "ios") {
         return WRITER_TARGET_OS_IOS;
+      }
     }
   }
   return WRITER_TARGET_OS_MACOS;
@@ -251,7 +255,7 @@ std::vector<base::FilePath::StringType> GetAdditionalFilesPatterns(
     const XcodeWriter::Options& options) {
   return base::SplitString(options.additional_files_patterns,
                            FILE_PATH_LITERAL(";"), base::TRIM_WHITESPACE,
-                           base::SPLIT_WANT_ALL);
+                           base::SPLIT_WANT_NONEMPTY);
 }
 
 // Returns the list of roots to use when looking for additional files
@@ -306,8 +310,9 @@ const SourceFileSet& XCTestFilesResolver::SearchFilesForTarget(
     const Target* target) {
   // Early return if already visited and processed.
   auto iter = cache_.find(target);
-  if (iter != cache_.end())
+  if (iter != cache_.end()) {
     return iter->second;
+  }
 
   SourceFileSet xctest_files;
   for (const SourceFile& file : target->sources()) {
@@ -391,8 +396,9 @@ class RecursivelyAssignIdsHelper : public PBXObjectVisitor {
 
     uint32_t id[3] = {0, 0, 0};
     const uint32_t* ptr = reinterpret_cast<const uint32_t*>(hash.data());
-    for (size_t i = 0; i < hash.size() / 4; i++)
+    for (size_t i = 0; i < hash.size() / 4; i++) {
       id[i % 3] ^= ptr[i];
+    }
 
     object->SetId(base::HexEncode(id, sizeof(id)));
     ++counter_;
@@ -419,8 +425,9 @@ std::vector<std::string> ConfigListFromOptions(const std::string& configs) {
   std::vector<std::string> result = base::SplitString(
       configs, ";", base::KEEP_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
 
-  if (result.empty())
+  if (result.empty()) {
     result.push_back(std::string("Release"));
+  }
 
   return result;
 }
@@ -442,8 +449,9 @@ PBXAttributes ProjectAttributesFromBuildSettings(
     case WRITER_TARGET_OS_IOS: {
       const std::optional<TargetXcodePlatformType> target_xcode_platform =
           GetTargetXcodePlatform(build_settings->build_args(), node, err);
-      if (!target_xcode_platform)
+      if (!target_xcode_platform) {
         return {};
+      }
       if (*target_xcode_platform == WRITER_TARGET_XCODE_PLATFORM_TVOS) {
         attributes["SDKROOT"] = "appletvos";
         attributes["TARGETED_DEVICE_FAMILY"] = "3";
@@ -595,8 +603,9 @@ bool XcodeWorkspace::WriteWorkspaceDataFile(const std::string& name,
   const SourceFile source_file =
       build_settings_->build_dir().ResolveRelativeFile(
           Value(nullptr, name + "/contents.xcworkspacedata"), err);
-  if (source_file.is_null())
+  if (source_file.is_null()) {
     return false;
+  }
 
   StringOutputBuffer storage;
   std::ostream out(&storage);
@@ -618,8 +627,9 @@ bool XcodeWorkspace::WriteSettingsFile(const std::string& name,
       build_settings_->build_dir().ResolveRelativeFile(
           Value(nullptr, name + "/xcshareddata/WorkspaceSettings.xcsettings"),
           err);
-  if (source_file.is_null())
+  if (source_file.is_null()) {
     return false;
+  }
 
   StringOutputBuffer storage;
   std::ostream out(&storage);
@@ -712,6 +722,19 @@ class XcodeProject {
   // Returns whether the file should be added to the project.
   bool ShouldIncludeFileInProject(const SourceFile& source) const;
 
+  // Fills `local_sources` with files found by `git ls-files` matching
+  // `patterns`.
+  bool FillSourcesFromGit(
+      const base::FilePath& root,
+      const std::vector<base::FilePath::StringType>& patterns,
+      std::vector<SourceFile>* local_sources);
+  // Fills `local_sources` with files found by full directory scan matching
+  // `patterns`.
+  void FillSourcesFromFileSystem(
+      const base::FilePath& root,
+      const std::vector<base::FilePath::StringType>& patterns,
+      std::vector<SourceFile>* local_sources);
+
   const BuildSettings* build_settings_;
   XcodeWriter::Options options_;
   PBXProject project_;
@@ -731,13 +754,75 @@ XcodeProject::XcodeProject(const BuildSettings* build_settings,
 XcodeProject::~XcodeProject() = default;
 
 bool XcodeProject::ShouldIncludeFileInProject(const SourceFile& source) const {
-  if (IsStringInOutputDir(build_settings_->build_dir(), source.value()))
+  if (IsStringInOutputDir(build_settings_->build_dir(), source.value())) {
     return false;
+  }
 
-  if (IsPathAbsolute(source.value()))
+  if (IsPathAbsolute(source.value())) {
     return false;
+  }
 
   return true;
+}
+
+bool XcodeProject::FillSourcesFromGit(
+    const base::FilePath& root,
+    const std::vector<base::FilePath::StringType>& patterns,
+    std::vector<SourceFile>* local_sources) {
+  base::CommandLine cmdline(base::FilePath(FILE_PATH_LITERAL("git")));
+  cmdline.AppendArg("ls-files");
+  cmdline.AppendArg("-c");
+  cmdline.AppendArg("-o");
+  cmdline.AppendArg("--exclude-standard");
+
+  std::string std_out, std_err;
+  int exit_code = 0;
+  if (::internal::ExecProcess(cmdline, root, &std_out, &std_err, &exit_code) &&
+      exit_code == 0) {
+    std::vector<std::string> files = base::SplitString(
+        std_out, "\n", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
+
+    for (const auto& file_path_str : files) {
+      std::string_view file_path_view = file_path_str;
+      std::string_view file_name = file_path_view;
+      size_t last_slash = file_path_view.rfind('/');
+      if (last_slash != std::string_view::npos) {
+        file_name = file_path_view.substr(last_slash + 1);
+      }
+
+      for (const auto& pattern : patterns) {
+        if (base::MatchPattern(file_name, pattern)) {
+          base::FilePath path = root.Append(UTF8ToFilePath(file_path_str));
+          const SourceFile source = FilePathToSourceFile(build_settings_, path);
+          local_sources->push_back(source);
+          break;
+        }
+      }
+    }
+    return true;
+  }
+  return false;
+}
+
+void XcodeProject::FillSourcesFromFileSystem(
+    const base::FilePath& root,
+    const std::vector<base::FilePath::StringType>& patterns,
+    std::vector<SourceFile>* local_sources) {
+  base::FileEnumerator it(root, /*recursive*/ true, base::FileEnumerator::FILES,
+                          FILE_PATH_LITERAL("*"),
+                          base::FileEnumerator::FolderSearchPolicy::ALL);
+
+  for (base::FilePath path = it.Next(); !path.empty(); path = it.Next()) {
+    base::FilePath::StringType file_name = path.BaseName().value();
+
+    for (const auto& pattern : patterns) {
+      if (base::MatchPattern(file_name, pattern)) {
+        const SourceFile source = FilePathToSourceFile(build_settings_, path);
+        local_sources->push_back(source);
+        break;
+      }
+    }
+  }
 }
 
 bool XcodeProject::AddSourcesFromBuilder(const Builder& builder, Err* err) {
@@ -770,8 +855,9 @@ bool XcodeProject::AddSourcesFromBuilder(const Builder& builder, Err* err) {
 
   // Add BUILD.gn and *.gni for targets, configs and toolchains.
   for (const Item* item : builder.GetAllResolvedItems()) {
-    if (!item->AsConfig() && !item->AsTarget() && !item->AsToolchain())
+    if (!item->AsConfig() && !item->AsTarget() && !item->AsToolchain()) {
       continue;
+    }
 
     const SourceFile build = builder.loader()->BuildFileForLabel(item->label());
     sources.AddSourceFile(build);
@@ -784,8 +870,9 @@ bool XcodeProject::AddSourcesFromBuilder(const Builder& builder, Err* err) {
 
   // Add other files read by gn (the main dotfile, exec_script scripts, ...).
   for (const auto& path : g_scheduler->GetGenDependencies()) {
-    if (!build_settings_->root_path().IsParent(path))
+    if (!build_settings_->root_path().IsParent(path)) {
       continue;
+    }
 
     const SourceFile source = FilePathToSourceFile(build_settings_, path);
     sources.AddSourceFile(source);
@@ -798,18 +885,45 @@ bool XcodeProject::AddSourcesFromBuilder(const Builder& builder, Err* err) {
         GetAdditionalFilesPatterns(options_);
     const std::vector<base::FilePath> roots =
         GetAdditionalFilesRoots(build_settings_, options_);
+    // Use `git ls-files` to quickly get a list of tracked and untracked files.
+    // This is significantly faster than a recursive file system walk
+    // (base::FileEnumerator) because it leverages git's index. However, it will
+    // miss files that are ignored by .gitignore. If git fails, we fall back to
+    // the slow FileEnumerator.
+    std::mutex sources_mutex;
+    std::mutex lock;
+    std::condition_variable cv;
+    size_t pending_tasks = roots.size();
 
     for (const base::FilePath& root : roots) {
-      for (const base::FilePath::StringType& pattern : patterns) {
-        base::FileEnumerator it(root, /*recursive*/ true,
-                                base::FileEnumerator::FILES, pattern,
-                                base::FileEnumerator::FolderSearchPolicy::ALL);
+      g_scheduler->ScheduleWork([root, &patterns, &sources, &sources_mutex,
+                                 &lock, &cv, &pending_tasks, this]() {
+        std::vector<SourceFile> local_sources;
 
-        for (base::FilePath path = it.Next(); !path.empty(); path = it.Next()) {
-          const SourceFile source = FilePathToSourceFile(build_settings_, path);
-          sources.AddSourceFile(source);
+        if (!FillSourcesFromGit(root, patterns, &local_sources)) {
+          FillSourcesFromFileSystem(root, patterns, &local_sources);
         }
-      }
+
+        {
+          std::lock_guard<std::mutex> l(sources_mutex);
+          for (const auto& src : local_sources) {
+            sources.AddSourceFile(src);
+          }
+        }
+
+        {
+          std::lock_guard<std::mutex> l(lock);
+          pending_tasks--;
+          if (pending_tasks == 0) {
+            cv.notify_one();
+          }
+        }
+      });
+    }
+
+    {
+      std::unique_lock<std::mutex> l(lock);
+      cv.wait(l, [&pending_tasks] { return pending_tasks == 0; });
     }
   }
 
@@ -827,8 +941,9 @@ bool XcodeProject::AddTargetsFromBuilder(const Builder& builder, Err* err) {
 
   const std::optional<std::vector<const Target*>> targets =
       GetTargetsFromBuilder(builder, err);
-  if (!targets)
+  if (!targets) {
     return false;
+  }
 
   std::map<const Target*, PBXNativeTarget*> bundle_targets;
 
@@ -838,28 +953,33 @@ bool XcodeProject::AddTargetsFromBuilder(const Builder& builder, Err* err) {
     PBXNativeTarget* native_target = nullptr;
     switch (target->output_type()) {
       case Target::EXECUTABLE:
-        if (target_os == WRITER_TARGET_OS_IOS)
+        if (target_os == WRITER_TARGET_OS_IOS) {
           continue;
+        }
 
         native_target = AddBinaryTarget(target, env.get(), err);
-        if (!native_target)
+        if (!native_target) {
           return false;
+        }
 
         break;
 
       case Target::CREATE_BUNDLE: {
-        if (target->bundle_data().product_type().empty())
+        if (target->bundle_data().product_type().empty()) {
           continue;
+        }
 
         // For XCUITest, two CREATE_BUNDLE targets are generated:
         // ${target_name}_runner and ${target_name}_module, however, Xcode
         // requires only one target named ${target_name} to run tests.
-        if (IsXCUITestRunnerTarget(target))
+        if (IsXCUITestRunnerTarget(target)) {
           continue;
+        }
 
         native_target = AddBundleTarget(target, env.get(), err);
-        if (!native_target)
+        if (!native_target) {
           return false;
+        }
 
         bundle_targets.insert(std::make_pair(target, native_target));
         break;
@@ -870,14 +990,16 @@ bool XcodeProject::AddTargetsFromBuilder(const Builder& builder, Err* err) {
     }
   }
 
-  if (!AddCXTestSourceFilesForTestModuleTargets(bundle_targets, err))
+  if (!AddCXTestSourceFilesForTestModuleTargets(bundle_targets, err)) {
     return false;
+  }
 
   // Adding the corresponding test application target as a dependency of xctest
   // or xcuitest module target in the generated Xcode project so that the
   // application target is re-compiled when compiling the test module target.
-  if (!AddDependencyTargetsForTestModuleTargets(bundle_targets, err))
+  if (!AddDependencyTargetsForTestModuleTargets(bundle_targets, err)) {
     return false;
+  }
 
   return true;
 }
@@ -894,8 +1016,9 @@ bool XcodeProject::AddCXTestSourceFilesForTestModuleTargets(
 
   for (const auto& pair : bundle_targets) {
     const Target* target = pair.first;
-    if (!IsXCTestModuleTarget(target) && !IsXCUITestModuleTarget(target))
+    if (!IsXCTestModuleTarget(target) && !IsXCUITestModuleTarget(target)) {
       continue;
+    }
 
     // For XCTest, test files are compiled into the application bundle.
     // For XCUITest, test files are compiled into the test module bundle.
@@ -905,8 +1028,9 @@ bool XcodeProject::AddCXTestSourceFilesForTestModuleTargets(
           target->defined_from(),
           target->bundle_data().xcode_test_application_name(), bundle_targets,
           err);
-      if (!app_pair)
+      if (!app_pair) {
         return false;
+      }
       target_with_xctest_files = app_pair.value().first;
     } else {
       DCHECK(IsXCUITestModuleTarget(target));
@@ -936,15 +1060,17 @@ bool XcodeProject::AddDependencyTargetsForTestModuleTargets(
     Err* err) {
   for (const auto& pair : bundle_targets) {
     const Target* target = pair.first;
-    if (!IsXCTestModuleTarget(target) && !IsXCUITestModuleTarget(target))
+    if (!IsXCTestModuleTarget(target) && !IsXCUITestModuleTarget(target)) {
       continue;
+    }
 
     auto app_pair = FindApplicationTargetByName(
         target->defined_from(),
         target->bundle_data().xcode_test_application_name(), bundle_targets,
         err);
-    if (!app_pair)
+    if (!app_pair) {
       return false;
+    }
 
     AddPBXTargetDependency(app_pair.value().second, pair.second, &project_);
   }
@@ -962,8 +1088,9 @@ bool XcodeProject::WriteFile(Err* err) const {
 
   SourceFile pbxproj_file = build_settings_->build_dir().ResolveRelativeFile(
       Value(nullptr, project_.Name() + ".xcodeproj/project.pbxproj"), err);
-  if (pbxproj_file.is_null())
+  if (pbxproj_file.is_null()) {
     return false;
+  }
 
   StringOutputBuffer storage;
   std::ostream pbxproj_string_out(&storage);
@@ -1004,15 +1131,18 @@ std::optional<std::vector<const Target*>> XcodeProject::GetTargetsFromBuilder(
   // CREATE_BUNDLE target generating an application bundle).
   TargetSet targets(all_targets.begin(), all_targets.end());
   for (const Target* target : all_targets) {
-    if (!target->settings()->is_default())
+    if (!target->settings()->is_default()) {
       continue;
+    }
 
-    if (target->output_type() != Target::BUNDLE_DATA)
+    if (target->output_type() != Target::BUNDLE_DATA) {
       continue;
+    }
 
     for (const auto& pair : target->GetDeps(Target::DEPS_LINKED)) {
-      if (pair.ptr->output_type() != Target::EXECUTABLE)
+      if (pair.ptr->output_type() != Target::EXECUTABLE) {
         continue;
+      }
 
       targets.erase(pair.ptr);
     }
@@ -1098,8 +1228,9 @@ PBXNativeTarget* XcodeProject::AddBundleTarget(const Target* target,
 }
 
 std::string XcodeProject::GetConfigOutputDir(std::string_view output_dir) {
-  if (options_.configuration_build_dir.empty())
+  if (options_.configuration_build_dir.empty()) {
     return std::string(output_dir);
+  }
 
   base::FilePath config_output_dir(options_.configuration_build_dir);
   if (output_dir != ".") {
@@ -1143,17 +1274,21 @@ bool XcodeWriter::RunAndWriteFiles(const BuildSettings* build_settings,
                                    Options options,
                                    Err* err) {
   XcodeProject project(build_settings, options);
-  if (!project.AddSourcesFromBuilder(builder, err))
+  if (!project.AddSourcesFromBuilder(builder, err)) {
     return false;
+  }
 
-  if (!project.AddTargetsFromBuilder(builder, err))
+  if (!project.AddTargetsFromBuilder(builder, err)) {
     return false;
+  }
 
-  if (!project.AssignIds(err))
+  if (!project.AssignIds(err)) {
     return false;
+  }
 
-  if (!project.WriteFile(err))
+  if (!project.WriteFile(err)) {
     return false;
+  }
 
   return true;
 }

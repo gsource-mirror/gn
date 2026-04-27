@@ -638,6 +638,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/base/memory/weak_ptr.cc',
         'src/base/sha1.cc',
         'src/base/sha2.cc',
+        'src/base/strings/pattern.cc',
         'src/base/strings/string_number_conversions.cc',
         'src/base/strings/string_split.cc',
         'src/base/strings/string_util.cc',
@@ -933,6 +934,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/base/files/file_enumerator_posix.cc',
         'src/base/files/file_posix.cc',
         'src/base/files/file_util_posix.cc',
+        'src/base/strings/pattern_posix.cc',
         'src/base/posix/file_descriptor_shuffle.cc',
         'src/base/posix/safe_strerror.cc',
     ])
@@ -945,6 +947,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/base/files/file_enumerator_win.cc',
         'src/base/files/file_util_win.cc',
         'src/base/files/file_win.cc',
+        'src/base/strings/pattern_win.cc',
         'src/base/win/registry.cc',
         'src/base/win/scoped_handle.cc',
         'src/base/win/scoped_process_information.cc',

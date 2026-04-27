@@ -53,6 +53,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a922fa70_3e7ac054",
+        "filename": "src/base/strings/pattern.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1001297
+      },
+      "writtenOn": "2026-04-27T17:31:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "529e381e_c721e0ca",
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "55de8427_f16d38b0",
@@ -66,6 +84,24 @@
       "writtenOn": "2026-04-27T12:30:51Z",
       "side": 1,
       "message": "I don\u0027t think this should be called unconditionally. If we want to use `git` to list files, then I think this should be controlled by a command-line flag (which allow to specify the path of the `git` command if needed).",
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "000d432e_09b06eae",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 1001297
+      },
+      "writtenOn": "2026-04-27T17:31:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55de8427_f16d38b0",
       "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -87,6 +123,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8207dd2_0f7c9761",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 774,
+      "author": {
+        "id": 1001297
+      },
+      "writtenOn": "2026-04-27T17:31:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03e6c7e2_a7df4f7e",
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "55c56444_fbba890c",
@@ -100,6 +154,24 @@
       "writtenOn": "2026-04-27T12:30:51Z",
       "side": 1,
       "message": "Can we use `SplitStringPiece(...)` to split the string?",
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a05b295_feb600fd",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 1001297
+      },
+      "writtenOn": "2026-04-27T17:31:18Z",
+      "side": 1,
+      "message": "Won\u0027t that create a vector of string pieces entirely, which is a non-trivial performance win given this loop can process hundreds of thousands of files.\n\nRegardless, I added it to this patchset.",
+      "parentUuid": "55c56444_fbba890c",
       "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -127,6 +199,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4ebfa51_360c6f68",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 1001297
+      },
+      "writtenOn": "2026-04-27T17:31:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cef2b6c2_b0aa6e0a",
+      "range": {
+        "startLine": 781,
+        "startChar": 0,
+        "endLine": 785,
+        "endChar": 7
+      },
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a728dbf_43f33eb1",
@@ -140,6 +236,30 @@
       "writtenOn": "2026-04-27T12:30:51Z",
       "side": 1,
       "message": "Don\u0027t convert the pattern. You should use `base::FilePath::StringType`.",
+      "range": {
+        "startLine": 890,
+        "startChar": 0,
+        "endLine": 893,
+        "endChar": 5
+      },
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70cc5e67_d3a2b79b",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 893,
+      "author": {
+        "id": 1001297
+      },
+      "writtenOn": "2026-04-27T17:31:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a728dbf_43f33eb1",
       "range": {
         "startLine": 890,
         "startChar": 0,

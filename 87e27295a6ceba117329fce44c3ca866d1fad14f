@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cab28f5_ad137e5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001297
+      },
+      "writtenOn": "2026-04-27T04:04:45Z",
+      "side": 1,
+      "message": "On my M1 macbook pro `gclient sync`s setup-gn.py time drops from 85 seconds to 13 seconds.\n\nwdyt",
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

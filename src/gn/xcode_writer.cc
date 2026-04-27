@@ -4,9 +4,11 @@
 
 #include "gn/xcode_writer.h"
 
+#include <condition_variable>
 #include <iomanip>
 #include <iterator>
 #include <map>
+#include <mutex>
 #include <memory>
 #include <optional>
 #include <sstream>
@@ -14,11 +16,13 @@
 #include <string_view>
 #include <utility>
 
+#include "base/command_line.h"
 #include "base/environment.h"
 #include "base/files/file_enumerator.h"
 #include "base/logging.h"
 #include "base/sha1.h"
 #include "base/stl_util.h"
+#include "base/strings/pattern.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
@@ -28,6 +32,7 @@
 #include "gn/bundle_data.h"
 #include "gn/commands.h"
 #include "gn/deps_iterator.h"
+#include "gn/exec_process.h"
 #include "gn/filesystem_utils.h"
 #include "gn/item.h"
 #include "gn/loader.h"
@@ -251,7 +256,7 @@ std::vector<base::FilePath::StringType> GetAdditionalFilesPatterns(
     const XcodeWriter::Options& options) {
   return base::SplitString(options.additional_files_patterns,
                            FILE_PATH_LITERAL(";"), base::TRIM_WHITESPACE,
-                           base::SPLIT_WANT_ALL);
+                           base::SPLIT_WANT_NONEMPTY);
 }
 
 // Returns the list of roots to use when looking for additional files
@@ -712,6 +717,19 @@ class XcodeProject {
   // Returns whether the file should be added to the project.
   bool ShouldIncludeFileInProject(const SourceFile& source) const;
 
+  // Fills `local_sources` with files found by `git ls-files` matching
+  // `patterns`.
+  bool FillSourcesFromGit(
+      const base::FilePath& root,
+      const std::vector<std::string>& patterns,
+      std::vector<SourceFile>* local_sources);
+  // Fills `local_sources` with files found by full directory scan matching
+  // `patterns`.
+  void FillSourcesFromFileSystem(
+      const base::FilePath& root,
+      const std::vector<base::FilePath::StringType>& patterns,
+      std::vector<SourceFile>* local_sources);
+
   const BuildSettings* build_settings_;
   XcodeWriter::Options options_;
   PBXProject project_;
@@ -738,6 +756,67 @@ bool XcodeProject::ShouldIncludeFileInProject(const SourceFile& source) const {
     return false;
 
   return true;
+}
+
+bool XcodeProject::FillSourcesFromGit(
+    const base::FilePath& root,
+    const std::vector<std::string>& patterns,
+    std::vector<SourceFile>* local_sources) {
+  base::CommandLine cmdline(base::FilePath(FILE_PATH_LITERAL("git")));
+  cmdline.AppendArg("ls-files");
+  cmdline.AppendArg("-c");
+  cmdline.AppendArg("-o");
+  cmdline.AppendArg("--exclude-standard");
+  cmdline.AppendArg("-z");
+
+  std::string std_out, std_err;
+  int exit_code = 0;
+  if (::internal::ExecProcess(cmdline, root, &std_out, &std_err, &exit_code) &&
+      exit_code == 0) {
+    std::vector<std::string> files = base::SplitString(
+        std_out, std::string_view("\0", 1), base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
+
+    for (const auto& file_path_str : files) {
+      std::string_view file_path_view = file_path_str;
+      std::string_view file_name = file_path_view;
+      size_t last_slash = file_path_view.rfind('/');
+      if (last_slash != std::string_view::npos) {
+        file_name = file_path_view.substr(last_slash + 1);
+      }
+
+      for (const auto& pattern : patterns) {
+        if (base::MatchPattern(file_name, pattern)) {
+          base::FilePath path = root.Append(UTF8ToFilePath(file_path_str));
+          const SourceFile source = FilePathToSourceFile(build_settings_, path);
+          local_sources->push_back(source);
+          break;
+        }
+      }
+    }
+    return true;
+  }
+  return false;
+}
+
+void XcodeProject::FillSourcesFromFileSystem(
+    const base::FilePath& root,
+    const std::vector<base::FilePath::StringType>& patterns,
+    std::vector<SourceFile>* local_sources) {
+  base::FileEnumerator it(root, /*recursive*/ true, base::FileEnumerator::FILES,
+                          FILE_PATH_LITERAL("*"),
+                          base::FileEnumerator::FolderSearchPolicy::ALL);
+
+  for (base::FilePath path = it.Next(); !path.empty(); path = it.Next()) {
+    base::FilePath::StringType file_name = path.BaseName().value();
+
+    for (const auto& pattern : patterns) {
+      if (base::MatchPattern(file_name, pattern)) {
+        const SourceFile source = FilePathToSourceFile(build_settings_, path);
+        local_sources->push_back(source);
+        break;
+      }
+    }
+  }
 }
 
 bool XcodeProject::AddSourcesFromBuilder(const Builder& builder, Err* err) {
@@ -798,18 +877,45 @@ bool XcodeProject::AddSourcesFromBuilder(const Builder& builder, Err* err) {
         GetAdditionalFilesPatterns(options_);
     const std::vector<base::FilePath> roots =
         GetAdditionalFilesRoots(build_settings_, options_);
+    // Use `git ls-files` to quickly get a list of tracked and untracked files.
+    // This is significantly faster than a recursive file system walk
+    // (base::FileEnumerator) because it leverages git's index. However, it will
+    // miss files that are ignored by .gitignore. If git fails, we fall back to
+    // the slow FileEnumerator.
+    std::mutex lock;
+    std::condition_variable cv;
+    size_t pending_tasks = roots.size();
+
+    std::vector<std::string> utf8_patterns;
+    for (const auto& pattern : patterns) {
+      utf8_patterns.push_back(FilePathToUTF8(base::FilePath(pattern)));
+    }
 
     for (const base::FilePath& root : roots) {
-      for (const base::FilePath::StringType& pattern : patterns) {
-        base::FileEnumerator it(root, /*recursive*/ true,
-                                base::FileEnumerator::FILES, pattern,
-                                base::FileEnumerator::FolderSearchPolicy::ALL);
+      g_scheduler->ScheduleWork([root, &patterns, &utf8_patterns, &sources, &lock, &cv,
+                                 &pending_tasks, this]() {
+        std::vector<SourceFile> local_sources;
 
-        for (base::FilePath path = it.Next(); !path.empty(); path = it.Next()) {
-          const SourceFile source = FilePathToSourceFile(build_settings_, path);
-          sources.AddSourceFile(source);
+        if (!FillSourcesFromGit(root, utf8_patterns, &local_sources)) {
+          FillSourcesFromFileSystem(root, patterns, &local_sources);
         }
-      }
+
+        {
+          std::lock_guard<std::mutex> l(lock);
+          for (const auto& src : local_sources) {
+            sources.AddSourceFile(src);
+          }
+          pending_tasks--;
+          if (pending_tasks == 0) {
+            cv.notify_one();
+          }
+        }
+      });
+    }
+
+    {
+      std::unique_lock<std::mutex> l(lock);
+      cv.wait(l, [&pending_tasks] { return pending_tasks == 0; });
     }
   }
 

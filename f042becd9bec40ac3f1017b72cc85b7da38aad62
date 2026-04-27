@@ -124,6 +124,23 @@
       "parentUuid": "f2021d23_245a6a74",
       "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6bce2ad7_0fc66931",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4792911
+      },
+      "writtenOn": "2026-04-27T13:20:49Z",
+      "side": 1,
+      "message": "infra/recipes/gn.expected/ci_linux.json",
+      "revId": "f042becd9bec40ac3f1017b72cc85b7da38aad62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

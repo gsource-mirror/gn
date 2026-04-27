@@ -102,6 +102,10 @@ extern const char kVersion[];
 extern const char kVersion_HelpShort[];
 extern const char kVersion_Help[];
 
+extern const char kXcodeUseGit[];
+extern const char kXcodeUseGit_HelpShort[];
+extern const char kXcodeUseGit_Help[];
+
 // This switch is used by several commands. It is here so it can be shared,
 // but it's documented in the individual commands it applies to rather than
 // globally.

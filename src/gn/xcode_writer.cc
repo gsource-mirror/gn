@@ -43,6 +43,33 @@
 
 namespace {
 
+bool MatchPattern(std::string_view string, std::string_view pattern) {
+  size_t s = 0, p = 0, match = 0;
+  std::optional<size_t> starIdx;
+  while (s < string.length()) {
+    if (p < pattern.length() && (pattern[p] == '?' || pattern[p] == string[s])) {
+      s++;
+      p++;
+    } else if (p < pattern.length() && pattern[p] == '*') {
+      starIdx = p;
+      match = s;
+      p++;
+    } else if (starIdx) {
+      p = *starIdx + 1;
+      match++;
+      s = match;
+    } else {
+      return false;
+    }
+  }
+
+  while (p < pattern.length() && pattern[p] == '*') {
+    p++;
+  }
+
+  return p == pattern.length();
+}
+
 enum TargetOsType {
   WRITER_TARGET_OS_IOS,
   WRITER_TARGET_OS_MACOS,
@@ -251,7 +278,7 @@ std::vector<base::FilePath::StringType> GetAdditionalFilesPatterns(
     const XcodeWriter::Options& options) {
   return base::SplitString(options.additional_files_patterns,
                            FILE_PATH_LITERAL(";"), base::TRIM_WHITESPACE,
-                           base::SPLIT_WANT_ALL);
+                           base::SPLIT_WANT_NONEMPTY);
 }
 
 // Returns the list of roots to use when looking for additional files
@@ -800,14 +827,19 @@ bool XcodeProject::AddSourcesFromBuilder(const Builder& builder, Err* err) {
         GetAdditionalFilesRoots(build_settings_, options_);
 
     for (const base::FilePath& root : roots) {
-      for (const base::FilePath::StringType& pattern : patterns) {
-        base::FileEnumerator it(root, /*recursive*/ true,
-                                base::FileEnumerator::FILES, pattern,
-                                base::FileEnumerator::FolderSearchPolicy::ALL);
+      base::FileEnumerator it(root, /*recursive*/ true,
+                              base::FileEnumerator::FILES,
+                              FILE_PATH_LITERAL("*"),
+                              base::FileEnumerator::FolderSearchPolicy::ALL);
 
-        for (base::FilePath path = it.Next(); !path.empty(); path = it.Next()) {
-          const SourceFile source = FilePathToSourceFile(build_settings_, path);
-          sources.AddSourceFile(source);
+      for (base::FilePath path = it.Next(); !path.empty(); path = it.Next()) {
+        base::FilePath::StringType file_name = path.BaseName().value();
+        for (const auto& pattern : patterns) {
+          if (MatchPattern(file_name, pattern)) {
+            const SourceFile source = FilePathToSourceFile(build_settings_, path);
+            sources.AddSourceFile(source);
+            break;
+          }
         }
       }
     }

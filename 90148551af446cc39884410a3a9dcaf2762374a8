@@ -22,6 +22,30 @@
       },
       "revId": "90148551af446cc39884410a3a9dcaf2762374a8",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "451e3d7a_524b4171",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-27T02:25:08Z",
+      "side": 1,
+      "message": "If this is one off CL, I think it is fine without tracking bug.",
+      "parentUuid": "1759f2fe_32eb068a",
+      "range": {
+        "startLine": 9,
+        "startChar": 4,
+        "endLine": 9,
+        "endChar": 8
+      },
+      "revId": "90148551af446cc39884410a3a9dcaf2762374a8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

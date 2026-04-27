@@ -16,6 +16,152 @@
       "message": "This CL is mostly test driven development with AI assistance. I went though GN files in chromium and iterated on all the edge cases until it seemed to look good.\n\nIn particular the goal here was to be able to wrap lines \u003e 80 characters long.\n\nwhat do you think?",
       "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1537f8b6_495de86f",
+        "filename": "src/gn/command_format.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-27T02:25:08Z",
+      "side": 1,
+      "message": "Use starts_with?",
+      "range": {
+        "startLine": 356,
+        "startChar": 8,
+        "endLine": 356,
+        "endChar": 67
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "bb9cb089_707b8dfa",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_format.cc",
+              "range": {
+                "startLine": 355,
+                "startChar": 0,
+                "endLine": 357,
+                "endChar": 0
+              },
+              "replacement": "    bool is_indented \u003d c.value().starts_with(\"#  \");\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "676e67c9_df1d5b19",
+        "filename": "src/gn/command_format.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-27T02:25:08Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This logic for numbered lists has a few issues:\n1. It only supports single digits (1-9). A list item like `# 10. item` will fail because `trimmed[3]` is `0`.\n2. It requires a space immediately after the digit, but most numbered lists use a dot (e.g., `# 1. item`).\n\nConsider checking for a digit followed by optional digits and then either a space or a dot and a space.\n\nThis logic for numbered lists has a few issues:\n1. It only supports single digits (1-9). A list item like `# 10. item` will fail because `trimmed[3]` is `0`.\n2. It requires a space immediately after the digit, but most numbered lists use a dot (e.g., `# 1. item`).\n\nConsider checking for a digit followed by optional digits and then either a space or a dot and a space.",
+      "range": {
+        "startLine": 361,
+        "startChar": 0,
+        "endLine": 361,
+        "endChar": 0
+      },
+      "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5453c82f_7b6b9bfd",
+        "filename": "src/gn/command_format.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-27T02:25:08Z",
+      "side": 1,
+      "message": "Can we use ends_with?",
+      "range": {
+        "startLine": 404,
+        "startChar": 8,
+        "endLine": 404,
+        "endChar": 53
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "771b1381_da53bfdb",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_format.cc",
+              "range": {
+                "startLine": 404,
+                "startChar": 0,
+                "endLine": 405,
+                "endChar": 0
+              },
+              "replacement": "    if (trimmed.ends_with(\u0027:\u0027)) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98efb550_52da2cbb",
+        "filename": "src/gn/command_format_unittest.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-27T02:25:08Z",
+      "side": 1,
+      "message": "This is not necessary as we show diff now in EXPECT_EQ.\nhttps://gn-review.git.corp.google.com/c/gn/+/22020",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 11
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "059706fd_b18be483",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_format_unittest.cc",
+              "range": {
+                "startLine": 37,
+                "startChar": 0,
+                "endLine": 40,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

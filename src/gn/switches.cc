@@ -134,6 +134,18 @@ const char kScriptExecutable_Help[] =
   targets and exec_script calls will be executed directly.
 )";
 
+const char kXcodeUseGit[] = "xcode-use-git";
+const char kXcodeUseGit_HelpShort[] =
+    "--xcode-use-git: Use git to list files for Xcode project.";
+const char kXcodeUseGit_Help[] =
+    R"(--xcode-use-git: Use git to list files for Xcode project.
+
+  When set, GN will use `git ls-files` to quickly get a list of tracked
+  and untracked files for the Xcode project, instead of performing a
+  slow recursive file system walk. This is significantly faster for
+  large repositories.
+)";
+
 const char kQuiet[] = "q";
 const char kQuiet_HelpShort[] =
     "-q: Quiet mode. Don't print output on success.";
@@ -360,6 +372,7 @@ const SwitchInfoMap& GetSwitches() {
     INSERT_VARIABLE(Tracelog)
     INSERT_VARIABLE(Verbose)
     INSERT_VARIABLE(Version)
+    INSERT_VARIABLE(XcodeUseGit)
   }
   return info_map;
 }

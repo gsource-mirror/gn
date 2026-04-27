@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "529e381e_c721e0ca",
+        "filename": "src/base/strings/pattern.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1001297
+      },
+      "writtenOn": "2026-04-27T13:41:36Z",
+      "side": 1,
+      "message": "This comes directly from Chromium\u0027s base::MatchPattern.  How does gn handle that?  Should I make this change in Chromium?  Just gn?  \n\nSee: https://source.chromium.org/chromium/chromium/src/+/main:base/strings/pattern.cc",
+      "parentUuid": "bcc32793_9c0e247c",
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55de8427_f16d38b0",
         "filename": "src/gn/xcode_writer.cc",
         "patchSetId": 13

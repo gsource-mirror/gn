@@ -16,6 +16,120 @@
       "message": "On my M1 macbook pro `gclient sync`s setup-gn.py time drops from 85 seconds to 13 seconds.\n\nwdyt",
       "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcc32793_9c0e247c",
+        "filename": "src/base/strings/pattern.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-04-27T12:30:51Z",
+      "side": 1,
+      "message": "It looks like this is trying to re-implement [`fnmatch`](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/fnmatch.3.html).\n\nInstead I think you should use the implementation used by `FileEnumerator::IsPatternMatched(...)` (to support Windows) and use the method in your code and in `FileEnumerator(...)`.\n\nSo two files `pattern_posix.cc`\n\n```\nbool FilePathMatchPattern(const base::FilePath\u0026 path, base::FilePath::StringViewType pattern) {\n  return pattern.empty() ||\n    fnmatch(pattern.c_str(), path.value().c_str(), FNM_NOESCAPE) \u003d\u003d 0;\n}\n```\n\nand `pattern_win.cc`\n\n```\nbool FilePathMatchPattern(const base::FilePath\u0026 path, base::FilePath::StringViewType pattern) {\n  return pattern.empty() ||\n    PathMatchSpec(ToWCharT(\u0026src.value()), ToWCharT(\u0026pattern)) \u003d\u003d TRUE;\n}\n```\n\nthen use `FilePathMatchPattern(...)` in your code and in `FileEnumerator`.",
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55de8427_f16d38b0",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-04-27T12:30:51Z",
+      "side": 1,
+      "message": "I don\u0027t think this should be called unconditionally. If we want to use `git` to list files, then I think this should be controlled by a command-line flag (which allow to specify the path of the `git` command if needed).",
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03e6c7e2_a7df4f7e",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 774,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-04-27T12:30:51Z",
+      "side": 1,
+      "message": "Early return if the command execution fails.",
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55c56444_fbba890c",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-04-27T12:30:51Z",
+      "side": 1,
+      "message": "Can we use `SplitStringPiece(...)` to split the string?",
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cef2b6c2_b0aa6e0a",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-04-27T12:30:51Z",
+      "side": 1,
+      "message": "Use `base::FilePath::BaseName()` to get the file name.",
+      "range": {
+        "startLine": 781,
+        "startChar": 0,
+        "endLine": 785,
+        "endChar": 7
+      },
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a728dbf_43f33eb1",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 893,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-04-27T12:30:51Z",
+      "side": 1,
+      "message": "Don\u0027t convert the pattern. You should use `base::FilePath::StringType`.",
+      "range": {
+        "startLine": 890,
+        "startChar": 0,
+        "endLine": 893,
+        "endChar": 5
+      },
+      "revId": "87e27295a6ceba117329fce44c3ca866d1fad14f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

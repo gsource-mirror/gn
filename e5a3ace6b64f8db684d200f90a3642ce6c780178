@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c961f75_94b39661",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-04-28T15:11:40Z",
+      "side": 1,
+      "message": "Followup to https://gn-review.git.corp.google.com/c/gn/+/22300 where I forgot to update the documentation.",
+      "revId": "e5a3ace6b64f8db684d200f90a3642ce6c780178",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

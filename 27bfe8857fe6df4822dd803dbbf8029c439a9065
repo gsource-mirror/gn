@@ -62,6 +62,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8cec139_949dfe68",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-28T08:40:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40aa674b_dfa4f333",
+      "range": {
+        "startLine": 556,
+        "startChar": 36,
+        "endLine": 556,
+        "endChar": 40
+      },
+      "revId": "27bfe8857fe6df4822dd803dbbf8029c439a9065",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ddf5cdaf_6a4075fb",
@@ -75,6 +99,30 @@
       "writtenOn": "2026-04-28T07:18:32Z",
       "side": 1,
       "message": "IIRC, Siso includes order-only deps for remote inputs. Did you verify remote linking doesn\u0027t include the order only deps with this GN fix?",
+      "range": {
+        "startLine": 579,
+        "startChar": 14,
+        "endLine": 581,
+        "endChar": 3
+      },
+      "revId": "27bfe8857fe6df4822dd803dbbf8029c439a9065",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "afd003ff_4c52ed0d",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-28T08:40:39Z",
+      "side": 1,
+      "message": "order only deps are still included in remote link, but link action has order only deps to .linkdeps targets which don\u0027t have .dwo files directly or indirectly.\n\nSee around https://gn-review.git.corp.google.com/c/gn/+/22160/12/src/gn/ninja_c_binary_target_writer_unittest.cc#373",
+      "parentUuid": "ddf5cdaf_6a4075fb",
       "range": {
         "startLine": 579,
         "startChar": 14,

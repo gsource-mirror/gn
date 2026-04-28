@@ -1,0 +1,88 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40aa674b_dfa4f333",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-04-28T07:18:32Z",
+      "side": 1,
+      "message": "Does \".linkdeps\" or \".linkinputs\" make more sense?",
+      "range": {
+        "startLine": 556,
+        "startChar": 36,
+        "endLine": 556,
+        "endChar": 40
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "b29a53c2_305e4081",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_c_binary_target_writer.cc",
+              "range": {
+                "startLine": 556,
+                "startChar": 0,
+                "endLine": 557,
+                "endChar": 0
+              },
+              "replacement": "        dep_output.value().append(\".linkdeps\");\n"
+            },
+            {
+              "path": "src/gn/ninja_c_binary_target_writer.cc",
+              "range": {
+                "startLine": 572,
+                "startChar": 0,
+                "endLine": 573,
+                "endChar": 0
+              },
+              "replacement": "  link_phony.value().append(\".linkdeps\");\n"
+            },
+            {
+              "path": "src/gn/ninja_c_binary_target_writer.cc",
+              "range": {
+                "startLine": 816,
+                "startChar": 0,
+                "endLine": 817,
+                "endChar": 0
+              },
+              "replacement": "          dep_output.value().append(\".linkdeps\");\n"
+            }
+          ]
+        }
+      ],
+      "revId": "27bfe8857fe6df4822dd803dbbf8029c439a9065",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ddf5cdaf_6a4075fb",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-04-28T07:18:32Z",
+      "side": 1,
+      "message": "IIRC, Siso includes order-only deps for remote inputs. Did you verify remote linking doesn\u0027t include the order only deps with this GN fix?",
+      "range": {
+        "startLine": 579,
+        "startChar": 14,
+        "endLine": 581,
+        "endChar": 3
+      },
+      "revId": "27bfe8857fe6df4822dd803dbbf8029c439a9065",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

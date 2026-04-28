@@ -22,6 +22,30 @@
       },
       "revId": "f26b43e6987d5dc2fae1ac90ec9d692c7327ad33",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bde308ff_f7544625",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-04-28T14:00:46Z",
+      "side": 1,
+      "message": "Done after testing that this is faster.",
+      "parentUuid": "7da1c850_412ed64f",
+      "range": {
+        "startLine": 292,
+        "startChar": 5,
+        "endLine": 292,
+        "endChar": 8
+      },
+      "revId": "f26b43e6987d5dc2fae1ac90ec9d692c7327ad33",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df7cf896_158a58b2",
+        "filename": "docs/reference.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 1403,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-28T03:06:51Z",
+      "side": 1,
+      "message": "Can we clarify that this can be relative to build dir or repository root?",
+      "range": {
+        "startLine": 1403,
+        "startChar": 69,
+        "endLine": 1403,
+        "endChar": 78
+      },
+      "revId": "3fea51f87403dc78ad138c65d880e0f7142127b2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4f3f0f3_d5ff757b",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-28T03:06:51Z",
+      "side": 1,
+      "message": "What is the difference between false and nullopt?",
+      "revId": "3fea51f87403dc78ad138c65d880e0f7142127b2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9afd35eb_dbf96aba",
+        "filename": "src/gn/commands.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-28T03:06:51Z",
+      "side": 1,
+      "message": "Add comment about what do these bool means?",
+      "range": {
+        "startLine": 266,
+        "startChar": 47,
+        "endLine": 266,
+        "endChar": 60
+      },
+      "revId": "3fea51f87403dc78ad138c65d880e0f7142127b2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

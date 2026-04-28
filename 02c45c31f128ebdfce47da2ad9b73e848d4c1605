@@ -16,6 +16,111 @@
       "message": "Please take a look.",
       "revId": "02c45c31f128ebdfce47da2ad9b73e848d4c1605",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "748c9f0c_2afb2d7a",
+        "filename": "src/gn/switches.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-04-28T14:33:52Z",
+      "side": 1,
+      "message": "nit: This is really ambiguous. Please clarify with something like \"Make the Xcode project writer use `git ls-files` to find source files, instead of a much slower recursive file system walk. This will collect both tracked and untracked files.\"",
+      "fixSuggestions": [
+        {
+          "fixId": "9fcc1b2a_3d95e801",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/switches.cc",
+              "range": {
+                "startLine": 74,
+                "startChar": 0,
+                "endLine": 78,
+                "endChar": 0
+              },
+              "replacement": "  Make the Xcode project writer use `git ls-files` to find source files,\n  instead of a much slower recursive file system walk. This will collect\n  both tracked and untracked files. This is significantly faster for large\n  repositories.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "02c45c31f128ebdfce47da2ad9b73e848d4c1605",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e0892ac_c3d64d00",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-04-28T14:33:52Z",
+      "side": 1,
+      "message": "nit: use `--cached` and `--others` for clarity here.",
+      "fixSuggestions": [
+        {
+          "fixId": "8d143a3d_957390cf",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/xcode_writer.cc",
+              "range": {
+                "startLine": 297,
+                "startChar": 0,
+                "endLine": 299,
+                "endChar": 0
+              },
+              "replacement": "    cmdline.AppendArg(\"--cached\");\n    cmdline.AppendArg(\"--others\");\n"
+            }
+          ]
+        }
+      ],
+      "revId": "02c45c31f128ebdfce47da2ad9b73e848d4c1605",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bda03de5_1285d9d4",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-04-28T14:33:52Z",
+      "side": 1,
+      "message": "nit: Add a comment to explain that this uses \\0 as the line terminator, to amke the code below easier to understand.",
+      "fixSuggestions": [
+        {
+          "fixId": "66e525ac_fe9d08f5",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/xcode_writer.cc",
+              "range": {
+                "startLine": 300,
+                "startChar": 0,
+                "endLine": 301,
+                "endChar": 0
+              },
+              "replacement": "    cmdline.AppendArg(\"-z\");  // Use NULL as line terminator.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "02c45c31f128ebdfce47da2ad9b73e848d4c1605",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

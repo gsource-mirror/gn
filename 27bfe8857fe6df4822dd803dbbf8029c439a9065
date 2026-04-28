@@ -131,6 +131,30 @@
       },
       "revId": "27bfe8857fe6df4822dd803dbbf8029c439a9065",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b5332ab_c551c435",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-04-28T12:50:48Z",
+      "side": 1,
+      "message": "Ah, right. I was confused with command line inputs and remote inputs. I think we should still exclude dwo files from the remote inputs. I will exclude .dwo in the Siso config side for now.",
+      "parentUuid": "afd003ff_4c52ed0d",
+      "range": {
+        "startLine": 579,
+        "startChar": 14,
+        "endLine": 581,
+        "endChar": 3
+      },
+      "revId": "27bfe8857fe6df4822dd803dbbf8029c439a9065",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

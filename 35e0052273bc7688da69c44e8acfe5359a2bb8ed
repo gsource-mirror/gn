@@ -67,6 +67,47 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c7966f85_9acf27d5",
+        "filename": "src/gn/ninja_copy_target_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-04-28T07:15:53Z",
+      "side": 1,
+      "message": "As order-only deps isn\u0027t actually input for the action, we still should use implicit deps here to propagate inputdeps to copy action appropriately?\n\nThe difference of order only and implicit deps becomes problematic when we execute action remotely.",
+      "range": {
+        "startLine": 211,
+        "startChar": 46,
+        "endLine": 211,
+        "endChar": 48
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "8e7cba41_2d57bb69",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_copy_target_writer_unittest.cc",
+              "range": {
+                "startLine": 211,
+                "startChar": 0,
+                "endLine": 212,
+                "endChar": 0
+              },
+              "replacement": "        \"build phony/foo/bar.inputdeps: phony | phony/foo/action1 \"\n"
+            }
+          ]
+        }
+      ],
+      "revId": "35e0052273bc7688da69c44e8acfe5359a2bb8ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c6ce0424_3986e756",
         "filename": "src/gn/ninja_target_writer.cc",
         "patchSetId": 2

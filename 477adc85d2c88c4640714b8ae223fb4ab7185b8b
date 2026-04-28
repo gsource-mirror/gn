@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "caf30f60_b21809e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-04-28T14:52:12Z",
+      "side": 1,
+      "message": "I verified that this doesn\u0027t break anything in the Fuchsia build. Thanks :)",
+      "revId": "477adc85d2c88c4640714b8ae223fb4ab7185b8b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

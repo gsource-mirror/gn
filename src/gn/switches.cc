@@ -65,6 +65,18 @@ const char kDotfile_Help[] =
   use a different file.
 )";
 
+const char kEnumerateFilesWithGit[] = "enumerate-files-with-git";
+const char kEnumerateFilesWithGit_HelpShort[] =
+    "--enumerate-files-with-git: Use git to list files.";
+const char kEnumerateFilesWithGit_Help[] =
+    R"(--enumerate-files-with-git: Use git to list files.
+
+  When set, GN will use `git ls-files` to quickly get a list of tracked
+  and untracked files (e.g. when generating the Xcode project), instead
+  of performing a slow recursive file system walk. This is significantly
+  faster for large repositories.
+)";
+
 const char kErrorLimit[] = "error-limit";
 const char kErrorLimit_HelpShort[] =
     "--error-limit: Limit the number of errors or warnings to print.";
@@ -344,6 +356,7 @@ const SwitchInfoMap& GetSwitches() {
     INSERT_VARIABLE(Args)
     INSERT_VARIABLE(Color)
     INSERT_VARIABLE(Dotfile)
+    INSERT_VARIABLE(EnumerateFilesWithGit)
     INSERT_VARIABLE(ErrorLimit)
     INSERT_VARIABLE(FailOnUnusedArgs)
     INSERT_VARIABLE(Markdown)

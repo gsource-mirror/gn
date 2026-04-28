@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "97cbba1b_338beead",
+        "filename": "docs/reference.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 1403,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-28T03:35:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df7cf896_158a58b2",
+      "range": {
+        "startLine": 1403,
+        "startChar": 69,
+        "endLine": 1403,
+        "endChar": 78
+      },
+      "revId": "3fea51f87403dc78ad138c65d880e0f7142127b2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4f3f0f3_d5ff757b",
@@ -41,6 +65,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9dab0d85_4b56d07f",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-28T03:35:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4f3f0f3_d5ff757b",
+      "revId": "3fea51f87403dc78ad138c65d880e0f7142127b2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9afd35eb_dbf96aba",
@@ -54,6 +96,30 @@
       "writtenOn": "2026-04-28T03:06:51Z",
       "side": 1,
       "message": "Add comment about what do these bool means?",
+      "range": {
+        "startLine": 266,
+        "startChar": 47,
+        "endLine": 266,
+        "endChar": 60
+      },
+      "revId": "3fea51f87403dc78ad138c65d880e0f7142127b2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c50238e6_85d0497d",
+        "filename": "src/gn/commands.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-28T03:35:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9afd35eb_dbf96aba",
       "range": {
         "startLine": 266,
         "startChar": 47,

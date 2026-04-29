@@ -103,6 +103,11 @@ extern const char kSuggest_HelpShort[];
 extern const char kSuggest_Help[];
 int RunSuggest(Setup* setup, const std::vector<std::string>& args);
 
+extern const char kShell[];
+extern const char kShell_HelpShort[];
+extern const char kShell_Help[];
+int RunShell(Setup* setup, const std::vector<std::string>& args);
+
 extern const char kCleanStale[];
 extern const char kCleanStale_HelpShort[];
 extern const char kCleanStale_Help[];
@@ -391,7 +396,7 @@ void GetTargetsContainingFile(Setup* setup,
 // Extra help from command_check.cc
 extern const char kNoGnCheck_Help[];
 
-int gn_main(int argc, char** argv);
+int gn_main(int argc, char** argv, Setup* setup = nullptr);
 
 }  // namespace commands
 

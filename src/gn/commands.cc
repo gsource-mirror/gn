@@ -378,7 +378,7 @@ std::string ToUTF8(base::FilePath::StringType in) {
 
 }  // namespace
 
-int gn_main(int argc, char** argv) {
+int gn_main(int argc, char** argv, Setup* setup) {
 #if defined(OS_WIN)
   base::CommandLine::set_slash_is_not_a_switch();
 #endif
@@ -418,7 +418,7 @@ int gn_main(int argc, char** argv) {
   if (found_command != command_map.end()) {
     MsgLoop msg_loop;
     // Deliberately leaked to avoid expensive process teardown.
-    retval = found_command->second.runner(new Setup(), args);
+    retval = found_command->second.runner(setup ? setup : new Setup(), args);
   } else {
     Err(Location(), "Command \"" + command + "\" unknown.").PrintToStdout();
     OutputString(
@@ -429,7 +429,11 @@ int gn_main(int argc, char** argv) {
     retval = 1;
   }
 
-  exit(retval);  // Don't free memory, it can be really slow!
+  // When running from GN shell, we can't call exit.
+  if (setup == nullptr) {
+    exit(retval);  // Don't free memory, it can be really slow!
+  }
+  return retval;
 }
 
 CommandInfo::CommandInfo()
@@ -460,6 +464,7 @@ const CommandInfoMap& GetCommands() {
     INSERT_COMMAND(Path)
     INSERT_COMMAND(Refs)
     INSERT_COMMAND(Suggest)
+    INSERT_COMMAND(Shell)
     INSERT_COMMAND(CleanStale)
 
 #undef INSERT_COMMAND

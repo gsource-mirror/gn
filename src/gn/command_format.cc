@@ -1356,7 +1356,7 @@ bool FormatStringToString(const std::string& input,
   return true;
 }
 
-int RunFormat(const std::vector<std::string>& args) {
+int RunFormat(Setup* setup, const std::vector<std::string>& args) {
 #if defined(OS_WIN)
   // Set to binary mode to prevent converting newlines to \r\n.
   _setmode(_fileno(stdout), _O_BINARY);
@@ -1417,9 +1417,8 @@ int RunFormat(const std::vector<std::string>& args) {
     return 1;
   }
 
-  Setup setup;
   SourceDir source_dir =
-      SourceDirForCurrentDirectory(setup.build_settings().root_path());
+      SourceDirForCurrentDirectory(setup->build_settings().root_path());
 
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(kSwitchReadTree)) {
     std::string tree_type =
@@ -1443,7 +1442,7 @@ int RunFormat(const std::vector<std::string>& args) {
       err.PrintToStdout();
       return 1;
     }
-    base::FilePath to_format = setup.build_settings().GetFullPath(file);
+    base::FilePath to_format = setup->build_settings().GetFullPath(file);
     std::string output;
     FormatJsonToString(ReadStdin(), &output);
     if (base::WriteFile(to_format, output.data(),
@@ -1472,7 +1471,7 @@ int RunFormat(const std::vector<std::string>& args) {
       continue;
     }
 
-    base::FilePath to_format = setup.build_settings().GetFullPath(file);
+    base::FilePath to_format = setup->build_settings().GetFullPath(file);
     std::string original_contents;
     if (!base::ReadFileToString(to_format, &original_contents)) {
       Err(Location(),

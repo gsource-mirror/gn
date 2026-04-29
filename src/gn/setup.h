@@ -34,6 +34,7 @@ extern const char kDotfile_Help[];
 class Setup {
  public:
   Setup();
+  virtual ~Setup() = default;
 
   // Configures the build for the current command line. On success returns
   // true. On failure, prints the error and returns false.
@@ -52,7 +53,7 @@ class Setup {
   // cmdline is the gn invocation command, with flags like --root and --dotfile.
   // If no explicit cmdline is passed, base::CommandLine::ForCurrentProcess()
   // is used.
-  bool DoSetup(const std::string& build_dir, bool force_create);
+  virtual bool DoSetup(const std::string& build_dir, bool force_create);
   bool DoSetup(const std::string& build_dir,
                bool force_create,
                const base::CommandLine& cmdline);
@@ -70,7 +71,7 @@ class Setup {
   // cmdline is the gn invocation command, with flags like --root and --dotfile.
   // If no explicit cmdline is passed, base::CommandLine::ForCurrentProcess()
   // is used.
-  bool Run();
+  virtual bool Run();
   bool Run(const base::CommandLine& cmdline);
 
   Scheduler& scheduler() { return scheduler_; }

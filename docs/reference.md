@@ -19,6 +19,7 @@
     *   [outputs: Which files a source/target make.](#cmd_outputs)
     *   [path: Find paths between two targets.](#cmd_path)
     *   [refs: Find stuff referencing a target or file.](#cmd_refs)
+    *   [shell: Run an interactive GN shell.](#cmd_shell)
     *   [suggest: Suggest fixes to build graph based on includes.](#cmd_suggest)
 *   [Target declarations](#targets)
     *   [action: Declare a target that runs a script a single time.](#func_action)
@@ -1394,6 +1395,17 @@
           --all --as=output
       Display the executable file names of all test executables
       potentially affected by a change to the given file.
+```
+### <a name="cmd_shell"></a>**shell**: Run an interactive GN shell.&nbsp;[Back to Top](#gn-reference)
+
+```
+  gn shell <out_dir>
+
+  Starts an interactive prompt that allows running GN commands efficiently,
+  without having to reload the build graph for each command.
+
+  Currently only supports a subset of GN functionality, like:
+    suggest path/to/target.cc=foo/bar.h
 ```
 ### <a name="cmd_suggest"></a>**suggest**: Suggest fixes to build graph based on includes.&nbsp;[Back to Top](#gn-reference)
 
@@ -8602,4 +8614,3 @@
     *   -v: Verbose logging.
     *   --version: Prints the GN version number and exits.
 ```
-

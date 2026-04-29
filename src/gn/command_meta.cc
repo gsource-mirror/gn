@@ -6,6 +6,7 @@
 #include <set>
 
 #include "base/command_line.h"
+#include "base/containers/span.h"
 #include "base/strings/string_split.h"
 #include "gn/commands.h"
 #include "gn/metadata_walk.h"
@@ -73,8 +74,10 @@ Examples
       key onto the source directory of the target's declaration relative to "/".
 )";
 
-int RunMeta(const std::vector<std::string>& args) {
-  if (args.size() == 0) {
+int RunMetaInner(Setup* setup,
+                 const std::vector<const Target*>& all_targets,
+                 base::span<const std::string> args) {
+  if (args.empty()) {
     Err(Location(), "Unknown command format. See \"gn help meta\"",
         "Usage: \"gn meta <out_dir> <target>* --data=<key>[,<key>*] "
         "[--walk=<key>[,<key>*]*] [--rebase=<dest dir>]\"")
@@ -82,16 +85,12 @@ int RunMeta(const std::vector<std::string>& args) {
     return 1;
   }
 
-  Setup* setup = new Setup;
-  if (!setup->DoSetup(args[0], false) || !setup->Run())
-    return 1;
-
   const base::CommandLine* cmdline = base::CommandLine::ForCurrentProcess();
   std::string rebase_dir = cmdline->GetSwitchValueString("rebase");
   std::string data_keys_str = cmdline->GetSwitchValueString("data");
   std::string walk_keys_str = cmdline->GetSwitchValueString("walk");
 
-  std::vector<std::string> inputs(args.begin() + 1, args.end());
+  std::vector<std::string> inputs(args.begin(), args.end());
 
   UniqueVector<const Target*> targets;
   for (const auto& input : inputs) {

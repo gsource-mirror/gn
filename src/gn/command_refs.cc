@@ -8,6 +8,7 @@
 #include <set>
 
 #include "base/command_line.h"
+#include "base/containers/span.h"
 #include "base/files/file_util.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
@@ -348,8 +349,10 @@ Examples (file input)
       potentially affected by a change to the given file.
 )";
 
-int RunRefs(const std::vector<std::string>& args) {
-  if (args.size() <= 1) {
+int RunRefsInner(Setup* setup,
+                 const std::vector<const Target*>& all_targets,
+                 base::span<const std::string> args) {
+  if (args.empty()) {
     Err(Location(), "Unknown command format. See \"gn help refs\"",
         "Usage: \"gn refs <out_dir> (<label_pattern>|<file>)*\"")
         .PrintToStdout();
@@ -381,21 +384,16 @@ int RunRefs(const std::vector<std::string>& args) {
   }
   bool default_toolchain_only = cmdline->HasSwitch(switches::kDefaultToolchain);
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
-  if (!setup->DoSetup(args[0], false) || !setup->Run())
-    return 1;
-
-  // The inputs are everything but the first arg (which is the build dir).
+  // The inputs are the arguments from the span.
   std::vector<std::string> inputs;
-  for (size_t i = 1; i < args.size(); i++) {
-    if (args[i][0] == '@') {
+  for (const auto& arg : args) {
+    if (arg[0] == '@') {
       // The argument is as a path to a response file.
       std::string contents;
       bool ret =
-          base::ReadFileToString(UTF8ToFilePath(args[i].substr(1)), &contents);
+          base::ReadFileToString(UTF8ToFilePath(arg.substr(1)), &contents);
       if (!ret) {
-        Err(Location(), "Response file " + args[i].substr(1) + " not found.")
+        Err(Location(), "Response file " + arg.substr(1) + " not found.")
             .PrintToStdout();
         return 1;
       }
@@ -406,7 +404,7 @@ int RunRefs(const std::vector<std::string>& args) {
       }
     } else {
       // The argument is a label or a path.
-      inputs.push_back(args[i]);
+      inputs.push_back(arg);
     }
   }
 
@@ -425,8 +423,7 @@ int RunRefs(const std::vector<std::string>& args) {
   // target_matches, however, since these targets should actually be listed in
   // the output, while for normal targets you don't want to see the inputs,
   // only what refers to them.
-  std::vector<const Target*> all_targets =
-      setup->builder().GetAllResolvedTargets();
+
   UniqueVector<const Target*> explicit_target_matches;
   for (const auto& file : file_matches) {
     std::vector<TargetContainingFile> target_containing;

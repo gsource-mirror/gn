@@ -257,7 +257,7 @@ Example
       Dump all help to stdout in markdown format.
 )";
 
-int RunHelp(const std::vector<std::string>& args) {
+int RunHelp(Setup*, const std::vector<std::string>& args) {
   std::string what;
   if (args.size() == 0) {
     // If no argument is specified, check for switches to allow things like

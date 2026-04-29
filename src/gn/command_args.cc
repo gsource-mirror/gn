@@ -203,9 +203,7 @@ void BuildArgJson(base::Value& dict,
     dict.SetKey("comment", base::Value(comment));
 }
 
-int ListArgs(const std::string& build_dir) {
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
+int ListArgs(Setup* setup, const std::string& build_dir) {
   if (!setup->DoSetup(build_dir, false) || !setup->Run())
     return 1;
 
@@ -399,7 +397,7 @@ int EditArgsFile(const std::string& build_dir) {
   OutputString("Generating files...\n");
   std::vector<std::string> gen_commands;
   gen_commands.push_back(build_dir);
-  return RunGen(gen_commands);
+  return RunGen(new Setup(), gen_commands);
 }
 
 }  // namespace
@@ -493,7 +491,7 @@ Examples
     arguments).
 )";
 
-int RunArgs(const std::vector<std::string>& args) {
+int RunArgs(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() != 1) {
     Err(Location(), "Exactly one build dir needed.",
         "Usage: \"gn args <out_dir>\"\n"
@@ -503,7 +501,7 @@ int RunArgs(const std::vector<std::string>& args) {
   }
 
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(kSwitchList))
-    return ListArgs(args[0]);
+    return ListArgs(setup, args[0]);
   return EditArgsFile(args[0]);
 }
 

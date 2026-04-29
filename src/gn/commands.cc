@@ -417,7 +417,8 @@ int gn_main(int argc, char** argv) {
   int retval;
   if (found_command != command_map.end()) {
     MsgLoop msg_loop;
-    retval = found_command->second.runner(args);
+    // Deliberately leaked to avoid expensive process teardown.
+    retval = found_command->second.runner(new Setup(), args);
   } else {
     Err(Location(), "Command \"" + command + "\" unknown.").PrintToStdout();
     OutputString(

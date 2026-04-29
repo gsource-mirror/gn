@@ -348,7 +348,7 @@ Examples (file input)
       potentially affected by a change to the given file.
 )";
 
-int RunRefs(const std::vector<std::string>& args) {
+int RunRefs(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() <= 1) {
     Err(Location(), "Unknown command format. See \"gn help refs\"",
         "Usage: \"gn refs <out_dir> (<label_pattern>|<file>)*\"")
@@ -381,8 +381,6 @@ int RunRefs(const std::vector<std::string>& args) {
   }
   bool default_toolchain_only = cmdline->HasSwitch(switches::kDefaultToolchain);
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
   if (!setup->DoSetup(args[0], false) || !setup->Run())
     return 1;
 

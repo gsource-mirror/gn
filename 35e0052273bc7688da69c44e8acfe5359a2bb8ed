@@ -106,6 +106,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "68f8f1f8_ccd5f07e",
+        "filename": "src/gn/ninja_copy_target_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1000120
+      },
+      "writtenOn": "2026-04-29T01:06:46Z",
+      "side": 1,
+      "message": "The `copy` action only use its explicit dependency as the source of the copy, no? `action1.copy` still explicitly depends on `action1.out`. So if the remote build system were copying a file remotely by transferring the explicit dependencies to the remote server (assuming that the remote build system can\u0027t just copy the file locally for some reason) it should still work.\n\nRegarding the dependencies, instead of `action1.copy --order-only--\u003e phony/foo/bar.inputdeps --explicit--\u003e phony/foo/action1` we now have `action1.copy --implicit--\u003e phony/foo/bar.inputdeps --order-only--\u003e phony/foo/action1` which is equivalent.",
+      "parentUuid": "c7966f85_9acf27d5",
+      "range": {
+        "startLine": 211,
+        "startChar": 46,
+        "endLine": 211,
+        "endChar": 48
+      },
+      "revId": "35e0052273bc7688da69c44e8acfe5359a2bb8ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6ce0424_3986e756",

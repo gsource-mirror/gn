@@ -69,7 +69,7 @@ Options
       Can be used to specify the ninja executable to use.
 )";
 
-int RunCleanStale(const std::vector<std::string>& args) {
+int RunCleanStale(Setup*, const std::vector<std::string>& args) {
   if (args.empty()) {
     Err(Location(), "Missing argument.",
         "Usage: \"gn clean_stale <out_dir>...\"")

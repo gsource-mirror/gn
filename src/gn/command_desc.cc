@@ -649,7 +649,7 @@ class PrintCallbackHolder {
   std::optional<BuildSettings::PrintCallback> _callback;
 };
 
-int RunDesc(const std::vector<std::string>& args) {
+int RunDesc(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() != 2 && args.size() != 3) {
     Err(Location(), "Unknown command format. See \"gn help desc\"",
         "Usage: \"gn desc <out_dir> <target_name> [<what to display>]\"")
@@ -657,9 +657,6 @@ int RunDesc(const std::vector<std::string>& args) {
     return 1;
   }
   const base::CommandLine* cmdline = base::CommandLine::ForCurrentProcess();
-
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
 
   bool json = cmdline->GetSwitchValueString("format") == "json";
   PrintCallbackHolder print_callback_holder;

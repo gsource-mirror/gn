@@ -322,7 +322,7 @@ Example
   gn path out/Default //base //gn
 )";
 
-int RunPath(const std::vector<std::string>& args) {
+int RunPath(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() != 3) {
     Err(Location(), "Unknown command format. See \"gn help path\"",
         "Usage: \"gn path <out_dir> <target_one> <target_two>\"")
@@ -330,8 +330,6 @@ int RunPath(const std::vector<std::string>& args) {
     return 1;
   }
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
   if (!setup->DoSetup(args[0], false))
     return 1;
   if (!setup->Run())

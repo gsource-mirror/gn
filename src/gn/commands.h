@@ -31,82 +31,82 @@ class CommandLine;
 
 namespace commands {
 
-using CommandRunner = int (*)(const std::vector<std::string>&);
+using CommandRunner = int (*)(Setup* setup, const std::vector<std::string>&);
 
 extern const char kAnalyze[];
 extern const char kAnalyze_HelpShort[];
 extern const char kAnalyze_Help[];
-int RunAnalyze(const std::vector<std::string>& args);
+int RunAnalyze(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kArgs[];
 extern const char kArgs_HelpShort[];
 extern const char kArgs_Help[];
-int RunArgs(const std::vector<std::string>& args);
+int RunArgs(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kCheck[];
 extern const char kCheck_HelpShort[];
 extern const char kCheck_Help[];
-int RunCheck(const std::vector<std::string>& args);
+int RunCheck(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kClean[];
 extern const char kClean_HelpShort[];
 extern const char kClean_Help[];
-int RunClean(const std::vector<std::string>& args);
+int RunClean(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kDesc[];
 extern const char kDesc_HelpShort[];
 extern const char kDesc_Help[];
-int RunDesc(const std::vector<std::string>& args);
+int RunDesc(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kGen[];
 extern const char kGen_HelpShort[];
 extern const char kGen_Help[];
-int RunGen(const std::vector<std::string>& args);
+int RunGen(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kFormat[];
 extern const char kFormat_HelpShort[];
 extern const char kFormat_Help[];
-int RunFormat(const std::vector<std::string>& args);
+int RunFormat(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kHelp[];
 extern const char kHelp_HelpShort[];
 extern const char kHelp_Help[];
-int RunHelp(const std::vector<std::string>& args);
+int RunHelp(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kMeta[];
 extern const char kMeta_HelpShort[];
 extern const char kMeta_Help[];
-int RunMeta(const std::vector<std::string>& args);
+int RunMeta(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kLs[];
 extern const char kLs_HelpShort[];
 extern const char kLs_Help[];
-int RunLs(const std::vector<std::string>& args);
+int RunLs(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kOutputs[];
 extern const char kOutputs_HelpShort[];
 extern const char kOutputs_Help[];
-int RunOutputs(const std::vector<std::string>& args);
+int RunOutputs(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kPath[];
 extern const char kPath_HelpShort[];
 extern const char kPath_Help[];
-int RunPath(const std::vector<std::string>& args);
+int RunPath(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kRefs[];
 extern const char kRefs_HelpShort[];
 extern const char kRefs_Help[];
-int RunRefs(const std::vector<std::string>& args);
+int RunRefs(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kSuggest[];
 extern const char kSuggest_HelpShort[];
 extern const char kSuggest_Help[];
-int RunSuggest(const std::vector<std::string>& args);
+int RunSuggest(Setup* setup, const std::vector<std::string>& args);
 
 extern const char kCleanStale[];
 extern const char kCleanStale_HelpShort[];
 extern const char kCleanStale_Help[];
-int RunCleanStale(const std::vector<std::string>& args);
+int RunCleanStale(Setup* setup, const std::vector<std::string>& args);
 
 // -----------------------------------------------------------------------------
 

@@ -179,7 +179,7 @@ Examples
       Check only the files in targets in the //foo directory tree.
 )";
 
-int RunCheck(const std::vector<std::string>& args) {
+int RunCheck(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() != 1 && args.size() != 2) {
     Err(Location(), "Unknown command format. See \"gn help check\"",
         "Usage: \"gn check <out_dir> [<target_label>]\"")
@@ -187,8 +187,6 @@ int RunCheck(const std::vector<std::string>& args) {
     return 1;
   }
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup();
   if (!setup->DoSetup(args[0], false))
     return 1;
   if (!setup->Run())

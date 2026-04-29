@@ -86,7 +86,7 @@ const char kClean_Help[] =
     "  Deletes the contents of the output directory except for args.gn and\n"
     "  creates a Ninja build environment sufficient to regenerate the build.\n";
 
-int RunClean(const std::vector<std::string>& args) {
+int RunClean(Setup*, const std::vector<std::string>& args) {
   if (args.empty()) {
     Err(Location(), "Missing argument.", "Usage: \"gn clean <out_dir>...\"")
         .PrintToStdout();

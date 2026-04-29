@@ -99,7 +99,7 @@ const char kAnalyze_Help[] =
   errors that way rather than via return codes.
 )*";
 
-int RunAnalyze(const std::vector<std::string>& args) {
+int RunAnalyze(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() != 3) {
     Err(Location(), "Unknown command format. See \"gn help analyze\"",
         "Usage: \"gn analyze <out_dir> <input_path> <output_path>")
@@ -118,8 +118,6 @@ int RunAnalyze(const std::vector<std::string>& args) {
     }
   }
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
   if (!setup->DoSetup(args[0], false) || !setup->Run())
     return 1;
 

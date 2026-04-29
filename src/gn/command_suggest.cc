@@ -365,14 +365,12 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
   return true;
 }
 
-int RunSuggest(const std::vector<std::string>& args) {
+int RunSuggest(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() <= 1) {
     OutputError("gn suggest requires arguments. See \"gn help suggest\"\n");
     return 1;
   }
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
   if (!setup->DoSetup(args[0], false) || !setup->Run())
     return 1;
 

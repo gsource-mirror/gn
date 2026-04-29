@@ -417,7 +417,8 @@ int gn_main(int argc, char** argv) {
   int retval;
   if (found_command != command_map.end()) {
     MsgLoop msg_loop;
-    retval = found_command->second.runner(args);
+    Setup* setup = new Setup();
+    retval = found_command->second.runner(setup, args);
   } else {
     Err(Location(), "Command \"" + command + "\" unknown.").PrintToStdout();
     OutputString(
@@ -430,8 +431,6 @@ int gn_main(int argc, char** argv) {
 
   exit(retval);  // Don't free memory, it can be really slow!
 }
-
-
 
 CommandInfo::CommandInfo()
     : help_short(nullptr), help(nullptr), runner(nullptr) {}

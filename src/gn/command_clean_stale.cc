@@ -18,10 +18,9 @@ namespace commands {
 
 namespace {
 
-bool CleanStaleOneDir(const base::FilePath& ninja_executable,
+bool CleanStaleOneDir(Setup* setup,
+                      const base::FilePath& ninja_executable,
                       const std::string& dir) {
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
   if (!setup->DoSetup(dir, false))
     return false;
 
@@ -69,7 +68,7 @@ Options
       Can be used to specify the ninja executable to use.
 )";
 
-int RunCleanStale(const std::vector<std::string>& args) {
+int RunCleanStale(Setup* setup, const std::vector<std::string>& args) {
   if (args.empty()) {
     Err(Location(), "Missing argument.",
         "Usage: \"gn clean_stale <out_dir>...\"")
@@ -88,8 +87,9 @@ int RunCleanStale(const std::vector<std::string>& args) {
     return 1;
   }
 
-  for (const std::string& dir : args) {
-    if (!CleanStaleOneDir(ninja_executable, dir))
+  for (size_t i = 0; i < args.size(); ++i) {
+    Setup* current_setup = (i == 0) ? setup : new Setup();
+    if (!CleanStaleOneDir(current_setup, ninja_executable, args[i]))
       return 1;
   }
 

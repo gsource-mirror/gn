@@ -768,7 +768,7 @@ Compilation Database
        - "//foo:bar"
 )";
 
-int RunGen(const std::vector<std::string>& args) {
+int RunGen(Setup* setup, const std::vector<std::string>& args) {
   base::ElapsedTimer timer;
 
   if (args.size() != 1) {
@@ -779,9 +779,6 @@ int RunGen(const std::vector<std::string>& args) {
     return 1;
   }
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup();
-  // Generate an empty args.gn file if it does not exists
   if (!base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kArgs)) {
     setup->set_gen_empty_args(true);
   }

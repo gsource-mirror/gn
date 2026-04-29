@@ -73,7 +73,7 @@ Examples
       key onto the source directory of the target's declaration relative to "/".
 )";
 
-int RunMeta(const std::vector<std::string>& args) {
+int RunMeta(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() == 0) {
     Err(Location(), "Unknown command format. See \"gn help meta\"",
         "Usage: \"gn meta <out_dir> <target>* --data=<key>[,<key>*] "
@@ -82,7 +82,6 @@ int RunMeta(const std::vector<std::string>& args) {
     return 1;
   }
 
-  Setup* setup = new Setup;
   if (!setup->DoSetup(args[0], false) || !setup->Run())
     return 1;
 

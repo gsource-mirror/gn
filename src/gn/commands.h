@@ -391,6 +391,8 @@ void GetTargetsContainingFile(Setup* setup,
 // Extra help from command_check.cc
 extern const char kNoGnCheck_Help[];
 
+int gn_main(int argc, char** argv);
+
 }  // namespace commands
 
 #endif  // TOOLS_GN_COMMANDS_H_

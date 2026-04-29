@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "base/values.h"
+#include "base/containers/span.h"
 #include "gn/target.h"
 #include "gn/unique_vector.h"
 
@@ -36,7 +37,9 @@ using CommandRunner = int (*)(const std::vector<std::string>&);
 extern const char kAnalyze[];
 extern const char kAnalyze_HelpShort[];
 extern const char kAnalyze_Help[];
-int RunAnalyze(const std::vector<std::string>& args);
+int RunAnalyzeInner(Setup* setup,
+                    const std::vector<const Target*>& all_targets,
+                    base::span<const std::string> args);
 
 extern const char kArgs[];
 extern const char kArgs_HelpShort[];
@@ -56,7 +59,9 @@ int RunClean(const std::vector<std::string>& args);
 extern const char kDesc[];
 extern const char kDesc_HelpShort[];
 extern const char kDesc_Help[];
-int RunDesc(const std::vector<std::string>& args);
+int RunDescInner(Setup* setup,
+                 const std::vector<const Target*>& all_targets,
+                 base::span<const std::string> args);
 
 extern const char kGen[];
 extern const char kGen_HelpShort[];
@@ -76,32 +81,50 @@ int RunHelp(const std::vector<std::string>& args);
 extern const char kMeta[];
 extern const char kMeta_HelpShort[];
 extern const char kMeta_Help[];
-int RunMeta(const std::vector<std::string>& args);
+int RunMetaInner(Setup* setup,
+                 const std::vector<const Target*>& all_targets,
+                 base::span<const std::string> args);
 
 extern const char kLs[];
 extern const char kLs_HelpShort[];
 extern const char kLs_Help[];
-int RunLs(const std::vector<std::string>& args);
+int RunLsInner(Setup* setup,
+               const std::vector<const Target*>& all_targets,
+               base::span<const std::string> args);
 
 extern const char kOutputs[];
 extern const char kOutputs_HelpShort[];
 extern const char kOutputs_Help[];
-int RunOutputs(const std::vector<std::string>& args);
+int RunOutputsInner(Setup* setup,
+                    const std::vector<const Target*>& all_targets,
+                    base::span<const std::string> args);
 
 extern const char kPath[];
 extern const char kPath_HelpShort[];
 extern const char kPath_Help[];
-int RunPath(const std::vector<std::string>& args);
+int RunPathInner(Setup* setup,
+                 const std::vector<const Target*>& all_targets,
+                 base::span<const std::string> args);
 
 extern const char kRefs[];
 extern const char kRefs_HelpShort[];
 extern const char kRefs_Help[];
-int RunRefs(const std::vector<std::string>& args);
+int RunRefsInner(Setup* setup,
+                 const std::vector<const Target*>& all_targets,
+                 base::span<const std::string> args);
 
 extern const char kSuggest[];
 extern const char kSuggest_HelpShort[];
 extern const char kSuggest_Help[];
-int RunSuggest(const std::vector<std::string>& args);
+
+int RunSuggestInner(Setup* setup,
+                    const std::vector<const Target*>& all_targets,
+                    base::span<const std::string> args);
+
+extern const char kShell[];
+extern const char kShell_HelpShort[];
+extern const char kShell_Help[];
+int RunShell(const std::vector<std::string>& args);
 
 extern const char kCleanStale[];
 extern const char kCleanStale_HelpShort[];
@@ -275,6 +298,13 @@ ResolveSuggestionToTarget(const BuildSettings* build_settings,
                           const std::vector<const Target*>& all_targets,
                           const Label& current_toolchain,
                           std::string_view input);
+
+// Executes the suggestion logic for a single pair of includer and included.
+// Exposed so it can be called directly by the interactive shell.
+bool OutputSuggestions(const std::vector<const Target*>& all_targets,
+                       Setup* setup,
+                       std::string_view includer_name,
+                       std::string_view included_name);
 
 // Resolves a vector of command line inputs and figures out the full set of
 // things they resolve to.

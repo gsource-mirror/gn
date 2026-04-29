@@ -6,6 +6,7 @@
 #include <set>
 
 #include "base/command_line.h"
+#include "base/containers/span.h"
 #include "gn/commands.h"
 #include "gn/label_pattern.h"
 #include "gn/setup.h"
@@ -56,26 +57,16 @@ Examples
       Builds all targets in //base and all subdirectories.
 )";
 
-int RunLs(const std::vector<std::string>& args) {
-  if (args.size() == 0) {
-    Err(Location(), "Unknown command format. See \"gn help ls\"",
-        "Usage: \"gn ls <build dir> [<label_pattern>]*\"")
-        .PrintToStdout();
-    return 1;
-  }
-
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
-  if (!setup->DoSetup(args[0], false) || !setup->Run())
-    return 1;
-
+int RunLsInner(Setup* setup,
+               const std::vector<const Target*>& all_targets,
+               base::span<const std::string> args) {
   const base::CommandLine* cmdline = base::CommandLine::ForCurrentProcess();
   bool default_toolchain_only = cmdline->HasSwitch(switches::kDefaultToolchain);
 
   std::vector<const Target*> matches;
-  if (args.size() > 1) {
+  if (!args.empty()) {
     // Some patterns or explicit labels were specified.
-    std::vector<std::string> inputs(args.begin() + 1, args.end());
+    std::vector<std::string> inputs(args.begin(), args.end());
 
     UniqueVector<const Target*> target_matches;
     UniqueVector<const Config*> config_matches;
@@ -89,13 +80,13 @@ int RunLs(const std::vector<std::string>& args) {
                    target_matches.end());
   } else if (default_toolchain_only) {
     // List all resolved targets in the default toolchain.
-    for (auto* target : setup->builder().GetAllResolvedTargets()) {
+    for (auto* target : all_targets) {
       if (target->settings()->is_default())
         matches.push_back(target);
     }
   } else {
     // List all resolved targets.
-    matches = setup->builder().GetAllResolvedTargets();
+    matches = all_targets;
   }
   FilterAndPrintTargets(false, &matches);
   return 0;

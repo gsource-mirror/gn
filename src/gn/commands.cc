@@ -14,6 +14,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
+#include "base/containers/span.h"
 #include "gn/builder.h"
 #include "gn/config_values_extractors.h"
 #include "gn/filesystem_utils.h"
@@ -363,6 +364,39 @@ std::string ToUTF8(base::FilePath::StringType in) {
 
 }  // namespace
 
+template <const char* name,
+          int (*RunFunc)(Setup*,
+                         const std::vector<const Target*>&,
+                         base::span<const std::string>)>
+int RunCommand(const std::vector<std::string>& args) {
+  if (args.empty()) {
+    Err(Location(), std::string("gn ") + name + " requires arguments.",
+        "See \"gn help " + std::string(name) + "\"")
+        .PrintToStdout();
+    return 1;
+  }
+
+  // Deliberately leaked to avoid expensive process teardown.
+  Setup* setup = new Setup;
+  if (!setup->DoSetup(args[0], false) || !setup->Run())
+    return 1;
+
+  std::vector<const Target*> all_targets =
+      setup->builder().GetAllResolvedTargets();
+
+  // Skip the output directory by using a subspan.
+  return RunFunc(setup, all_targets, base::make_span(args).subspan(1));
+}
+
+constexpr auto& RunAnalyze = RunCommand<kAnalyze, RunAnalyzeInner>;
+constexpr auto& RunDesc = RunCommand<kDesc, RunDescInner>;
+constexpr auto& RunLs = RunCommand<kLs, RunLsInner>;
+constexpr auto& RunMeta = RunCommand<kMeta, RunMetaInner>;
+constexpr auto& RunOutputs = RunCommand<kOutputs, RunOutputsInner>;
+constexpr auto& RunPath = RunCommand<kPath, RunPathInner>;
+constexpr auto& RunRefs = RunCommand<kRefs, RunRefsInner>;
+constexpr auto& RunSuggest = RunCommand<kSuggest, RunSuggestInner>;
+
 CommandInfo::CommandInfo()
     : help_short(nullptr), help(nullptr), runner(nullptr) {}
 
@@ -390,6 +424,7 @@ const CommandInfoMap& GetCommands() {
     INSERT_COMMAND(Outputs)
     INSERT_COMMAND(Path)
     INSERT_COMMAND(Refs)
+    INSERT_COMMAND(Shell)
     INSERT_COMMAND(Suggest)
     INSERT_COMMAND(CleanStale)
 

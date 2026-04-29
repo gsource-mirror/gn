@@ -8,6 +8,7 @@
 
 #include "base/files/file_util.h"
 #include "base/strings/string_split.h"
+#include "base/containers/span.h"
 #include "gn/commands.h"
 #include "gn/filesystem_utils.h"
 #include "gn/item.h"
@@ -365,22 +366,16 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
   return true;
 }
 
-int RunSuggest(const std::vector<std::string>& args) {
-  if (args.size() <= 1) {
+int RunSuggestInner(Setup* setup,
+                    const std::vector<const Target*>& all_targets,
+                    base::span<const std::string> args) {
+  if (args.empty()) {
     OutputError("gn suggest requires arguments. See \"gn help suggest\"\n");
     return 1;
   }
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
-  if (!setup->DoSetup(args[0], false) || !setup->Run())
-    return 1;
-
-  std::vector<const Target*> all_targets =
-      setup->builder().GetAllResolvedTargets();
-
   bool success = true;
-  for (size_t i = 1; i < args.size(); i++) {
+  for (size_t i = 0; i < args.size(); i++) {
     if (i != 1) {
       OutputString("\n");
     }
@@ -393,11 +388,13 @@ int RunSuggest(const std::vector<std::string>& args) {
     const auto& includer = pair[0];
     const auto& included = pair[1];
 
-    OutputString("Request: ", TextDecoration::DECORATION_MAGENTA);
-    OutputQuoted(includer);
-    OutputString(" wants to depend on ");
-    OutputQuoted(included);
-    OutputString(":\n");
+    if (args.size() > 1) {
+      OutputString("Request: ", TextDecoration::DECORATION_MAGENTA);
+      OutputQuoted(includer);
+      OutputString(" wants to depend on ");
+      OutputQuoted(included);
+      OutputString(":\n");
+    }
 
     success &= OutputSuggestions(all_targets, setup, includer, included);
   }

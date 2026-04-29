@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "base/command_line.h"
+#include "base/containers/span.h"
 #include "base/strings/stringprintf.h"
 #include "gn/commands.h"
 #include "gn/setup.h"
@@ -322,25 +323,20 @@ Example
   gn path out/Default //base //gn
 )";
 
-int RunPath(const std::vector<std::string>& args) {
-  if (args.size() != 3) {
+int RunPathInner(Setup* setup,
+                 const std::vector<const Target*>& all_targets,
+                 base::span<const std::string> args) {
+  if (args.size() != 2) {
     Err(Location(), "Unknown command format. See \"gn help path\"",
         "Usage: \"gn path <out_dir> <target_one> <target_two>\"")
         .PrintToStdout();
     return 1;
   }
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
-  if (!setup->DoSetup(args[0], false))
-    return 1;
-  if (!setup->Run())
-    return 1;
-
-  const Target* target1 = ResolveTargetFromCommandLineString(setup, args[1]);
+  const Target* target1 = ResolveTargetFromCommandLineString(setup, std::string(args[0]));
   if (!target1)
     return 1;
-  const Target* target2 = ResolveTargetFromCommandLineString(setup, args[2]);
+  const Target* target2 = ResolveTargetFromCommandLineString(setup, std::string(args[1]));
   if (!target2)
     return 1;
 

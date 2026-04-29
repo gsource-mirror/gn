@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "base/command_line.h"
+#include "base/containers/span.h"
 #include "base/strings/stringprintf.h"
 #include "gn/commands.h"
 #include "gn/setup.h"
@@ -65,23 +66,17 @@ Example
       Compiles all files changed in git.
 )";
 
-int RunOutputs(const std::vector<std::string>& args) {
-  if (args.size() < 2) {
-    Err(Location(),
-        "Expected a build dir and one or more input files or targets.\n"
-        "Usage: \"gn outputs <out_dir> <target-or-file>*\"")
+int RunOutputsInner(Setup* setup,
+                    const std::vector<const Target*>& all_targets,
+                    base::span<const std::string> args) {
+  if (args.empty()) {
+    Err(Location(), "You're holding it wrong.",
+        "Usage: \"gn outputs <out_dir> <target>*\"")
         .PrintToStdout();
     return 1;
   }
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
-  if (!setup->DoSetup(args[0], false))
-    return 1;
-  if (!setup->Run())
-    return 1;
-
-  std::vector<std::string> inputs(args.begin() + 1, args.end());
+  std::vector<std::string> inputs(args.begin(), args.end());
 
   UniqueVector<const Target*> target_matches;
   UniqueVector<const Config*> config_matches;
@@ -102,8 +97,7 @@ int RunOutputs(const std::vector<std::string>& args) {
   std::vector<OutputFile> outputs;
 
   // Files. This must go first because it may add to the "targets" list.
-  std::vector<const Target*> all_targets =
-      setup->builder().GetAllResolvedTargets();
+
   for (const SourceFile& file : file_matches) {
     std::vector<TargetContainingFile> targets;
     GetTargetsContainingFile(setup, all_targets, file, false, &targets);

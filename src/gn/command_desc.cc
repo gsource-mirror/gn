@@ -10,6 +10,7 @@
 #include <sstream>
 
 #include "base/command_line.h"
+#include "base/containers/span.h"
 #include "base/json/json_writer.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
@@ -649,8 +650,10 @@ class PrintCallbackHolder {
   std::optional<BuildSettings::PrintCallback> _callback;
 };
 
-int RunDesc(const std::vector<std::string>& args) {
-  if (args.size() != 2 && args.size() != 3) {
+int RunDescInner(Setup* setup,
+                 const std::vector<const Target*>& all_targets,
+                 base::span<const std::string> args) {
+  if (args.size() != 1 && args.size() != 2) {
     Err(Location(), "Unknown command format. See \"gn help desc\"",
         "Usage: \"gn desc <out_dir> <target_name> [<what to display>]\"")
         .PrintToStdout();
@@ -658,22 +661,7 @@ int RunDesc(const std::vector<std::string>& args) {
   }
   const base::CommandLine* cmdline = base::CommandLine::ForCurrentProcess();
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
-
   bool json = cmdline->GetSwitchValueString("format") == "json";
-  PrintCallbackHolder print_callback_holder;
-  if (json) {
-    // Silence all output while running desc if outputting to json.
-    BuildSettings* settings = &setup->build_settings();
-    print_callback_holder.SwapCallbacks(settings,
-                                        [](const std::string& str) {});
-  }
-
-  if (!setup->DoSetup(args[0], false))
-    return 1;
-  if (!setup->Run())
-    return 1;
 
   // Resolve target(s) and config from inputs.
   UniqueVector<const Target*> target_matches;
@@ -682,7 +670,7 @@ int RunDesc(const std::vector<std::string>& args) {
   UniqueVector<SourceFile> file_matches;
 
   std::vector<std::string> target_list;
-  target_list.push_back(args[1]);
+  target_list.push_back(args[0]);
 
   if (!ResolveFromCommandLineInput(
           setup, target_list, cmdline->HasSwitch(switches::kDefaultToolchain),
@@ -690,12 +678,12 @@ int RunDesc(const std::vector<std::string>& args) {
     return 1;
 
   std::string what_to_print;
-  if (args.size() == 3)
-    what_to_print = args[2];
+  if (args.size() == 2)
+    what_to_print = args[1];
 
   if (target_matches.empty() && config_matches.empty()) {
     OutputString(
-        "The input " + args[1] + " matches no targets, configs or files.\n",
+        "The input " + args[0] + " matches no targets, configs or files.\n",
         DECORATION_YELLOW);
     return 1;
   }

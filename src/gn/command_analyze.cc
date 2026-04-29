@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 
+#include "base/containers/span.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "gn/analyzer.h"
@@ -99,8 +100,10 @@ const char kAnalyze_Help[] =
   errors that way rather than via return codes.
 )*";
 
-int RunAnalyze(const std::vector<std::string>& args) {
-  if (args.size() != 3) {
+int RunAnalyzeInner(Setup* setup,
+                    const std::vector<const Target*>& all_targets,
+                    base::span<const std::string> args) {
+  if (args.size() != 2) {
     Err(Location(), "Unknown command format. See \"gn help analyze\"",
         "Usage: \"gn analyze <out_dir> <input_path> <output_path>")
         .PrintToStdout();
@@ -108,20 +111,15 @@ int RunAnalyze(const std::vector<std::string>& args) {
   }
 
   std::string input;
-  if (args[1] == "-") {
+  if (args[0] == "-") {
     input = ReadStdin();
   } else {
-    bool ret = base::ReadFileToString(UTF8ToFilePath(args[1]), &input);
+    bool ret = base::ReadFileToString(UTF8ToFilePath(args[0]), &input);
     if (!ret) {
-      Err(Location(), "Input file " + args[1] + " not found.").PrintToStdout();
+      Err(Location(), "Input file " + args[0] + " not found.").PrintToStdout();
       return 1;
     }
   }
-
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
-  if (!setup->DoSetup(args[0], false) || !setup->Run())
-    return 1;
 
   Err err;
   Analyzer analyzer(
@@ -134,10 +132,10 @@ int RunAnalyze(const std::vector<std::string>& args) {
     return 1;
   }
 
-  if (args[2] == "-") {
+  if (args[1] == "-") {
     OutputString(output + "\n");
   } else {
-    WriteFile(UTF8ToFilePath(args[2]), output, &err);
+    WriteFile(UTF8ToFilePath(args[1]), output, &err);
     if (err.has_error()) {
       err.PrintToStdout();
       return 1;

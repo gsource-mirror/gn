@@ -203,9 +203,7 @@ void BuildArgJson(base::Value& dict,
     dict.SetKey("comment", base::Value(comment));
 }
 
-int ListArgs(const std::string& build_dir) {
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
+int ListArgs(Setup* setup, const std::string& build_dir) {
   if (!setup->DoSetup(build_dir, false) || !setup->Run())
     return 1;
 
@@ -339,23 +337,23 @@ bool RunEditor(const base::FilePath& file_to_edit) {
 
 #endif
 
-int EditArgsFile(const std::string& build_dir) {
+int EditArgsFile(Setup* setup, const std::string& build_dir) {
   {
     // Scope the setup. We only use it for some basic state. We'll do the
     // "real" build below in the gen command.
-    Setup setup;
+    Setup nested_setup;
     // Don't fill build arguments. We're about to edit the file which supplies
     // these in the first place.
-    setup.set_fill_arguments(false);
-    if (!setup.DoSetup(build_dir, true))
+    nested_setup.set_fill_arguments(false);
+    if (!nested_setup.DoSetup(build_dir, true))
       return 1;
 
     // Ensure the file exists. Need to normalize path separators since on
     // Windows they can come out as forward slashes here, and that confuses some
     // of the commands.
-    BuildSettings build_settings = setup.build_settings();
+    BuildSettings build_settings = nested_setup.build_settings();
     base::FilePath arg_file =
-        build_settings.GetFullPath(setup.GetBuildArgFile())
+        build_settings.GetFullPath(nested_setup.GetBuildArgFile())
             .NormalizePathSeparators();
     if (!base::PathExists(arg_file)) {
       std::string argfile_default_contents =
@@ -399,7 +397,7 @@ int EditArgsFile(const std::string& build_dir) {
   OutputString("Generating files...\n");
   std::vector<std::string> gen_commands;
   gen_commands.push_back(build_dir);
-  return RunGen(gen_commands);
+  return RunGen(setup, gen_commands);
 }
 
 }  // namespace
@@ -493,7 +491,7 @@ Examples
     arguments).
 )";
 
-int RunArgs(const std::vector<std::string>& args) {
+int RunArgs(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() != 1) {
     Err(Location(), "Exactly one build dir needed.",
         "Usage: \"gn args <out_dir>\"\n"
@@ -503,8 +501,8 @@ int RunArgs(const std::vector<std::string>& args) {
   }
 
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(kSwitchList))
-    return ListArgs(args[0]);
-  return EditArgsFile(args[0]);
+    return ListArgs(setup, args[0]);
+  return EditArgsFile(setup, args[0]);
 }
 
 }  // namespace commands

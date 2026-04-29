@@ -65,7 +65,7 @@ Example
       Compiles all files changed in git.
 )";
 
-int RunOutputs(const std::vector<std::string>& args) {
+int RunOutputs(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() < 2) {
     Err(Location(),
         "Expected a build dir and one or more input files or targets.\n"
@@ -74,8 +74,6 @@ int RunOutputs(const std::vector<std::string>& args) {
     return 1;
   }
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
   if (!setup->DoSetup(args[0], false))
     return 1;
   if (!setup->Run())

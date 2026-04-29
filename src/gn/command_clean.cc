@@ -15,9 +15,7 @@
 
 namespace {
 
-bool CleanOneDir(const std::string& dir) {
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
+bool CleanOneDir(Setup* setup, const std::string& dir) {
   if (!setup->DoSetup(dir, false))
     return false;
 
@@ -86,15 +84,16 @@ const char kClean_Help[] =
     "  Deletes the contents of the output directory except for args.gn and\n"
     "  creates a Ninja build environment sufficient to regenerate the build.\n";
 
-int RunClean(const std::vector<std::string>& args) {
+int RunClean(Setup* setup, const std::vector<std::string>& args) {
   if (args.empty()) {
     Err(Location(), "Missing argument.", "Usage: \"gn clean <out_dir>...\"")
         .PrintToStdout();
     return 1;
   }
 
-  for (const auto& dir : args) {
-    if (!CleanOneDir(dir))
+  for (size_t i = 0; i < args.size(); ++i) {
+    Setup* current_setup = (i == 0) ? setup : new Setup();
+    if (!CleanOneDir(current_setup, args[i]))
       return 1;
   }
 

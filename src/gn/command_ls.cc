@@ -56,7 +56,7 @@ Examples
       Builds all targets in //base and all subdirectories.
 )";
 
-int RunLs(const std::vector<std::string>& args) {
+int RunLs(Setup* setup, const std::vector<std::string>& args) {
   if (args.size() == 0) {
     Err(Location(), "Unknown command format. See \"gn help ls\"",
         "Usage: \"gn ls <build dir> [<label_pattern>]*\"")
@@ -64,8 +64,6 @@ int RunLs(const std::vector<std::string>& args) {
     return 1;
   }
 
-  // Deliberately leaked to avoid expensive process teardown.
-  Setup* setup = new Setup;
   if (!setup->DoSetup(args[0], false) || !setup->Run())
     return 1;
 

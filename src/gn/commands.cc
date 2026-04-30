@@ -5,11 +5,13 @@
 #include "gn/commands.h"
 
 #include <fstream>
+#include <memory>
 #include <optional>
 
 #include "base/command_line.h"
 #include "base/environment.h"
 #include "base/files/file_util.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
@@ -31,6 +33,7 @@
 #include "util/atomic_write.h"
 #include "util/build_config.h"
 #include "util/msg_loop.h"
+#include "util/socket.h"
 
 namespace commands {
 
@@ -378,7 +381,89 @@ std::string ToUTF8(base::FilePath::StringType in) {
 
 }  // namespace
 
-int gn_main(int argc, char** argv) {
+constexpr std::array<const char*, 8> kAllowedServerCommands = {
+    kAnalyze, kDesc, kLs, kMeta, kOutputs, kPath, kRefs, kSuggest,
+};
+
+std::optional<int> TryRunCommandInServer(const std::string& command,
+                                         int argc,
+                                         const char** argv,
+                                         Err* err) {
+  const char* port_str = std::getenv("GN_PORT");
+  if (!port_str) {
+    return std::nullopt;
+  }
+
+  int port = 0;
+  if (!base::StringToInt(port_str, &port) || port <= 0) {
+    *err = Err(Location(), "Invalid GN_PORT number");
+    return std::nullopt;
+  }
+
+  if (std::find(kAllowedServerCommands.begin(), kAllowedServerCommands.end(),
+                command) == kAllowedServerCommands.end()) {
+    return std::nullopt;
+  }
+
+  auto client = util::Socket::Connect(port);
+  if (!client) {
+    *err = Err(Location(), "Could not connect to GN server on port " +
+                               base::NumberToString(port));
+    return std::nullopt;
+  }
+
+  base::FilePath cwd;
+  if (!base::GetCurrentDirectory(&cwd)) {
+    *err = Err(Location(), "Failed to get current directory");
+    return std::nullopt;
+  }
+
+  std::vector<uint8_t> payload;
+  util::SerializeString(FilePathToUTF8(cwd), payload);
+  util::SerializeLiteral(argc, payload);
+  for (int i = 0; i < argc; ++i) {
+    util::SerializeString(std::string_view(argv[i]), payload);
+  }
+
+  client->Send(ServerProtocol::kRunCommand, payload);
+
+  while (true) {
+    auto [buffer, kind, success] = client->Receive();
+    base::span<uint8_t> span(buffer.data(), buffer.size());
+    if (!success) {
+      *err = Err(Location(), "Failed to read from GN server. Retrying locally");
+      return std::nullopt;
+    }
+    switch (kind) {
+      case ServerProtocol::kReturnCode:
+        if (auto return_code_opt = util::DeserializeLiteral<int>(span)) {
+          return *return_code_opt;
+        } else {
+          *err = Err(Location(), "Failed to deserialize return code");
+          return std::nullopt;
+        }
+      case ServerProtocol::kOutputString: {
+        auto dec = util::DeserializeLiteral<TextDecoration>(span);
+        auto escaped = util::DeserializeLiteral<HtmlEscaping>(span);
+        auto str = util::DeserializeString(span);
+        if (!dec || !escaped || !str) {
+          *err = Err(Location(), "Failed to deserialize output string");
+          return std::nullopt;
+        }
+        OutputString(*str, *dec, *escaped);
+        break;
+      }
+      default:
+        *err = Err(Location(), "Unknown message kind " +
+                                   base::NumberToString(kind) +
+                                   " from GN server.");
+        return std::nullopt;
+    }
+  }
+  return std::nullopt;
+}
+
+int gn_main(int argc, const char** argv, Setup* setup) {
 #if defined(OS_WIN)
   base::CommandLine::set_slash_is_not_a_switch();
 #endif
@@ -407,6 +492,17 @@ int gn_main(int argc, char** argv) {
     args.erase(args.begin());
   }
 
+  if (setup == nullptr) {
+    Err server_err;
+    if (std::optional<int> return_code =
+            TryRunCommandInServer(command, argc, argv, &server_err)) {
+      return *return_code;
+    }
+    if (server_err.has_error()) {
+      server_err.PrintToStdout();
+    }
+  }
+
   if (!commands::CommandSwitches::Init(cmdline))
     return 1;
 
@@ -416,9 +512,12 @@ int gn_main(int argc, char** argv) {
 
   int retval;
   if (found_command != command_map.end()) {
-    MsgLoop msg_loop;
+    std::optional<MsgLoop> msg_loop;
+    if (!MsgLoop::Current()) {
+      msg_loop.emplace();
+    }
     // Deliberately leaked to avoid expensive process teardown.
-    retval = found_command->second.runner(new Setup(), args);
+    retval = found_command->second.runner(setup ? setup : new Setup(), args);
   } else {
     Err(Location(), "Command \"" + command + "\" unknown.").PrintToStdout();
     OutputString(
@@ -429,7 +528,10 @@ int gn_main(int argc, char** argv) {
     retval = 1;
   }
 
-  exit(retval);  // Don't free memory, it can be really slow!
+  if (setup == nullptr) {
+    exit(retval);  // Don't free memory, it can be really slow!
+  }
+  return retval;
 }
 
 CommandInfo::CommandInfo()
@@ -460,6 +562,7 @@ const CommandInfoMap& GetCommands() {
     INSERT_COMMAND(Path)
     INSERT_COMMAND(Refs)
     INSERT_COMMAND(Suggest)
+    INSERT_COMMAND(Server)
     INSERT_COMMAND(CleanStale)
 
 #undef INSERT_COMMAND

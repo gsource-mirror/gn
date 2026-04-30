@@ -98,6 +98,11 @@ extern const char kRefs_HelpShort[];
 extern const char kRefs_Help[];
 int RunRefs(Setup* setup, const std::vector<std::string>& args);
 
+extern const char kServer[];
+extern const char kServer_HelpShort[];
+extern const char kServer_Help[];
+int RunServer(Setup* setup, const std::vector<std::string>& args);
+
 extern const char kSuggest[];
 extern const char kSuggest_HelpShort[];
 extern const char kSuggest_Help[];
@@ -391,7 +396,19 @@ void GetTargetsContainingFile(Setup* setup,
 // Extra help from command_check.cc
 extern const char kNoGnCheck_Help[];
 
-int gn_main(int argc, char** argv);
+int gn_main(int argc, const char** argv, Setup* setup = nullptr);
+
+enum ServerProtocol : uint32_t {
+  // The client is requesting the server to run something.
+  // Type: int (argc), followed by argc strings.
+  kRunCommand,
+  // The server has exited with a status.
+  // Type: int
+  kReturnCode,
+  // The server is calling OutputString.
+  // Type: (TextDecoration, HtmlEscaping, String)
+  kOutputString,
+};
 
 }  // namespace commands
 

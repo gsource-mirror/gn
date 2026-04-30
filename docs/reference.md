@@ -19,6 +19,7 @@
     *   [outputs: Which files a source/target make.](#cmd_outputs)
     *   [path: Find paths between two targets.](#cmd_path)
     *   [refs: Find stuff referencing a target or file.](#cmd_refs)
+    *   [server: Run a persistent GN server daemon.](#cmd_server)
     *   [suggest: Suggest fixes to build graph based on includes.](#cmd_suggest)
 *   [Target declarations](#targets)
     *   [action: Declare a target that runs a script a single time.](#func_action)
@@ -1394,6 +1395,14 @@
           --all --as=output
       Display the executable file names of all test executables
       potentially affected by a change to the given file.
+```
+### <a name="cmd_server"></a>**server**: Run a persistent GN server daemon.&nbsp;[Back to Top](#gn-reference)
+
+```
+  gn server <out_dir>
+
+  Starts a background daemon that caches the parsed build graph in memory, 
+  greatly accelerating subsequent queries from the GN thin-client.
 ```
 ### <a name="cmd_suggest"></a>**suggest**: Suggest fixes to build graph based on includes.&nbsp;[Back to Top](#gn-reference)
 

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81f330e4_cb14d302",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-30T02:02:14Z",
+      "side": 1,
+      "message": "For reference, the context on why this is needed is that my clang plugin requires streaming `gn suggest` subcommands.",
+      "revId": "d1c8b9c2633cf261a860287f7f28d6b4cae215dc",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

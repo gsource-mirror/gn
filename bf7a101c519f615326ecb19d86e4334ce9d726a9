@@ -22,6 +22,30 @@
       },
       "revId": "bf7a101c519f615326ecb19d86e4334ce9d726a9",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96b857a2_91ddb3f9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-04-30T01:55:44Z",
+      "side": 1,
+      "message": "Look at the child CLs, the \"Create a GN shell\" CL is the context.",
+      "parentUuid": "5221cb6a_1ff5cb41",
+      "range": {
+        "startLine": 9,
+        "startChar": 24,
+        "endLine": 9,
+        "endChar": 32
+      },
+      "revId": "bf7a101c519f615326ecb19d86e4334ce9d726a9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

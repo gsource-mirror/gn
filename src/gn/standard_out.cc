@@ -102,9 +102,23 @@ bool IsColorEnabled() {
   return is_console;
 }
 
+std::optional<std::function<void(std::string_view, TextDecoration, HtmlEscaping)>> OutputStringOverride;
+
+void SetOutputStringOverride(std::optional<std::function<void(std::string_view, TextDecoration, HtmlEscaping)>> func) {
+  OutputStringOverride = func;
+}
+
+void OutputString(std::string_view output, TextDecoration dec, HtmlEscaping escaping) {
+  if (OutputStringOverride) {
+    (*OutputStringOverride)(output, dec, escaping);
+  } else {
+    OutputStringLocal(output, dec, escaping);
+  }
+}
+
 #if defined(OS_WIN)
 
-void OutputString(std::string_view output,
+void OutputStringLocal(std::string_view output,
                   TextDecoration dec,
                   HtmlEscaping escaping) {
   EnsureInitialized();
@@ -167,7 +181,7 @@ void OutputString(std::string_view output,
 
 #else
 
-void OutputString(std::string_view output,
+void OutputStringLocal(std::string_view output,
                   TextDecoration dec,
                   HtmlEscaping escaping) {
   EnsureInitialized();

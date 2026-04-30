@@ -24,6 +24,7 @@
 #include "gn/scheduler.h"
 #include "gn/scope.h"
 #include "gn/settings.h"
+#include "gn/standard_out.h"
 #include "gn/template.h"
 #include "gn/token.h"
 #include "gn/value.h"
@@ -983,8 +984,7 @@ Value RunPrint(Scope* scope,
   if (cb) {
     cb(output);
   } else {
-    printf("%s", output.c_str());
-    fflush(stdout);
+    OutputString(output);
   }
 
   return Value();
@@ -1045,8 +1045,7 @@ Value RunPrintStackTrace(Scope* scope,
   if (cb) {
     cb(output);
   } else {
-    printf("%s", output.c_str());
-    fflush(stdout);
+    OutputString(output);
   }
 
   return Value();

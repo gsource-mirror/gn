@@ -5,6 +5,8 @@
 #ifndef TOOLS_GN_STANDARD_OUT_H_
 #define TOOLS_GN_STANDARD_OUT_H_
 
+#include <functional>
+#include <optional>
 #include <string>
 
 enum TextDecoration {
@@ -28,6 +30,13 @@ enum HtmlEscaping {
 void OutputString(std::string_view output,
                   TextDecoration dec = DECORATION_NONE,
                   HtmlEscaping = DEFAULT_ESCAPING);
+
+void SetOutputStringOverride(std::optional<std::function<void(std::string_view, TextDecoration, HtmlEscaping)>> func);
+
+void OutputStringLocal(std::string_view output,
+                  TextDecoration dec = DECORATION_NONE,
+                  HtmlEscaping = DEFAULT_ESCAPING);
+
 
 // If printing markdown, this generates table-of-contents entries with
 // links to the actual help; otherwise, prints a one-line description.

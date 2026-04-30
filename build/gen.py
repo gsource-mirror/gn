@@ -648,6 +648,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/base/timer/elapsed_timer.cc',
         'src/base/value_iterators.cc',
         'src/base/values.cc',
+        'src/util/socket.cc',
       ]},
       'gn_lib': {'sources': [
         'src/gn/action_target_generator.cc',
@@ -679,6 +680,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/command_outputs.cc',
         'src/gn/command_path.cc',
         'src/gn/command_refs.cc',
+        'src/gn/command_server.cc',
         'src/gn/command_suggest.cc',
         'src/gn/commands.cc',
         'src/gn/compile_commands_writer.cc',
@@ -926,6 +928,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/xml_element_writer_unittest.cc',
         'src/util/atomic_write_unittest.cc',
         'src/util/sys_info_unittest.cc',
+        'src/util/socket_unittest.cc',
         'src/util/test/gn_test.cc',
       ], 'libs': []},
   }

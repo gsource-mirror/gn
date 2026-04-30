@@ -102,11 +102,32 @@ bool IsColorEnabled() {
   return is_console;
 }
 
-#if defined(OS_WIN)
+std::optional<
+    std::function<void(std::string_view, TextDecoration, HtmlEscaping)>>
+    OutputStringOverride;
+
+void SetOutputStringOverride(
+    std::optional<
+        std::function<void(std::string_view, TextDecoration, HtmlEscaping)>>
+        func) {
+  OutputStringOverride = func;
+}
 
 void OutputString(std::string_view output,
                   TextDecoration dec,
                   HtmlEscaping escaping) {
+  if (OutputStringOverride) {
+    (*OutputStringOverride)(output, dec, escaping);
+  } else {
+    OutputStringLocal(output, dec, escaping);
+  }
+}
+
+#if defined(OS_WIN)
+
+void OutputStringLocal(std::string_view output,
+                       TextDecoration dec,
+                       HtmlEscaping escaping) {
   EnsureInitialized();
   DWORD written = 0;
 
@@ -167,9 +188,9 @@ void OutputString(std::string_view output,
 
 #else
 
-void OutputString(std::string_view output,
-                  TextDecoration dec,
-                  HtmlEscaping escaping) {
+void OutputStringLocal(std::string_view output,
+                       TextDecoration dec,
+                       HtmlEscaping escaping) {
   EnsureInitialized();
   if (is_markdown) {
     OutputMarkdownDec(dec);

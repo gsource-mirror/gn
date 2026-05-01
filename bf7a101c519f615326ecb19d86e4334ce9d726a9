@@ -46,6 +46,30 @@
       },
       "revId": "bf7a101c519f615326ecb19d86e4334ce9d726a9",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eacf9390_1f2c9286",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-01T05:50:44Z",
+      "side": 1,
+      "message": "I still want to know more context. Also it is better if this includes link to the main CL directly as a reference.",
+      "parentUuid": "96b857a2_91ddb3f9",
+      "range": {
+        "startLine": 9,
+        "startChar": 24,
+        "endLine": 9,
+        "endChar": 32
+      },
+      "revId": "bf7a101c519f615326ecb19d86e4334ce9d726a9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

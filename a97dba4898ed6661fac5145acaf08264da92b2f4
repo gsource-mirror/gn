@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0859362a_aac6118a",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 18
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-05-01T06:59:03Z",
+      "side": 1,
+      "message": "Btw, NinjaRustBinaryTargetWriter also needs a similar logic?\n\nFor example, I wonder this Rust target may includes many .dwo from //base in the order only deps.\nhttps://source.chromium.org/chromium/chromium/src/+/main:mojo/public/rust/system/BUILD.gn;l\u003d8;drc\u003d1799a344773049aaf2975692ddc18fee0ab711e4\n\n```\nrust_static_library(\"system\") {\n  ...\n  deps \u003d [\n    \"//base\",\n    ...\n  ]\n  public_deps \u003d [ \":scoped_handle_interop_cc\" ]\n}\n\nsource_set(\"scoped_handle_interop_cc\") {\n  sources \u003d [\n    \"scoped_handle_interop.cc\",\n    \"scoped_handle_interop.h\",\n  ]\n  deps \u003d [\n    \"//base\",\n    \"//mojo/public/cpp/system\",\n  ]\n}\n```",
+      "range": {
+        "startLine": 806,
+        "startChar": 5,
+        "endLine": 806,
+        "endChar": 29
+      },
+      "revId": "a97dba4898ed6661fac5145acaf08264da92b2f4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f643f8a8_e48d682b",
         "filename": "src/gn/ninja_c_binary_target_writer.cc",
         "patchSetId": 18

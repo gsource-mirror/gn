@@ -805,20 +805,68 @@ void NinjaCBinaryTargetWriter::WriteLibsList(
 
 void NinjaCBinaryTargetWriter::WriteOrderOnlyDependencies(
     const UniqueVector<const Target*>& non_linkable_deps) {
-  if (!non_linkable_deps.empty()) {
-    out_ << " ||";
+  if (non_linkable_deps.empty())
+    return;
 
-    // Non-linkable targets.
-    for (auto* non_linkable_dep : non_linkable_deps) {
-      if (non_linkable_dep->has_dependency_output()) {
-        out_ << " ";
-        OutputFile dep_output = non_linkable_dep->dependency_output();
-        if (non_linkable_dep->output_type() == Target::SOURCE_SET) {
-          dep_output.value().append(".linkdeps");
-        }
-        path_output_.WriteFile(out_, dep_output);
-      }
+  out_ << " ||";
+
+  std::vector<const Target*> group_stack;
+  std::vector<OutputFile> outputs_to_write;
+  std::set<std::string> seen_outputs;
+
+  auto add_output = [&](const OutputFile& output) {
+    if (seen_outputs.insert(output.value()).second) {
+      outputs_to_write.push_back(output);
     }
+  };
+
+  for (auto* dep : non_linkable_deps) {
+    if (dep->output_type() == Target::GROUP) {
+      group_stack.push_back(dep);
+    } else if (dep->has_dependency_output()) {
+      OutputFile dep_output = dep->dependency_output();
+      if (dep->output_type() == Target::SOURCE_SET) {
+        dep_output.value().append(".linkdeps");
+      }
+      add_output(dep_output);
+    }
+  }
+
+  // Recursively expand dependencies of groups to avoid unnecessary
+  // dependencies. If a group depends on a source set, we depend on its
+  // .linkdeps instead of the group itself. This prevents depending on
+  // non-object files (like .dwo files) that are listed as additional outputs of
+  // the source set, improving build parallelism.
+  std::set<const Target*> visited_groups;
+  while (!group_stack.empty()) {
+    const Target* current = group_stack.back();
+    group_stack.pop_back();
+
+    if (!visited_groups.insert(current).second)
+      continue;
+
+    auto add_deps = [&](const LabelTargetVector& deps) {
+      for (const auto& pair : deps) {
+        const Target* dep = pair.ptr;
+        if (dep->output_type() == Target::GROUP) {
+          group_stack.push_back(dep);
+        } else if (dep->has_dependency_output()) {
+          OutputFile dep_output = dep->dependency_output();
+          if (dep->output_type() == Target::SOURCE_SET) {
+            dep_output.value().append(".linkdeps");
+          }
+          add_output(dep_output);
+        }
+      }
+    };
+
+    add_deps(current->public_deps());
+    add_deps(current->private_deps());
+  }
+
+  for (const auto& output : outputs_to_write) {
+    out_ << " ";
+    path_output_.WriteFile(out_, output);
   }
 }
 

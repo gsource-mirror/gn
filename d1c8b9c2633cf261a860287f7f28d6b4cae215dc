@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5934bc0d_f9c30632",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-01T05:48:47Z",
+      "side": 1,
+      "message": "Could you elaborate more about motivation why you want to run GN commands sequentially?",
+      "revId": "d1c8b9c2633cf261a860287f7f28d6b4cae215dc",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "81f330e4_cb14d302",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -14,6 +31,41 @@
       "writtenOn": "2026-04-30T02:02:14Z",
       "side": 1,
       "message": "For reference, the context on why this is needed is that my clang plugin requires streaming `gn suggest` subcommands.",
+      "revId": "d1c8b9c2633cf261a860287f7f28d6b4cae215dc",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac54a009_7c138aba",
+        "filename": "docs/reference.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 1404,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-01T05:48:47Z",
+      "side": 1,
+      "message": "It is better to explain how to call subcommands with more concrete example?",
+      "fixSuggestions": [
+        {
+          "fixId": "f8a977ea_11272725",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "docs/reference.md",
+              "range": {
+                "startLine": 1408,
+                "startChar": 0,
+                "endLine": 1416,
+                "endChar": 0
+              },
+              "replacement": "  * analyze \u003cinput_path\u003e \u003coutput_path\u003e\n  * desc \u003clabel or pattern\u003e [\u003cwhat to show\u003e] [--blame] [--format\u003djson]\n  * ls \u003clabel_pattern\u003e [--default-toolchain] [--as\u003d...] [--type\u003d...] [--testonly\u003d...]\n  * meta \u003ctarget\u003e* --data\u003d\u003ckey\u003e[,\u003ckey\u003e*]* [--walk\u003d\u003ckey\u003e[,\u003ckey\u003e*]*] [--rebase\u003d\u003cdest dir\u003e]\n  * outputs \u003clist of target or file names...\u003e\n  * path \u003ctarget_one\u003e \u003ctarget_two\u003e [--all] [--public] [--with-data]\n  * refs (\u003clabel_pattern\u003e|\u003clabel\u003e|\u003cfile\u003e|@\u003cresponse_file\u003e)* [--all] [--default-toolchain] [--as\u003d...] [--testonly\u003d...] [--type\u003d...] [--relation\u003d...]\n  * suggest includer1\u003dincluded1 includer2\u003dincluded2...\n\n  Example of usage within the shell:\n  \u003e desc //base:base\n  \u003e ls //tools/* --type\u003dexecutable\n  \u003e path //base //tools/gn\n"
+            }
+          ]
+        }
+      ],
       "revId": "d1c8b9c2633cf261a860287f7f28d6b4cae215dc",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

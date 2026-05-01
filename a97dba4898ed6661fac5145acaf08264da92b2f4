@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "32acc82a_dfbdfade",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 18
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-01T06:49:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f643f8a8_e48d682b",
+      "range": {
+        "startLine": 858,
+        "startChar": 0,
+        "endLine": 862,
+        "endChar": 6
+      },
+      "revId": "a97dba4898ed6661fac5145acaf08264da92b2f4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8b1eb52_22fc5914",
@@ -55,6 +79,24 @@
           ]
         }
       ],
+      "revId": "a97dba4898ed6661fac5145acaf08264da92b2f4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ecc9d25_3af390f1",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 18
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-01T06:49:23Z",
+      "side": 1,
+      "message": "No, data_deps isn\u0027t used to propagate .o files to link dependencies.",
+      "parentUuid": "a8b1eb52_22fc5914",
       "revId": "a97dba4898ed6661fac5145acaf08264da92b2f4",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

@@ -122,6 +122,24 @@
       "parentUuid": "a8b1eb52_22fc5914",
       "revId": "a97dba4898ed6661fac5145acaf08264da92b2f4",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e823ac24_86027931",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 18
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-05-01T07:24:43Z",
+      "side": 1,
+      "message": "I understand that data_deps aren\u0027t necessary for linking.\nThis is how I understand the \"current\" GN works. Please correct me if I\u0027m wrong.\n\ndata_deps are added as order-only deps in the previous patch, which guarantees for the data_deps to be built when linking the executable.\n\ne.g.\n```\nbuild foo_test: link ... | ... || foo_test_data_deps\n```\n\nWhen you run `ninja foo_test`, it makes sure that `foo_test_data_deps` to be built. \nWith this patch, `foo_test_data_deps` won\u0027t be built by running `ninja foo_test`?",
+      "parentUuid": "4ecc9d25_3af390f1",
+      "revId": "a97dba4898ed6661fac5145acaf08264da92b2f4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

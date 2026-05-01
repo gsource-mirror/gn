@@ -805,20 +805,69 @@ void NinjaCBinaryTargetWriter::WriteLibsList(
 
 void NinjaCBinaryTargetWriter::WriteOrderOnlyDependencies(
     const UniqueVector<const Target*>& non_linkable_deps) {
-  if (!non_linkable_deps.empty()) {
-    out_ << " ||";
+  if (non_linkable_deps.empty())
+    return;
 
-    // Non-linkable targets.
-    for (auto* non_linkable_dep : non_linkable_deps) {
-      if (non_linkable_dep->has_dependency_output()) {
-        out_ << " ";
-        OutputFile dep_output = non_linkable_dep->dependency_output();
-        if (non_linkable_dep->output_type() == Target::SOURCE_SET) {
-          dep_output.value().append(".linkdeps");
-        }
-        path_output_.WriteFile(out_, dep_output);
-      }
+  out_ << " ||";
+
+  std::vector<const Target*> group_stack;
+  std::vector<OutputFile> outputs_to_write;
+  std::set<std::string> seen_outputs;
+
+  // Helper lambda to add an output file to the list if it hasn't been seen yet.
+  auto add_output = [&](const OutputFile& output) {
+    if (seen_outputs.insert(output.value()).second) {
+      outputs_to_write.push_back(output);
     }
+  };
+
+  // Helper lambda to process a dependency.
+  // If it's a group, it schedules it for recursive expansion.
+  // Otherwise, it extracts the dependency's output (using .linkdeps for source
+  // sets).
+  auto process_dep = [&](const Target* dep) {
+    if (dep->output_type() == Target::GROUP) {
+      group_stack.push_back(dep);
+    } else if (dep->has_dependency_output()) {
+      OutputFile dep_output = dep->dependency_output();
+      if (dep->output_type() == Target::SOURCE_SET) {
+        dep_output.value().append(".linkdeps");
+      }
+      add_output(dep_output);
+    }
+  };
+
+  for (auto* dep : non_linkable_deps) {
+    process_dep(dep);
+  }
+
+  // Recursively expand dependencies of groups to avoid unnecessary dependencies.
+  // If a group depends on a source set, we depend on its .linkdeps instead of
+  // the group itself. This prevents including non-object files (like .dwo files)
+  // in order-only dependencies. This is crucial for remote linking to avoid
+  // uploading unnecessary files, which increases data transfer and could hit
+  // file count limits.
+  std::set<const Target*> visited_groups;
+  while (!group_stack.empty()) {
+    const Target* current = group_stack.back();
+    group_stack.pop_back();
+
+    if (!visited_groups.insert(current).second)
+      continue;
+
+    auto add_deps = [&](const LabelTargetVector& deps) {
+      for (const auto& pair : deps) {
+        process_dep(pair.ptr);
+      }
+    };
+
+    add_deps(current->public_deps());
+    add_deps(current->private_deps());
+  }
+
+  for (const auto& output : outputs_to_write) {
+    out_ << " ";
+    path_output_.WriteFile(out_, output);
   }
 }
 

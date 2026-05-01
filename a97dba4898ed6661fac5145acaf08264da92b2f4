@@ -1,0 +1,62 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f643f8a8_e48d682b",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 18
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-05-01T06:40:15Z",
+      "side": 1,
+      "message": "nit: Can this be moved outside of the loop?",
+      "range": {
+        "startLine": 858,
+        "startChar": 0,
+        "endLine": 862,
+        "endChar": 6
+      },
+      "revId": "a97dba4898ed6661fac5145acaf08264da92b2f4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8b1eb52_22fc5914",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 18
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-05-01T06:40:15Z",
+      "side": 1,
+      "message": "Does this also need to traverse `data_deps()` to be compatible with the current GN behavior that waits data_deps to be ready before linking step?",
+      "fixSuggestions": [
+        {
+          "fixId": "1e9e7162_8a668258",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_c_binary_target_writer.cc",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "    add_deps(current-\u003edata_deps());\n"
+            }
+          ]
+        }
+      ],
+      "revId": "a97dba4898ed6661fac5145acaf08264da92b2f4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

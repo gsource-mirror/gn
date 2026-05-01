@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "gn/ninja_c_binary_target_writer.h"
+#include "gn/ninja_group_target_writer.h"
 
 #include <memory>
 #include <sstream>
@@ -371,6 +372,145 @@ TEST_F(NinjaCBinaryTargetWriterTest,
         "  source_name_part = a\n"
         "\n"
         "build obj/foo/liba.a: alink obj/foo/liba.a.o || phony/foo/b.linkdeps\n"
+        "  arflags =\n"
+        "  output_extension =\n"
+        "  output_dir =\n";
+
+    EXPECT_EQ(expected, out.str());
+  }
+
+  // Shared library C (depender)
+  Target target_c(setup.settings(), Label(SourceDir("//foo/"), "c"));
+  target_c.set_output_type(Target::SHARED_LIBRARY);
+  target_c.sources().push_back(SourceFile("//foo/c.cc"));
+  target_c.source_types_used().Set(SourceFile::SOURCE_CPP);
+  target_c.private_deps().push_back(LabelTargetPair(&target_b));
+  target_c.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(target_c.OnResolved(&err)) << err.message();
+
+  // Verify C's output
+  {
+    std::ostringstream out;
+    NinjaCBinaryTargetWriter writer(&target_c, out);
+    writer.Run();
+
+    const char expected[] =
+        "defines =\n"
+        "include_dirs =\n"
+        "cflags =\n"
+        "cflags_cc =\n"
+        "root_out_dir = .\n"
+        "target_gen_dir = gen/foo\n"
+        "target_out_dir = obj/foo\n"
+        "target_output_name = libc\n"
+        "\n"
+        "build obj/foo/libc.c.o: cxx ../../foo/c.cc\n"
+        "  source_file_part = c.cc\n"
+        "  source_name_part = c\n"
+        "\n"
+        "build ./libc.so: solink obj/foo/libc.c.o obj/foo/b.b.o obj/foo/b.b2.o "
+        "|| phony/foo/b.linkdeps\n"
+        "  ldflags =\n"
+        "  libs =\n"
+        "  frameworks =\n"
+        "  swiftmodules =\n"
+        "  output_extension = .so\n"
+        "  output_dir =\n";
+
+    EXPECT_EQ(expected, out.str());
+  }
+
+  // Executable D (depender)
+  Target target_d(setup.settings(), Label(SourceDir("//foo/"), "d"));
+  target_d.set_output_type(Target::EXECUTABLE);
+  target_d.sources().push_back(SourceFile("//foo/d.cc"));
+  target_d.source_types_used().Set(SourceFile::SOURCE_CPP);
+  target_d.private_deps().push_back(LabelTargetPair(&target_b));
+  target_d.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(target_d.OnResolved(&err)) << err.message();
+
+  // Verify D's output
+  {
+    std::ostringstream out;
+    NinjaCBinaryTargetWriter writer(&target_d, out);
+    writer.Run();
+
+    const char expected[] =
+        "defines =\n"
+        "include_dirs =\n"
+        "cflags =\n"
+        "cflags_cc =\n"
+        "root_out_dir = .\n"
+        "target_gen_dir = gen/foo\n"
+        "target_out_dir = obj/foo\n"
+        "target_output_name = d\n"
+        "\n"
+        "build obj/foo/d.d.o: cxx ../../foo/d.cc\n"
+        "  source_file_part = d.cc\n"
+        "  source_name_part = d\n"
+        "\n"
+        "build ./d: link obj/foo/d.d.o obj/foo/b.b.o obj/foo/b.b2.o "
+        "|| phony/foo/b.linkdeps\n"
+        "  ldflags =\n"
+        "  libs =\n"
+        "  frameworks =\n"
+        "  swiftmodules =\n"
+        "  output_extension =\n"
+        "  output_dir =\n";
+
+    EXPECT_EQ(expected, out.str());
+  }
+
+  // Group E (depender)
+  Target target_e(setup.settings(), Label(SourceDir("//foo/"), "e"));
+  target_e.set_output_type(Target::GROUP);
+  target_e.visibility().SetPublic();
+  target_e.private_deps().push_back(LabelTargetPair(&target_b));
+  target_e.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(target_e.OnResolved(&err)) << err.message();
+
+  // Verify E's output
+  {
+    std::ostringstream out;
+    NinjaGroupTargetWriter writer(&target_e, out);
+    writer.Run();
+
+    const char expected[] =
+        "build phony/foo/e: phony phony/foo/b\n";
+
+    EXPECT_EQ(expected, out.str());
+  }
+
+  // Static library F (depender on group E)
+  Target target_f(setup.settings(), Label(SourceDir("//foo/"), "f"));
+  target_f.set_output_type(Target::STATIC_LIBRARY);
+  target_f.sources().push_back(SourceFile("//foo/f.cc"));
+  target_f.source_types_used().Set(SourceFile::SOURCE_CPP);
+  target_f.private_deps().push_back(LabelTargetPair(&target_e));
+  target_f.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(target_f.OnResolved(&err)) << err.message();
+
+  // Verify F's output
+  {
+    std::ostringstream out;
+    NinjaCBinaryTargetWriter writer(&target_f, out);
+    writer.Run();
+
+    const char expected[] =
+        "defines =\n"
+        "include_dirs =\n"
+        "cflags =\n"
+        "cflags_cc =\n"
+        "root_out_dir = .\n"
+        "target_gen_dir = gen/foo\n"
+        "target_out_dir = obj/foo\n"
+        "target_output_name = libf\n"
+        "\n"
+        "build obj/foo/libf.f.o: cxx ../../foo/f.cc\n"
+        "  source_file_part = f.cc\n"
+        "  source_name_part = f\n"
+        "\n"
+        "build obj/foo/libf.a: alink obj/foo/libf.f.o || phony/foo/b.linkdeps\n"
         "  arflags =\n"
         "  output_extension =\n"
         "  output_dir =\n";

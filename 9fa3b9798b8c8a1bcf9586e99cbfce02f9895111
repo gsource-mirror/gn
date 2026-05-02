@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a8b836dd_55970820",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001972
+      },
+      "writtenOn": "2026-05-02T23:58:47Z",
+      "side": 1,
+      "message": "One more test case was added as part of the follow-on actions.",
+      "parentUuid": "c6e9edee_3e282370",
+      "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1537f8b6_495de86f",
         "filename": "src/gn/command_format.cc",
         "patchSetId": 19
@@ -59,6 +77,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1323973_84e0ca31",
+        "filename": "src/gn/command_format.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 1001972
+      },
+      "writtenOn": "2026-05-02T23:58:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1537f8b6_495de86f",
+      "range": {
+        "startLine": 356,
+        "startChar": 8,
+        "endLine": 356,
+        "endChar": 67
+      },
+      "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "676e67c9_df1d5b19",
@@ -72,6 +114,30 @@
       "writtenOn": "2026-04-27T02:25:08Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: This logic for numbered lists has a few issues:\n1. It only supports single digits (1-9). A list item like `# 10. item` will fail because `trimmed[3]` is `0`.\n2. It requires a space immediately after the digit, but most numbered lists use a dot (e.g., `# 1. item`).\n\nConsider checking for a digit followed by optional digits and then either a space or a dot and a space.\n\nThis logic for numbered lists has a few issues:\n1. It only supports single digits (1-9). A list item like `# 10. item` will fail because `trimmed[3]` is `0`.\n2. It requires a space immediately after the digit, but most numbered lists use a dot (e.g., `# 1. item`).\n\nConsider checking for a digit followed by optional digits and then either a space or a dot and a space.",
+      "range": {
+        "startLine": 361,
+        "startChar": 0,
+        "endLine": 361,
+        "endChar": 0
+      },
+      "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "773746ce_b9019d87",
+        "filename": "src/gn/command_format.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1001972
+      },
+      "writtenOn": "2026-05-02T23:58:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "676e67c9_df1d5b19",
       "range": {
         "startLine": 361,
         "startChar": 0,
@@ -123,6 +189,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5dd24f72_5cd762cd",
+        "filename": "src/gn/command_format.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 1001972
+      },
+      "writtenOn": "2026-05-02T23:58:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5453c82f_7b6b9bfd",
+      "range": {
+        "startLine": 404,
+        "startChar": 8,
+        "endLine": 404,
+        "endChar": 53
+      },
+      "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98efb550_52da2cbb",
@@ -160,6 +250,30 @@
           ]
         }
       ],
+      "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09429f8e_7acaea4f",
+        "filename": "src/gn/command_format_unittest.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1001972
+      },
+      "writtenOn": "2026-05-02T23:58:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98efb550_52da2cbb",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 11
+      },
       "revId": "9fa3b9798b8c8a1bcf9586e99cbfce02f9895111",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

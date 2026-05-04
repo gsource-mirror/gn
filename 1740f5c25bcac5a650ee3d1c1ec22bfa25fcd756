@@ -1,0 +1,94 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d6fa990_c5f6f3d2",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-05-04T14:37:28Z",
+      "side": 1,
+      "message": "nit: Use an UniqueVector\u003cOutputFile\u003e for outputs_to_write to avoid using an extra set and custom lambda.",
+      "fixSuggestions": [
+        {
+          "fixId": "ebdcc960_75536b40",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_binary_target_writer.cc",
+              "range": {
+                "startLine": 555,
+                "startChar": 0,
+                "endLine": 563,
+                "endChar": 0
+              },
+              "replacement": "  UniqueVector\u003cOutputFile\u003e outputs_to_write;\n"
+            },
+            {
+              "path": "src/gn/ninja_binary_target_writer.cc",
+              "range": {
+                "startLine": 572,
+                "startChar": 0,
+                "endLine": 573,
+                "endChar": 0
+              },
+              "replacement": "      outputs_to_write.push_back(dep_output);\n"
+            },
+            {
+              "path": "src/gn/ninja_binary_target_writer.cc",
+              "range": {
+                "startLine": 605,
+                "startChar": 0,
+                "endLine": 606,
+                "endChar": 0
+              },
+              "replacement": "  return outputs_to_write.take();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "1740f5c25bcac5a650ee3d1c1ec22bfa25fcd756",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cde100d_f7994379",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-05-04T14:37:28Z",
+      "side": 1,
+      "message": "Doing this recursive expansion for all Ninja target is extremely wasteful. Consider using ResolvedTargetData instead to propagate the values bottom-up and cache the values between multiple dependents.\n\nIn other words, add a new ResolvedTargetData::GetOrderOnlyDeps() function to compute what you need (and make group() targets trivially export the OrderOnlyDeps() of their dependencies to generalize this solution) then use it here.",
+      "fixSuggestions": [
+        {
+          "fixId": "dc99e167_2dccbe9b",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_binary_target_writer.cc",
+              "range": {
+                "startLine": 554,
+                "startChar": 0,
+                "endLine": 606,
+                "endChar": 0
+              },
+              "replacement": "  // TODO(sbc): The recursive expansion for order-only dependencies should be\n  // computed bottom-up and cached in ResolvedTargetData to avoid redundant\n  // work across multiple targets. The logic for expanding groups and collecting\n  // .linkdeps from source sets should live in a new method on ResolvedTargetData.\n  //\n  // Example of how the new ResolvedTargetData method would be used:\n  return resolved().GetOrderOnlyDeps(target_);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "1740f5c25bcac5a650ee3d1c1ec22bfa25fcd756",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

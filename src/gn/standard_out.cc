@@ -6,6 +6,7 @@
 
 #include <stddef.h>
 
+#include <mutex>
 #include <string_view>
 #include <vector>
 
@@ -37,6 +38,66 @@ bool is_markdown = false;
 
 // True while output is going into a markdown ```...``` code block.
 bool in_body = false;
+
+// This function is the final output for each platform (implemented below).
+void WriteOutputString(std::string_view output,
+                       TextDecoration dec,
+                       HtmlEscaping escaping);
+
+// Collects buffered log output for quiet mode.
+class QuietModeBuffer {
+ public:
+  void Append(std::string_view output,
+              TextDecoration decoration,
+              HtmlEscaping escaping) {
+    {
+      std::lock_guard<std::mutex> lock(lock_);
+      if (!is_flushed_) {
+        output_buffer_.push_back({std::string(output), decoration, escaping});
+        return;
+      }
+      // Otherwise fall-through to printing to stdout outside the lock.
+    }
+    WriteOutputString(output, decoration, escaping);
+  }
+
+  // Outputs any queued output to the standard out.
+  void Flush() {
+    // Do everything inside the lock so we guarantee we flush all previous
+    // output before writing something else from another thread. Flushing will
+    // only happen in error cases so this will not be performance-critical.
+    std::lock_guard<std::mutex> lock(lock_);
+
+    if (is_flushed_)
+      return;
+    is_flushed_ = true;
+
+    for (const BufferedOutput& output : output_buffer_) {
+      WriteOutputString(output.output, output.decoration, output.escaping);
+    }
+    output_buffer_.clear();
+  }
+
+ private:
+  struct BufferedOutput {
+    std::string output;
+    TextDecoration decoration;
+    HtmlEscaping escaping;
+  };
+
+  std::mutex lock_;
+
+  // Set when we're in quiet mode but then flush the output. This means that
+  // future output should go directly to the terminal (this solves the problem
+  // of safely turning "off" quiet mode when we hit an error because
+  // quiet_mode_buffer isn't threadsafe).
+  bool is_flushed_ = false;
+
+  std::vector<BufferedOutput> output_buffer_;
+};
+
+// Non-null while buffering standard output. Deliberately leaked on shutdown.
+QuietModeBuffer* quiet_mode_buffer = nullptr;
 
 void EnsureInitialized() {
   if (initialized)
@@ -104,9 +165,11 @@ bool IsColorEnabled() {
 
 #if defined(OS_WIN)
 
-void OutputString(std::string_view output,
-                  TextDecoration dec,
-                  HtmlEscaping escaping) {
+namespace {
+
+void WriteOutputString(std::string_view output,
+                       TextDecoration dec,
+                       HtmlEscaping escaping) {
   EnsureInitialized();
   DWORD written = 0;
 
@@ -165,11 +228,15 @@ void OutputString(std::string_view output,
   }
 }
 
+}  // namespace
+
 #else
 
-void OutputString(std::string_view output,
-                  TextDecoration dec,
-                  HtmlEscaping escaping) {
+namespace {
+
+void WriteOutputString(std::string_view output,
+                       TextDecoration dec,
+                       HtmlEscaping escaping) {
   EnsureInitialized();
   if (is_markdown) {
     OutputMarkdownDec(dec);
@@ -221,7 +288,39 @@ void OutputString(std::string_view output,
   }
 }
 
+}  // namespace
+
 #endif
+
+void OutputString(std::string_view output,
+                  TextDecoration dec,
+                  HtmlEscaping escaping) {
+  WriteOutputString(output, dec, escaping);
+}
+
+void OutputLogString(std::string_view output,
+                     TextDecoration dec,
+                     HtmlEscaping escaping) {
+  if (quiet_mode_buffer) {
+    quiet_mode_buffer->Append(output, dec, escaping);
+    return;
+  }
+  WriteOutputString(output, dec, escaping);
+}
+
+void BufferLogOutput() {
+  if (quiet_mode_buffer) {
+    DCHECK(false);  // Expecting to only be called once.
+    return;
+  }
+  quiet_mode_buffer = new QuietModeBuffer();
+}
+
+void FlushBufferedOutput() {
+  if (quiet_mode_buffer) {
+    quiet_mode_buffer->Flush();
+  }
+}
 
 void PrintSectionHelp(const std::string& line,
                       const std::string& topic,

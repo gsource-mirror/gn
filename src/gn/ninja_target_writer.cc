@@ -324,6 +324,14 @@ void NinjaTargetWriter::WriteCCompilerVars(const SubstitutionBits& bits,
     RecursiveTargetConfigToStream<SourceDir>(
         kRecursiveWriterSkipDuplicates, target_, &ConfigValues::include_dirs,
         IncludeWriter(include_path_output), out_);
+
+    if (!settings_->build_settings()->secondary_source_path().empty()) {
+      std::string main_root_abs = FilePathToUTF8(settings_->build_settings()->secondary_source_path());
+      std::string main_root_rel = RebasePath(main_root_abs,
+                                             path_output_.current_dir(),
+                                             settings_->build_settings()->root_path_utf8());
+      out_ << " -I" << main_root_rel;
+    }
     out_ << std::endl;
   }
 

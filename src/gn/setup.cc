@@ -480,6 +480,7 @@ bool Setup::DoSetupWithErr(const std::string& build_dir,
                            bool force_create,
                            const base::CommandLine& cmdline,
                            Err* err) {
+  g_build_settings = &build_settings_;
   scheduler_.set_verbose_logging(cmdline.HasSwitch(switches::kVerbose));
   if (cmdline.HasSwitch(switches::kTime) ||
       cmdline.HasSwitch(switches::kTracelog))

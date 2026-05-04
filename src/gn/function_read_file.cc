@@ -61,12 +61,21 @@ Value RunReadFile(Scope* scope,
   base::FilePath file_path =
       scope->settings()->build_settings()->GetFullPath(source_file);
 
+  bool exists = base::PathExists(file_path);
+  if (!exists && !scope->settings()->build_settings()->secondary_source_path().empty()) {
+    base::FilePath secondary_path = scope->settings()->build_settings()->GetFullPathSecondary(source_file);
+    if (base::PathExists(secondary_path)) {
+      file_path = secondary_path;
+      exists = true;
+    }
+  }
+
   // Ensure that everything is recomputed if the read file changes.
   g_scheduler->AddGenDependency(file_path);
 
   // Read contents.
   std::string file_contents;
-  if (!base::ReadFileToString(file_path, &file_contents)) {
+  if (!exists || !base::ReadFileToString(file_path, &file_contents)) {
     *err = Err(args[0], "Could not read file.",
                "I resolved this to \"" + FilePathToUTF8(file_path) + "\".");
     return Value();

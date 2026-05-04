@@ -18,6 +18,7 @@
 #include "gn/source_file.h"
 #include "gn/trace.h"
 #include "gn/value.h"
+#include "gn/build_settings.h"
 #include "util/build_config.h"
 #include "util/ticks.h"
 
@@ -157,13 +158,22 @@ Value RunExecScript(Scope* scope,
     for (const auto& dep : deps_value.list_value()) {
       if (!dep.VerifyTypeIs(Value::STRING, err))
         return Value();
-      g_scheduler->AddGenDependency(build_settings->GetFullPath(
-          cur_dir.ResolveRelativeAs(
-              true, dep, err,
-              scope->settings()->build_settings()->root_path_utf8()),
-          true));
+
+      std::string dep_source_path = cur_dir.ResolveRelativeAs(
+          true, dep, err,
+          scope->settings()->build_settings()->root_path_utf8());
       if (err->has_error())
         return Value();
+
+      base::FilePath dep_path = build_settings->GetFullPath(dep_source_path, true);
+      if (!build_settings->secondary_source_path().empty() && !base::PathExists(dep_path)) {
+        base::FilePath secondary_path = build_settings->GetFullPathSecondary(dep_source_path, true);
+        if (base::PathExists(secondary_path)) {
+          dep_path = secondary_path;
+        }
+      }
+
+      g_scheduler->AddGenDependency(dep_path);
     }
   }
 
@@ -199,7 +209,28 @@ Value RunExecScript(Scope* scope,
     for (const auto& arg : script_args.list_value()) {
       if (!arg.VerifyTypeIs(Value::STRING, err))
         return Value();
-      cmdline.AppendArg(arg.string_value());
+
+      std::string arg_str = arg.string_value();
+
+      if (g_build_settings && !g_build_settings->secondary_source_path().empty()) {
+        base::FilePath arg_path;
+        if (IsPathAbsolute(arg_str)) {
+          arg_path = UTF8ToFilePath(arg_str);
+        } else {
+          arg_path = startup_dir.Append(UTF8ToFilePath(arg_str));
+        }
+        if (g_build_settings->root_path().IsParent(arg_path) || g_build_settings->root_path() == arg_path) {
+          if (!base::PathExists(arg_path)) {
+            base::FilePath rel_path = MakeAbsoluteFilePathRelativeIfPossible(g_build_settings->root_path(), arg_path);
+            base::FilePath secondary_path = g_build_settings->secondary_source_path().Append(rel_path);
+            if (base::PathExists(secondary_path)) {
+              arg_str = FilePathToUTF8(secondary_path);
+            }
+          }
+        }
+      }
+
+      cmdline.AppendArg(arg_str);
     }
   }
 

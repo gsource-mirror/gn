@@ -49,6 +49,21 @@ Value RunPathExists(Scope* scope,
   }
 
   bool exists = PathExists(system_path);
+  if (!exists && !scope->settings()->build_settings()->secondary_source_path().empty()) {
+    base::FilePath secondary_path;
+    if (as_dir) {
+      secondary_path = scope->settings()->build_settings()->GetFullPathSecondary(
+          cur_dir.ResolveRelativeDir(
+              value, err, scope->settings()->build_settings()->root_path_utf8()));
+    } else {
+      secondary_path = scope->settings()->build_settings()->GetFullPathSecondary(
+          cur_dir.ResolveRelativeFile(
+              value, err, scope->settings()->build_settings()->root_path_utf8()));
+    }
+    if (!err->has_error()) {
+      exists = PathExists(secondary_path);
+    }
+  }
   return Value(function, exists);
 }
 

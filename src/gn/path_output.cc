@@ -9,6 +9,8 @@
 #include "gn/output_file.h"
 #include "gn/string_utils.h"
 #include "util/build_config.h"
+#include "gn/build_settings.h"
+#include "base/files/file_util.h"
 
 PathOutput::PathOutput(const SourceDir& current_dir,
                        std::string_view source_root,
@@ -153,23 +155,47 @@ void PathOutput::WriteSourceRelativeString(std::ostream& out,
 void PathOutput::WritePathStr(std::ostream& out, std::string_view str) const {
   DCHECK(str.size() > 0 && str[0] == '/');
 
-  if (str.substr(0, current_dir_.value().size()) ==
+  std::string path_to_write(str);
+
+  if (g_build_settings && !g_build_settings->secondary_source_path().empty()) {
+    if (str.size() >= 2 && str[0] == '/' && str[1] == '/') {
+      if (!IsStringInOutputDir(g_build_settings->build_dir(), std::string(str))) {
+        std::string primary_abs = g_build_settings->root_path_utf8() + std::string(str.substr(1));
+        if (!base::PathExists(base::FilePath(UTF8ToFilePath(primary_abs)))) {
+          std::string secondary_abs = FilePathToUTF8(g_build_settings->secondary_source_path()) + std::string(str.substr(2));
+          if (base::PathExists(base::FilePath(UTF8ToFilePath(secondary_abs)))) {
+            std::string abs_path = secondary_abs;
+#if defined(OS_WIN)
+            if (abs_path.size() > 1 && abs_path[1] == ':') {
+              abs_path = "/" + abs_path;
+            }
+#endif
+            path_to_write = abs_path;
+          }
+        }
+      }
+    }
+  }
+
+  std::string_view str_to_use(path_to_write);
+
+  if (str_to_use.substr(0, current_dir_.value().size()) ==
       std::string_view(current_dir_.value())) {
     // The current dir is a prefix of the output file, so we can strip the
     // prefix and write out the result.
-    EscapeStringToStream(out, str.substr(current_dir_.value().size()),
+    EscapeStringToStream(out, str_to_use.substr(current_dir_.value().size()),
                          options_);
-  } else if (str.size() >= 2 && str[1] == '/') {
-    WriteSourceRelativeString(out, str.substr(2));
+  } else if (str_to_use.size() >= 2 && str_to_use[1] == '/') {
+    WriteSourceRelativeString(out, str_to_use.substr(2));
   } else {
 // Input begins with one slash, don't write the current directory since
 // it's system-absolute.
 #if defined(OS_WIN)
     // On Windows, trim the leading slash, since the input for absolute
     // paths will look like "/C:/foo/bar.txt".
-    EscapeStringToStream(out, str.substr(1), options_);
+    EscapeStringToStream(out, str_to_use.substr(1), options_);
 #else
-    EscapeStringToStream(out, str, options_);
+    EscapeStringToStream(out, str_to_use, options_);
 #endif
   }
 }

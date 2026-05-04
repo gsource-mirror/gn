@@ -15,10 +15,15 @@
 #include "gn/source_dir.h"
 #include "gn/source_file.h"
 #include "gn/value.h"
+#include "base/files/file_util.h"
 
 namespace functions {
 
 namespace {
+
+bool ShouldApplyRebasePathFallback(const std::string& path) {
+  return true;
+}
 
 // We want the output to match the input in terms of ending in a slash or not.
 // Through all the transformations, these can get added or removed in various
@@ -83,15 +88,39 @@ Value ConvertOnePath(const Scope* scope,
   if (convert_to_system_absolute) {
     base::FilePath system_path;
     if (looks_like_dir) {
-      system_path = scope->settings()->build_settings()->GetFullPath(
-          from_dir.ResolveRelativeDir(
-              value, err,
-              scope->settings()->build_settings()->root_path_utf8()));
+      SourceDir resolved = from_dir.ResolveRelativeDir(
+          value, err, scope->settings()->build_settings()->root_path_utf8());
+      if (err->has_error())
+        return Value();
+
+      const BuildSettings* build_settings = scope->settings()->build_settings();
+      system_path = build_settings->GetFullPath(resolved);
+      if (ShouldApplyRebasePathFallback(resolved.value()) &&
+          !IsStringInOutputDir(build_settings->build_dir(), resolved.value()) &&
+          !build_settings->secondary_source_path().empty() &&
+          !base::PathExists(system_path)) {
+        base::FilePath secondary_path = build_settings->GetFullPathSecondary(resolved);
+        if (base::PathExists(secondary_path)) {
+          system_path = secondary_path;
+        }
+      }
     } else {
-      system_path = scope->settings()->build_settings()->GetFullPath(
-          from_dir.ResolveRelativeFile(
-              value, err,
-              scope->settings()->build_settings()->root_path_utf8()));
+      SourceFile resolved = from_dir.ResolveRelativeFile(
+          value, err, scope->settings()->build_settings()->root_path_utf8());
+      if (err->has_error())
+        return Value();
+
+      const BuildSettings* build_settings = scope->settings()->build_settings();
+      system_path = build_settings->GetFullPath(resolved);
+      if (ShouldApplyRebasePathFallback(resolved.value()) &&
+          !IsStringInOutputDir(build_settings->build_dir(), resolved.value()) &&
+          !build_settings->secondary_source_path().empty() &&
+          !base::PathExists(system_path)) {
+        base::FilePath secondary_path = build_settings->GetFullPathSecondary(resolved);
+        if (base::PathExists(secondary_path)) {
+          system_path = secondary_path;
+        }
+      }
     }
     if (err->has_error())
       return Value();
@@ -109,6 +138,31 @@ Value ConvertOnePath(const Scope* scope,
     if (err->has_error()) {
       return Value();
     }
+
+    const BuildSettings* build_settings = scope->settings()->build_settings();
+    if (ShouldApplyRebasePathFallback(resolved.value()) &&
+        !IsStringInOutputDir(build_settings->build_dir(), resolved.value()) &&
+        IsStringInOutputDir(build_settings->build_dir(), to_dir.value()) &&
+        !build_settings->secondary_source_path().empty()) {
+      base::FilePath primary_path = build_settings->GetFullPath(resolved);
+      if (!base::PathExists(primary_path)) {
+        base::FilePath secondary_path = build_settings->GetFullPathSecondary(resolved);
+        if (base::PathExists(secondary_path)) {
+          std::string abs_path_str = FilePathToUTF8(secondary_path);
+#if defined(OS_WIN)
+          if (abs_path_str.size() > 1 && abs_path_str[1] == ':') {
+            abs_path_str = "/" + abs_path_str;
+          }
+#endif
+          result.string_value() =
+              RebasePath(abs_path_str, to_dir,
+                         build_settings->root_path_utf8());
+          MakeSlashEndingMatchInput(string_value, &result.string_value());
+          return result;
+        }
+      }
+    }
+
     result.string_value() =
         RebasePath(resolved.value(), to_dir,
                    scope->settings()->build_settings()->root_path_utf8());
@@ -119,6 +173,38 @@ Value ConvertOnePath(const Scope* scope,
     if (err->has_error()) {
       return Value();
     }
+
+    const BuildSettings* build_settings = scope->settings()->build_settings();
+    if (ShouldApplyRebasePathFallback(resolved_file.value()) &&
+        !IsStringInOutputDir(build_settings->build_dir(), resolved_file.value()) &&
+        IsStringInOutputDir(build_settings->build_dir(), to_dir.value()) &&
+        !build_settings->secondary_source_path().empty()) {
+      base::FilePath primary_path = build_settings->GetFullPath(resolved_file);
+      base::FilePath check_primary = primary_path;
+      if (check_primary.value().size() > 0 && check_primary.value().back() == '*') {
+        check_primary = check_primary.DirName();
+      }
+      if (!base::PathExists(check_primary)) {
+        base::FilePath secondary_path = build_settings->GetFullPathSecondary(resolved_file);
+        base::FilePath check_secondary = secondary_path;
+        if (check_secondary.value().size() > 0 && check_secondary.value().back() == '*') {
+          check_secondary = check_secondary.DirName();
+        }
+        if (base::PathExists(check_secondary)) {
+          std::string abs_path_str = FilePathToUTF8(secondary_path);
+#if defined(OS_WIN)
+          if (abs_path_str.size() > 1 && abs_path_str[1] == ':') {
+            abs_path_str = "/" + abs_path_str;
+          }
+#endif
+          result.string_value() =
+              RebasePath(abs_path_str, to_dir,
+                         build_settings->root_path_utf8());
+          return result;
+        }
+      }
+    }
+
     result.string_value() =
         RebasePath(resolved_file.value(), to_dir,
                    scope->settings()->build_settings()->root_path_utf8());

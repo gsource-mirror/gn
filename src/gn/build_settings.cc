@@ -9,6 +9,8 @@
 #include "base/files/file_util.h"
 #include "gn/filesystem_utils.h"
 
+const BuildSettings* g_build_settings = nullptr;
+
 BuildSettings::BuildSettings() = default;
 
 BuildSettings::BuildSettings(const BuildSettings& other)

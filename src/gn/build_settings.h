@@ -182,4 +182,6 @@ class BuildSettings {
   BuildSettings& operator=(const BuildSettings&) = delete;
 };
 
+extern const BuildSettings* g_build_settings;
+
 #endif  // TOOLS_GN_BUILD_SETTINGS_H_

@@ -16,6 +16,29 @@
       "message": "Happy to be the extra +1 (you need two), but Petr can hopefully give a better review.",
       "revId": "3b7cf77cef3dd828b626ed3a83a9ed4d8ca70b86",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e38c38c_cd69530b",
+        "filename": "src/gn/ninja_c_binary_target_writer_unittest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2026-05-04T08:16:56Z",
+      "side": 1,
+      "message": "IIUC this would include the rlib inside the archive, is that expected?",
+      "range": {
+        "startLine": 410,
+        "startChar": 31,
+        "endLine": 411,
+        "endChar": 31
+      },
+      "revId": "3b7cf77cef3dd828b626ed3a83a9ed4d8ca70b86",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

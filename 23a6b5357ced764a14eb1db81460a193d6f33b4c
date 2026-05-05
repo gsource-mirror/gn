@@ -16,6 +16,24 @@
       "message": "Better to have bug label with strict deps issue?",
       "revId": "23a6b5357ced764a14eb1db81460a193d6f33b4c",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "373b62af_fe509b49",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-05T03:00:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58d80837_3049ae11",
+      "revId": "23a6b5357ced764a14eb1db81460a193d6f33b4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -313,6 +313,10 @@ AccessorNode::AccessorNode() = default;
 
 AccessorNode::~AccessorNode() = default;
 
+void AccessorNode::set_member(std::unique_ptr<IdentifierNode> i) {
+  member_ = std::move(i);
+}
+
 const AccessorNode* AccessorNode::AsAccessor() const {
   return this;
 }
@@ -568,6 +572,10 @@ BlockNode::BlockNode(ResultMode result_mode) : result_mode_(result_mode) {}
 
 BlockNode::~BlockNode() = default;
 
+void BlockNode::set_end(std::unique_ptr<EndNode> e) {
+  end_ = std::move(e);
+}
+
 const BlockNode* BlockNode::AsBlock() const {
   return this;
 }
@@ -765,6 +773,10 @@ FunctionCallNode::FunctionCallNode() = default;
 
 FunctionCallNode::~FunctionCallNode() = default;
 
+void FunctionCallNode::set_args(std::unique_ptr<ListNode> a) {
+  args_ = std::move(a);
+}
+
 const FunctionCallNode* FunctionCallNode::AsFunctionCall() const {
   return this;
 }
@@ -888,6 +900,10 @@ void IdentifierNode::SetNewLocation(int line_number) {
 ListNode::ListNode() = default;
 
 ListNode::~ListNode() = default;
+
+void ListNode::set_end(std::unique_ptr<EndNode> e) {
+  end_ = std::move(e);
+}
 
 const ListNode* ListNode::AsList() const {
   return this;

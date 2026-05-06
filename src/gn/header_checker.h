@@ -106,7 +106,7 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
   //
   // ```
   //     A
-  //    / \
+  //    / \ .
   //   B   C
   //    \ /
   //     D

@@ -64,6 +64,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac24e64b_fedde8f3",
+        "filename": "examples/rust_example/build/BUILD.gn",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 3972042
+      },
+      "writtenOn": "2026-05-07T08:58:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79d195d0_d36b5dc2",
+      "revId": "94591c6775f9949d26c818d8b9a747a8a8068be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e9cc65dc_2b1ef0c6",
@@ -77,6 +95,24 @@
       "writtenOn": "2026-05-07T08:28:41Z",
       "side": 1,
       "message": "I\u0027d slightly prefer `llvm-ar` here for the same reason.",
+      "revId": "94591c6775f9949d26c818d8b9a747a8a8068be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ec66baa_5b688572",
+        "filename": "examples/rust_example/build/BUILD.gn",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3972042
+      },
+      "writtenOn": "2026-05-07T08:58:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9cc65dc_2b1ef0c6",
       "revId": "94591c6775f9949d26c818d8b9a747a8a8068be7",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

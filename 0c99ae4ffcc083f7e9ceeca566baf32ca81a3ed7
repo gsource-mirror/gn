@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24b156e7_1ca299da",
+        "filename": "examples/rust_example/build/BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2026-05-07T17:42:39Z",
+      "side": 1,
+      "message": "`../../../clang/bin` is not guaranteed to exist on all machines so I\u0027d just rely on the host installation for the example.\n```suggestion\n  tool(\"cxx\") {\n    depfile \u003d \"{{output}}.d\"\n    command \u003d \"clang++ -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}\"\n    depsformat \u003d \"gcc\"\n    description \u003d \"CXX {{output}}\"\n    outputs \u003d [ \"{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o\" ]\n  }\n\n  tool(\"alink\") {\n    command \u003d \"llvm-ar rcs {{output}} {{inputs}}\"\n    description \u003d \"AR {{target_output_name}}{{output_extension}}\"\n    outputs \u003d [ \"{{target_out_dir}}/{{target_output_name}}{{output_extension}}\" ]\n    default_output_extension \u003d \".a\"\n    output_prefix \u003d \"lib\"\n  }\n\n  tool(\"link\") {\n    outfile \u003d \"{{target_output_name}}{{output_extension}}\"\n    rspfile \u003d \"$outfile.rsp\"\n    command \u003d \"clang++ {{ldflags}} -o $outfile -Wl,--start-group @$rspfile {{solibs}} {{libs}} {{rlibs}} -Wl,--end-group\"\n    description \u003d \"LINK $outfile\"\n    default_output_dir \u003d \"{{root_out_dir}}\"\n    rspfile_content \u003d \"{{inputs}}\"\n    outputs \u003d [ outfile ]\n  }\n```",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 3
+      },
+      "revId": "0c99ae4ffcc083f7e9ceeca566baf32ca81a3ed7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

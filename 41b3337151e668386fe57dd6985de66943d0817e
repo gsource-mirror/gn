@@ -52,6 +52,24 @@
       "parentUuid": "6f627159_6f5bd4a0",
       "revId": "41b3337151e668386fe57dd6985de66943d0817e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "407cb8c1_a04d53f0",
+        "filename": "src/gn/resolved_target_data.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-05-07T14:42:14Z",
+      "side": 1,
+      "message": "I think it\u0027s better to have all atomic operations performed in the caller only, as this makes the code easier to reason about.\n\nTechnically, the \"simple\" assignment in the callee performs an atomic store with sequential ordering which is stronger than \"release\". This is both not needed, and potentially inefficient, though safe in practice. I\u0027d rather remove all of them for clarity.",
+      "parentUuid": "41b721e2_83a20abc",
+      "revId": "41b3337151e668386fe57dd6985de66943d0817e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

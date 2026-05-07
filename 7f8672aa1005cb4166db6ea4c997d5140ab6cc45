@@ -16,6 +16,24 @@
       "message": "Is there a mailing list where we should ask about this change? I looked for details in https://gn-review.git.corp.google.com/c/gn/+/16200 but didn\u0027t find any",
       "revId": "7f8672aa1005cb4166db6ea4c997d5140ab6cc45",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4325b6e0_a1eeb2ca",
+        "filename": "build/gen.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-07T06:00:23Z",
+      "side": 1,
+      "message": "We use https://groups.google.com/a/chromium.org/g/gn-dev if we want to get feedback from other maintainers/users.\n\nBut I don\u0027t think we have concrete criteria about which C++ version we should use. So I think it is also fine to land this and see whether other folks have some complainment for this.",
+      "parentUuid": "eee5ddf2_cef70421",
+      "revId": "7f8672aa1005cb4166db6ea4c997d5140ab6cc45",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

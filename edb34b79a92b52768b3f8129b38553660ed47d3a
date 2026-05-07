@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb5568e0_3aed8748",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-07T05:25:00Z",
+      "side": 1,
+      "message": "Thanks, I checked this works like\nhttps://ci.chromium.org/ui/p/gn/builders/try.shadow/win/b8682488213816514513/infra",
+      "revId": "edb34b79a92b52768b3f8129b38553660ed47d3a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

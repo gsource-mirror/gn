@@ -16,6 +16,24 @@
       "message": "Could you explain more about why you want to have this in GN?",
       "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e642d55_78e31f4c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-07T23:50:43Z",
+      "side": 1,
+      "message": "The context is that I expect agentic models to run tons of read-only commands to query metadata about the build graph. I would like to have the build graph cached between commands so that they can run in `O(milliseconds)` instead of `O(seconds)`. For now, this specifically helps with the strict deps clang plugin, which inherently requires streaming, so we cannot batch them up and send them in one go (I tried, clang doesn\u0027t like this).",
+      "parentUuid": "09929fec_7d0fc184",
+      "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2a4ab869_67b8dbca",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-07T06:02:58Z",
+      "side": 1,
+      "message": "Might be better to write some context if you have specific reason to update C++ version for GN?",
+      "revId": "7f8672aa1005cb4166db6ea4c997d5140ab6cc45",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eee5ddf2_cef70421",
         "filename": "build/gen.py",
         "patchSetId": 5

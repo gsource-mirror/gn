@@ -16,6 +16,24 @@
       "message": "I reproduced the build failure locally using the utr command, but I can\u0027t reproduce by building one of the failed targets e.g. `siso ninja obj/remoting/host/unit_tests/desktop_display_info_loader_chromeos_unittest.o` in the build directory. I guess it\u0027s because the task ran locally. Is there a way to force siso or whatever to run the build remotely so that I can reproduce reliably?",
       "revId": "576a0ebd4cc674fb52681bd1becfd0facec8449e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b74e41ba_6643e8a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000120
+      },
+      "writtenOn": "2026-05-07T19:45:45Z",
+      "side": 1,
+      "message": "`siso ninja -strict_remote obj/remoting/host/unit_tests/desktop_display_info_loader_chromeos_unittest.o` reproduces",
+      "parentUuid": "c35579e3_da10114d",
+      "revId": "576a0ebd4cc674fb52681bd1becfd0facec8449e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

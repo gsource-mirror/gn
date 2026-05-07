@@ -1,0 +1,66 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31040617_6c8ab049",
+        "filename": "examples/rust_example/build/BUILD.gn",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2026-05-07T08:28:41Z",
+      "side": 1,
+      "message": "I\u0027d slightly prefer `clang++` over `g++` here and below since we don\u0027t actively use or support GCC.",
+      "fixSuggestions": [
+        {
+          "fixId": "b915da65_f7a009fb",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "examples/rust_example/build/BUILD.gn",
+              "range": {
+                "startLine": 46,
+                "startChar": 0,
+                "endLine": 47,
+                "endChar": 0
+              },
+              "replacement": "    command \u003d \"clang++ -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}\"\n"
+            },
+            {
+              "path": "examples/rust_example/build/BUILD.gn",
+              "range": {
+                "startLine": 63,
+                "startChar": 0,
+                "endLine": 64,
+                "endChar": 0
+              },
+              "replacement": "    command \u003d \"clang++ {{ldflags}} -o $outfile -Wl,--start-group @$rspfile {{solibs}} {{libs}} {{rlibs}} -Wl,--end-group\"\n"
+            }
+          ]
+        }
+      ],
+      "revId": "94591c6775f9949d26c818d8b9a747a8a8068be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9cc65dc_2b1ef0c6",
+        "filename": "examples/rust_example/build/BUILD.gn",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2026-05-07T08:28:41Z",
+      "side": 1,
+      "message": "I\u0027d slightly prefer `llvm-ar` here for the same reason.",
+      "revId": "94591c6775f9949d26c818d8b9a747a8a8068be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

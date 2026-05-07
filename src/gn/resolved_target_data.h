@@ -18,6 +18,7 @@
 #include "gn/target.h"
 #include "gn/target_public_pair.h"
 #include "gn/unique_vector.h"
+#include "gn/output_file.h"
 
 // A class used to compute target-specific data by collecting information
 // from its tree of dependencies.
@@ -145,6 +146,11 @@ class ResolvedTargetData {
     return info->swift_values->modules;
   }
 
+  // Retrieves an ordered list of all order-only dependency outputs for this target.
+  const std::vector<OutputFile>& GetOrderOnlyDeps(const Target* target) const {
+    return GetTargetOrderOnlyDeps(target)->order_only_deps;
+  }
+
  private:
   // The information associated with a given Target pointer.
   struct TargetInfo {
@@ -167,6 +173,7 @@ class ResolvedTargetData {
     std::atomic<bool> has_module_deps_information = false;
     std::atomic<bool> has_rust_libs = false;
     std::atomic<bool> has_swift_values = false;
+    std::atomic<bool> has_order_only_deps = false;
 
     // Only valid if |has_lib_info| is true.
     std::vector<SourceDir> lib_dirs;
@@ -205,6 +212,9 @@ class ResolvedTargetData {
             public_modules(std::move(public_modules)) {}
     };
     std::unique_ptr<SwiftValues> swift_values;
+
+    // Only valid if |has_order_only_deps| is true.
+    std::vector<OutputFile> order_only_deps;
   };
 
   // Retrieve TargetInfo value associated with |target|. Create
@@ -296,6 +306,18 @@ class ResolvedTargetData {
     return info;
   }
 
+  const TargetInfo* GetTargetOrderOnlyDeps(const Target* target) const {
+    TargetInfo* info = GetTargetInfo(target);
+    if (!info->has_order_only_deps.load(std::memory_order_acquire)) {
+      std::lock_guard<std::mutex> lock(info->mutex);
+      if (!info->has_order_only_deps.load(std::memory_order_relaxed)) {
+        ComputeOrderOnlyDeps(info);
+        info->has_order_only_deps.store(true, std::memory_order_release);
+      }
+    }
+    return info;
+  }
+
   // Compute the portion of TargetInfo guarded by one of the |has_xxx|
   // booleans. This performs recursive and expensive computations and
   // should only be called once per TargetInfo instance.
@@ -306,6 +328,7 @@ class ResolvedTargetData {
   void ComputeModuleDepsInformation(TargetInfo* info) const;
   void ComputeRustLibs(TargetInfo* info) const;
   void ComputeSwiftValues(TargetInfo* info) const;
+  void ComputeOrderOnlyDeps(TargetInfo* info) const;
 
   // Helper function used by ComputeInheritedLibs().
   void ComputeInheritedLibsFor(

@@ -1,0 +1,39 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f627159_6f5bd4a0",
+        "filename": "src/gn/resolved_target_data.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-05-07T13:27:25Z",
+      "side": 1,
+      "message": "nit: this last assignment is better left to line 316 of the header due to atomic requirements.",
+      "fixSuggestions": [
+        {
+          "fixId": "b96d66f7_333e701f",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/resolved_target_data.cc",
+              "range": {
+                "startLine": 337,
+                "startChar": 0,
+                "endLine": 338,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "41b3337151e668386fe57dd6985de66943d0817e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

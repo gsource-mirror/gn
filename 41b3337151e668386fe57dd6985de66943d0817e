@@ -70,6 +70,24 @@
       "parentUuid": "41b721e2_83a20abc",
       "revId": "41b3337151e668386fe57dd6985de66943d0817e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1854ced_b4789aac",
+        "filename": "src/gn/resolved_target_data.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-08T05:34:56Z",
+      "side": 1,
+      "message": "Ah, I see. Removed.",
+      "parentUuid": "407cb8c1_a04d53f0",
+      "revId": "41b3337151e668386fe57dd6985de66943d0817e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -22,6 +22,30 @@
       },
       "revId": "0c99ae4ffcc083f7e9ceeca566baf32ca81a3ed7",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca48c4fa_680dbed5",
+        "filename": "examples/rust_example/build/BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 3972042
+      },
+      "writtenOn": "2026-05-08T08:38:54Z",
+      "side": 1,
+      "message": "Fix applied.",
+      "parentUuid": "24b156e7_1ca299da",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 3
+      },
+      "revId": "0c99ae4ffcc083f7e9ceeca566baf32ca81a3ed7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

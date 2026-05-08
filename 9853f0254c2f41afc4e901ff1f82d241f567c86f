@@ -34,6 +34,64 @@
       "parentUuid": "09929fec_7d0fc184",
       "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3147f2f8_4d056f60",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-08T05:17:17Z",
+      "side": 1,
+      "message": "Could you write such explanation in description then?\n\nI\u0027m also wondering why suggest command with batch doesn\u0027t help much for that?",
+      "parentUuid": "7e642d55_78e31f4c",
+      "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ac97c7c_12e9074c",
+        "filename": "src/util/socket.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-08T05:17:17Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Consider zero-initializing this struct (e.g., `struct sockaddr_in address \u003d {};`) to ensure padding bytes (like `sin_zero`) are not left uninitialized when passed to `bind`.\n\nConsider zero-initializing this struct (e.g., `struct sockaddr_in address \u003d {};`) to ensure padding bytes (like `sin_zero`) are not left uninitialized when passed to `bind`.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 0
+      },
+      "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cd2f6f6_33ba4992",
+        "filename": "src/util/socket.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-08T05:17:17Z",
+      "side": 1,
+      "message": "Better to have test for this?",
+      "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

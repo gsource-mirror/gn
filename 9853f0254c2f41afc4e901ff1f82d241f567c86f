@@ -56,6 +56,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "67b08035_d334aa12",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-11T01:21:48Z",
+      "side": 1,
+      "message": "I tried writing a clang plugin which did something along the lines of the following pseudocode:\n\n```\nHandleDiagnostic(const clang::Diagnostic\u0026 diagnostic) {\n  batched.push_back(diagnostic);\n}\n\nEndOfSourceFile() {\n  auto suggestions \u003d CreateSuggestions(batched);\n  for (const auto\u0026 [suggestion, diagnostic] : zip(suggestions, batched)) {\n    ReportDiagnostic(diagnostic);\n    ReportNoteForDiagnostic(diagnostic, suggestion);\n  }\n}\n```\n\nIt simply didn\u0027t work. Apparently it\u0027s likely to do with clang\u0027s concept of an \"active diagnostic\".",
+      "parentUuid": "3147f2f8_4d056f60",
+      "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6ac97c7c_12e9074c",
         "filename": "src/util/socket.cc",
         "patchSetId": 5
@@ -67,6 +85,30 @@
       "writtenOn": "2026-05-08T05:17:17Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Consider zero-initializing this struct (e.g., `struct sockaddr_in address \u003d {};`) to ensure padding bytes (like `sin_zero`) are not left uninitialized when passed to `bind`.\n\nConsider zero-initializing this struct (e.g., `struct sockaddr_in address \u003d {};`) to ensure padding bytes (like `sin_zero`) are not left uninitialized when passed to `bind`.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 0
+      },
+      "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e58bc0c2_9fa91426",
+        "filename": "src/util/socket.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-11T01:21:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ac97c7c_12e9074c",
       "range": {
         "startLine": 172,
         "startChar": 0,
@@ -90,6 +132,24 @@
       "writtenOn": "2026-05-08T05:17:17Z",
       "side": 1,
       "message": "Better to have test for this?",
+      "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbdf83b8_8f19657c",
+        "filename": "src/util/socket.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-11T01:21:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cd2f6f6_33ba4992",
       "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

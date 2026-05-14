@@ -92,6 +92,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e9065117_364c3485",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-14T05:11:21Z",
+      "side": 1,
+      "message": "If we can make clang plugin works without this, I\u0027d like to defer this feature until when we still want to have this for gn\u0027s performance.",
+      "parentUuid": "d5dff9c1_2c829a24",
+      "revId": "9853f0254c2f41afc4e901ff1f82d241f567c86f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6ac97c7c_12e9074c",
         "filename": "src/util/socket.cc",
         "patchSetId": 5

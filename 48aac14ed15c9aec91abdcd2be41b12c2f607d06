@@ -16,6 +16,23 @@
       "message": "Sylvain: ping.",
       "revId": "48aac14ed15c9aec91abdcd2be41b12c2f607d06",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a83735ed_df588d75",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-05-14T23:49:20Z",
+      "side": 1,
+      "message": "+1, but I\u0027m not a GN owner.\n\n@tikuta@google.com Could you help Brett by reviewing this?",
+      "revId": "48aac14ed15c9aec91abdcd2be41b12c2f607d06",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -7,6 +7,7 @@
 
 #include "gn/c_tool.h"
 #include "gn/config_values.h"
+#include "gn/label_ptr.h"
 #include "gn/ninja_target_writer.h"
 #include "gn/toolchain.h"
 #include "gn/unique_vector.h"
@@ -89,5 +90,7 @@ class NinjaBinaryTargetWriter : public NinjaTargetWriter {
   NinjaBinaryTargetWriter(const NinjaBinaryTargetWriter&) = delete;
   NinjaBinaryTargetWriter& operator=(const NinjaBinaryTargetWriter&) = delete;
 };
+
+std::vector<const Target*> ExpandModules(const LabelTargetVector& targets);
 
 #endif  // TOOLS_GN_NINJA_BINARY_TARGET_WRITER_H_

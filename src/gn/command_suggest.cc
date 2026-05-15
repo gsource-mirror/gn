@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -136,6 +137,57 @@ bool Exposes(const Target& target, const Target& underlying) {
     }
   }
   return false;
+}
+
+// Finds the shortest dependency path from `from` to `to`.
+// Returns a vector where the first element is `from` and the last is `to`.
+// Returns the empty vector if no path was found.
+std::vector<const Target*> FindDependencyPath(const Target* from,
+                                              const Target* to) {
+  std::vector<const Target*> queue;
+  queue.push_back(from);
+
+  std::unordered_map<const Target*, const Target*> parents;
+  parents[from] = nullptr;
+
+  size_t index = 0;
+  bool found = false;
+  while (index < queue.size()) {
+    const Target* current = queue[index];
+    index++;
+
+    if (current == to) {
+      found = true;
+      break;
+    }
+
+    auto add_deps = [&](const LabelTargetVector& deps) {
+      for (const auto& dep : deps) {
+        if (dep.ptr) {
+          if (parents.find(dep.ptr) == parents.end()) {
+            parents[dep.ptr] = current;
+            queue.push_back(dep.ptr);
+          }
+        }
+      }
+    };
+
+    add_deps(current->public_deps());
+    add_deps(current->private_deps());
+  }
+
+  if (!found) {
+    return {};
+  }
+
+  std::vector<const Target*> path;
+  const Target* cur = to;
+  while (cur != nullptr) {
+    path.push_back(cur);
+    cur = parents[cur];
+  }
+  std::reverse(path.begin(), path.end());
+  return path;
 }
 
 }  // namespace
@@ -411,6 +463,70 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
   // the loop.
 
   auto OutputDepSuggestion = [&](std::vector<const Target*> candidates) {
+    for (const auto& target : candidates) {
+      std::vector<const Target*> cycle =
+          FindDependencyPath(target, includer);
+      if (!cycle.empty()) {
+        StartWarning();
+        OutputTarget(target);
+        OutputString(" depends on ");
+        OutputTarget(includer);
+        OutputString(
+            ", so adding this dependency will create a dependency loop:\n");
+
+        OutputString("  ");
+        OutputTarget(includer);
+        OutputString(" ->\n");
+
+        for (size_t i = 0; i < cycle.size(); i++) {
+          OutputString("  ");
+          OutputTarget(cycle[i]);
+          if (i + 1 < cycle.size()) {
+            OutputString(" ->");
+          }
+          OutputString("\n");
+        }
+
+        for (const Target* t : cycle) {
+          if (!t->allow_circular_includes_from().empty()) {
+            StartSuggestion();
+            OutputString(":", kLabelLike);
+            OutputString(t->label().name(), kLabelLike);
+            OutputString(" (defined at ");
+            OutputString(t->user_friendly_location().Describe(false),
+                         kLabelLike);
+            OutputString(
+                ") declares allow_circular_includes_from, which is bad style. "
+                "Instead, you should remove allow_circular_includes_from by "
+                "doing the following:\n");
+
+            OutputString("source_set(\"");
+            OutputString(t->label().name());
+            OutputString("_sources\") {\n");
+            OutputString("  # All attributes from :");
+            OutputString(t->label().name());
+            OutputString(" except public_deps, and any link options\n");
+            OutputString(
+                "  # Note that some public_deps may need to be added back "
+                "based on #includes of headers.\n");
+            OutputString("}\n\n");
+
+            OutputString(Target::GetStringForOutputType(t->output_type()));
+            OutputString("(\"");
+            OutputString(t->label().name());
+            OutputString("\") {\n");
+            OutputString("  public_deps = [ \":");
+            OutputString(t->label().name());
+            OutputString("_sources\" ]\n");
+            OutputString("  # public_deps, and any link variables from :");
+            OutputString(t->label().name());
+            OutputString("\n");
+            OutputString("}\n");
+          }
+        }
+      }
+    }
+
     std::vector<std::string> labels;
     for (const auto& target : candidates) {
       labels.push_back(

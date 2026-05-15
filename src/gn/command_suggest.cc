@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 
+#include <algorithm>
 #include <functional>
 #include <vector>
 
@@ -12,6 +13,8 @@
 #include "gn/commands.h"
 #include "gn/filesystem_utils.h"
 #include "gn/item.h"
+#include "gn/label_ptr.h"
+#include "gn/ninja_binary_target_writer.h"
 #include "gn/setup.h"
 #include "gn/standard_out.h"
 #include "gn/target.h"
@@ -102,17 +105,51 @@ SourceFile ResolveFilePath(const BuildSettings* build_settings,
   return SourceFile();
 }
 
-constexpr auto kLabelLike = TextDecoration::DECORATION_GREEN;
+// Creates a fake set of direct deps.
+// If you depend on a group //a that depends on //a:sub1 and //a:sub2, it should
+// be treated as if you were directly depending on both sub1 and sub2.
+std::vector<const Target*> ExpandDirectDeps(const LabelTargetVector& targets) {
+  std::vector<const LabelTargetVector*> stack = {&targets};
+  std::unordered_set<const Target*> visited;
 
-void OutputError(std::string_view message = "") {
-  OutputString("Error: ", TextDecoration::DECORATION_RED);
-  OutputString(message);
+  std::vector<const Target*> modules;
+
+  while (!stack.empty()) {
+    const LabelTargetVector* current = stack.back();
+    stack.pop_back();
+    for (const auto& pair : *current) {
+      const Target* target = pair.ptr;
+      if (visited.insert(target).second) {
+        // If we have no headers and no sources, then the only use of depending
+        // on this target is to gain access to its dependencies.
+        // Otherwise, we should not allow things that depend on the current
+        // target to get access to its dependencies without explicitly adding
+        // them itself.
+        // This is the so called "layering check" - if you #include B and C,
+        // and B depends on C, you should still need to depend on C yourself.
+        if (target->sources().empty() && target->public_headers().empty()) {
+          stack.push_back(&target->public_deps());
+          // If you declare `public_deps = ...` on a group, it shows up as a
+          // private dep. Probably because groups don't distinguish between
+          // public and private deps.
+          if (target->output_type() == Target::GROUP) {
+            stack.push_back(&target->private_deps());
+          }
+        } else {
+          modules.push_back(target);
+        }
+      }
+    }
+  }
+  return modules;
 }
-
-void OutputQuoted(std::string_view message) {
-  OutputString("\"", kLabelLike);
-  OutputString(message, kLabelLike);
-  OutputString("\"", kLabelLike);
+// Returns true if depending on target is supposed to give you access to
+// everything in the underlying target.
+bool Exposes(const Target& target, const Target& underlying) {
+  LabelTargetVector targets = {LabelTargetPair(&target)};
+  std::vector<const Target*> expanded = ExpandDirectDeps(targets);
+  return std::find(expanded.begin(), expanded.end(), &underlying) !=
+         expanded.end();
 }
 
 }  // namespace
@@ -200,19 +237,14 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
 
   constexpr auto kLabelLike = TextDecoration::DECORATION_GREEN;
 
-  auto OutputSuggestion = [&](std::string_view message) {
+  auto StartSuggestion = [&]() {
     OutputString("Suggestion: ", TextDecoration::DECORATION_BLUE);
-    OutputString(message);
   };
-
-  auto OutputWarning = [&](std::string_view message = "") {
+  auto StartWarning = [&]() {
     OutputString("Warning: ", TextDecoration::DECORATION_YELLOW);
-    OutputString(message);
   };
-
-  auto OutputError = [&](std::string_view message = "") {
+  auto StartError = [&]() {
     OutputString("Error: ", TextDecoration::DECORATION_RED);
-    OutputString(message);
   };
 
   auto OutputQuoted = [&](std::string_view message) {
@@ -236,13 +268,22 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
                  kLabelLike);
   };
 
-  auto OutputInsertionHint = [&](std::string_view key, std::string_view value,
+  auto OutputInsertionHint = [&](std::string_view key,
+                                 const std::vector<std::string>& candidates,
                                  const Target* target) {
-    OutputSuggestion("Add ");
-    OutputString(key);
-    OutputString(" = [ ");
-    OutputQuoted(value);
-    OutputString(" ] to ");
+    bool plural = candidates.size() != 1;
+    StartSuggestion();
+    if (plural) {
+      OutputString("Add one of the following to ");
+      OutputString(key);
+      OutputString(" in ");
+    } else {
+      OutputString("Add ");
+      OutputString(key);
+      OutputString(" = [ ");
+      OutputQuoted(candidates.front());
+      OutputString(" ] to ");
+    }
     OutputDefinition(target);
     if (current_toolchain != default_toolchain) {
       OutputString(" for toolchain ");
@@ -250,14 +291,23 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
           target->label().GetToolchainLabel().GetUserVisibleName(false),
           kLabelLike);
     }
-    OutputString("\n");
+    if (plural) {
+      OutputString(":\n");
+      for (const auto& candidate : candidates) {
+        OutputString("* ");
+        OutputString(candidate);
+        OutputString("\n");
+      }
+    } else {
+      OutputString("\n");
+    }
   };
 
   auto ResolveSuggestion = [&](std::string_view value) {
     const auto& [targets, ok] = ResolveSuggestionToTarget(
         build_settings, all_targets, current_toolchain, value);
     if (!ok) {
-      OutputError();
+      StartError();
       if (value.starts_with("//")) {
         OutputString("Could not find target or file ");
         OutputQuoted(value);
@@ -276,12 +326,12 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     return false;
 
   if (includer_targets.empty()) {
-    OutputError();
+    StartError();
     OutputQuoted(includer_name);
     OutputString(" did not resolve to any targets\n");
     return false;
   } else if (includer_targets.size() > 1) {
-    OutputError();
+    StartError();
     OutputQuoted(includer_name);
     OutputString(" resolved to multiple targets\n");
     for (const auto& [target, is_private] : includer_targets) {
@@ -308,7 +358,8 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
   if (targets.empty()) {
     OutputQuoted(included_name);
     OutputString(" is not in the headers of any targets.\n");
-    OutputSuggestion("Add ");
+    StartSuggestion();
+    OutputString("Add ");
     OutputQuoted(included_name);
     OutputString(" to a target's public headers");
     return true;
@@ -332,12 +383,13 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     OutputString(", but not in the toolchain ");
     OutputString(current_toolchain.GetUserVisibleName(false), kLabelLike);
     OutputString("\n");
-    OutputInsertionHint("public", included_name, targets.front().first);
+    OutputInsertionHint("public", {std::string(included_name)},
+                        targets.front().first);
     return true;
   }
 
   if (targets.size() > 1) {
-    OutputWarning();
+    StartWarning();
     OutputQuoted(included_name);
     OutputString(" is ambiguous because it belongs to multiple targets:\n");
     for (const auto& [target, _] : targets) {
@@ -345,38 +397,142 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
       OutputTarget(target);
       OutputString("\n");
     }
-    OutputSuggestion(
+    StartSuggestion();
+    OutputString(
         "Create a source_set target for the common headers and sources and "
         "have all of the above targets depend on that.");
-    OutputInsertionHint(dep_field, "$NEW_SOURCE_SET", includer);
+    OutputInsertionHint(dep_field, {"$NEW_SOURCE_SET"}, includer);
     return true;
   }
 
   const auto& [included, included_dep_kind] = targets.front();
   if (included_dep_kind == commands::ApiScope::kPrivate) {
-    OutputWarning();
+    StartWarning();
     OutputQuoted(included_name);
     OutputString(" is in the private API of ");
     OutputTarget(included);
-    OutputSuggestion("Move ");
+    StartSuggestion();
+    OutputString("Move ");
     OutputQuoted(included_name);
     OutputString(" from `sources` to `public` in ");
     OutputDefinition(included);
   }
 
-  // Note: if we have a toolchain mismatch, we already returned, so the
-  // toolchains must match.
-  OutputInsertionHint(
-      dep_field,
-      // Output a relative label if possible.
-      included->label().dir() == includer->label().dir()
-          ? ":" + included->label().name()
-          : included->label().GetUserVisibleName(current_toolchain),
-      includer);
+  // TODO: There are a bunch of optimizations we can perform here to make better
+  // suggestions. They may be considered in the future. Some initial thoughts
+  // include:
+  // * Check if included transitively depends on includer. Suggest ways to break
+  // the loop.
+
+  auto OutputDepSuggestion = [&](std::vector<const Target*> candidates) {
+    std::vector<std::string> labels;
+    for (const auto& target : candidates) {
+      labels.push_back(
+          target->label().dir() == includer->label().dir()
+              ? ":" + target->label().name()
+              : target->label().GetUserVisibleName(current_toolchain));
+    }
+    std::sort(labels.begin(), labels.end(),
+              [](const std::string& lhs, const std::string& rhs) {
+                // Ensure relative labels come before absolute labels.
+                return std::make_pair(!lhs.starts_with(':'), lhs) <
+                       std::make_pair(!rhs.starts_with(':'), rhs);
+              });
+    OutputInsertionHint(dep_field, labels, includer);
+  };
+
+  if (included->visibility().CanSeeMe(includer->label())) {
+    OutputDepSuggestion({included});
+    return true;
+  }
+
+  // Now we need to look for things that expose it.
+  std::vector<const Target*> visible_candidates;
+  std::vector<const Target*> nonpublic_candidates;
+  std::vector<const Target*> all_candidates;
+  for (const Target* candidate : all_targets) {
+    if (candidate == included)
+      continue;
+    // Check that the toolchains are the same to avoid picking up both //:foo
+    // and //:foo(other_toolchain).
+    if (candidate->label().ToolchainsEqual(includer->label()) &&
+        Exposes(*candidate, *included)) {
+      all_candidates.push_back(candidate);
+      if (candidate->visibility().CanSeeMe(includer->label())) {
+        visible_candidates.push_back(candidate);
+        // Check if candidate is public by checking if the empty label can see
+        // it.
+        if (!candidate->visibility().CanSeeMe(Label())) {
+          nonpublic_candidates.push_back(candidate);
+        }
+      }
+    }
+  }
+
+  // If, for example, we have //third_party/abseil-cpp:absl and
+  // //v8:v8_abseil, and we learn that v8_abseil is not public, but we can
+  // depend on it, then we are probably in the //v8 directory, and thus
+  // should prefer v8_abseil.
+  if (!nonpublic_candidates.empty()) {
+    visible_candidates = nonpublic_candidates;
+  }
+
+  if (visible_candidates.size() == 1) {
+    OutputDepSuggestion(visible_candidates);
+  } else if (visible_candidates.size() > 1) {
+    StartWarning();
+    OutputTarget(included);
+    OutputString(" is exposed via multiple targets\n");
+    StartSuggestion();
+    OutputString(
+        "Clean up the visibility so that only one of the below targets is "
+        "visible to ");
+    OutputTarget(includer);
+    OutputString("\n");
+    OutputDepSuggestion(visible_candidates);
+  } else if (all_candidates.empty()) {
+    StartWarning();
+    OutputTarget(included);
+    OutputString(" is not visible to ");
+    OutputTarget(includer);
+    OutputString("\n");
+    StartSuggestion();
+    OutputString(
+        "Carefully consider whether you want to change the visibility so that "
+        "you can depend on it\n");
+    OutputDepSuggestion({included});
+  } else {
+    StartWarning();
+    OutputTarget(included);
+    OutputString(
+        " is exposed via the following targets, but none are visible to ");
+    OutputTarget(includer);
+    OutputString("\n");
+    StartSuggestion();
+    OutputString(
+        "Carefully consider whether you want to change the visibility so that "
+        "you can depend on one of them\n");
+    all_candidates.push_back(included);
+    OutputDepSuggestion(all_candidates);
+  }
+
   return true;
 }
 
 int RunSuggest(const std::vector<std::string>& args) {
+  constexpr auto kLabelLike = TextDecoration::DECORATION_GREEN;
+
+  auto OutputError = [](std::string_view message) {
+    OutputString("Error: ", TextDecoration::DECORATION_RED);
+    OutputString(message);
+  };
+
+  auto OutputQuoted = [](std::string_view message) {
+    OutputString("\"", kLabelLike);
+    OutputString(message, kLabelLike);
+    OutputString("\"", kLabelLike);
+  };
+
   if (args.size() <= 1) {
     OutputError("gn suggest requires arguments. See \"gn help suggest\"\n");
     return 1;
@@ -419,7 +575,7 @@ int RunSuggest(const std::vector<std::string>& args) {
         all_targets, &setup->build_settings(),
         setup->loader()->default_toolchain_label(), includer, included,
         [](std::string_view str, TextDecoration dec, HtmlEscaping esc) {
-          OutputString(str, dec, esc);
+          ::OutputString(str, dec, esc);
         });
   }
 

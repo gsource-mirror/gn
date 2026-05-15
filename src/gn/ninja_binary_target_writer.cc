@@ -35,6 +35,34 @@ EscapeOptions GetFlagOptions() {
   return opts;
 }
 
+void WriteModuleMapHeaders(std::ostream& out,
+                           const SourceDir& out_dir,
+                           const Target::FileList& headers,
+                           const Settings* settings) {
+  for (const auto& header : headers) {
+    if (header.GetType() == SourceFile::SOURCE_H) {
+      out << "  textual header \"";
+      out << RebasePath(header.value(), out_dir,
+                        settings->build_settings()->root_path_utf8());
+      out << "\"\n";
+    }
+  }
+}
+
+void WriteModuleDeps(std::ostream& out,
+                     const std::vector<const Target*>& deps,
+                     const SourceDir& base) {
+  for (const auto& dep : deps) {
+    auto module_name = dep->module_name();
+    auto modulemap = RebasePath(dep->modulemap_file()->value(), base);
+    out << "  extern module \"" << module_name << "\" \"" << modulemap
+        << "\"\n";
+    out << "  use \"" << module_name << "\"\n";
+  }
+}
+
+}  // namespace
+
 std::vector<const Target*> ExpandModules(const LabelTargetVector& targets) {
   std::vector<const LabelTargetVector*> stack = {&targets};
   std::unordered_set<const Target*> visited;
@@ -63,34 +91,6 @@ std::vector<const Target*> ExpandModules(const LabelTargetVector& targets) {
   }
   return modules;
 }
-
-void WriteModuleMapHeaders(std::ostream& out,
-                           const SourceDir& out_dir,
-                           const Target::FileList& headers,
-                           const Settings* settings) {
-  for (const auto& header : headers) {
-    if (header.GetType() == SourceFile::SOURCE_H) {
-      out << "  textual header \"";
-      out << RebasePath(header.value(), out_dir,
-                        settings->build_settings()->root_path_utf8());
-      out << "\"\n";
-    }
-  }
-}
-
-void WriteModuleDeps(std::ostream& out,
-                     const std::vector<const Target*>& deps,
-                     const SourceDir& base) {
-  for (const auto& dep : deps) {
-    auto module_name = dep->module_name();
-    auto modulemap = RebasePath(dep->modulemap_file()->value(), base);
-    out << "  extern module \"" << module_name << "\" \"" << modulemap
-        << "\"\n";
-    out << "  use \"" << module_name << "\"\n";
-  }
-}
-
-}  // namespace
 
 NinjaBinaryTargetWriter::NinjaBinaryTargetWriter(const Target* target,
                                                  std::ostream& out)

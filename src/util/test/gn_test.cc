@@ -38,6 +38,16 @@ std::string Pretty(bool value) {
   return value ? "true" : "false";
 }
 
+std::string Pretty(const char* value) {
+  if (value == nullptr)
+    return "(const char*) NULL";
+  return Pretty(std::string(value));
+}
+
+std::string Pretty(char* value) {
+  return Pretty(static_cast<const char*>(value));
+}
+
 std::string Indent(std::string_view value) {
   std::stringstream ss;
   ss << "  ";

@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 
+#include <functional>
 #include <vector>
 
 #include "base/files/file_util.h"
@@ -100,38 +101,6 @@ SourceFile ResolveFilePath(const BuildSettings* build_settings,
   }
   return SourceFile();
 }
-
-constexpr auto kLabelLike = TextDecoration::DECORATION_GREEN;
-
-void OutputSuggestion(std::string_view message) {
-  OutputString("Suggestion: ", TextDecoration::DECORATION_BLUE);
-  OutputString(message);
-}
-
-void OutputWarning(std::string_view message = "") {
-  OutputString("Warning: ", TextDecoration::DECORATION_YELLOW);
-  OutputString(message);
-}
-
-void OutputError(std::string_view message = "") {
-  OutputString("Error: ", TextDecoration::DECORATION_RED);
-  OutputString(message);
-}
-
-void OutputQuoted(std::string_view message) {
-  OutputString("\"", kLabelLike);
-  OutputString(message, kLabelLike);
-  OutputString("\"", kLabelLike);
-}
-
-void OutputDefinition(const Target* target) {
-  OutputString(":", kLabelLike);
-  OutputString(target->label().name(), kLabelLike);
-  OutputString(" (defined at ");
-  OutputString(target->user_friendly_location().Describe(false), kLabelLike);
-  OutputString(")");
-}
-
 }  // namespace
 
 // Resolves an input to a list of targets, and whether each are private.
@@ -206,37 +175,88 @@ ResolveSuggestionToTarget(const BuildSettings* build_settings,
 }
 
 bool OutputSuggestions(const std::vector<const Target*>& all_targets,
-                       Setup* setup,
+                       const BuildSettings* build_settings,
+                       const Label& default_toolchain,
                        std::string_view includer_name,
-                       std::string_view included_name) {
-  Label current_toolchain = setup->loader()->default_toolchain_label();
-  auto OutputTarget = [&current_toolchain](const Target* target) {
+                       std::string_view included_name,
+                       OutputStringFunc output_fn) {
+  auto OutputString =
+      [&](std::string_view str, TextDecoration dec = DECORATION_NONE,
+          HtmlEscaping esc = DEFAULT_ESCAPING) { output_fn(str, dec, esc); };
+
+  constexpr auto kLabelLike = TextDecoration::DECORATION_GREEN;
+
+  auto StartSuggestion = [&]() {
+    OutputString("Suggestion: ", TextDecoration::DECORATION_BLUE);
+  };
+  auto StartWarning = [&]() {
+    OutputString("Warning: ", TextDecoration::DECORATION_YELLOW);
+  };
+  auto StartError = [&]() {
+    OutputString("Error: ", TextDecoration::DECORATION_RED);
+  };
+
+  auto OutputQuoted = [&](std::string_view message) {
+    OutputString("\"", kLabelLike);
+    OutputString(message, kLabelLike);
+    OutputString("\"", kLabelLike);
+  };
+
+  auto OutputDefinition = [&](const Target* target) {
+    OutputString(":", kLabelLike);
+    OutputString(target->label().name(), kLabelLike);
+    OutputString(" (defined at ");
+    OutputString(target->user_friendly_location().Describe(false), kLabelLike);
+    OutputString(")");
+  };
+
+  Label current_toolchain = default_toolchain;
+  auto OutputTarget = [&current_toolchain,
+                       &OutputString](const Target* target) {
     OutputString(target->label().GetUserVisibleName(current_toolchain),
                  kLabelLike);
   };
 
-  auto OutputInsertionHint = [&](std::string_view key, std::string_view value,
+  auto OutputInsertionHint = [&](std::string_view key,
+                                 const std::vector<std::string>& candidates,
                                  const Target* target) {
-    OutputSuggestion("Add ");
-    OutputString(key);
-    OutputString(" = [ ");
-    OutputQuoted(value);
-    OutputString(" ] to ");
+    bool plural = candidates.size() != 1;
+    StartSuggestion();
+    if (plural) {
+      OutputString("Add one of the following to ");
+      OutputString(key);
+      OutputString(" in ");
+    } else {
+      OutputString("Add ");
+      OutputString(key);
+      OutputString(" = [ ");
+      OutputQuoted(candidates.front());
+      OutputString(" ] to ");
+    }
     OutputDefinition(target);
-    if (current_toolchain != setup->loader()->default_toolchain_label()) {
+    if (current_toolchain != default_toolchain) {
       OutputString(" for toolchain ");
       OutputString(
           target->label().GetToolchainLabel().GetUserVisibleName(false),
           kLabelLike);
     }
-    OutputString("\n");
+    if (plural) {
+      OutputString(":\n");
+      for (const auto& candidate : candidates) {
+        OutputString("* ");
+        OutputString(candidate);
+        OutputString("\n");
+      }
+    } else {
+      OutputString("\n");
+    }
   };
 
   auto ResolveSuggestion = [&](std::string_view value) {
     const auto& [targets, ok] = ResolveSuggestionToTarget(
-        &setup->build_settings(), all_targets, current_toolchain, value);
+        build_settings, all_targets, current_toolchain, value);
     if (!ok) {
-      OutputError();
+      StartError();
       if (value.starts_with("//")) {
         OutputString("Could not find target or file ");
         OutputQuoted(value);
@@ -255,12 +275,12 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     return false;
 
   if (includer_targets.empty()) {
-    OutputError();
+    StartError();
     OutputQuoted(includer_name);
     OutputString(" did not resolve to any targets\n");
     return false;
   } else if (includer_targets.size() > 1) {
-    OutputError();
+    StartError();
     OutputQuoted(includer_name);
     OutputString(" resolved to multiple targets\n");
     for (const auto& [target, is_private] : includer_targets) {
@@ -287,7 +307,8 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
   if (targets.empty()) {
     OutputQuoted(included_name);
     OutputString(" is not in the headers of any targets.\n");
-    OutputSuggestion("Add ");
+    StartSuggestion();
+    OutputString("Add ");
     OutputQuoted(included_name);
     OutputString(" to a target's public headers");
     return true;
@@ -311,12 +332,13 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     OutputString(", but not in the toolchain ");
     OutputString(current_toolchain.GetUserVisibleName(false), kLabelLike);
     OutputString("\n");
-    OutputInsertionHint("public", included_name, targets.front().first);
+    OutputInsertionHint("public", {std::string(included_name)},
+                        targets.front().first);
     return true;
   }
 
   if (targets.size() > 1) {
-    OutputWarning();
+    StartWarning();
     OutputQuoted(included_name);
     OutputString(" is ambiguous because it belongs to multiple targets:\n");
     for (const auto& [target, _] : targets) {
@@ -324,48 +346,52 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
       OutputTarget(target);
       OutputString("\n");
     }
-    OutputSuggestion(
+    StartSuggestion();
+    OutputString(
         "Create a source_set target for the common headers and sources and "
         "have all of the above targets depend on that.");
-    OutputInsertionHint(dep_field, "$NEW_SOURCE_SET", includer);
+    OutputInsertionHint(dep_field, {"$NEW_SOURCE_SET"}, includer);
     return true;
   }
 
   const auto& [included, included_dep_kind] = targets.front();
   if (included_dep_kind == commands::ApiScope::kPrivate) {
-    OutputWarning();
+    StartWarning();
     OutputQuoted(included_name);
     OutputString(" is in the private API of ");
     OutputTarget(included);
-    OutputSuggestion("Move ");
+    StartSuggestion();
+    OutputString("Move ");
     OutputQuoted(included_name);
     OutputString(" from `sources` to `public` in ");
     OutputDefinition(included);
   }
 
-  // TODO: There are a bunch of optimizations we can perform here to make better
-  // suggestions. They may be considered in the future. Some initial thoughts
-  // include:
-  // * Check the visibility of includer -> included
-  //   * If it is not visible:
-  //     * Find a group target that exposes included's headers
-  //     * Fall back to suggesting adding visibility
-  // * Check if included transitively depends on includer. Suggest ways to break
-  // the loop.
-
   // Note: if we have a toolchain mismatch, we already returned, so the
   // toolchains must match.
   OutputInsertionHint(
       dep_field,
-      // Output a relative label if possible.
-      included->label().dir() == includer->label().dir()
+      {included->label().dir() == includer->label().dir()
           ? ":" + included->label().name()
-          : included->label().GetUserVisibleName(current_toolchain),
+          : included->label().GetUserVisibleName(current_toolchain)},
       includer);
   return true;
 }
 
 int RunSuggest(const std::vector<std::string>& args) {
+  constexpr auto kLabelLike = TextDecoration::DECORATION_GREEN;
+
+  auto OutputError = [](std::string_view message) {
+    OutputString("Error: ", TextDecoration::DECORATION_RED);
+    OutputString(message);
+  };
+
+  auto OutputQuoted = [](std::string_view message) {
+    OutputString("\"", kLabelLike);
+    OutputString(message, kLabelLike);
+    OutputString("\"", kLabelLike);
+  };
+
   if (args.size() <= 1) {
     OutputError("gn suggest requires arguments. See \"gn help suggest\"\n");
     return 1;
@@ -404,7 +430,12 @@ int RunSuggest(const std::vector<std::string>& args) {
       OutputString(":\n");
     }
 
-    success &= OutputSuggestions(all_targets, setup, includer, included);
+    success &= OutputSuggestions(
+        all_targets, &setup->build_settings(),
+        setup->loader()->default_toolchain_label(), includer, included,
+        [](std::string_view str, TextDecoration dec, HtmlEscaping esc) {
+          ::OutputString(str, dec, esc);
+        });
   }
 
   return success ? 0 : 1;

@@ -7,6 +7,7 @@
 
 #include "gn/c_tool.h"
 #include "gn/config_values.h"
+#include "gn/label_ptr.h"
 #include "gn/ninja_target_writer.h"
 #include "gn/toolchain.h"
 #include "gn/unique_vector.h"
@@ -15,6 +16,8 @@ struct EscapeOptions;
 
 // Writes a .ninja file for a binary target type (an executable, a shared
 // library, or a static library).
+std::vector<const Target*> ExpandModules(const LabelTargetVector& targets);
+
 class NinjaBinaryTargetWriter : public NinjaTargetWriter {
  public:
   NinjaBinaryTargetWriter(const Target* target, std::ostream& out);

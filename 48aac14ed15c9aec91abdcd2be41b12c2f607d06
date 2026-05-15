@@ -33,6 +33,23 @@
       "message": "+1, but I\u0027m not a GN owner.\n\n@tikuta@google.com Could you help Brett by reviewing this?",
       "revId": "48aac14ed15c9aec91abdcd2be41b12c2f607d06",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17ddac8e_ea2af29f",
+        "filename": "src/gn/standard_out.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-15T02:28:15Z",
+      "side": 1,
+      "message": "Could this go below the definition of WriteOutputString so we don\u0027t need to forward-declare it?",
+      "revId": "48aac14ed15c9aec91abdcd2be41b12c2f607d06",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

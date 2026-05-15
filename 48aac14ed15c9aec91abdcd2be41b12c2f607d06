@@ -50,6 +50,24 @@
       "message": "Could this go below the definition of WriteOutputString so we don\u0027t need to forward-declare it?",
       "revId": "48aac14ed15c9aec91abdcd2be41b12c2f607d06",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bbcea65_f0e10ee5",
+        "filename": "src/gn/standard_out.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 4838245
+      },
+      "writtenOn": "2026-05-15T16:51:47Z",
+      "side": 1,
+      "message": "Done, I was able to remove some duplicate anon namespace definitions by moving stuff around.",
+      "parentUuid": "17ddac8e_ea2af29f",
+      "revId": "48aac14ed15c9aec91abdcd2be41b12c2f607d06",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

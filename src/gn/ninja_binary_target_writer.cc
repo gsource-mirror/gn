@@ -35,35 +35,6 @@ EscapeOptions GetFlagOptions() {
   return opts;
 }
 
-std::vector<const Target*> ExpandModules(const LabelTargetVector& targets) {
-  std::vector<const LabelTargetVector*> stack = {&targets};
-  std::unordered_set<const Target*> visited;
-
-  std::vector<const Target*> modules;
-
-  while (!stack.empty()) {
-    const LabelTargetVector* current = stack.back();
-    stack.pop_back();
-    for (const auto& pair : *current) {
-      const Target* target = pair.ptr;
-      if (visited.insert(target).second) {
-        if (target->module_type().none()) {
-          stack.push_back(&target->public_deps());
-          // If you declare `public_deps = ...` on a group, it shows up as a
-          // private dep. Probably because groups don't distinguish between
-          // public and private deps.
-          if (target->output_type() == Target::GROUP) {
-            stack.push_back(&target->private_deps());
-          }
-        } else {
-          modules.push_back(target);
-        }
-      }
-    }
-  }
-  return modules;
-}
-
 void WriteModuleMapHeaders(std::ostream& out,
                            const SourceDir& out_dir,
                            const Target::FileList& headers,
@@ -91,6 +62,55 @@ void WriteModuleDeps(std::ostream& out,
 }
 
 }  // namespace
+
+// Creates a fake set of direct deps.
+// If you depend on a group //a that depends on //a:sub1 and //a:sub2, it should
+// be treated as if you were directly depending on both sub1 and sub2.
+std::vector<const Target*> ExpandDirectDeps(const LabelTargetVector& targets) {
+  std::vector<const LabelTargetVector*> stack = {&targets};
+  std::unordered_set<const Target*> visited;
+
+  std::vector<const Target*> modules;
+
+  while (!stack.empty()) {
+    const LabelTargetVector* current = stack.back();
+    stack.pop_back();
+    for (const auto& pair : *current) {
+      const Target* target = pair.ptr;
+      if (visited.insert(target).second) {
+        // If we have no headers and no sources, then the only use of depending
+        // on this target is to gain access to its dependencies.
+        // Otherwise, we should not allow things that depend on the current
+        // target to get access to its dependencies without explicitly adding
+        // them itself.
+        // This is the so called "layering check" - if you #include B and C,
+        // and B depends on C, you should still need to depend on C yourself.
+        if (target->sources().empty() && target->public_headers().empty()) {
+          stack.push_back(&target->public_deps());
+          // If you declare `public_deps = ...` on a group, it shows up as a
+          // private dep. Probably because groups don't distinguish between
+          // public and private deps.
+          if (target->output_type() == Target::GROUP) {
+            stack.push_back(&target->private_deps());
+          }
+        } else {
+          modules.push_back(target);
+        }
+      }
+    }
+  }
+  return modules;
+}
+
+std::vector<const Target*> ExpandModules(const LabelTargetVector& targets) {
+  auto expanded = ExpandDirectDeps(targets);
+  expanded.erase(std::remove_if(expanded.begin(), expanded.end(),
+                                [](const Target* target) {
+                                  return target->module_type().none();
+                                }),
+                 expanded.end());
+  return expanded;
+}
 
 NinjaBinaryTargetWriter::NinjaBinaryTargetWriter(const Target* target,
                                                  std::ostream& out)

@@ -10,10 +10,12 @@
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "gn/commands.h"
+#include "gn/filesystem_utils.h"
+#include "gn/input_file.h"
+#include "gn/location.h"
 #include "gn/setup.h"
-#include "gn/switches.h"
+#include "gn/standard_out.h"
 #include "gn/target.h"
-#include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
 #include "util/test/test.h"
 
@@ -215,4 +217,67 @@ TEST(Suggest, ResolveFileName) {
     EXPECT_TRUE(ok);
     EXPECT_EQ(expected_targets, results);
   }
+}
+
+TEST(Suggest, OutputSuggestions) {
+  TestWithScope setup_scope;
+  Err err;
+  Label default_toolchain = setup_scope.toolchain()->label();
+
+  InputFile build_file(SourceFile("//BUILD.gn"));
+  Location dummy_loc(&build_file, 1, 1);
+  std::vector<const Target*> all_targets;
+
+  auto create_target = [&](std::string_view name, bool all_headers_public,
+                           std::vector<SourceFile> sources,
+                           std::vector<SourceFile> public_headers) {
+    auto target = std::make_unique<Target>(
+        setup_scope.settings(),
+        Label(SourceDir("//"), name, default_toolchain.dir(),
+              default_toolchain.name()));
+    target->set_output_type(Target::SOURCE_SET);
+    target->SetToolchain(setup_scope.toolchain());
+    target->set_user_friendly_location(dummy_loc);
+    target->set_all_headers_public(all_headers_public);
+    for (const auto& s : sources) {
+      target->sources().push_back(s);
+    }
+    for (const auto& h : public_headers) {
+      target->public_headers().push_back(h);
+    }
+    target->set_module_name(std::string(name));
+    Err err;
+    EXPECT_TRUE(target->OnResolvedWithoutChecks(&err));
+    all_targets.push_back(target.get());
+    return target;
+  };
+
+  auto includer = create_target("includer", true, {}, {});
+  auto included =
+      create_target("included", true, {}, {SourceFile("//included.h")});
+
+  auto run_suggest = [&](std::string_view includer_name,
+                         std::string_view included_name) {
+    std::string output;
+    auto collect = [&](std::string_view s, TextDecoration d, HtmlEscaping e) {
+      output.append(s);
+    };
+    commands::OutputSuggestions(all_targets, setup_scope.build_settings(),
+                                default_toolchain, includer_name, included_name,
+                                collect);
+    return output;
+  };
+
+  // Test basic public dep suggestion
+  EXPECT_EQ(
+      "Suggestion: Add public_deps = [ \":included\" ] to :includer (defined "
+      "at "
+      "//BUILD.gn:1)\n",
+      run_suggest("includer", "included"));
+
+  // Test private dep suggestion
+  EXPECT_EQ(
+      "Suggestion: Add deps = [ \":included\" ] to :includer (defined at "
+      "//BUILD.gn:1)\n",
+      run_suggest("includer_Private", "included"));
 }

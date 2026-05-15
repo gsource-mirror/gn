@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 
+#include <functional>
 #include <vector>
 
 #include "base/files/file_util.h"
@@ -103,16 +104,6 @@ SourceFile ResolveFilePath(const BuildSettings* build_settings,
 
 constexpr auto kLabelLike = TextDecoration::DECORATION_GREEN;
 
-void OutputSuggestion(std::string_view message) {
-  OutputString("Suggestion: ", TextDecoration::DECORATION_BLUE);
-  OutputString(message);
-}
-
-void OutputWarning(std::string_view message = "") {
-  OutputString("Warning: ", TextDecoration::DECORATION_YELLOW);
-  OutputString(message);
-}
-
 void OutputError(std::string_view message = "") {
   OutputString("Error: ", TextDecoration::DECORATION_RED);
   OutputString(message);
@@ -122,14 +113,6 @@ void OutputQuoted(std::string_view message) {
   OutputString("\"", kLabelLike);
   OutputString(message, kLabelLike);
   OutputString("\"", kLabelLike);
-}
-
-void OutputDefinition(const Target* target) {
-  OutputString(":", kLabelLike);
-  OutputString(target->label().name(), kLabelLike);
-  OutputString(" (defined at ");
-  OutputString(target->user_friendly_location().Describe(false), kLabelLike);
-  OutputString(")");
 }
 
 }  // namespace
@@ -206,11 +189,49 @@ ResolveSuggestionToTarget(const BuildSettings* build_settings,
 }
 
 bool OutputSuggestions(const std::vector<const Target*>& all_targets,
-                       Setup* setup,
+                       const BuildSettings* build_settings,
+                       const Label& default_toolchain,
                        std::string_view includer_name,
-                       std::string_view included_name) {
-  Label current_toolchain = setup->loader()->default_toolchain_label();
-  auto OutputTarget = [&current_toolchain](const Target* target) {
+                       std::string_view included_name,
+                       OutputStringFunc output_fn) {
+  auto OutputString =
+      [&](std::string_view str, TextDecoration dec = DECORATION_NONE,
+          HtmlEscaping esc = DEFAULT_ESCAPING) { output_fn(str, dec, esc); };
+
+  constexpr auto kLabelLike = TextDecoration::DECORATION_GREEN;
+
+  auto OutputSuggestion = [&](std::string_view message) {
+    OutputString("Suggestion: ", TextDecoration::DECORATION_BLUE);
+    OutputString(message);
+  };
+
+  auto OutputWarning = [&](std::string_view message = "") {
+    OutputString("Warning: ", TextDecoration::DECORATION_YELLOW);
+    OutputString(message);
+  };
+
+  auto OutputError = [&](std::string_view message = "") {
+    OutputString("Error: ", TextDecoration::DECORATION_RED);
+    OutputString(message);
+  };
+
+  auto OutputQuoted = [&](std::string_view message) {
+    OutputString("\"", kLabelLike);
+    OutputString(message, kLabelLike);
+    OutputString("\"", kLabelLike);
+  };
+
+  auto OutputDefinition = [&](const Target* target) {
+    OutputString(":", kLabelLike);
+    OutputString(target->label().name(), kLabelLike);
+    OutputString(" (defined at ");
+    OutputString(target->user_friendly_location().Describe(false), kLabelLike);
+    OutputString(")");
+  };
+
+  Label current_toolchain = default_toolchain;
+  auto OutputTarget = [&current_toolchain,
+                       &OutputString](const Target* target) {
     OutputString(target->label().GetUserVisibleName(current_toolchain),
                  kLabelLike);
   };
@@ -223,7 +244,7 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     OutputQuoted(value);
     OutputString(" ] to ");
     OutputDefinition(target);
-    if (current_toolchain != setup->loader()->default_toolchain_label()) {
+    if (current_toolchain != default_toolchain) {
       OutputString(" for toolchain ");
       OutputString(
           target->label().GetToolchainLabel().GetUserVisibleName(false),
@@ -234,7 +255,7 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
 
   auto ResolveSuggestion = [&](std::string_view value) {
     const auto& [targets, ok] = ResolveSuggestionToTarget(
-        &setup->build_settings(), all_targets, current_toolchain, value);
+        build_settings, all_targets, current_toolchain, value);
     if (!ok) {
       OutputError();
       if (value.starts_with("//")) {
@@ -343,16 +364,6 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     OutputDefinition(included);
   }
 
-  // TODO: There are a bunch of optimizations we can perform here to make better
-  // suggestions. They may be considered in the future. Some initial thoughts
-  // include:
-  // * Check the visibility of includer -> included
-  //   * If it is not visible:
-  //     * Find a group target that exposes included's headers
-  //     * Fall back to suggesting adding visibility
-  // * Check if included transitively depends on includer. Suggest ways to break
-  // the loop.
-
   // Note: if we have a toolchain mismatch, we already returned, so the
   // toolchains must match.
   OutputInsertionHint(
@@ -404,7 +415,12 @@ int RunSuggest(const std::vector<std::string>& args) {
       OutputString(":\n");
     }
 
-    success &= OutputSuggestions(all_targets, setup, includer, included);
+    success &= OutputSuggestions(
+        all_targets, &setup->build_settings(),
+        setup->loader()->default_toolchain_label(), includer, included,
+        [](std::string_view str, TextDecoration dec, HtmlEscaping esc) {
+          OutputString(str, dec, esc);
+        });
   }
 
   return success ? 0 : 1;

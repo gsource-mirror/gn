@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b566d3b3_96534aca",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T05:02:06Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: `ExpandModules` only returns targets that have a `module_type` (i.e. C++ modules, like Swift modules or targets with `modulemap` configured). For standard targets without module maps (`module_type().none() \u003d\u003d true`), `ExpandModules` will silently drop them and return an empty list, causing `Exposes` to always return `false`.\n\nSince `gn suggest` is a general tool and should work on any target regardless of whether C++ modules are enabled, you should implement a simple graph traversal here instead of using `ExpandModules`.\n\nFor example:\n```cpp\nbool Exposes(const Target\u0026 target, const Target\u0026 underlying) {\n  if (\u0026target \u003d\u003d \u0026underlying)\n    return true;\n\n  std::vector\u003cconst Target*\u003e stack \u003d {\u0026target};\n  std::unordered_set\u003cconst Target*\u003e visited;\n\n  while (!stack.empty()) {\n    const Target* current \u003d stack.back();\n    stack.pop_back();\n\n    if (!visited.insert(current).second)\n      continue;\n\n    auto add_deps \u003d [\u0026](const LabelTargetVector\u0026 deps) {\n      for (const auto\u0026 pair : deps) {\n        if (pair.ptr \u003d\u003d \u0026underlying)\n          return true;\n        stack.push_back(pair.ptr);\n      }\n      return false;\n    };\n\n    if (add_deps(current-\u003epublic_deps()))\n      return true;\n\n    if (current-\u003eoutput_type() \u003d\u003d Target::GROUP) {\n      if (add_deps(current-\u003eprivate_deps()))\n        return true;\n    }\n  }\n  return false;\n}\n```",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 0
+      },
+      "revId": "c8a324d5b59ed889e21b713d2ce832e559a55d1d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a23e496_3c700471",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T05:02:06Z",
+      "side": 1,
+      "message": "There is no caller giving message to this function?",
+      "range": {
+        "startLine": 206,
+        "startChar": 44,
+        "endLine": 206,
+        "endChar": 51
+      },
+      "revId": "c8a324d5b59ed889e21b713d2ce832e559a55d1d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b38de499_0b2d1eab",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T05:02:06Z",
+      "side": 1,
+      "message": "Why these accpet empty message?",
+      "range": {
+        "startLine": 206,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 57
+      },
+      "revId": "c8a324d5b59ed889e21b713d2ce832e559a55d1d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d793e5e0_e905e789",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T05:02:06Z",
+      "side": 1,
+      "message": "Can we use starts_with?",
+      "range": {
+        "startLine": 400,
+        "startChar": 38,
+        "endLine": 400,
+        "endChar": 67
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "4d2ca2a6_9590771c",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 400,
+                "startChar": 0,
+                "endLine": 402,
+                "endChar": 0
+              },
+              "replacement": "                return std::make_pair(!lhs.starts_with(\u0027:\u0027), lhs) \u003c\n                       std::make_pair(!rhs.starts_with(\u0027:\u0027), rhs);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c8a324d5b59ed889e21b713d2ce832e559a55d1d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f397c6b0_5c1d9ea3",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T05:02:06Z",
+      "side": 1,
+      "message": "This default arg is not necessary as every caller gives explicit message for this function?",
+      "range": {
+        "startLine": 482,
+        "startChar": 48,
+        "endLine": 482,
+        "endChar": 53
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "aa772aad_38d7dd48",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 482,
+                "startChar": 0,
+                "endLine": 483,
+                "endChar": 0
+              },
+              "replacement": "  auto OutputError \u003d [](std::string_view message) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c8a324d5b59ed889e21b713d2ce832e559a55d1d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56e4452a_4b1709fd",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T05:02:06Z",
+      "side": 1,
+      "message": "Better to use string_view or pass by value with move?",
+      "range": {
+        "startLine": 231,
+        "startChar": 55,
+        "endLine": 231,
+        "endChar": 61
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "a6b45db7_952eea05",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 231,
+                "startChar": 0,
+                "endLine": 232,
+                "endChar": 0
+              },
+              "replacement": "  auto set_visibility \u003d [\u0026](Target* target, std::string_view pattern) {\n"
+            },
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 233,
+                "startChar": 0,
+                "endLine": 234,
+                "endChar": 0
+              },
+              "replacement": "    visibility_value.list_value().push_back(Value(nullptr, std::string(pattern)));\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c8a324d5b59ed889e21b713d2ce832e559a55d1d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71cbaae7_80baef69",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T05:02:06Z",
+      "side": 1,
+      "message": "Can we use string_view here?",
+      "range": {
+        "startLine": 239,
+        "startChar": 38,
+        "endLine": 239,
+        "endChar": 44
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "51ff1566_981c5f46",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 239,
+                "startChar": 0,
+                "endLine": 240,
+                "endChar": 0
+              },
+              "replacement": "  auto create_target \u003d [\u0026](std::string_view name, Target::OutputType type,\n"
+            },
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 252,
+                "startChar": 0,
+                "endLine": 253,
+                "endChar": 0
+              },
+              "replacement": "      target-\u003eset_module_name(std::string(name));\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c8a324d5b59ed889e21b713d2ce832e559a55d1d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

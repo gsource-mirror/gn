@@ -1,0 +1,49 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b57ddd3d_f24f379e",
+        "filename": "src/gn/pool.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-05-18T08:02:09Z",
+      "side": 1,
+      "message": "nit: keep includes sorted. Use \u0027git clang-format\u0027 to format.",
+      "fixSuggestions": [
+        {
+          "fixId": "32fdcbfd_4d2c1dfb",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/pool.h",
+              "range": {
+                "startLine": 8,
+                "startChar": 0,
+                "endLine": 9,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "src/gn/pool.h",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "#include \u003cstring\u003e\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e9c3e74e09c58d5bba8d80a446ebf26c370a2b87",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1382a836_20084c24",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T08:14:42Z",
+      "side": 1,
+      "message": "It might be better to have separate CL to refactor Output* related changes?",
+      "revId": "05082fbb0c28b3c8dcd5b5d1b62922de7984d785",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59251927_3cc81e88",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T08:14:42Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Prefer using `empty()` over `size() \u003d\u003d 0`.",
+      "range": {
+        "startLine": 454,
+        "startChar": 0,
+        "endLine": 454,
+        "endChar": 0
+      },
+      "revId": "05082fbb0c28b3c8dcd5b5d1b62922de7984d785",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "307589fd_c96401a3",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T08:14:42Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This condition changes the behavior of `ExpandModules` and breaks C++ module generation.\n\nThe original `ExpandModules` traversed through non-modules (targets where `module_type().none()` is true) to find the first layer of actual modules that need to be `extern`ed. This meant it would traverse through a `source_set`\u0027s `public_deps` if it didn\u0027t have a module map, in order to find the underlying modules.\nBy changing the traversal condition here to `target-\u003esources().empty() \u0026\u0026 target-\u003epublic_headers().empty()`, this will no longer traverse the `public_deps` of a `source_set` that has sources but no module map. Then `ExpandModules` will simply filter out this `source_set`, completely losing its transitive modules.\n\nAdditionally, for the layering check (`gn suggest`), stopping traversal at targets with sources is incorrect because `public_deps` are *always* forwarded to dependents in GN, regardless of whether the intermediate target has sources or not. If `B` has sources and `public_deps \u003d [C]`, depending on `B` gives you access to `C`\u0027s headers. But this function stops at `B` and won\u0027t find `C`, causing `Exposes(B, C)` to incorrectly return false.\n\nSince `ExpandModules` and `gn suggest` need different traversals (one skips non-modules, the other should traverse all `public_deps`), they shouldn\u0027t share this identical traversal logic unless it is parameterized.",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 0
+      },
+      "revId": "05082fbb0c28b3c8dcd5b5d1b62922de7984d785",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5aaff57_f49f6766",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T08:14:42Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Because the anonymous namespace was closed earlier, `ExpandModules` is now in the global namespace but isn\u0027t declared in a header. Consider putting it back in the anonymous namespace or making it `static`.",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 0
+      },
+      "revId": "05082fbb0c28b3c8dcd5b5d1b62922de7984d785",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

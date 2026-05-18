@@ -6,7 +6,7 @@
 #define TOOLS_GN_POOL_H_
 
 #include <string>
-
+#include <cstdint>
 #include "gn/item.h"
 
 // Represents a named pool in the dependency graph.

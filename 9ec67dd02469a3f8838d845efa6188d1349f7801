@@ -120,6 +120,30 @@
       ],
       "revId": "9ec67dd02469a3f8838d845efa6188d1349f7801",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ffa2b88_a5e94f70",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-18T07:07:09Z",
+      "side": 1,
+      "message": "Labels are not strings, so should not be quoted. They are, however, printed in a different color to make it more obvious.\n\nThey should only be quoted in the context of a suggestion to add `\"//:foo\"` to deps, since you explicitly want to write the string down.\n\nSee the error I get when I attempt to add a dependency on a target that does not exist:\n```\nERROR Unresolved dependencies.\n//:gn_all(//build/toolchain/linux:clang_x64)\n  needs //base:bae_perftests(//build/toolchain/linux:clang_x64)\n```",
+      "parentUuid": "3735d7b9_a7d7528c",
+      "range": {
+        "startLine": 293,
+        "startChar": 16,
+        "endLine": 293,
+        "endChar": 28
+      },
+      "revId": "9ec67dd02469a3f8838d845efa6188d1349f7801",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

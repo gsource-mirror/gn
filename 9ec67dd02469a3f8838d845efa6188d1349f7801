@@ -3,6 +3,88 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "54b4ed65_28b969a5",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T07:22:42Z",
+      "side": 1,
+      "message": "Could you leave an explanation comment what is checked with empty label?",
+      "range": {
+        "startLine": 424,
+        "startChar": 0,
+        "endLine": 425,
+        "endChar": 52
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "cbb5d158_724aeb51",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "        // Check if the candidate is NOT publicly visible to all targets.\n        // An empty Label() represents a check for public visibility.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9ec67dd02469a3f8838d845efa6188d1349f7801",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93dc127e_fb9555c8",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T07:22:42Z",
+      "side": 1,
+      "message": "This default arg is not necessary?",
+      "range": {
+        "startLine": 484,
+        "startChar": 49,
+        "endLine": 484,
+        "endChar": 53
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "e5ee673c_a8f75328",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 484,
+                "startChar": 0,
+                "endLine": 485,
+                "endChar": 0
+              },
+              "replacement": "  auto OutputError \u003d [](std::string_view message) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9ec67dd02469a3f8838d845efa6188d1349f7801",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3735d7b9_a7d7528c",
         "filename": "src/gn/command_suggest_unittest.cc",
         "patchSetId": 7

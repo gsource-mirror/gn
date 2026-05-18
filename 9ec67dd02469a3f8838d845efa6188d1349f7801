@@ -1,0 +1,125 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3735d7b9_a7d7528c",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-18T06:50:47Z",
+      "side": 1,
+      "message": "Better to quote target labels shown in the output?",
+      "range": {
+        "startLine": 293,
+        "startChar": 16,
+        "endLine": 293,
+        "endChar": 28
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "8d38f5a0_324899e5",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 285,
+                "startChar": 0,
+                "endLine": 289,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_EQ(\"Suggestion: Add public_deps \u003d [ \\\":visible\\\" ] to \\\"//:includer\\\" \"\n            \"(defined at //BUILD.gn:1)\\n\",\n            run_suggest(*visible));\n"
+            },
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 293,
+                "startChar": 0,
+                "endLine": 294,
+                "endChar": 0
+              },
+              "replacement": "      \"Warning: \\\"//:invisible\\\" is not visible to \\\"//:includer\\\"\\n\"\n"
+            },
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 296,
+                "startChar": 0,
+                "endLine": 298,
+                "endChar": 0
+              },
+              "replacement": "      \"Suggestion: Add public_deps \u003d [ \\\":invisible\\\" ] to \\\"//:includer\\\" \"\n      \"(defined at //BUILD.gn:1)\\n\",\n"
+            },
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 305,
+                "startChar": 0,
+                "endLine": 307,
+                "endChar": 0
+              },
+              "replacement": "      \"Warning: \\\"//:invisible\\\" is exposed via the following targets, but \"\n      \"none are visible to \\\"//:includer\\\"\\n\"\n"
+            },
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 309,
+                "startChar": 0,
+                "endLine": 310,
+                "endChar": 0
+              },
+              "replacement": "      \"Suggestion: Add one of the following to public_deps in \\\"//:includer\\\" \"\n"
+            },
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 320,
+                "startChar": 0,
+                "endLine": 324,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_EQ(\"Suggestion: Add public_deps \u003d [ \\\":exposer_visible\\\" ] to \"\n            \"\\\"//:includer\\\" (defined at //BUILD.gn:1)\\n\",\n            run_suggest(*invisible));\n"
+            },
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 331,
+                "startChar": 0,
+                "endLine": 332,
+                "endChar": 0
+              },
+              "replacement": "      \"Warning: \\\"//:invisible\\\" is exposed via multiple targets\\n\"\n"
+            },
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 333,
+                "startChar": 0,
+                "endLine": 335,
+                "endChar": 0
+              },
+              "replacement": "      \"targets is visible to \\\"//:includer\\\"\\n\"\n      \"Suggestion: Add one of the following to public_deps in \\\"//:includer\\\" \"\n"
+            },
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 345,
+                "startChar": 0,
+                "endLine": 349,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_EQ(\"Suggestion: Add public_deps \u003d [ \\\":exposer_specific\\\" ] to \"\n            \"\\\"//:includer\\\" (defined at //BUILD.gn:1)\\n\",\n            run_suggest(*invisible));\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9ec67dd02469a3f8838d845efa6188d1349f7801",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

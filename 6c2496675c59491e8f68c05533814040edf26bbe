@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48992cef_75bfe9ad",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-19T05:14:22Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Consider passing `candidates` by reference `const std::vector\u003cconst Target*\u003e\u0026` to avoid an unnecessary vector copy.",
+      "range": {
+        "startLine": 411,
+        "startChar": 0,
+        "endLine": 411,
+        "endChar": 0
+      },
+      "revId": "6c2496675c59491e8f68c05533814040edf26bbe",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab78e17b_35dd447b",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-19T05:14:22Z",
+      "side": 1,
+      "message": "Is it possible to accept string_view in lambda to avoid string copy?\n\n---------------\n\nPlease fix this WARNING reported by autoreview issue finding: Using `std::make_pair` here creates string copies of `lhs` and `rhs` for every comparison during the sort. Consider writing out the logic to avoid these copies:\n```cpp\n                bool lhs_abs \u003d !lhs.starts_with(\u0027:\u0027);\n                bool rhs_abs \u003d !rhs.starts_with(\u0027:\u0027);\n                if (lhs_abs !\u003d rhs_abs) {\n                  return lhs_abs \u003c rhs_abs;\n                }\n                return lhs \u003c rhs;\n```",
+      "range": {
+        "startLine": 422,
+        "startChar": 0,
+        "endLine": 422,
+        "endChar": 0
+      },
+      "revId": "6c2496675c59491e8f68c05533814040edf26bbe",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9969a8b3_b9dcac53",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-19T05:14:22Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This `err` variable is unused (the lambdas below declare their own scoped `Err err` variables).",
+      "range": {
+        "startLine": 224,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 0
+      },
+      "revId": "6c2496675c59491e8f68c05533814040edf26bbe",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb10e5c4_b6c0e962",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-19T05:14:22Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: The parameter `t` is unused. Consider omitting its name `[](Target*) {}` to avoid potential compiler warnings.",
+      "range": {
+        "startLine": 264,
+        "startChar": 0,
+        "endLine": 264,
+        "endChar": 0
+      },
+      "revId": "6c2496675c59491e8f68c05533814040edf26bbe",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc2d5464_6369ddac",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-19T05:14:22Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: The parameters `d` and `e` are unused. Consider omitting their names to avoid potential compiler warnings:\n```cpp\n    auto collect \u003d [\u0026](std::string_view s, TextDecoration /*d*/, HtmlEscaping /*e*/) {\n```",
+      "range": {
+        "startLine": 268,
+        "startChar": 0,
+        "endLine": 268,
+        "endChar": 0
+      },
+      "revId": "6c2496675c59491e8f68c05533814040edf26bbe",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

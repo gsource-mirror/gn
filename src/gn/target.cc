@@ -631,6 +631,76 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
         computed_outputs_[0].AsSourceFile(settings()->build_settings()));
   }
 
+  for (const auto& dep : GetDeps(DEPS_LINKED)) {
+    const Target* t = dep.ptr;
+    if (t->module_type().test(MODULEMAP_INHERITED_TEXTUAL)) {
+      module_type_.set(MODULEMAP_INHERITED_TEXTUAL);
+      if (module_type_.test(HAS_PUBLIC_MODULEMAP) &&
+          !module_type_.test(MODULEMAP_EXACT)) {
+        module_type_.set(MODULEMAP_IS_TEXTUAL);
+      }
+      break;
+    }
+  }
+
+  if (module_type_.test(HAS_PUBLIC_MODULEMAP) &&
+      module_type_.test(MODULEMAP_INHERITED_TEXTUAL) &&
+      !module_type_.test(MODULEMAP_IS_TEXTUAL)) {
+    std::ostringstream os;
+    // Try is the safest option, since it gives clear error messages.
+    os << "To modularize targets, add `generate_modulemap = "
+          "\"try|inherit|textual\"` (avoid textual unless you know what you're "
+          "doing) to the following non-modularized targets:\n";
+    // We want to print the transitive dependencies of this, filtered to the
+    // first instance in the dependency tree of each disallowed target.
+    std::unordered_set<const Target*> seen{this};
+    // This is the path to the current node that has not yet been printed.
+    std::vector<std::string> parents;
+
+    std::function<void(const Target*, size_t)> visit = [&](const Target* node,
+                                                           size_t indent) {
+      std::ostringstream local_os;
+      for (auto i = 0u; i < indent; ++i) {
+        local_os << " ";
+      }
+      local_os << node->label().GetUserVisibleName(
+          settings()->default_toolchain_label());
+      if (node->module_type().test(MODULEMAP_DISALLOWED_NONTEXTUAL_DEP)) {
+        for (const auto& node : parents) {
+          os << node << "\n";
+        }
+        os << local_os.str() << " (non-modularized)\n";
+        // Clear the parents so that only print the stuff we haven't seen yet:
+        // a
+        //   b
+        //     c
+        // a   (we skip printing this)
+        //   b (we skip printing this)
+        //     d
+        parents.clear();
+      } else {
+        parents.push_back(local_os.str());
+      }
+      for (const auto& dep : node->GetDeps(DEPS_LINKED)) {
+        if (seen.insert(dep.ptr).second &&
+            node->module_type().test(MODULEMAP_INHERITED_TEXTUAL)) {
+          visit(dep.ptr, indent + 2);
+        }
+      }
+      if (!parents.empty()) {
+        parents.pop_back();
+      }
+    };
+    visit(this, 0);
+    *err =
+        Err(defined_from(),
+            label().GetUserVisibleName(settings()->default_toolchain_label()) +
+                " is modularized, but depends transitively on non-modularized "
+                "targets.",
+            os.str());
+    return false;
+  }
+
   return true;
 }
 
@@ -1405,20 +1475,28 @@ bool Target::GetMetadata(const std::vector<std::string>& keys_to_extract,
 
 void Target::set_module_type(ModuleType type) {
   module_type_ = type;
-  if (module_type_.test(MODULEMAP_IS_GENERATED)) {
+  if (module_type_.test(MODULEMAP_IS_GENERATED) ||
+      module_type_.test(HAS_PRIVATE_MODULEMAP)) {
     auto source_dir = GetBuildDirForTargetAsOutputFile(this, BuildDirType::GEN)
                           .AsSourceDir(settings()->build_settings());
 
-    generated_modulemap_file_ = SourceFile(base::StringPrintf(
-        "%s%s.modulemap", source_dir.value().c_str(), label().name().c_str()));
+    if (module_type_.test(MODULEMAP_IS_GENERATED)) {
+      generated_modulemap_file_ = SourceFile(
+          base::StringPrintf("%s%s.modulemap", source_dir.value().c_str(),
+                             label().name().c_str()));
+    }
+    if (module_type_.test(HAS_PRIVATE_MODULEMAP)) {
+      private_modulemap_file_ = SourceFile(base::StringPrintf(
+          "%s%s.private.modulemap", source_dir.value().c_str(),
+          label().name().c_str()));
+    }
   }
 }
 
 const SourceFile* Target::modulemap_file() const {
   if (module_type_.test(MODULEMAP_IS_GENERATED)) {
     return &generated_modulemap_file_;
-  }
-  if (module_type_.any()) {
+  } else if (module_type_.test(HAS_PUBLIC_MODULEMAP)) {
     for (const SourceFile& sf : sources_) {
       if (sf.IsModuleMapType()) {
         return &sf;
@@ -1429,17 +1507,10 @@ const SourceFile* Target::modulemap_file() const {
 }
 
 const SourceFile* Target::private_modulemap_file() const {
-  if (private_modulemap_file_.is_null() &&
-      module_type_.test(MODULEMAP_IS_GENERATED)) {
-    auto public_modulemap = modulemap_file();
-    std::string private_name = public_modulemap->GetName();
-    // foo.modulemap -> foo.private.modulemap
-    private_name.insert(private_name.length() - kModuleMapExt.size(),
-                        ".private");
-    private_modulemap_file_ = public_modulemap->GetDir().ResolveRelativeFile(
-        Value(nullptr, private_name), nullptr);
+  if (module_type_.test(HAS_PRIVATE_MODULEMAP)) {
+    return &private_modulemap_file_;
   }
-  return &private_modulemap_file_;
+  return nullptr;
 }
 
 std::string Pretty(const Target& target) {

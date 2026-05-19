@@ -412,9 +412,18 @@ const char kGenerateModulemap_Help[] =
     R"(generate_modulemap: [string] Mode for generating modulemaps.
 
 Possible values:
-  "none" (default): Don't generate a modulemap file for the target.
-  "textual": Generate a modulemap file for the target.
-    All public headers will be marked as textual.
+  "" or "none" (default): No modulemap is generated.
+    Nontextual modulemaps are not allowed to depend on this target if it
+    contains C++ headers.
+  "check": Generates an unsafe textual modulemap.
+    Nontextual modulemaps are not allowed to depend on this target.
+  "textual": Generates a safe textual modulemap.
+    This is considered inherently textual and should generally only be used
+    when the header file has no header guards.
+  "inherit": Generates a safe non-textual modulemap.
+    Falls back to a textual modulemap if it was unable to do so.
+  "try": Generates a safe non-textual modulemap.
+    Errors out if it was unable to do so.
 )";
 
 const char kCAdditionalOutputs[] = "c_additional_outputs";

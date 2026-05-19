@@ -247,7 +247,7 @@ TEST(Suggest, OutputSuggestions) {
     target->set_user_friendly_location(dummy_loc);
     if (type == Target::SOURCE_SET) {
       Target::ModuleType module_type;
-      module_type.set(Target::HAS_MODULEMAP);
+      module_type.set(Target::HAS_PUBLIC_MODULEMAP);
       target->set_module_type(module_type);
       target->set_module_name(std::string(name));
       target->public_headers().push_back(

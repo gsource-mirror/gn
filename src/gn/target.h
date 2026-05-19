@@ -62,13 +62,44 @@ class Target : public Item {
   };
 
   enum ModuleTypeBits {
-    HAS_MODULEMAP,
+    HAS_PUBLIC_MODULEMAP,
+    HAS_PRIVATE_MODULEMAP,
+
+    // Whether the public modulemap is generated (private modulemaps always
+    // are).
     MODULEMAP_IS_GENERATED,
+    // Whether the public modulemap is textual (private modulemaps always are).
     MODULEMAP_IS_TEXTUAL,
+    // If set, MODULEMAP_IS_TEXTUAL is not allowed to change.
+    MODULEMAP_EXACT,
+    // If set, cannot be depended on by nontextual targets.
+    MODULEMAP_DISALLOWED_NONTEXTUAL_DEP,
+    // Inherited textualness. True if it depends on a non-exact textual header
+    // transitively.
+    MODULEMAP_INHERITED_TEXTUAL,
 
     N_MODULE_TYPE_BITS,
   };
+
   using ModuleType = std::bitset<N_MODULE_TYPE_BITS>;
+
+  constexpr static auto kGenerated = (1 << HAS_PUBLIC_MODULEMAP) |
+                                     (1 << HAS_PRIVATE_MODULEMAP) |
+                                     (1 << MODULEMAP_IS_GENERATED);
+  constexpr static auto kModuleTypeNone =
+      ModuleType((1 << MODULEMAP_INHERITED_TEXTUAL) |
+                 (1 << MODULEMAP_DISALLOWED_NONTEXTUAL_DEP));
+  constexpr static auto kSourceModulemap = ModuleType(
+      (kGenerated ^ (1 << MODULEMAP_IS_GENERATED)) | (1 << MODULEMAP_EXACT));
+  constexpr static auto kModuleTypeTextual = ModuleType(
+      kGenerated | (1 << MODULEMAP_IS_TEXTUAL) | (1 << MODULEMAP_EXACT));
+  constexpr static auto kModuleTypeCheck =
+      ModuleType(kGenerated | (1 << MODULEMAP_IS_TEXTUAL) |
+                 (1 << MODULEMAP_INHERITED_TEXTUAL) |
+                 (1 << MODULEMAP_DISALLOWED_NONTEXTUAL_DEP));
+  constexpr static auto kModuleTypeInherit = ModuleType(kGenerated);
+  constexpr static auto kModuleTypeTry =
+      ModuleType(kGenerated | (1 << MODULEMAP_EXACT));
 
   using FileList = std::vector<SourceFile>;
   using StringVector = std::vector<std::string>;
@@ -549,12 +580,10 @@ class Target : public Item {
   std::string module_name_;
   ModuleType module_type_;
   Location user_friendly_location_;
-  // Only filled if the module type is GENERATED_*
+  // Only filled if the module type sets MODULEMAP_IS_GENERATED.
   SourceFile generated_modulemap_file_;
-  // For performance reasons we cache private_modulemap_file.
-  // Modulemap files are passed as pointers, so to keep them as pointers instead
-  // of values we need to store them somewhere.
-  mutable SourceFile private_modulemap_file_;
+  // Only filled if the module type sets HAS_PRIVATE_MODULEMAP.
+  SourceFile private_modulemap_file_;
 
   FileList sources_;
   SourceFileTypeSet source_types_used_;

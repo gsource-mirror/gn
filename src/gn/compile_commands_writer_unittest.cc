@@ -644,7 +644,7 @@ TEST_F(CompileCommandsTest, ModuleMap) {
   module_target.sources().push_back(SourceFile("//foo/foo.modulemap"));
   module_target.source_types_used().Set(SourceFile::SOURCE_MODULEMAP);
   Target::ModuleType module_type;
-  module_type.set(Target::HAS_MODULEMAP);
+  module_type.set(Target::HAS_PUBLIC_MODULEMAP);
   module_target.set_module_type(module_type);
   module_target.SetToolchain(&module_toolchain);
   ASSERT_TRUE(module_target.OnResolved(&err));

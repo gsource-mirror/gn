@@ -65,10 +65,46 @@ class Target : public Item {
     HAS_MODULEMAP,
     MODULEMAP_IS_GENERATED,
     MODULEMAP_IS_TEXTUAL,
+    // Textualness is not allowed to change.
+    MODULEMAP_EXACT,
+    MODULEMAP_FORCE_NONTEXTUAL,
+    MODULEMAP_FALLBACK_TO_TEXTUAL,
 
     N_MODULE_TYPE_BITS,
   };
-  using ModuleType = std::bitset<N_MODULE_TYPE_BITS>;
+
+  class ModuleType : public std::bitset<N_MODULE_TYPE_BITS> {
+   public:
+    ModuleType try_set_textual(bool textual) const {
+      auto copy = *this;
+      if (test(HAS_MODULEMAP) && !test(MODULEMAP_EXACT)) {
+        copy.set(MODULEMAP_IS_TEXTUAL, textual);
+      }
+      return copy;
+    }
+
+    bool implicitly_textual() const {
+      return test(MODULEMAP_IS_TEXTUAL) && !test(MODULEMAP_EXACT);
+    }
+    bool prefer_nontextual() const {
+      return test(MODULEMAP_IS_GENERATED) && !test(MODULEMAP_IS_TEXTUAL) &&
+             !test(MODULEMAP_FORCE_NONTEXTUAL);
+    }
+  };
+
+  constexpr static auto kGenerated =
+      (1 << HAS_MODULEMAP) | (1 << MODULEMAP_IS_GENERATED);
+  constexpr static auto kModuleTypeNone = ModuleType();
+  constexpr static auto kSourceModulemap = ModuleType(1 << HAS_MODULEMAP);
+  constexpr static auto kModuleTypeTry = ModuleType(kGenerated);
+  constexpr static auto kModuleTypeTextual = ModuleType(
+      kGenerated | (1 << MODULEMAP_IS_TEXTUAL) | (1 << MODULEMAP_EXACT));
+  constexpr static auto kModuleTypeCheck =
+      ModuleType(kGenerated | (1 << MODULEMAP_IS_TEXTUAL));
+  constexpr static auto kModuleTypeInherit =
+      ModuleType(kGenerated | (1 << MODULEMAP_FALLBACK_TO_TEXTUAL));
+  constexpr static auto kModuleTypeForce =
+      ModuleType(kGenerated | (1 << MODULEMAP_FORCE_NONTEXTUAL));
 
   using FileList = std::vector<SourceFile>;
   using StringVector = std::vector<std::string>;
@@ -547,7 +583,7 @@ class Target : public Item {
   bool output_extension_set_ = false;
 
   std::string module_name_;
-  ModuleType module_type_;
+  ModuleType module_type_ = kModuleTypeNone;
   Location user_friendly_location_;
   // Only filled if the module type is GENERATED_*
   SourceFile generated_modulemap_file_;

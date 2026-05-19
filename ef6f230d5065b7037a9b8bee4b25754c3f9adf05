@@ -198,6 +198,30 @@
       },
       "revId": "ef6f230d5065b7037a9b8bee4b25754c3f9adf05",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "868cfdc5_84af56b7",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-19T06:20:02Z",
+      "side": 1,
+      "message": "What do you mean by \"made it suggest ...\"? This suggestion still doesn\u0027t say anything about dependency decoupling?",
+      "parentUuid": "d54d4012_231f624d",
+      "range": {
+        "startLine": 360,
+        "startChar": 0,
+        "endLine": 361,
+        "endChar": 24
+      },
+      "revId": "ef6f230d5065b7037a9b8bee4b25754c3f9adf05",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

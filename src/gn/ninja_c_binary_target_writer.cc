@@ -490,6 +490,35 @@ void NinjaCBinaryTargetWriter::WriteSources(
     }
   }
 
+  if (target_->module_type().test(Target::MODULEMAP_IS_GENERATED) &&
+      !target_->module_type().test(Target::MODULEMAP_IS_TEXTUAL)) {
+    const SourceFile* modulemap = target_->modulemap_file();
+    CHECK(modulemap);
+
+    const char* tool_name = Tool::kToolNone;
+    std::vector<OutputFile> modulemap_outputs;
+    if (target_->GetOutputFilesForSource(*modulemap, &tool_name,
+                                         &modulemap_outputs)) {
+      DCHECK_EQ(tool_name, CTool::kCToolCxxModule);
+      const Tool* tool = target_->toolchain()->GetTool(tool_name);
+
+      std::vector<OutputFile> modulemap_deps;
+      std::copy(input_deps.begin(), input_deps.end(),
+                std::back_inserter(modulemap_deps));
+
+      for (const auto& module_dep : module_dep_info) {
+        if (module_dep.pcm && modulemap_outputs[0] != *module_dep.pcm)
+          modulemap_deps.push_back(*module_dep.pcm);
+      }
+
+      WriteCompilerBuildLine({*modulemap}, modulemap_deps, order_only_deps,
+                             tool, modulemap_outputs);
+      WritePool(out_);
+
+      extra_files->push_back(modulemap_outputs[0]);
+    }
+  }
+
   out_ << std::endl;
 }
 

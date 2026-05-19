@@ -60,6 +60,7 @@ TEST_F(BinaryTargetGeneratorTest, GeneratedModuleMapAllPublic) {
   EXPECT_TRUE(target->module_type().test(Target::HAS_MODULEMAP));
   EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_GENERATED));
   EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_EXACT));
 }
 
 TEST_F(BinaryTargetGeneratorTest, GeneratedModuleMap) {
@@ -87,4 +88,123 @@ TEST_F(BinaryTargetGeneratorTest, GeneratedModuleMap) {
   EXPECT_TRUE(target->module_type().test(Target::HAS_MODULEMAP));
   EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_GENERATED));
   EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_EXACT));
+}
+
+TEST_F(BinaryTargetGeneratorTest, GeneratedBinaryModuleMapInherit) {
+  TestWithScope setup;
+  Scope::ItemVector items_;
+  setup.scope()->set_item_collector(&items_);
+  setup.scope()->set_source_dir(SourceDir("//test/"));
+
+  TestParseInput input(
+      R"(static_library("foo") {
+           generate_modulemap = "inherit"
+           sources = [ "//foo.cc" ]
+           public = ["//foo.h"]
+         })");
+  ASSERT_SUCCESS(input);
+
+  Err err;
+  input.parsed()->Execute(setup.scope(), &err);
+  ASSERT_SUCCESS(err);
+
+  ASSERT_EQ(1u, items_.size());
+  Target* target = items_[0]->AsTarget();
+  ASSERT_TRUE(target);
+
+  EXPECT_TRUE(target->module_type().test(Target::HAS_MODULEMAP));
+  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_GENERATED));
+  EXPECT_FALSE(target->module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_TRUE(
+      target->module_type().test(Target::MODULEMAP_FALLBACK_TO_TEXTUAL));
+  EXPECT_FALSE(target->module_type().test(Target::MODULEMAP_FORCE_NONTEXTUAL));
+}
+
+TEST_F(BinaryTargetGeneratorTest, GeneratedBinaryModuleMapTry) {
+  TestWithScope setup;
+  Scope::ItemVector items_;
+  setup.scope()->set_item_collector(&items_);
+  setup.scope()->set_source_dir(SourceDir("//test/"));
+
+  TestParseInput input(
+      R"(static_library("foo") {
+           generate_modulemap = "try"
+           sources = [ "//foo.cc" ]
+           public = ["//foo.h"]
+         })");
+  ASSERT_SUCCESS(input);
+
+  Err err;
+  input.parsed()->Execute(setup.scope(), &err);
+  ASSERT_SUCCESS(err);
+
+  ASSERT_EQ(1u, items_.size());
+  Target* target = items_[0]->AsTarget();
+  ASSERT_TRUE(target);
+
+  EXPECT_TRUE(target->module_type().test(Target::HAS_MODULEMAP));
+  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_GENERATED));
+  EXPECT_FALSE(target->module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_FALSE(
+      target->module_type().test(Target::MODULEMAP_FALLBACK_TO_TEXTUAL));
+  EXPECT_FALSE(target->module_type().test(Target::MODULEMAP_FORCE_NONTEXTUAL));
+}
+
+TEST_F(BinaryTargetGeneratorTest, GeneratedBinaryModuleMapForce) {
+  TestWithScope setup;
+  Scope::ItemVector items_;
+  setup.scope()->set_item_collector(&items_);
+  setup.scope()->set_source_dir(SourceDir("//test/"));
+
+  TestParseInput input(
+      R"(static_library("foo") {
+           generate_modulemap = "force"
+           sources = [ "//foo.cc" ]
+           public = ["//foo.h"]
+         })");
+  ASSERT_SUCCESS(input);
+
+  Err err;
+  input.parsed()->Execute(setup.scope(), &err);
+  ASSERT_SUCCESS(err);
+
+  ASSERT_EQ(1u, items_.size());
+  Target* target = items_[0]->AsTarget();
+  ASSERT_TRUE(target);
+
+  EXPECT_TRUE(target->module_type().test(Target::HAS_MODULEMAP));
+  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_GENERATED));
+  EXPECT_FALSE(target->module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_FALSE(
+      target->module_type().test(Target::MODULEMAP_FALLBACK_TO_TEXTUAL));
+  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_FORCE_NONTEXTUAL));
+}
+
+TEST_F(BinaryTargetGeneratorTest, GeneratedBinaryModuleMapCheck) {
+  TestWithScope setup;
+  Scope::ItemVector items_;
+  setup.scope()->set_item_collector(&items_);
+  setup.scope()->set_source_dir(SourceDir("//test/"));
+
+  TestParseInput input(
+      R"(static_library("foo") {
+           generate_modulemap = "check"
+           sources = [ "//foo.cc" ]
+           public = ["//foo.h"]
+         })");
+  ASSERT_SUCCESS(input);
+
+  Err err;
+  input.parsed()->Execute(setup.scope(), &err);
+  ASSERT_SUCCESS(err);
+
+  ASSERT_EQ(1u, items_.size());
+  Target* target = items_[0]->AsTarget();
+  ASSERT_TRUE(target);
+
+  EXPECT_TRUE(target->module_type().test(Target::HAS_MODULEMAP));
+  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_GENERATED));
+  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_FALSE(target->module_type().test(Target::MODULEMAP_EXACT));
 }

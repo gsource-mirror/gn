@@ -21,7 +21,7 @@ TEST_F(BinaryTargetGeneratorTest, NonModuleTarget) {
   TestParseInput input(
       R"(static_library("foo") {
            generate_modulemap = "textual"
-           sources = [ "//foo.c" ]
+           sources = [ "//foo.o" ]
          })");
   ASSERT_SUCCESS(input);
 
@@ -57,9 +57,7 @@ TEST_F(BinaryTargetGeneratorTest, GeneratedModuleMapAllPublic) {
   Target* target = items_[0]->AsTarget();
   ASSERT_TRUE(target);
 
-  EXPECT_TRUE(target->module_type().test(Target::HAS_MODULEMAP));
-  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_GENERATED));
-  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_EQ(Target::kModuleTypeTextual, target->module_type());
 }
 
 TEST_F(BinaryTargetGeneratorTest, GeneratedModuleMap) {
@@ -70,7 +68,7 @@ TEST_F(BinaryTargetGeneratorTest, GeneratedModuleMap) {
 
   TestParseInput input(
       R"(static_library("foo") {
-           generate_modulemap = "textual"
+           generate_modulemap = "check"
            sources = [ "//foo.cc" ]
            public = ["//foo.h"]
          })");
@@ -84,7 +82,5 @@ TEST_F(BinaryTargetGeneratorTest, GeneratedModuleMap) {
   Target* target = items_[0]->AsTarget();
   ASSERT_TRUE(target);
 
-  EXPECT_TRUE(target->module_type().test(Target::HAS_MODULEMAP));
-  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_GENERATED));
-  EXPECT_TRUE(target->module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_EQ(Target::kModuleTypeCheck, target->module_type());
 }

@@ -49,7 +49,7 @@ std::set<ClangModuleDep> GetModuleDepsInformation(
 
   auto add_if_new = [&ret](const Target* t, bool is_self,
                            bool has_generated_modulemap) {
-    if (!t->module_type().test(Target::HAS_MODULEMAP))
+    if (!t->module_type().test(Target::HAS_PUBLIC_MODULEMAP))
       return;
 
     std::optional<OutputFile> pcm = std::nullopt;

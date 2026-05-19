@@ -689,4 +689,93 @@ TEST_F(BuilderTest, RecursiveShouldGenerateWithValidations) {
   EXPECT_EQ(written[3], b_record);
 }
 
+TEST_F(BuilderTest, ResolveGeneratedModulemaps) {
+  DefineToolchain();
+  SourceDir toolchain_dir = settings_.toolchain_label().dir();
+  std::string toolchain_name = settings_.toolchain_label().name();
+
+  auto make_target = [&](std::string_view name, Target::ModuleType module_type,
+                         std::vector<Target*> deps = {}) {
+    auto target = std::make_unique<Target>(
+        &settings_,
+        Label(SourceDir("//"), name, toolchain_dir, toolchain_name));
+    target->set_output_type(Target::SOURCE_SET);
+    target->visibility().SetPublic();
+    target->set_module_type(module_type);
+    auto ptr = target.get();
+    for (Target* dep : deps) {
+      target->private_deps().push_back(LabelTargetPair(dep->label()));
+    }
+    builder_.ItemDefined(std::move(target));
+    return ptr;
+  };
+
+  auto none = make_target("none", Target::kModuleTypeNone);
+  auto textual = make_target("textual", Target::kModuleTypeTextual);
+  auto check = make_target("check", Target::kModuleTypeCheck);
+  auto inherit_textual =
+      make_target("inherit_textual", Target::kModuleTypeInherit, {check});
+  auto inherit_transitive_textual =
+      make_target("inherit_transitive_textual", Target::kModuleTypeInherit,
+                  {inherit_textual});
+  auto inherit_no_deps =
+      make_target("inherit_no_deps", Target::kModuleTypeInherit, {});
+  auto inherit_nontextual =
+      make_target("inherit_nontextual", Target::kModuleTypeInherit,
+                  {inherit_no_deps, textual, none});
+  auto try_no_deps = make_target("try_no_deps", Target::kModuleTypeTry, {});
+  auto try_nontextual = make_target("try_nontextual", Target::kModuleTypeTry,
+                                    {try_no_deps, textual, none});
+
+  auto forced_none = make_target("forced_none", Target::kModuleTypeNone);
+  auto forced_textual =
+      make_target("forced_textual", Target::kModuleTypeTextual);
+  auto forced_check = make_target("forced_check", Target::kModuleTypeCheck);
+  auto forced_try = make_target("forced_try", Target::kModuleTypeTry);
+  auto forced_check_transitive =
+      make_target("forced_check_transitive", Target::kModuleTypeCheck);
+  auto forced_inherit = make_target(
+      "forced_inherit", Target::kModuleTypeInherit, {forced_check_transitive});
+
+  auto force = make_target("force", Target::kModuleTypeForce,
+                           {
+                               forced_none,
+                               forced_check,
+                               forced_textual,
+                               forced_try,
+                               forced_inherit,
+                           });
+
+  Err err;
+  EXPECT_TRUE(builder_.ResolveGeneratedModulemaps(&err));
+  EXPECT_FALSE(err.has_error());
+
+  // Try_textual should complain that it's depending on a textual module.
+  make_target("try_textual", Target::kModuleTypeTry, {check});
+  EXPECT_FALSE(builder_.ResolveGeneratedModulemaps(&err));
+  EXPECT_TRUE(err.has_error());
+
+  auto is_textual = [](Target* t) {
+    return t->module_type().test(Target::MODULEMAP_IS_TEXTUAL);
+  };
+
+  EXPECT_FALSE(none->module_type().test(Target::HAS_MODULEMAP));
+  EXPECT_FALSE(is_textual(none));
+  EXPECT_TRUE(is_textual(textual));
+  EXPECT_TRUE(is_textual(check));
+  EXPECT_TRUE(is_textual(inherit_textual));
+  EXPECT_FALSE(is_textual(inherit_no_deps));
+  EXPECT_FALSE(is_textual(inherit_nontextual));
+  EXPECT_TRUE(is_textual(inherit_transitive_textual));
+  EXPECT_FALSE(is_textual(try_no_deps));
+  EXPECT_FALSE(is_textual(try_nontextual));
+  EXPECT_FALSE(forced_none->module_type().test(Target::HAS_MODULEMAP));
+  EXPECT_FALSE(is_textual(forced_none));
+  EXPECT_TRUE(is_textual(forced_textual));
+  EXPECT_FALSE(is_textual(forced_check));
+  EXPECT_FALSE(is_textual(forced_try));
+  EXPECT_FALSE(is_textual(forced_inherit));
+  EXPECT_FALSE(is_textual(forced_check_transitive));
+  EXPECT_FALSE(is_textual(force));
+}
 }  // namespace gn_builder_unittest

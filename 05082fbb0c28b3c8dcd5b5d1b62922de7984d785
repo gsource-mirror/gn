@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "776639a5_89b4744f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-19T00:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1382a836_20084c24",
+      "revId": "05082fbb0c28b3c8dcd5b5d1b62922de7984d785",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "59251927_3cc81e88",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-05-18T08:14:42Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Prefer using `empty()` over `size() \u003d\u003d 0`.",
+      "range": {
+        "startLine": 454,
+        "startChar": 0,
+        "endLine": 454,
+        "endChar": 0
+      },
+      "revId": "05082fbb0c28b3c8dcd5b5d1b62922de7984d785",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0dadb45_9e8e1b2f",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-19T00:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59251927_3cc81e88",
       "range": {
         "startLine": 454,
         "startChar": 0,
@@ -64,6 +106,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1539c8b2_6878b259",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-19T00:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "307589fd_c96401a3",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 0
+      },
+      "revId": "05082fbb0c28b3c8dcd5b5d1b62922de7984d785",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d5aaff57_f49f6766",
@@ -77,6 +143,30 @@
       "writtenOn": "2026-05-18T08:14:42Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Because the anonymous namespace was closed earlier, `ExpandModules` is now in the global namespace but isn\u0027t declared in a header. Consider putting it back in the anonymous namespace or making it `static`.",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 0
+      },
+      "revId": "05082fbb0c28b3c8dcd5b5d1b62922de7984d785",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "366ec462_79d9777f",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-19T00:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5aaff57_f49f6766",
       "range": {
         "startLine": 105,
         "startChar": 0,

@@ -60,6 +60,9 @@ class Builder {
   // If there are any undefined references, returns false and sets the error.
   bool CheckForBadItems(Err* err) const;
 
+  // Resolves the generate_modulemap modes globally (inherit, try, force).
+  bool ResolveGeneratedModulemaps(Err* err);
+
   // Get or create an empty record for unit-testing.
   BuilderRecord* GetOrCreateRecordForTesting(const Label& label);
 

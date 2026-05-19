@@ -411,10 +411,24 @@ const char kGenerateModulemap_HelpShort[] =
 const char kGenerateModulemap_Help[] =
     R"(generate_modulemap: [string] Mode for generating modulemaps.
 
+This will either result in generating no modulemap, a textual modulemap, or a
+nontextual modulemap.
+A generated modulemap is only allowed to be nontextual if all of its
+dependencies are either nontextual, or textual by design.
+
 Possible values:
-  "none" (default): Don't generate a modulemap file for the target.
-  "textual": Generate a modulemap file for the target.
-    All public headers will be marked as textual.
+  "" or "none" (default): No modulemap is generated.
+  "textual: Target is textual by design. Always generates a textual modulemap.
+  "check": Generates a textual modulemap for strict deps checking.
+    However, this is not textual by design and can thus be made nontextual
+    by "force".
+  "inherit": Generates a nontextual modulemap.
+    Falls back to a textual modulemap if it was unable to be textual.
+  "try": Generates a nontextual modulemap.
+    Errors out if it was unable to be nontextual.
+  "force": Generates a nontextual modulemap.
+    If it was unable to be nontextual, it instead marks all transitive
+    "check" dependencies as nontextual.
 )";
 
 const char kCAdditionalOutputs[] = "c_additional_outputs";

@@ -1,0 +1,68 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04a0bb3d_3ac3d312",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-19T05:49:54Z",
+      "side": 1,
+      "message": "Copy all?",
+      "range": {
+        "startLine": 381,
+        "startChar": 11,
+        "endLine": 381,
+        "endChar": 14
+      },
+      "revId": "55f0861bcb66123fb305e096cee1ed59a55541d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2de85801_c1f5d464",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-19T05:49:54Z",
+      "side": 1,
+      "message": "Keep `public_dpes`, and any link ...?",
+      "range": {
+        "startLine": 389,
+        "startChar": 11,
+        "endLine": 389,
+        "endChar": 22
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "4c2a51c6_f259b8d2",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest_unittest.cc",
+              "range": {
+                "startLine": 389,
+                "startChar": 0,
+                "endLine": 390,
+                "endChar": 0
+              },
+              "replacement": "      \"  # Keep public_deps, and any link variables from \"\n      \":cyclic_circular_includes\\n\"\n"
+            }
+          ]
+        }
+      ],
+      "revId": "55f0861bcb66123fb305e096cee1ed59a55541d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -412,9 +412,14 @@ const char kGenerateModulemap_Help[] =
     R"(generate_modulemap: [string] Mode for generating modulemaps.
 
 Possible values:
-  "none" (default): Don't generate a modulemap file for the target.
-  "textual": Generate a modulemap file for the target.
-    All public headers will be marked as textual.
+  "" or "none" (default): No modulemap is generated.
+  "textual": Generates a textual modulemap.
+  "check": Generates a textual modulemap, but is not inherently textual.
+    Nontextual modulemaps are not allowed to depend on this target.
+  "inherit": Tries to generate a nontextual modulemap.
+    Falls back to a textual modulemap if it was unable to do so.
+  "try": Tries to generate a nontextual modulemap.
+    Errors out if it was unable to do so.
 )";
 
 const char kCAdditionalOutputs[] = "c_additional_outputs";

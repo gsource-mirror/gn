@@ -689,4 +689,57 @@ TEST_F(BuilderTest, RecursiveShouldGenerateWithValidations) {
   EXPECT_EQ(written[3], b_record);
 }
 
+TEST_F(BuilderTest, ModulemapInheritFallback) {
+  DefineToolchain();
+  SourceDir toolchain_dir = settings_.toolchain_label().dir();
+  std::string toolchain_name = settings_.toolchain_label().name();
+
+  auto make_target = [&](std::string_view name, Target::ModuleType module_type,
+                         std::vector<Target*> deps = {}) {
+    auto target = std::make_unique<Target>(
+        &settings_,
+        Label(SourceDir("//"), name, toolchain_dir, toolchain_name));
+    target->set_output_type(Target::SOURCE_SET);
+    target->visibility().SetPublic();
+    target->set_module_type(module_type);
+    auto ptr = target.get();
+    for (Target* dep : deps) {
+      target->private_deps().push_back(LabelTargetPair(dep->label()));
+    }
+    builder_.ItemDefined(std::move(target));
+    return ptr;
+  };
+
+  auto none = make_target("none", Target::kModuleTypeNone);
+  auto textual = make_target("textual", Target::kModuleTypeTextual);
+  auto check = make_target("check", Target::kModuleTypeCheck);
+  auto inherit_textual =
+      make_target("inherit_textual", Target::kModuleTypeInherit, {check});
+  auto inherit_transitive_textual =
+      make_target("inherit_transitive_textual", Target::kModuleTypeInherit,
+                  {inherit_textual});
+  auto inherit_no_deps =
+      make_target("inherit_no_deps", Target::kModuleTypeInherit, {});
+  auto inherit_nontextual =
+      make_target("inherit_nontextual", Target::kModuleTypeInherit,
+                  {inherit_no_deps, textual, none});
+  auto try_no_deps = make_target("try_no_deps", Target::kModuleTypeTry, {});
+  auto try_nontextual = make_target("try_nontextual", Target::kModuleTypeTry,
+                                    {try_no_deps, textual, none});
+
+  auto is_textual = [](Target* t) {
+    return t->module_type().test(Target::MODULEMAP_IS_TEXTUAL);
+  };
+
+  EXPECT_FALSE(none->module_type().test(Target::HAS_MODULEMAP));
+  EXPECT_FALSE(is_textual(none));
+  EXPECT_TRUE(is_textual(textual));
+  EXPECT_TRUE(is_textual(check));
+  EXPECT_TRUE(is_textual(inherit_textual));
+  EXPECT_FALSE(is_textual(inherit_no_deps));
+  EXPECT_FALSE(is_textual(inherit_nontextual));
+  EXPECT_TRUE(is_textual(inherit_transitive_textual));
+  EXPECT_FALSE(is_textual(try_no_deps));
+  EXPECT_FALSE(is_textual(try_nontextual));
+}
 }  // namespace gn_builder_unittest

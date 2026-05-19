@@ -1566,3 +1566,54 @@ TEST(TargetTest, CollectMetadataWithValidation) {
   std::vector<Value> expected = {Value(nullptr, "bar"), Value(nullptr, "foo")};
   EXPECT_EQ(result, expected);
 }
+
+TEST_F(TargetTest, ModulemapInheritFallback) {
+  TestWithScope setup;
+  Err err;
+
+  // check target
+  TestTarget check(setup, "//foo:check", Target::SOURCE_SET);
+  check.set_module_type(Target::kModuleTypeCheck);
+  ASSERT_TRUE(check.OnResolved(&err));
+  EXPECT_TRUE(check.module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_TRUE(check.module_type().test(Target::MODULEMAP_INHERITED_TEXTUAL));
+  EXPECT_TRUE(
+      check.module_type().test(Target::MODULEMAP_DISALLOWED_NONTEXTUAL_DEP));
+
+  // inherit target should be nontextual
+  TestTarget inherit_nontextual(setup, "//:inherit_nontextual",
+                                Target::SOURCE_SET);
+  inherit_nontextual.set_module_type(Target::kModuleTypeInherit);
+  ASSERT_TRUE(inherit_nontextual.OnResolved(&err));
+  EXPECT_FALSE(
+      inherit_nontextual.module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_FALSE(inherit_nontextual.module_type().test(
+      Target::MODULEMAP_INHERITED_TEXTUAL));
+
+  // inherit target should be nontextual
+  TestTarget inherit_textual(setup, "//:inherit_textual", Target::SOURCE_SET);
+  inherit_textual.set_module_type(Target::kModuleTypeInherit);
+  inherit_textual.private_deps().push_back(LabelTargetPair(&check));
+  ASSERT_TRUE(inherit_textual.OnResolved(&err));
+  EXPECT_TRUE(inherit_textual.module_type().test(Target::MODULEMAP_IS_TEXTUAL));
+  EXPECT_TRUE(
+      inherit_textual.module_type().test(Target::MODULEMAP_INHERITED_TEXTUAL));
+
+  // try target depending on check -> should fail to resolve.
+  TestTarget try_target(setup, "//:try", Target::SOURCE_SET);
+  try_target.set_module_type(Target::kModuleTypeTry);
+  try_target.private_deps().push_back(LabelTargetPair(&inherit_textual));
+  try_target.private_deps().push_back(LabelTargetPair(&check));
+  try_target.private_deps().push_back(LabelTargetPair(&inherit_nontextual));
+  ASSERT_FALSE(try_target.OnResolved(&err));
+  EXPECT_TRUE(err.has_error());
+
+  std::string expected_err =
+      "To modularize targets, add `generate_modulemap = "
+      "\"try|inherit|textual\"` (prefer \"try\") to all non-modularized "
+      "targets it transitively depends on:\n"
+      "//:try\n"
+      "  //:inherit_textual\n"
+      "    //foo:check (non-modularized)\n";
+  EXPECT_EQ(expected_err, err.help_text());
+}

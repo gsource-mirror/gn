@@ -6,6 +6,8 @@
 
 #include <stddef.h>
 #include <algorithm>
+#include <ranges>
+#include <unordered_set>
 #include <utility>
 
 #include "gn/action_values.h"

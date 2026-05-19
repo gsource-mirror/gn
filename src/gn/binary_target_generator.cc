@@ -291,18 +291,23 @@ bool BinaryTargetGenerator::FillModuleName() {
 }
 
 bool BinaryTargetGenerator::FillModuleType() {
+  bool has_headers =
+      (target_->all_headers_public()
+           ? target_->source_types_used().Get(SourceFile::SOURCE_H)
+           : !target_->public_headers().empty());
+
   // Put this first so it gets marked as used even if it's unnecessary.
   const Value* generate_modulemap_val =
       scope_->GetValue(variables::kGenerateModulemap, true);
 
-  Target::ModuleType type;
-  type.set(Target::HAS_MODULEMAP);
+  Target::ModuleType module_type;
   if (target_->source_types_used().Get(SourceFile::SOURCE_MODULEMAP)) {
-    target_->set_module_type(type);
+    target_->set_module_type(Target::kSourceModulemap);
     return true;
-  }
-
-  if (!generate_modulemap_val) {
+  } else if (!generate_modulemap_val) {
+    if (has_headers) {
+      target_->set_module_type(Target::kModuleTypeNone);
+    }
     return true;
   }
 
@@ -310,27 +315,35 @@ bool BinaryTargetGenerator::FillModuleType() {
   if (err_->has_error()) {
     return false;
   }
+
   auto value = generate_modulemap_val->string_value();
-  type.set(Target::MODULEMAP_IS_GENERATED);
   if (value == "textual") {
-    type.set(Target::MODULEMAP_IS_TEXTUAL);
+    module_type = Target::kModuleTypeTextual;
+  } else if (value == "check") {
+    module_type = Target::kModuleTypeCheck;
+  } else if (value == "inherit") {
+    module_type = Target::kModuleTypeInherit;
+  } else if (value == "try") {
+    module_type = Target::kModuleTypeTry;
   } else if (value == "none" || value == "") {
+    target_->set_module_type(Target::kModuleTypeNone);
     return true;
   } else {
     *err_ = Err(*generate_modulemap_val,
-                "Invalid value for generate_modulemap. Expected \"textual\" or "
-                "\"none\"");
+                "Invalid value for generate_modulemap. Expected \"textual\", "
+                "\"check\", \"inherit\", \"try\", or \"none\"");
     return false;
   }
 
-  // Even if generate_modulemap was explicitly set, if we're compiling non-c++
-  // code, we shouldn't mark it as a module.
-  if (target_->source_types_used().Get(SourceFile::SOURCE_CPP) ||
-      (target_->all_headers_public()
-           ? target_->source_types_used().Get(SourceFile::SOURCE_H)
-           : !target_->public_headers().empty())) {
-    target_->set_module_type(type);
+  // If there are no headers, it's always safe to depend on this.
+  if (!has_headers) {
+    module_type.reset(Target::MODULEMAP_DISALLOWED_NONTEXTUAL_DEP).reset(Target::MODULEMAP_INHERITED_TEXTUAL);
   }
 
+  // Even if generate_modulemap was explicitly set, we should only mark it
+  // as a module if we're compiling C++ code.
+  if (target_->source_types_used().Get(SourceFile::SOURCE_CPP) || has_headers) {
+    target_->set_module_type(module_type);
+  }
   return true;
 }

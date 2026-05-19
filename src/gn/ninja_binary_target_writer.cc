@@ -47,7 +47,7 @@ std::vector<const Target*> ExpandModules(const LabelTargetVector& targets) {
     for (const auto& pair : *current) {
       const Target* target = pair.ptr;
       if (visited.insert(target).second) {
-        if (target->module_type().none()) {
+        if (!target->module_type().test(Target::HAS_MODULEMAP)) {
           stack.push_back(&target->public_deps());
           // If you declare `public_deps = ...` on a group, it shows up as a
           // private dep. Probably because groups don't distinguish between
@@ -67,10 +67,11 @@ std::vector<const Target*> ExpandModules(const LabelTargetVector& targets) {
 void WriteModuleMapHeaders(std::ostream& out,
                            const SourceDir& out_dir,
                            const Target::FileList& headers,
-                           const Settings* settings) {
+                           const Settings* settings,
+                           bool textual) {
   for (const auto& header : headers) {
     if (header.GetType() == SourceFile::SOURCE_H) {
-      out << "  textual header \"";
+      out << (textual ? "  textual header \"" : "  header \"");
       out << RebasePath(header.value(), out_dir,
                         settings->build_settings()->root_path_utf8());
       out << "\"\n";
@@ -117,10 +118,12 @@ void NinjaBinaryTargetWriter::Run() {
 void NinjaBinaryTargetWriter::WritePublicModuleMap(std::ostream& out,
                                                    const SourceDir& out_dir) {
   out << "module \"" << target_->module_name() << "\" {\n";
+  bool textual = target_->module_type().test(Target::MODULEMAP_IS_TEXTUAL);
   if (target_->all_headers_public()) {
-    WriteModuleMapHeaders(out, out_dir, target_->sources(), settings_);
+    WriteModuleMapHeaders(out, out_dir, target_->sources(), settings_, textual);
   } else {
-    WriteModuleMapHeaders(out, out_dir, target_->public_headers(), settings_);
+    WriteModuleMapHeaders(out, out_dir, target_->public_headers(), settings_,
+                          textual);
   }
   auto base = target_->modulemap_file()->GetDir();
   auto deps = ExpandModules(target_->public_deps());
@@ -140,7 +143,10 @@ void NinjaBinaryTargetWriter::WritePrivateModuleMap(std::ostream& out,
   // same thing as in the context of GN.
   out << "module \"" << module_name << "_Private\" {\n";
   if (!target_->all_headers_public()) {
-    WriteModuleMapHeaders(out, out_dir, target_->sources(), settings_);
+    // Private modulemaps are always textual, since they don't contain public
+    // header files.
+    WriteModuleMapHeaders(out, out_dir, target_->sources(), settings_,
+                          /*textual=*/true);
   }
   out << "  extern module \"" << module_name << "\" \""
       << target_->modulemap_file()->GetName() << "\"\n";

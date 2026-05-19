@@ -27,6 +27,7 @@
 #include "gn/output_file.h"
 #include "gn/rust_substitution_type.h"
 #include "gn/scheduler.h"
+#include "gn/source_file.h"
 #include "gn/string_output_buffer.h"
 #include "gn/string_utils.h"
 #include "gn/substitution_writer.h"
@@ -171,20 +172,25 @@ std::string NinjaTargetWriter::RunAndWriteFile(
       CHECK(modulemap);
 
       // Write public module map
-      StringOutputBuffer public_storage;
-      std::ostream public_os(&public_storage);
-      writer.WritePublicModuleMap(public_os, modulemap->GetDir());
+      StringOutputBuffer storage;
+      std::ostream os(&storage);
+      writer.WritePublicModuleMap(os, modulemap->GetDir());
       base::FilePath public_path =
           settings->build_settings()->GetFullPath(*modulemap);
-      public_storage.WriteToFileIfChanged(public_path, nullptr);
+      storage.WriteToFileIfChanged(public_path, nullptr);
+    }
+
+    if (target->module_type().test(Target::HAS_PRIVATE_MODULEMAP)) {
+      const SourceFile* modulemap = target->private_modulemap_file();
+      CHECK(modulemap);
 
       // Write private module map adjacent to the public one
-      StringOutputBuffer private_storage;
-      std::ostream private_os(&private_storage);
-      writer.WritePrivateModuleMap(private_os, modulemap->GetDir());
-      base::FilePath private_path = settings->build_settings()->GetFullPath(
-          *target->private_modulemap_file());
-      private_storage.WriteToFileIfChanged(private_path, nullptr);
+      StringOutputBuffer storage;
+      std::ostream os(&storage);
+      writer.WritePrivateModuleMap(os, modulemap->GetDir());
+      base::FilePath private_path =
+          settings->build_settings()->GetFullPath(*modulemap);
+      storage.WriteToFileIfChanged(private_path, nullptr);
     }
     writer.Run();
   } else {

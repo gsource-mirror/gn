@@ -295,42 +295,62 @@ bool BinaryTargetGenerator::FillModuleType() {
   const Value* generate_modulemap_val =
       scope_->GetValue(variables::kGenerateModulemap, true);
 
-  Target::ModuleType type;
-  type.set(Target::HAS_MODULEMAP);
-  if (target_->source_types_used().Get(SourceFile::SOURCE_MODULEMAP)) {
-    target_->set_module_type(type);
-    return true;
+  const std::string* value = nullptr;
+  if (generate_modulemap_val) {
+    generate_modulemap_val->VerifyTypeIs(Value::STRING, err_);
+    if (err_->has_error()) {
+      return false;
+    }
+    value = &generate_modulemap_val->string_value();
   }
 
-  if (!generate_modulemap_val) {
-    return true;
-  }
-
-  generate_modulemap_val->VerifyTypeIs(Value::STRING, err_);
-  if (err_->has_error()) {
-    return false;
-  }
-  auto value = generate_modulemap_val->string_value();
-  type.set(Target::MODULEMAP_IS_GENERATED);
-  if (value == "textual") {
-    type.set(Target::MODULEMAP_IS_TEXTUAL);
-  } else if (value == "none" || value == "") {
-    return true;
+  Target::ModuleType module_type;
+  if (!value || *value == "none" || *value == "") {
+    module_type = Target::kModuleTypeNone;
+  } else if (*value == "textual") {
+    module_type = Target::kModuleTypeTextual;
+  } else if (*value == "check") {
+    module_type = Target::kModuleTypeCheck;
+  } else if (*value == "inherit") {
+    module_type = Target::kModuleTypeInherit;
+  } else if (*value == "try") {
+    module_type = Target::kModuleTypeTry;
   } else {
     *err_ = Err(*generate_modulemap_val,
-                "Invalid value for generate_modulemap. Expected \"textual\" or "
-                "\"none\"");
+                "Invalid value for generate_modulemap. Expected \"textual\", "
+                "\"check\", \"inherit\", \"try\", or \"none\"");
     return false;
   }
 
-  // Even if generate_modulemap was explicitly set, if we're compiling non-c++
-  // code, we shouldn't mark it as a module.
-  if (target_->source_types_used().Get(SourceFile::SOURCE_CPP) ||
+  bool has_headers =
       (target_->all_headers_public()
            ? target_->source_types_used().Get(SourceFile::SOURCE_H)
-           : !target_->public_headers().empty())) {
-    target_->set_module_type(type);
+           : !target_->public_headers().empty());
+  bool has_modulemap =
+      target_->source_types_used().Get(SourceFile::SOURCE_MODULEMAP);
+
+  if (!target_->source_types_used().Get(SourceFile::SOURCE_CPP)) {
+    module_type.reset(Target::HAS_PRIVATE_MODULEMAP);
   }
 
+  if (has_modulemap) {
+    bool has_private_modulemap =
+        module_type.test(Target::HAS_PRIVATE_MODULEMAP);
+    module_type = Target::kSourceModulemap;
+    // If an explicit sources = ["foo.cc", "foo.modulemap" ] was provided, only
+    // create a private modulemap if generate_modulemap was specified.
+    if (!has_private_modulemap) {
+      module_type.reset(Target::HAS_PRIVATE_MODULEMAP);
+    }
+  } else if (!has_headers) {
+    module_type.reset(Target::MODULEMAP_DISALLOWED_NONTEXTUAL_DEP)
+        .reset(Target::MODULEMAP_INHERITED_TEXTUAL);
+  }
+
+  // If it's not a C++ target, it doesn't need a module type.
+  if (has_headers || module_type.test(Target::HAS_PRIVATE_MODULEMAP) ||
+      has_modulemap) {
+    target_->set_module_type(module_type);
+  }
   return true;
 }

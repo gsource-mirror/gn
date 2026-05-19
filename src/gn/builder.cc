@@ -6,6 +6,8 @@
 
 #include <stddef.h>
 #include <algorithm>
+#include <ranges>
+#include <unordered_set>
 #include <utility>
 
 #include "gn/action_values.h"
@@ -764,4 +766,82 @@ std::string Builder::CheckForCircularDependencies(
   }
 
   return ret;
+}
+
+bool Builder::ResolveGeneratedModulemaps(Err* err) {
+  std::unordered_set<Target*> unvisited;
+  for (auto& record : records_) {
+    if (record.type() == BuilderRecord::ITEM_TARGET && record.item()) {
+      unvisited.insert(record.item()->AsTarget());
+    }
+  }
+
+  // Targets is toposorted by dependency order (leaf nodes first).
+  // We assume no cycles, because cycles should already be dealt with by the
+  // time this function is called.
+  std::vector<Target*> targets;
+  std::function<void(Target*)> visit = [&](Target* n) {
+    if (unvisited.find(n) == unvisited.end())
+      return;
+
+    for (const auto& pair : n->GetDeps(Target::DEPS_LINKED)) {
+      // Although the target references through here are const, we have access
+      // to the non-const versions anyway, so it's safe to cast away the const.
+      visit(const_cast<Target*>(pair.ptr));
+    }
+
+    unvisited.erase(n);
+    targets.push_back(n);
+  };
+
+  std::vector<Target*> unvisited_copy(unvisited.begin(), unvisited.end());
+  for (Target* target : unvisited_copy) {
+    visit(target);
+  }
+
+  for (Target* target : std::views::reverse(targets)) {
+    if (target->module_type().test(Target::MODULEMAP_FORCE_NONTEXTUAL)) {
+      for (auto pair : target->GetDeps(Target::DEPS_LINKED)) {
+        // Strip the const because we have access to all targets in non-const
+        // form anyway so this should be safe.
+        Target* dep = const_cast<Target*>(pair.ptr);
+        auto module_type = dep->module_type().try_set_textual(false);
+        // We unconditionally set force nontextual because even if we depend on
+        // a textual header, while the header itself shouldn't be textual, any
+        // dependencies of the textual header should become nontextual.
+        module_type.set(Target::MODULEMAP_FORCE_NONTEXTUAL);
+        dep->set_module_type(module_type);
+      }
+    }
+  }
+
+  auto GetImplicitTextualDep = [](const Target* target) -> const Target* {
+    for (const auto& dep : target->GetDeps(Target::DEPS_LINKED)) {
+      const Target* t = dep.ptr;
+      if (t->module_type().implicitly_textual()) {
+        return t;
+      }
+    }
+    return nullptr;
+  };
+
+  for (Target* target : targets) {
+    if (target->module_type().prefer_nontextual()) {
+      if (auto dep = GetImplicitTextualDep(target); dep) {
+        if (target->module_type().test(Target::MODULEMAP_FALLBACK_TO_TEXTUAL)) {
+          target->set_module_type(target->module_type().try_set_textual(true));
+        } else {
+          std::string msg = "Target " +
+                            target->label().GetUserVisibleName(true) +
+                            " has generate_modulemap = \"try\" but depends on "
+                            "a target with a textual modulemap (" +
+                            dep->label().GetUserVisibleName(true) + ")\n";
+          *err = Err(target->defined_from(), "Modulemap try constraint failed.",
+                     msg);
+          return false;
+        }
+      }
+    }
+  }
+  return true;
 }

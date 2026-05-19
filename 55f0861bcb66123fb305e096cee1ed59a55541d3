@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a327e40_1ae63c80",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-19T06:03:37Z",
+      "side": 1,
+      "message": "This was intentional. These were not meant to be instructions, it was meant to be a description of what is contained here.",
+      "parentUuid": "04a0bb3d_3ac3d312",
+      "range": {
+        "startLine": 381,
+        "startChar": 11,
+        "endLine": 381,
+        "endChar": 14
+      },
+      "revId": "55f0861bcb66123fb305e096cee1ed59a55541d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2de85801_c1f5d464",
@@ -61,6 +85,30 @@
           ]
         }
       ],
+      "revId": "55f0861bcb66123fb305e096cee1ed59a55541d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5188819_ed7ed3ce",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-19T06:03:37Z",
+      "side": 1,
+      "message": "This was intentional. These were not meant to be instructions, it was meant to be a description of what is contained here.",
+      "parentUuid": "2de85801_c1f5d464",
+      "range": {
+        "startLine": 389,
+        "startChar": 11,
+        "endLine": 389,
+        "endChar": 22
+      },
       "revId": "55f0861bcb66123fb305e096cee1ed59a55541d3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

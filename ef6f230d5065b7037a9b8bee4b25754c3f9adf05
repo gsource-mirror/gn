@@ -82,6 +82,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "98afe586_d2a8f75c",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-19T06:03:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd3c4309_acfc4c06",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 35
+      },
+      "revId": "ef6f230d5065b7037a9b8bee4b25754c3f9adf05",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b81d51c1_33491ca8",
@@ -105,6 +129,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4d61ed3_4efa9de7",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-19T06:03:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b81d51c1_33491ca8",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 0
+      },
+      "revId": "ef6f230d5065b7037a9b8bee4b25754c3f9adf05",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "da2ce67a_377c0680",
@@ -118,6 +166,30 @@
       "writtenOn": "2026-05-19T05:49:54Z",
       "side": 1,
       "message": "I\u0027m confused with this message. If this knows adding this deps cause cyclic dependency, this should suggest dependency decoupling?",
+      "range": {
+        "startLine": 360,
+        "startChar": 0,
+        "endLine": 361,
+        "endChar": 24
+      },
+      "revId": "ef6f230d5065b7037a9b8bee4b25754c3f9adf05",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d54d4012_231f624d",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-19T06:03:37Z",
+      "side": 1,
+      "message": "Good point, I made it suggest the target it wanted you to shard it to.",
+      "parentUuid": "da2ce67a_377c0680",
       "range": {
         "startLine": 360,
         "startChar": 0,

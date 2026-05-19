@@ -80,6 +80,9 @@ std::set<ClangModuleDep> GetModuleDepsInformation(
     ret.emplace(target->private_modulemap_file(),
                 base::StringPrintf("%s_Private", target->module_name().c_str()),
                 std::nullopt, true);
+    if (!target->module_type().test(Target::MODULEMAP_IS_TEXTUAL)) {
+      add_if_new(target, true, has_generated_modulemap);
+    }
   } else {
     add_if_new(target, true, has_generated_modulemap);
   }

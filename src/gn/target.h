@@ -65,10 +65,34 @@ class Target : public Item {
     HAS_MODULEMAP,
     MODULEMAP_IS_GENERATED,
     MODULEMAP_IS_TEXTUAL,
+    // Textualness is not allowed to change.
+    MODULEMAP_EXACT,
+    // Cannot be depended on by nontextual things.
+    MODULEMAP_DISALLOWED_NONTEXTUAL_DEP,
+    // Inherited textualness. True if it depends on a non-exact textual header
+    // transitively.
+    MODULEMAP_INHERITED_TEXTUAL,
 
     N_MODULE_TYPE_BITS,
   };
+
   using ModuleType = std::bitset<N_MODULE_TYPE_BITS>;
+
+  constexpr static auto kGenerated =
+      (1 << HAS_MODULEMAP) | (1 << MODULEMAP_IS_GENERATED);
+  constexpr static auto kModuleTypeNone =
+      ModuleType(1 << MODULEMAP_DISALLOWED_NONTEXTUAL_DEP);
+  constexpr static auto kSourceModulemap =
+      ModuleType((1 << HAS_MODULEMAP) | (1 << MODULEMAP_EXACT));
+  constexpr static auto kModuleTypeTextual = ModuleType(
+      kGenerated | (1 << MODULEMAP_IS_TEXTUAL) | (1 << MODULEMAP_EXACT));
+  constexpr static auto kModuleTypeCheck =
+      ModuleType(kGenerated | (1 << MODULEMAP_IS_TEXTUAL) |
+                 (1 << MODULEMAP_INHERITED_TEXTUAL) |
+                 (1 << MODULEMAP_DISALLOWED_NONTEXTUAL_DEP));
+  constexpr static auto kModuleTypeInherit = ModuleType(kGenerated);
+  constexpr static auto kModuleTypeTry =
+      ModuleType(kGenerated | (1 << MODULEMAP_EXACT));
 
   using FileList = std::vector<SourceFile>;
   using StringVector = std::vector<std::string>;

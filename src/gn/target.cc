@@ -631,6 +631,70 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
         computed_outputs_[0].AsSourceFile(settings()->build_settings()));
   }
 
+  for (const auto& dep : GetDeps(DEPS_LINKED)) {
+    const Target* t = dep.ptr;
+    if (t->module_type().test(MODULEMAP_INHERITED_TEXTUAL)) {
+      module_type_.set(MODULEMAP_INHERITED_TEXTUAL);
+      if (module_type_.test(HAS_MODULEMAP) &&
+          !module_type_.test(MODULEMAP_EXACT)) {
+        module_type_.set(MODULEMAP_IS_TEXTUAL);
+      }
+      break;
+    }
+  }
+
+  if (module_type_.test(HAS_MODULEMAP) &&
+      module_type_.test(MODULEMAP_INHERITED_TEXTUAL) &&
+      !module_type_.test(MODULEMAP_IS_TEXTUAL)) {
+    std::ostringstream os;
+    // Try is the safest option, since it gives clear error messages.
+    os << "To modularize targets, add `generate_modulemap = "
+          "\"try|inherit|textual\"` (avoid textual unless you know what you're "
+          "doing) to all non-modularized targets it transitively depends on:\n";
+    // We want to print the transitive dependencies of this, filtered to the
+    // first instance in the dependency tree of each disallowed target.
+    std::vector<std::pair<const Target*, int>> nodes{{this, 0}};
+    std::unordered_set<const Target*> seen{this};
+    // This is the path to the current node that has not yet been printed.
+    std::vector<std::string> parents;
+
+    std::function<void(const Target*, size_t)> visit = [&](const Target* node,
+                                                           size_t indent) {
+      std::ostringstream local_os;
+      for (auto i = 0u; i < indent; ++i) {
+        local_os << " ";
+      }
+      local_os << node->label().GetUserVisibleName(
+          settings()->default_toolchain_label());
+      if (node->module_type().test(MODULEMAP_DISALLOWED_NONTEXTUAL_DEP)) {
+        for (const auto& node : parents) {
+          os << node << "\n";
+        }
+        os << local_os.str() << " (non-modularized)\n";
+        parents.clear();
+      } else {
+        parents.push_back(local_os.str());
+      }
+      for (const auto& dep : node->GetDeps(DEPS_LINKED)) {
+        if (seen.insert(dep.ptr).second &&
+            node->module_type().test(MODULEMAP_INHERITED_TEXTUAL)) {
+          visit(dep.ptr, indent + 2);
+        }
+      }
+      if (!parents.empty()) {
+        parents.pop_back();
+      }
+    };
+    visit(this, 0);
+    *err =
+        Err(defined_from(),
+            label().GetUserVisibleName(settings()->default_toolchain_label()) +
+                " is modularized, but depends transitively on non-modularized "
+                "targets.",
+            os.str());
+    return false;
+  }
+
   return true;
 }
 

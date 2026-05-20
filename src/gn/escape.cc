@@ -284,11 +284,42 @@ size_t EscapeStringToString(std::string_view str,
   return 0;
 }
 
+bool NeedsEscaping(std::string_view str, EscapingMode mode) {
+  switch (mode) {
+    case ESCAPE_NONE:
+      return false;
+    case ESCAPE_SPACE:
+      for (char ch : str) {
+        if (ch == ' ') return true;
+      }
+      return false;
+    case ESCAPE_NINJA:
+      for (char ch : str) {
+        if (ch == '$' || ch == ' ' || ch == ':') return true;
+      }
+      return false;
+    case ESCAPE_DEPFILE:
+      for (char ch : str) {
+        if (ch == ' ' || ch == '\\' || ch == '#' || ch == '*' ||
+            ch == '[' || ch == '|' || ch == ']' || ch == '$')
+          return true;
+      }
+      return false;
+    default:
+      return true;
+  }
+}
+
 }  // namespace
 
 std::string EscapeString(std::string_view str,
                          const EscapeOptions& options,
                          bool* needed_quoting) {
+  if (!NeedsEscaping(str, options.mode)) {
+    if (needed_quoting)
+      *needed_quoting = false;
+    return std::string(str);
+  }
   StackOrHeapBuffer dest(str.size() * kMaxEscapedCharsPerChar);
   return std::string(dest,
                      EscapeStringToString(str, options, dest, needed_quoting));
@@ -297,6 +328,10 @@ std::string EscapeString(std::string_view str,
 void EscapeStringToStream(std::ostream& out,
                           std::string_view str,
                           const EscapeOptions& options) {
+  if (!NeedsEscaping(str, options.mode)) {
+    out.write(str.data(), str.size());
+    return;
+  }
   StackOrHeapBuffer dest(str.size() * kMaxEscapedCharsPerChar);
   out.write(dest, EscapeStringToString(str, options, dest, nullptr));
 }

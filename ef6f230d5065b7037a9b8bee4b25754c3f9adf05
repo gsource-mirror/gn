@@ -222,6 +222,30 @@
       },
       "revId": "ef6f230d5065b7037a9b8bee4b25754c3f9adf05",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1854c137_47b8b3b1",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-20T00:03:04Z",
+      "side": 1,
+      "message": "Ah sorry, I handled the cyclic_circular_includes case instead, didn\u0027t quite realise what you meant. I\u0027ve now fixed this case.",
+      "parentUuid": "868cfdc5_84af56b7",
+      "range": {
+        "startLine": 360,
+        "startChar": 0,
+        "endLine": 361,
+        "endChar": 24
+      },
+      "revId": "ef6f230d5065b7037a9b8bee4b25754c3f9adf05",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

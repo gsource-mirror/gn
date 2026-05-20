@@ -35,6 +35,42 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "74c00669_63a88841",
+        "filename": "src/gn/resolved_target_data.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-20T04:10:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e445ecf_fc62d73b",
+      "revId": "dd79138d212b99dbb46eb616cd6d5cd5379f597b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74d0f8fd_ad944095",
+        "filename": "src/gn/resolved_target_data.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-20T04:10:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f95b73f7_93566bc8",
+      "revId": "dd79138d212b99dbb46eb616cd6d5cd5379f597b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "48486052_4d698af0",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-05-20T03:42:39Z",
       "side": 1,
       "message": "Why shift by 4? Should this instead be `\u003e\u003e alignof(target)`?",
+      "revId": "dd79138d212b99dbb46eb616cd6d5cd5379f597b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c05193d5_f9ecdfe9",
+        "filename": "src/gn/resolved_target_data.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-20T04:10:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48486052_4d698af0",
       "revId": "dd79138d212b99dbb46eb616cd6d5cd5379f597b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

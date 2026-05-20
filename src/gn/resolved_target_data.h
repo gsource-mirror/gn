@@ -357,9 +357,18 @@ class ResolvedTargetData {
   // on demand (hence the mutable qualifier). Implemented with a
   // UniqueVector<> and a parallel vector of unique TargetInfo
   // instances for best performance.
-  mutable std::shared_mutex map_mutex_;
-  mutable UniqueVector<const Target*> targets_;
-  mutable std::vector<std::unique_ptr<TargetInfo>> infos_;
+  static constexpr size_t kNumShards = 32;
+  struct Shard {
+    mutable std::shared_mutex mutex;
+    UniqueVector<const Target*> targets;
+    std::vector<std::unique_ptr<TargetInfo>> infos;
+  };
+
+  size_t GetShardIndex(const Target* target) const {
+    return (reinterpret_cast<size_t>(target) >> 4) % kNumShards;
+  }
+
+  mutable Shard shards_[kNumShards];
 };
 
 #endif  // TOOLS_GN_RESOLVED_TARGET_DATA_H_

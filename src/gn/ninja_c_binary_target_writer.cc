@@ -549,8 +549,16 @@ void NinjaCBinaryTargetWriter::WriteSourceSetStamp(
   // instead.
   DCHECK(classified_deps.extra_object_files.empty());
 
-  std::vector<OutputFile> order_only_deps =
-      GetOrderOnlyDepsFromNonLinkableDeps(classified_deps.non_linkable_deps);
+  std::vector<OutputFile> order_only_deps;
+  for (auto* dep : classified_deps.non_linkable_deps) {
+    if (dep->has_dependency_output()) {
+      OutputFile dep_output = dep->dependency_output();
+      if (dep->output_type() == Target::SOURCE_SET) {
+        dep_output.value().append(".linkdeps");
+      }
+      order_only_deps.push_back(dep_output);
+    }
+  }
 
   // 1. Link-only phony target (.linkdeps) containing only object files.
   std::vector<OutputFile> link_files;

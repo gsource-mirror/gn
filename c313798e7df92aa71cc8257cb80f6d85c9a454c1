@@ -1,0 +1,68 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5b1919e_99032f04",
+        "filename": "src/gn/builder.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-20T07:12:38Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: It\u0027s cleaner and more efficient to use a `visited` set to track which nodes have been traversed, rather than modifying an `unvisited` set. This avoids having to copy the `unvisited` set before iterating, and importantly, it inherently guards against stack overflows if there happens to be a cycle in the dependency graph (since `visited.insert(n)` happens *before* recursing, whereas `unvisited.erase(n)` happens *after* recursing).\n\n```cpp\n  std::unordered_set\u003cconst Target*\u003e visited;\n  std::vector\u003cTarget*\u003e targets;\n  \n  std::function\u003cvoid(Target*)\u003e visit \u003d [\u0026](Target* n) {\n    if (!visited.insert(n).second)\n      return;\n\n    for (const auto\u0026 pair : n-\u003eGetDeps(Target::DEPS_LINKED)) {\n      visit(const_cast\u003cTarget*\u003e(pair.ptr));\n    }\n\n    targets.push_back(n);\n  };\n\n  for (auto\u0026 record : records_) {\n    if (record.type() \u003d\u003d BuilderRecord::ITEM_TARGET \u0026\u0026 record.item()) {\n      visit(record.item()-\u003eAsTarget());\n    }\n  }\n```",
+      "range": {
+        "startLine": 772,
+        "startChar": 0,
+        "endLine": 772,
+        "endChar": 0
+      },
+      "revId": "c313798e7df92aa71cc8257cb80f6d85c9a454c1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b33e8f43_108c8060",
+        "filename": "src/gn/builder.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 786,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-20T07:12:38Z",
+      "side": 1,
+      "message": "contains(n)?",
+      "range": {
+        "startLine": 786,
+        "startChar": 8,
+        "endLine": 786,
+        "endChar": 44
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "b9a3a87c_150dc374",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/builder.cc",
+              "range": {
+                "startLine": 786,
+                "startChar": 0,
+                "endLine": 787,
+                "endChar": 0
+              },
+              "replacement": "    if (!unvisited.contains(n))\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c313798e7df92aa71cc8257cb80f6d85c9a454c1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e445ecf_fc62d73b",
+        "filename": "src/gn/resolved_target_data.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-20T03:42:39Z",
+      "side": 1,
+      "message": "Why 32 shards specifically? I would imagine more would be better, since there doesn\u0027t seem to be any cost other than memory overhead, which is likely minimal.\n\nCould you add a comment with benchmarks to justify this number (and perhaps change it if it\u0027s not ideal)?",
+      "revId": "dd79138d212b99dbb46eb616cd6d5cd5379f597b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f95b73f7_93566bc8",
+        "filename": "src/gn/resolved_target_data.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-20T03:42:39Z",
+      "side": 1,
+      "message": "Can you add an explanation here saying that we need sharding to reduce lock contention?",
+      "revId": "dd79138d212b99dbb46eb616cd6d5cd5379f597b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48486052_4d698af0",
+        "filename": "src/gn/resolved_target_data.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-05-20T03:42:39Z",
+      "side": 1,
+      "message": "Why shift by 4? Should this instead be `\u003e\u003e alignof(target)`?",
+      "revId": "dd79138d212b99dbb46eb616cd6d5cd5379f597b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

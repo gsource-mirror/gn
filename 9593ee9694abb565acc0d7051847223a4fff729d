@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b9cf487_81f7b9da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000120
+      },
+      "writtenOn": "2026-05-22T02:18:27Z",
+      "side": 1,
+      "message": "Looks like I need another stamp, I guess it\u0027s because I used my @chromium.org account to create the CL.",
+      "revId": "9593ee9694abb565acc0d7051847223a4fff729d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

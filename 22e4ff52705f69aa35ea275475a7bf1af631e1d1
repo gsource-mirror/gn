@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a5e78ff_a7f4c6bf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-05-22T02:27:36Z",
+      "side": 1,
+      "message": "Is this for strict deps bug? If so, could you add bug label for that?",
+      "revId": "22e4ff52705f69aa35ea275475a7bf1af631e1d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

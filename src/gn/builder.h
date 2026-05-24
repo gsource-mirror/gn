@@ -19,12 +19,20 @@ class ActionValues;
 class Err;
 class Loader;
 class ParseNode;
+class Target;
 
 // The builder assembles the dependency tree. It is not threadsafe and runs on
 // the main thread only. See also BuilderRecord.
 class Builder {
  public:
   using ResolvedGeneratedCallback = std::function<void(const BuilderRecord*)>;
+
+  // A callback invoked once the graph has been fully resolved to
+  // write generated_file() outputs to disk. This is only possible once
+  // all targets have been resolved, to be able to perform metadata walks
+  // safely, even over transitive validation dependencies.
+  using WriteGeneratedFilesCallback =
+      std::function<void(std::vector<const Target*>& generated_file_targets)>;
 
   explicit Builder(Loader* loader);
   ~Builder();
@@ -34,6 +42,14 @@ class Builder {
   void set_resolved_and_generated_callback(
       const ResolvedGeneratedCallback& cb) {
     resolved_and_generated_callback_ = cb;
+  }
+
+  // The completion callback is called when all items in the graph have been
+  // resolved. This allows performing metadata walks safely, even over
+  // transitive validation deps.
+  void set_write_generated_files_callback(
+      const WriteGeneratedFilesCallback& cb) {
+    write_generated_files_callback_ = cb;
   }
 
   Loader* loader() const { return loader_; }
@@ -157,6 +173,14 @@ class Builder {
   BuilderRecordMap records_;
 
   ResolvedGeneratedCallback resolved_and_generated_callback_;
+
+  // The number of defined and resolved items in the graph.
+  // completion_callback_ is called when resolved_count_ reached
+  // defined_count_.
+  size_t defined_count_ = 0;
+  size_t resolved_count_ = 0;
+  std::vector<const Target*> generated_file_targets_;
+  WriteGeneratedFilesCallback write_generated_files_callback_;
 
   Builder(const Builder&) = delete;
   Builder& operator=(const Builder&) = delete;

@@ -76,6 +76,8 @@ void Builder::ItemDefined(std::unique_ptr<Item> item) {
   DEBUG_BUILDER_RECORD_LOG("BEGIN_DEFINED %s\n",
                            record->ToDebugString().c_str());
 
+  defined_count_++;
+
   // Check that it's not been already defined.
   if (record->item()) {
     bool with_toolchain =
@@ -548,6 +550,11 @@ bool Builder::ResolveItem(BuilderRecord* record, Err* err) {
 
     // Offload Target::RunChecksAfterResolution to a worker thread.
     ScheduleBackgroundTargetChecks(record);
+
+    // Record generated_file() targets for later.
+    if (target->output_type() == Target::GENERATED_FILE)
+      generated_file_targets_.push_back(target);
+
     return CompleteItemResolution(record, err);
   } else if (record->type() == BuilderRecord::ITEM_CONFIG) {
     Config* config = record->item()->AsConfig();
@@ -607,6 +614,13 @@ bool Builder::CompleteItemResolution(BuilderRecord* record, Err* err) {
   }
 
   DEBUG_BUILDER_RECORD_LOG("END_RESOLVE %s\n", record->ToDebugString().c_str());
+
+  // Write the generated files only when all items have been fully resolved.
+  // This ensures that metadata walks over transitive validation dependencies
+  // are now perfectly safe.
+  if (++resolved_count_ == defined_count_ && write_generated_files_callback_) {
+    write_generated_files_callback_(generated_file_targets_);
+  }
 
   return true;
 }

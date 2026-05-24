@@ -548,6 +548,11 @@ bool Builder::ResolveItem(BuilderRecord* record, Err* err) {
 
     // Offload Target::RunChecksAfterResolution to a worker thread.
     ScheduleBackgroundTargetChecks(record);
+
+    // Record generated_file() targets for later.
+    if (target->output_type() == Target::GENERATED_FILE)
+      generated_file_targets_.push_back(target);
+
     return CompleteItemResolution(record, err);
   } else if (record->type() == BuilderRecord::ITEM_CONFIG) {
     Config* config = record->item()->AsConfig();
@@ -764,4 +769,10 @@ std::string Builder::CheckForCircularDependencies(
   }
 
   return ret;
+}
+
+void Builder::WriteGeneratedFilesAfterFullResolution() {
+  if (write_generated_files_callback_) {
+    write_generated_files_callback_(generated_file_targets_);
+  }
 }

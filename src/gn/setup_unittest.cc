@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "gn/setup.h"
+#include "gn/commands.h"
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
@@ -13,6 +14,7 @@
 #include "gn/switches.h"
 #include "gn/test_with_scheduler.h"
 #include "util/build_config.h"
+#include "util/msg_loop.h"
 
 using SetupTest = TestWithScheduler;
 
@@ -551,4 +553,84 @@ script_executable = ""
 #else
   EXPECT_EQ(setup.build_settings().python_path(), script_executable);
 #endif
+}
+
+TEST(GenCommandTest, ValidationMetadataRace) {
+  MsgLoop msg_loop;
+  // Save original command line to restore later
+  base::CommandLine original_cmdline = *base::CommandLine::ForCurrentProcess();
+
+  base::ScopedTempDir in_temp_dir;
+  ASSERT_TRUE(in_temp_dir.CreateUniqueTempDir());
+  base::FilePath in_path = base::MakeAbsoluteFilePath(in_temp_dir.GetPath());
+
+  WriteFile(in_path.Append(FILE_PATH_LITERAL(".gn")),
+            "buildconfig = \"//BUILDCONFIG.gn\"\n");
+
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILDCONFIG.gn")),
+            "set_default_toolchain(\"//:toolchain\")\n");
+
+  std::string build_gn = R"(
+toolchain("toolchain") {
+  tool("stamp") {
+    command = "touch {{output}}"
+  }
+}
+
+generated_file("A") {
+  outputs = [ "$target_out_dir/A.json" ]
+  data_keys = [ "key" ]
+  deps = []
+  validations = [ ":B" ]
+}
+
+group("B") {
+  deps = []
+  validations = [ ":C" ]
+  metadata = {
+    key = [ "value_b" ]
+  }
+}
+
+group("C") {
+  deps = [ ":D_0" ]
+  metadata = {
+    key = [ "value_c" ]
+  }
+}
+)";
+
+  int chain_length = 500;
+  for (int i = 0; i < chain_length; i++) {
+    build_gn += "group(\"D_" + std::to_string(i) + "\") {\n";
+    if (i < chain_length - 1) {
+      build_gn += "  deps = [ \":D_" + std::to_string(i + 1) + "\" ]\n";
+    }
+    build_gn += "}\n";
+  }
+
+  build_gn += R"(
+group("default") {
+  deps = [ ":A" ]
+}
+)";
+
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILD.gn")), build_gn);
+
+  base::ScopedTempDir build_temp_dir;
+  ASSERT_TRUE(build_temp_dir.CreateUniqueTempDir());
+
+  base::CommandLine::ForCurrentProcess()->AppendSwitchPath(switches::kRoot,
+                                                           in_path);
+  base::CommandLine::ForCurrentProcess()->AppendSwitch(
+      switches::kFailOnUnusedArgs);
+
+  std::vector<std::string> args;
+  args.push_back(FilePathToUTF8(build_temp_dir.GetPath()));
+
+  int exit_code = commands::RunGen(args);
+  EXPECT_EQ(0, exit_code);
+
+  // Restore command line
+  *base::CommandLine::ForCurrentProcess() = original_cmdline;
 }

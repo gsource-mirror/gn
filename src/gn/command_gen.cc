@@ -811,13 +811,23 @@ int RunGen(const std::vector<std::string>& args) {
   write_info.want_ninja_outputs =
       command_line->HasSwitch(kSwitchNinjaOutputsFile);
 
-  setup->builder().set_resolved_and_generated_callback(
-      [&write_info](const BuilderRecord* record) {
+  // Do the actual load.
+  if (!setup->Run())
+    return 1;
+
+  // Schedule writing of all resolved and generated targets now that the graph
+  // is fully resolved and stable. This avoids race conditions where a target
+  // is written while its transitive validation dependencies are not fully
+  // resolved.
+  for (const auto* record : setup->builder().GetAllRecords()) {
+    if (record->is_finalized() && record->should_generate()) {
+      g_scheduler->ScheduleWork([&write_info, record]() {
         ItemResolvedAndGeneratedCallback(&write_info, record);
       });
+    }
+  }
 
-  // Do the actual load. This will also write out the target ninja files.
-  if (!setup->Run())
+  if (!g_scheduler->Run())
     return 1;
 
   if (command_line->HasSwitch(switches::kVerbose))

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70d54971_2dab044e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002302
+      },
+      "writtenOn": "2026-05-26T22:01:51Z",
+      "side": 1,
+      "message": "David, I really don\u0027t understand the GN code, but I was encountering a SIGSEGV (more info in the ticket). I had gemini write a test to reproduce it, then write a fix. Here is what it came up with.",
+      "revId": "ed3b2f5c65b06a5f879f8c0abb6d57b3fe0f95dc",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

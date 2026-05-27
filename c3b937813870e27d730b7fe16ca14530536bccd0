@@ -97,6 +97,24 @@
       "parentUuid": "a2c234be_62d4565b",
       "revId": "c3b937813870e27d730b7fe16ca14530536bccd0",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba1f5a06_62806e50",
+        "filename": "src/gn/command_gen.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 816,
+      "author": {
+        "id": 1002302
+      },
+      "writtenOn": "2026-05-27T16:57:47Z",
+      "side": 1,
+      "message": "I am going to abandon this in favor of: https://gn-review.git.corp.google.com/c/gn/+/22920",
+      "parentUuid": "c87cb7d3_4f338067",
+      "revId": "c3b937813870e27d730b7fe16ca14530536bccd0",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

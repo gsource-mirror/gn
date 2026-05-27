@@ -67,6 +67,30 @@
       ],
       "revId": "a6a795645b8c0e50ad8f359f33729343c7944646",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7993e06f_e8cd0bfd",
+        "filename": "src/gn/builder.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-05-27T14:07:38Z",
+      "side": 1,
+      "message": "However, the suggested solution is not possible, because the callback must be invoked from Setup::Run() before Setup::RunPostMessageLoop() to ensure correct trace metrics.",
+      "parentUuid": "d9bfa9cf_7ccc6b3b",
+      "range": {
+        "startLine": 621,
+        "startChar": 0,
+        "endLine": 621,
+        "endChar": 0
+      },
+      "revId": "a6a795645b8c0e50ad8f359f33729343c7944646",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

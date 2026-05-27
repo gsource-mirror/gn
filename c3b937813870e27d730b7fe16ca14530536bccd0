@@ -79,6 +79,24 @@
       "parentUuid": "b48a5d77_d8a4db33",
       "revId": "c3b937813870e27d730b7fe16ca14530536bccd0",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c87cb7d3_4f338067",
+        "filename": "src/gn/command_gen.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 816,
+      "author": {
+        "id": 1002302
+      },
+      "writtenOn": "2026-05-27T15:10:47Z",
+      "side": 1,
+      "message": "ok! thanks for sharing your expertise! As I mentioned in a separate comment, I really have no clue how the GN code works 😊\n\nSeems fine to me to investigate what Fuchsia GN rules need that feature, and see if we can remove that dependency. I\u0027m all for simplifying things!",
+      "parentUuid": "a2c234be_62d4565b",
+      "revId": "c3b937813870e27d730b7fe16ca14530536bccd0",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

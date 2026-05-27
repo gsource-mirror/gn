@@ -16,6 +16,57 @@
       "message": "I think I found a valid fix, Aidan, can you compile this version and see if it fixes your crashes?",
       "revId": "a6a795645b8c0e50ad8f359f33729343c7944646",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9bfa9cf_7ccc6b3b",
+        "filename": "src/gn/builder.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-05-27T14:04:26Z",
+      "side": 1,
+      "message": "Review agent shows:\n\n```\nThe condition `++resolved_count_ \u003d\u003d defined_count_` can be true multiple times during a single GN run. Every time a set of targets is resolved and the loader is momentarily caught up, this will fire. \n\nAs a result, the callback in `command_gen.cc` will be called multiple times, each time scheduling work for the *entire* list of targets collected so far. This leads to redundant metadata walks and file writing tasks.\n\nA better approach would be to remove these counters and the callback from `Builder`, and instead have `command_gen.cc` call a \"write generated files\" function exactly once after `setup-\u003eRun()` has finished successfully. The `Builder` can still maintain the `generated_file_targets_` list and provide a getter for it.\n```\n\nI think this is true, I need to find a better condition. The current implementation is correct but does too much work.",
+      "range": {
+        "startLine": 621,
+        "startChar": 0,
+        "endLine": 621,
+        "endChar": 0
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "fa19a248_dd50d40f",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/builder.cc",
+              "range": {
+                "startLine": 79,
+                "startChar": 0,
+                "endLine": 81,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "src/gn/builder.cc",
+              "range": {
+                "startLine": 618,
+                "startChar": 0,
+                "endLine": 625,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "a6a795645b8c0e50ad8f359f33729343c7944646",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

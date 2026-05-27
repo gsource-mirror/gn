@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a97716d9_9bb92b67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-05-27T08:13:42Z",
+      "side": 1,
+      "message": "Thanks strangely looks like an issue that was fixed in https://gn-review.git.corp.google.com/c/gn/+/21721, so it\u0027s surprising to see it resurface. I\u0027ll take a deeper look to understand what\u0027s going on.",
+      "revId": "c3b937813870e27d730b7fe16ca14530536bccd0",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

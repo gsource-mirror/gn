@@ -1563,6 +1563,7 @@ TEST(TargetTest, CollectMetadataWithValidation) {
                 &err);
   EXPECT_SUCCESS(err);
 
-  std::vector<Value> expected = {Value(nullptr, "bar"), Value(nullptr, "foo")};
+  // Metadata should *not* be collected from validation dependencies.
+  std::vector<Value> expected = {Value(nullptr, "foo")};
   EXPECT_EQ(result, expected);
 }

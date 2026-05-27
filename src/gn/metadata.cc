@@ -149,12 +149,12 @@ bool Metadata::WalkStep(const BuildSettings* settings,
                         const std::vector<std::string>& keys_to_extract,
                         const std::vector<std::string>& keys_to_walk,
                         const SourceDir& rebase_dir,
-                        std::vector<Value>* next_walk_keys,
+                        std::vector<Value>* next_walk_labels,
                         std::vector<Value>* result,
                         Err* err) const {
   // If there's no metadata, there's nothing to find, so quick exit.
   if (contents_.empty()) {
-    next_walk_keys->emplace_back(nullptr, "");
+    next_walk_labels->emplace_back(nullptr, "");
     return true;
   }
 
@@ -191,13 +191,13 @@ bool Metadata::WalkStep(const BuildSettings* settings,
       for (const auto& val : iter->second.list_value()) {
         if (!val.VerifyTypeIs(Value::STRING, err))
           return false;
-        next_walk_keys->emplace_back(val);
+        next_walk_labels->emplace_back(val);
       }
     }
   }
 
   if (!found_walk_key)
-    next_walk_keys->emplace_back(nullptr, "");
+    next_walk_labels->emplace_back(nullptr, "");
 
   return true;
 }

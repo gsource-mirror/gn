@@ -36,6 +36,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7f5a0a3_da1fc767",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002302
+      },
+      "writtenOn": "2026-05-27T18:23:11Z",
+      "side": 1,
+      "message": "worked!\n\n```\n  1. Failure Reproduction (Unit Test):\n      • Reset  ~/src/gn  to  origin/main  (the broken state) and compiled it.\n      • Modified  e2e.sh  to stop forcing GN to 1 thread.\n      • Ran the new  ValidationMetadataRace  unit test in a loop. It crashed (Segmentation\n      fault) on the 2nd iteration, successfully reproducing the race condition.\n  2. Applying the Teammate\u0027s Fix:\n      • Applied the patch from  https://gn-review.googlesource.com/c/gn/+/22920  to\n      ~/src/gn .\n      • Rebuilt GN and ran the unit test loop again. It passed consistently (100\n      iterations without crashes).\n  3. Syncing Formatting:\n      • Since the new GN binary (version  2405 ) has slightly different formatting rules\n      than the old prebuilt GN (version  2389 ), I temporarily injected the new GN into\n      ~/fuchsia  and ran  fx bazel2gn  to sync the generated files.\n      • Committed the formatted files to keep the repository clean.\n  4. E2E Verification:\n      • Ran the E2E test in Real Mode. The test injected the patched GN, ran builds with\n      multiple threads, and passed completely.\n```",
+      "parentUuid": "b1e21211_7a5963ae",
+      "revId": "a6a795645b8c0e50ad8f359f33729343c7944646",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9bfa9cf_7ccc6b3b",

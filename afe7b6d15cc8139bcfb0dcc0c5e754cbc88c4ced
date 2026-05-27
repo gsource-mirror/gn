@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00721c7d_1cecbc13",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-05-27T15:28:30Z",
+      "side": 1,
+      "message": "The latest patchset should fix the issue discussed previously (of too much repeated work), by modifying the Setup::Run() function instead. However benchmarking shows it is consistently 15% slower than the ToT version for small Fuchsia configurations. I am going to benchmark `gn gen` time with the Chromium tree to see if this is similar, because I fear this is too much of a slow down to be acceptable, and we\u0027d better get rid of the validations walk in GetMetadata() instead to simplify things. I\u0027ll keep you posted.",
+      "revId": "afe7b6d15cc8139bcfb0dcc0c5e754cbc88c4ced",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -16,6 +16,51 @@
       "message": "Thanks strangely looks like an issue that was fixed in https://gn-review.git.corp.google.com/c/gn/+/21721, so it\u0027s surprising to see it resurface. I\u0027ll take a deeper look to understand what\u0027s going on.",
       "revId": "c3b937813870e27d730b7fe16ca14530536bccd0",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b48a5d77_d8a4db33",
+        "filename": "src/gn/command_gen.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 816,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-05-27T12:06:26Z",
+      "side": 1,
+      "message": "Just to mention that this is completely incorrect, because it will stop tracing and write the \"final\" time results to the trace log, making the output completely invalid, since it will miss the time used to resolve the graph and write the Ninja files (+generated files) entirely. I think I can provide a better fix but this is subtle. Will put a temporary -1 on this for now.\n\nThe root of the problem is that indeed the generated_file() are written when the full dependency tree, including validation deps and their transitive deps, are not fully finalized, the conditions described in builder_record.h for the Finalized state are not sufficient. The correct conditions would be that the *transitive* dependencies are all fully resolved, which is not the case for something like:\n\n```\n   A----val----\u003eB----val----\u003eC----deps----\u003eD\n```\n\nIn this case,\nA is finalized early because B is resolved.\nB is resolved early because C is defined.\nbut D is *not* defined yet, and the C --\u003e D pointer it still null (hence the crash).\n\nI cannot find a simple condition / transition that would guarantee the fact that all transitive deps are resolved. In particular because of edge cases like:\n\n```\n    A----vals---\u003eB\n    ^            |\n    |            |\n    +----vals----+\n```\n\nWhich are technically possible, and do not provide for a way to incrementally compute the right \"finalized\" state with the algorithm used by builder.cc.\n\nIt\u0027s probably simpler to delay the writing of all generated_file() *after* the full graph has been resolved and all Ninja files have been written, but this needs changes in Setup to do that properly.",
+      "fixSuggestions": [
+        {
+          "fixId": "6455329a_de1283ee",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_gen.cc",
+              "range": {
+                "startLine": 818,
+                "startChar": 0,
+                "endLine": 822,
+                "endChar": 0
+              },
+              "replacement": "  // Schedule writing of all generated targets. The graph is fully resolved\n  // at this point.\n"
+            },
+            {
+              "path": "src/gn/command_gen.cc",
+              "range": {
+                "startLine": 823,
+                "startChar": 0,
+                "endLine": 824,
+                "endChar": 0
+              },
+              "replacement": "    if (record-\u003eshould_generate()) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c3b937813870e27d730b7fe16ca14530536bccd0",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

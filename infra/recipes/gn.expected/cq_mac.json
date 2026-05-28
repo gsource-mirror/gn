@@ -517,9 +517,7 @@
     "cmd": [
       "python3",
       "-u",
-      "[START_DIR]/gn/build/gen.py",
-      "--use-lto",
-      "--use-icf"
+      "[START_DIR]/gn/build/gen.py"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
@@ -852,9 +850,7 @@
     "cmd": [
       "python3",
       "-u",
-      "[START_DIR]/gn/build/gen.py",
-      "--use-lto",
-      "--use-icf"
+      "[START_DIR]/gn/build/gen.py"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {

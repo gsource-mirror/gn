@@ -106,7 +106,7 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
   //
   // ```
   //     A
-  //    / \
+  //    / \   // place holder comments to not end with backslash on this line.
   //   B   C
   //    \ /
   //     D

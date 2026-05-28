@@ -58,11 +58,8 @@ def _get_compilation_environment(api, target, cipd_dir):
     else:
       sysroot = '--sysroot=%s' % cipd_dir.join('sysroot')
     env = {
-        'CC': cipd_dir.join('bin', 'clang'),
-        'CXX': cipd_dir.join('bin', 'clang++'),
-        'AR': cipd_dir.join('bin', 'llvm-ar'),
-        'CFLAGS': '%s %s' % (triple, sysroot),
-        'LDFLAGS': '%s %s -static-libstdc++' % (triple, sysroot),
+        'CC': 'gcc',
+        'CXX': 'g++',
     }
   elif target.is_mac:
     triple = '--target=%s' % target.triple
@@ -160,10 +157,10 @@ def RunSteps(api, repository):
       },
       {
           'name': 'release',
-          'args': ['--use-lto', '--use-icf'],
+          'args': [],
           'targets': release_targets(),
           # TODO: Enable this for OS X and Windows.
-          'use_jemalloc': api.platform.is_linux,
+          'use_jemalloc': False, # api.platform.is_linux,
       },
   ]
 
@@ -264,7 +261,7 @@ def RunSteps(api, repository):
 
             # Windows requires the environment modifications when building too.
             api.step('build',
-                     [cipd_dir.join('ninja'), '-C',
+                     [cipd_dir.join('ninja'), '-v', '-C',
                       src_dir.join('out')])
 
             if target.is_host:

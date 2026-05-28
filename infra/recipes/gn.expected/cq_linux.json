@@ -214,403 +214,6 @@
   },
   {
     "cmd": [],
-    "name": "jemalloc"
-  },
-  {
-    "cmd": [
-      "git",
-      "init",
-      "[START_DIR]/jemalloc"
-    ],
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.init",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "git",
-      "fetch",
-      "https://fuchsia.googlesource.com/third_party/github.com/jemalloc/jemalloc.git",
-      "refs/tags/5.3.0",
-      "--depth=1"
-    ],
-    "cwd": "[START_DIR]/jemalloc",
-    "infra_step": true,
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.fetch",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "git",
-      "checkout",
-      "FETCH_HEAD"
-    ],
-    "cwd": "[START_DIR]/jemalloc",
-    "infra_step": true,
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.checkout",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "autoconf"
-    ],
-    "cwd": "[START_DIR]/jemalloc",
-    "infra_step": true,
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.autoconf",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "mkdir",
-      "-p",
-      "[START_DIR]/jemalloc/build-linux-amd64"
-    ],
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.prepare linux-amd64 build",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "jemalloc.build jemalloc-linux-amd64",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "../configure",
-      "--build=x86_64-linux-gnu",
-      "--host=x86_64-linux-gnu",
-      "--disable-shared",
-      "--enable-static",
-      "--disable-syscall",
-      "--disable-stats"
-    ],
-    "cwd": "[START_DIR]/jemalloc/build-linux-amd64",
-    "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
-      "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
-    },
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.build jemalloc-linux-amd64.configure",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "make",
-      "-j8",
-      "build_lib_static"
-    ],
-    "cwd": "[START_DIR]/jemalloc/build-linux-amd64",
-    "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
-      "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
-    },
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.build jemalloc-linux-amd64.build",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "mkdir",
-      "-p",
-      "[START_DIR]/jemalloc/build-linux-arm64"
-    ],
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.prepare linux-arm64 build",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "jemalloc.build jemalloc-linux-arm64",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "../configure",
-      "--build=x86_64-linux-gnu",
-      "--host=aarch64-linux-gnu",
-      "--disable-shared",
-      "--enable-static",
-      "--disable-syscall",
-      "--disable-stats",
-      "--with-lg-page=16"
-    ],
-    "cwd": "[START_DIR]/jemalloc/build-linux-arm64",
-    "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
-      "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
-      "LDFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
-    },
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.build jemalloc-linux-arm64.configure",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "make",
-      "-j8",
-      "build_lib_static"
-    ],
-    "cwd": "[START_DIR]/jemalloc/build-linux-arm64",
-    "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
-      "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
-      "LDFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
-    },
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.build jemalloc-linux-arm64.build",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "mkdir",
-      "-p",
-      "[START_DIR]/jemalloc/build-linux-riscv64"
-    ],
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.prepare linux-riscv64 build",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "jemalloc.build jemalloc-linux-riscv64",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "../configure",
-      "--build=x86_64-linux-gnu",
-      "--host=riscv64-linux-gnu",
-      "--disable-shared",
-      "--enable-static",
-      "--disable-syscall",
-      "--disable-stats"
-    ],
-    "cwd": "[START_DIR]/jemalloc/build-linux-riscv64",
-    "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
-      "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -Wno-error",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -Wno-error",
-      "LDFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -static-libstdc++"
-    },
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.build jemalloc-linux-riscv64.configure",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "make",
-      "-j8",
-      "build_lib_static"
-    ],
-    "cwd": "[START_DIR]/jemalloc/build-linux-riscv64",
-    "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
-      "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -Wno-error",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -Wno-error",
-      "LDFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -static-libstdc++"
-    },
-    "luci_context": {
-      "realm": {
-        "name": "gn:try"
-      },
-      "resultdb": {
-        "current_invocation": {
-          "name": "invocations/build:8945511751514863184",
-          "update_token": "token"
-        },
-        "hostname": "rdbhost"
-      }
-    },
-    "name": "jemalloc.build jemalloc-linux-riscv64.build",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [],
     "name": "debug"
   },
   {
@@ -631,11 +234,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -662,11 +262,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -691,11 +288,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -721,12 +315,9 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
       "CLANG_FORMAT": "[START_DIR]/cipd/bin/clang-format",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -752,11 +343,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
       "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++",
       "NOBUILD": "1"
     },
     "luci_context": {
@@ -791,18 +379,12 @@
     "cmd": [
       "python3",
       "-u",
-      "[START_DIR]/gn/build/gen.py",
-      "--use-lto",
-      "--use-icf",
-      "--link-lib=[START_DIR]/jemalloc/build-linux-amd64/lib/libjemalloc.a"
+      "[START_DIR]/gn/build/gen.py"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -829,11 +411,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -858,11 +437,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -888,12 +464,9 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
       "CLANG_FORMAT": "[START_DIR]/cipd/bin/clang-format",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -919,11 +492,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
       "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++",
       "NOBUILD": "1"
     },
     "luci_context": {
@@ -963,11 +533,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "infra_step": true,
     "luci_context": {
@@ -1010,11 +577,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "infra_step": true,
     "luci_context": {
@@ -1049,11 +613,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "infra_step": true,
     "luci_context": {
@@ -1099,11 +660,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "infra_step": true,
     "luci_context": {
@@ -1135,18 +693,12 @@
     "cmd": [
       "python3",
       "-u",
-      "[START_DIR]/gn/build/gen.py",
-      "--use-lto",
-      "--use-icf",
-      "--link-lib=[START_DIR]/jemalloc/build-linux-arm64/lib/libjemalloc.a"
+      "[START_DIR]/gn/build/gen.py"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -1173,11 +725,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -1218,11 +767,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "infra_step": true,
     "luci_context": {
@@ -1254,18 +800,12 @@
     "cmd": [
       "python3",
       "-u",
-      "[START_DIR]/gn/build/gen.py",
-      "--use-lto",
-      "--use-icf",
-      "--link-lib=[START_DIR]/jemalloc/build-linux-riscv64/lib/libjemalloc.a"
+      "[START_DIR]/gn/build/gen.py"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -1292,11 +832,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "luci_context": {
       "realm": {
@@ -1337,11 +874,8 @@
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
-      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal",
-      "CXX": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -static-libstdc++"
+      "CXX": "[START_DIR]/cipd/bin/clang++"
     },
     "infra_step": true,
     "luci_context": {

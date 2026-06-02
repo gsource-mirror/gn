@@ -112,6 +112,17 @@ const char kFailOnUnusedArgs_Help[] =
   flag to force GN to fail in that case.
 )";
 
+const char kFormatWidth[] = "format-width";
+const char kFormatWidth_HelpShort[] =
+    "--format-width=WIDTH: Set the formatting width (default is 80)";
+
+const char kFormatWidth_Help[] =
+    R"("--format-width=WIDTH: Set the formatting width,
+
+  Override the format width (default is 80). This takes a strictly positive
+  integer decimal value. Overrides the "format_width" .gn variable.
+)";
+
 const char kMarkdown[] = "markdown";
 const char kMarkdown_HelpShort[] =
     "--markdown: Write help output in the Markdown format.";

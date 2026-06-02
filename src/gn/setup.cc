@@ -17,6 +17,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "gn/command_format.h"
 #include "gn/commands.h"
@@ -232,6 +233,11 @@ Variables
       A boolean flag that can be set to generate Ninja files that use phony
       rules instead of stamp files whenever possible. This results in smaller
       Ninja build plans, but requires at least Ninja 1.11.
+
+  format_width [optional]
+      An integer value that changes the maximum width of lines
+      reformatted by the 'format' command. Overridden by --format-with=WIDTH.
+      Default value is 80.
 
 Example .gn file contents
 
@@ -690,6 +696,7 @@ bool Setup::SaveArgsToFile() {
 
   std::string contents = args_input_file_->contents();
   commands::FormatStringToString(contents, commands::TreeDumpMode::kInactive,
+                                 commands::kDefaultFormatWidth,
                                  &contents, nullptr);
 #if defined(OS_WIN)
   // Use Windows lineendings for this file since it will often open in
@@ -1197,6 +1204,34 @@ bool Setup::FillOtherConfig(const base::CommandLine& cmdline, Err* err) {
       return false;
     }
     build_settings_.set_no_stamp_files(no_stamp_files_value->boolean_value());
+  }
+
+  // Maximum format width
+  // The command-line script overrides the .gn value, which
+  // overrides the default value.
+  if (cmdline.HasSwitch(switches::kFormatWidth)) {
+    const std::string format_width_str = cmdline.GetSwitchValueString(switches::kFormatWidth);
+    int format_width = 0;
+    if (!base::StringToInt(cmdline.GetSwitchValueString(switches::kFormatWidth), &format_width) || format_width <= 0) {
+      *err = Err(nullptr, "Invalid --format-width value: " + format_width_str);
+      return false;
+    }
+    build_settings_.set_format_width(static_cast<size_t>(format_width));
+  } else {
+    const Value* format_width_value =
+      dotfile_scope_.GetValue("format_width", true);
+    if (format_width_value) {
+      if (!format_width_value->VerifyTypeIs(Value::INTEGER, err)) {
+        return false;
+      }
+      int64_t format_width_int64 = format_width_value->int_value();
+      if (format_width_int64 <= 0 || format_width_int64 > INT_MAX) {
+        *err = Err(format_width_value->origin(),
+                     "Invalid format_width value: " + base::Int64ToString(format_width_int64));
+        return false;
+      }
+      build_settings_.set_format_width(static_cast<size_t>(format_width_int64));
+    }
   }
 
   // Export compile commands.

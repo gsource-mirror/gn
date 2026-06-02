@@ -80,6 +80,14 @@ class BuildSettings {
     no_stamp_files_ = no_stamp_files;
   }
 
+  // The 'maximum_format_width' integer value can be set to change the
+  // default maximum width of lines formatted by the 'format' command.
+  // The default is 80.
+  size_t format_width() const { return format_width_; }
+  void set_format_width(size_t format_width) {
+    format_width_ = format_width;
+  }
+
   const SourceFile& build_config_file() const { return build_config_file_; }
   void set_build_config_file(const SourceFile& f) { build_config_file_ = f; }
 
@@ -166,6 +174,9 @@ class BuildSettings {
   // See 40045b9 for the reason behind using 1.7.2 as the default version.
   Version ninja_required_version_{1, 7, 2};
   bool no_stamp_files_ = true;
+
+  // The maximum column width used by the format command.
+  size_t format_width_ = 80;
 
   SourceFile build_config_file_;
   SourceFile arg_file_template_path_;

@@ -66,6 +66,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "841c3e88_228f85ee",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-06-02T00:21:16Z",
+      "side": 1,
+      "message": "Reverted - it\u0027s C++23, so the old mac builder is complaining.",
+      "parentUuid": "8fe68d0e_b770cbdb",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 7
+      },
+      "revId": "447906f4d125a7b113b72fb5ca99744ce14cade2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5cec9655_f708e005",

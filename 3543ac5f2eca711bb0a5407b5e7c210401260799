@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5689be59_7ad6f56e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-06-03T06:35:20Z",
+      "side": 1,
+      "message": "(Discussed offline: moving the discussion to a Google doc.)",
+      "revId": "3543ac5f2eca711bb0a5407b5e7c210401260799",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

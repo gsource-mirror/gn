@@ -429,6 +429,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
   libflags = os.environ.get('LIBFLAGS', '').split()
   include_dirs = [
       os.path.relpath(os.path.join(REPO_ROOT, 'src'), os.path.dirname(path)),
+      os.path.relpath(os.path.join(REPO_ROOT, 'src/gn/starlark/target/cxxbridge'), os.path.dirname(path)),
       '.',
   ]
   if platform.is_zos():
@@ -658,6 +659,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/build_settings.cc',
         'src/gn/builder.cc',
         'src/gn/builder_record.cc',
+        'src/gn/starlark_values.cc',
         'src/gn/bundle_data.cc',
         'src/gn/bundle_data_target_generator.cc',
         'src/gn/bundle_file_rule.cc',
@@ -985,6 +987,12 @@ def WriteGNNinja(path, platform, host, options, args_list):
 
 
   libs.extend(options.link_libs)
+
+  starlark_profile = 'debug' if options.debug else 'release'
+  starlark_lib = os.path.relpath(
+      os.path.join(REPO_ROOT, f'src/gn/starlark/target/{starlark_profile}/libgn_starlark.a'),
+      os.path.dirname(path))
+  libs.append(starlark_lib)
 
   # we just build static libraries that GN needs
   executables['gn']['libs'].extend(static_libraries.keys())

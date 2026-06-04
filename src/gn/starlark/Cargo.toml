@@ -1,0 +1,17 @@
+[package]
+name = "gn_starlark"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+starlark = "0.14.0"
+starlark_derive = "0.14.0"
+anyhow = "1.0"
+cxx = "1.0"
+
+[build-dependencies]
+bindgen = "0.69"
+cxx-build = "1.0"

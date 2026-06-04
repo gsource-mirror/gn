@@ -311,6 +311,8 @@ void Scope::GetCurrentScopeValues(KeyValueMap* output) const {
     (*output)[pair.first] = pair.second.value;
 }
 
+
+
 bool Scope::CheckCurrentScopeValuesEqual(const Scope* other) const {
   // If there are containing scopes, equality shouldn't work.
   if (containing()) {

@@ -15,10 +15,15 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_refptr.h"
 #include "gn/err.h"
+#include "rust/cxx.h"
+#include "gn_starlark/src/lib.rs.h"
 
 class ParseNode;
 class Scope;
 class Value;
+namespace starlark_ffi {
+struct StarlarkOpaqueValue;
+}
 
 class ValueList : public base::RefCountedThreadSafe<ValueList> {
  public:
@@ -36,14 +41,8 @@ class ValueList : public base::RefCountedThreadSafe<ValueList> {
 // Represents a variable value in the interpreter.
 class Value {
  public:
-  enum Type {
-    NONE = 0,
-    BOOLEAN,
-    INTEGER,
-    STRING,
-    LIST,
-    SCOPE,
-  };
+  using Type = starlark_ffi::ValueKind;
+  using enum starlark_ffi::ValueKind;
 
   Value();
   Value(const ParseNode* origin, Type t);
@@ -57,6 +56,7 @@ class Value {
   // you can pass a null scope here if you promise to set it before any other
   // code gets it (code will generally assume the scope is not null).
   Value(const ParseNode* origin, std::unique_ptr<Scope> scope);
+  Value(const ParseNode* origin, rust::Box<starlark_ffi::StarlarkOpaqueValue> val);
 
   Value(const Value& other);
   Value(Value&& other) noexcept;
@@ -114,6 +114,11 @@ class Value {
   }
   void SetScopeValue(std::unique_ptr<Scope> scope);
 
+  const starlark_ffi::StarlarkOpaqueValue* starlark_value() const {
+    DCHECK(type_ == STARLARK_VALUE);
+    return &*starlark_value_;
+  }
+
   // Converts the given value to a string. Returns true if strings should be
   // quoted or the ToString of a string should be the string itself. If the
   // string is quoted, it will also enable escaping.
@@ -145,6 +150,7 @@ class Value {
     // copied, only performing a real copy when a modification is attempted.
     scoped_refptr<ValueList> list_ptr_;
     std::unique_ptr<Scope> scope_value_;
+    rust::Box<starlark_ffi::StarlarkOpaqueValue> starlark_value_;
   };
 };
 

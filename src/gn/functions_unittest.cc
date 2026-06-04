@@ -10,6 +10,9 @@
 #include "gn/parse_tree.h"
 #include "gn/test_with_scope.h"
 #include "gn/value.h"
+#include "base/files/file_path.h"
+#include "base/files/file_util.h"
+#include "base/files/scoped_temp_dir.h"
 #include "util/test/test.h"
 
 TEST(Functions, Assert) {
@@ -708,4 +711,146 @@ TEST(Template, PrintStackTraceWithTemplateDefinedWithinATemplate) {
       "  foo_internal(\"lala.foo.internal\")  //test:8\n"
       "  print_stack_trace()  //test:6\n",
       setup.print_output());
+}
+
+TEST(Functions, Load) {
+  TestWithScope setup;
+  setup.build_settings()->SetRootPath(base::FilePath("."));
+
+  // Verify that an error is returned if the path does not end with ".bzl".
+  {
+    TestParseInput input(R"gn(load("rules.not_bzl", "a"))gn");
+    ASSERT_SUCCESS(input);
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    ASSERT_TRUE(err.has_error());
+    ASSERT_EQ(err.message(), "Incorrect load path.");
+  }
+
+  // Verify that an error is returned if the file doesn't exist.
+  {
+    TestParseInput input(R"gn(load("non_existent.bzl", "a"))gn");
+    ASSERT_SUCCESS(input);
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    ASSERT_TRUE(err.has_error());
+    ASSERT_EQ(err.message(), "Failed to load Starlark file.");
+  }
+}
+
+TEST(Functions, StarlarkCall) {
+  TestWithScope setup;
+
+  base::ScopedTempDir temp_dir;
+  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
+  setup.build_settings()->SetRootPath(temp_dir.GetPath());
+
+  std::string bzl_content = R"bzl(
+def add(a, b):
+  return a + b
+
+def make_list(a, b):
+  return [a, b, "starlark"]
+
+def make_list_with_kwargs(a, b="default"):
+  return [a, b]
+)bzl";
+
+  base::FilePath bzl_path = temp_dir.GetPath().AppendASCII("rules.bzl");
+  ASSERT_EQ(static_cast<int>(bzl_content.size()),
+            base::WriteFile(bzl_path, bzl_content.c_str(), bzl_content.size()));
+
+  // 1. Load the functions.
+  {
+    TestParseInput input(R"gn(load("//:rules.bzl", "add", "make_list", "make_list_with_kwargs"))gn");
+    ASSERT_SUCCESS(input);
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    ASSERT_FALSE(err.has_error());
+  }
+
+  // 2. Call "add".
+  {
+    TestParseInput input("result_add = add(40, 2)");
+    ASSERT_SUCCESS(input);
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    if (err.has_error()) {
+      printf("ADD ERROR: %s (help: %s)\n", err.message().c_str(), err.help_text().c_str());
+    }
+    ASSERT_FALSE(err.has_error());
+
+    const Value* val = setup.scope()->GetValue("result_add");
+    ASSERT_TRUE(val);
+    ASSERT_EQ(Value::INTEGER, val->type());
+    EXPECT_EQ(42, val->int_value());
+  }
+
+  // 3. Call "make_list".
+  {
+    printf("Scope variables:\n");
+    for (const auto& pair : setup.scope()->values()) {
+      printf("  %.*s: type %d\n", static_cast<int>(pair.first.size()), pair.first.data(), pair.second.value.type());
+    }
+    TestParseInput input("result_list = make_list(10, \"hello\")");
+    ASSERT_SUCCESS(input);
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    if (err.has_error()) {
+      printf("MAKE_LIST ERROR: %s (help: %s)\n", err.message().c_str(), err.help_text().c_str());
+    }
+    ASSERT_FALSE(err.has_error());
+
+    const Value* val = setup.scope()->GetValue("result_list");
+    ASSERT_TRUE(val);
+    ASSERT_EQ(Value::LIST, val->type());
+    ASSERT_EQ(3, val->list_value().size());
+    EXPECT_EQ(10, val->list_value()[0].int_value());
+    EXPECT_EQ("hello", val->list_value()[1].string_value());
+    EXPECT_EQ("starlark", val->list_value()[2].string_value());
+  }
+
+  // 4. Call "make_list_with_kwargs" using kwargs.
+  {
+    TestParseInput input(R"gn(
+      result_kwargs = make_list_with_kwargs(10) {
+        b = "custom"
+      }
+    )gn");
+    ASSERT_SUCCESS(input);
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    if (err.has_error()) {
+      printf("KWARGS ERROR: %s (help: %s)\n", err.message().c_str(), err.help_text().c_str());
+    }
+    ASSERT_FALSE(err.has_error());
+
+    const Value* val = setup.scope()->GetValue("result_kwargs");
+    ASSERT_TRUE(val);
+    ASSERT_EQ(Value::LIST, val->type());
+    ASSERT_EQ(2, val->list_value().size());
+    EXPECT_EQ(10, val->list_value()[0].int_value());
+    EXPECT_EQ("custom", val->list_value()[1].string_value());
+  }
+
+  // 5. Call "make_list_with_kwargs" using default kwargs.
+  {
+    TestParseInput input(R"gn(
+      result_default = make_list_with_kwargs(10) {}
+    )gn");
+    ASSERT_SUCCESS(input);
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    if (err.has_error()) {
+      printf("DEFAULT KWARGS ERROR: %s (help: %s)\n", err.message().c_str(), err.help_text().c_str());
+    }
+    ASSERT_FALSE(err.has_error());
+
+    const Value* val = setup.scope()->GetValue("result_default");
+    ASSERT_TRUE(val);
+    ASSERT_EQ(Value::LIST, val->type());
+    ASSERT_EQ(2, val->list_value().size());
+    EXPECT_EQ(10, val->list_value()[0].int_value());
+    EXPECT_EQ("default", val->list_value()[1].string_value());
+  }
 }

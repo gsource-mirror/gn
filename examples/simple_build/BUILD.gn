@@ -2,6 +2,30 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+load("//:rules.bzl", "b", "n", "s", "l", "f", "d")
+
+print("b=${b}")
+print("n=${n}")
+print("s=${s}")
+print("l=${l}")
+print("d=${d}")
+print("f=${f}")
+result = f(n, 3)
+print("result=${result}")
+r2 = f(result) {
+  x = 4
+}
+print("r2=${r2}")
+# outputs:
+# b=true
+# n=1
+# s=hello
+# l=[1, "hello"]
+# d=starlark({"n": 1})
+# f=starlark(//:rules.bzl.f)
+# result=starlark(((1, 3), {}, "hello"))
+# r2=starlark(((((1, 3), {}, "hello"),), {"x": 4}, "hello"))
+
 executable("hello") {
   sources = [ "hello.cc" ]
 

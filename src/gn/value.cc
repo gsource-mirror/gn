@@ -10,6 +10,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "gn/scope.h"
+#include "gn_starlark/src/lib.rs.h"
 
 ValueList::ValueList() = default;
 ValueList::ValueList(std::vector<Value> v) : values_(std::move(v)) {}
@@ -37,6 +38,9 @@ Value::Value(const ParseNode* origin, Type t) : type_(t), origin_(origin) {
     case SCOPE:
       new (&scope_value_) std::unique_ptr<Scope>();
       break;
+    case STARLARK_VALUE:
+      NOTREACHED();
+      break;
   }
 }
 
@@ -54,6 +58,10 @@ Value::Value(const ParseNode* origin, const char* str_val)
 
 Value::Value(const ParseNode* origin, std::unique_ptr<Scope> scope)
     : type_(SCOPE), origin_(origin), scope_value_(std::move(scope)) {}
+
+Value::Value(const ParseNode* origin,
+             rust::Box<starlark_ffi::StarlarkOpaqueValue> val)
+    : type_(STARLARK_VALUE), origin_(origin), starlark_value_(std::move(val)) {}
 
 Value::Value(const Value& other) : type_(other.type_), origin_(other.origin_) {
   switch (type_) {
@@ -75,6 +83,10 @@ Value::Value(const Value& other) : type_(other.type_), origin_(other.origin_) {
       new (&scope_value_) std::unique_ptr<Scope>(
           other.scope_value_.get() ? other.scope_value_->MakeClosure()
                                    : nullptr);
+      break;
+    case STARLARK_VALUE:
+      new (&starlark_value_) rust::Box<starlark_ffi::StarlarkOpaqueValue>(
+          starlark_ffi::clone_starlark_value(*other.starlark_value()));
       break;
   }
 }
@@ -98,6 +110,10 @@ Value::Value(Value&& other) noexcept
       break;
     case SCOPE:
       new (&scope_value_) std::unique_ptr<Scope>(std::move(other.scope_value_));
+      break;
+    case STARLARK_VALUE:
+      new (&starlark_value_) rust::Box<starlark_ffi::StarlarkOpaqueValue>(
+          std::move(other.starlark_value_));
       break;
   }
 }
@@ -130,6 +146,9 @@ Value::~Value() {
     case SCOPE:
       scope_value_.~unique_ptr();
       break;
+    case STARLARK_VALUE:
+      starlark_value_.~Box();
+      break;
     default:;
   }
 }
@@ -149,6 +168,8 @@ const char* Value::DescribeType(Type t) {
       return "list";
     case SCOPE:
       return "scope";
+    case STARLARK_VALUE:
+      return "starlark";
     default:
       NOTREACHED();
       return "UNKNOWN";
@@ -245,6 +266,11 @@ std::string Value::ToString(bool quote_string) const {
 
       return result;
     }
+    case STARLARK_VALUE:
+      return "starlark(" +
+             std::string(
+                 starlark_ffi::starlark_value_to_string(*starlark_value_)) +
+             ")";
   }
   return std::string();
 }

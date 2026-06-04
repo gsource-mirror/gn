@@ -111,6 +111,18 @@ class Scope {
     Location location;
   };
 
+  struct Record {
+    Record() : used(false) {}
+    explicit Record(const Value& v) : used(false), value(v) {}
+
+    bool used;  // Set to true when the variable is used.
+    Value value;
+  };
+
+  using RecordMap = std::unordered_map<std::string_view, Record>;
+
+  const RecordMap& values() const { return values_; }
+
   // Creates an empty toplevel scope.
   explicit Scope(const Settings* settings);
 
@@ -348,15 +360,7 @@ class Scope {
  private:
   friend class ProgrammaticProvider;
 
-  struct Record {
-    Record() : used(false) {}
-    explicit Record(const Value& v) : used(false), value(v) {}
 
-    bool used;  // Set to true when the variable is used.
-    Value value;
-  };
-
-  using RecordMap = std::unordered_map<std::string_view, Record>;
 
   void AddProvider(ProgrammaticProvider* p);
   void RemoveProvider(ProgrammaticProvider* p);

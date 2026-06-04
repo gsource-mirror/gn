@@ -8,6 +8,7 @@
 
 #include "base/files/file_util.h"
 #include "gn/filesystem_utils.h"
+#include "gn_starlark/src/lib.rs.h"
 
 BuildSettings::BuildSettings() = default;
 
@@ -37,6 +38,7 @@ void BuildSettings::SetRootPath(const base::FilePath& r) {
   DCHECK(r.value()[r.value().size() - 1] != base::FilePath::kSeparators[0]);
   root_path_ = r.NormalizePathSeparatorsTo('/');
   root_path_utf8_ = FilePathToUTF8(root_path_);
+  starlark_loader_ = starlark_ffi::new_file_loader(root_path_utf8_);
 }
 
 void BuildSettings::SetSecondarySourcePath(const SourceDir& d) {

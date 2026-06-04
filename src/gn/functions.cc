@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <cctype>
 #include <memory>
+#include <string_view>
 #include <utility>
 
 #include "base/environment.h"
@@ -25,8 +26,11 @@
 #include "gn/scope.h"
 #include "gn/settings.h"
 #include "gn/standard_out.h"
+#include "gn/starlark_values.h"
+#include "gn_starlark/src/lib.rs.h"
 #include "gn/template.h"
 #include "gn/token.h"
+#include "gn/tokenizer.h"
 #include "gn/value.h"
 #include "gn/value_extractors.h"
 #include "gn/variables.h"
@@ -690,6 +694,101 @@ Value RunImport(Scope* scope,
     scope->settings()->import_manager().DoImport(import_file, function, scope,
                                                  err);
   }
+  return Value();
+}
+
+// load ------------------------------------------------------------------------
+
+const char kLoad[] = "load";
+const char kLoad_HelpShort[] = "load: Load a file into the current scope.";
+const char kLoad_Help[] =
+    R"(load: Load a starlark file into the current scope.
+
+  Leave it blank for now.
+)";
+
+Value RunLoad(Scope* scope,
+              const FunctionCallNode* function,
+              const ListNode* args_list,
+              Err* err) {
+  const std::vector<std::unique_ptr<const ParseNode>>& args =
+      args_list->contents();
+  if (args.size() < 2) {
+    *err = Err(function->function(), "Incorrect arguments.",
+               "This function requires at least a file to import and a list of "
+               "variables to load.");
+    return Value();
+  }
+
+  auto get_literal = [&](int i) -> std::string_view {
+    // scope stores variables as string_view => Value. It relies upon the fact
+    // that the string_view points to the AST itself.
+    // Thus, we need the literals to be unescaped (which they should be anyway,
+    // since they should be valid identifiers).
+    const LiteralNode* literal = args[i]->AsLiteral();
+    if (!literal || literal->value().type() != Token::STRING) {
+      *err = Err(args[i].get(), "Incorrect load path.",
+                 "Arguments to load must be string literals");
+      return "";
+    }
+    std::string_view value = literal->value().value();
+    value = value.substr(1, value.size() - 2);
+    for (auto c : value) {
+      if (c == '\\' || c == '$') {
+        *err = Err(args[i].get(), "Incorrect load path.",
+                   "Arguments to load must not be escaped");
+      }
+    }
+    return value;
+  };
+
+  std::string_view path = get_literal(0);
+  if (err->has_error()) {
+    return Value();
+  }
+  if (!path.ends_with(".bzl")) {
+    *err = Err(args[0].get(), "Incorrect load path.",
+               "The load path must end with '.bzl'.");
+    return Value();
+  }
+
+  const starlark_ffi::FileLoader& loader =
+      scope->settings()->build_settings()->starlark_loader();
+
+  std::string error_msg;
+
+  struct StarlarkFrozenModuleDeleter {
+    void operator()(const starlark_ffi::StarlarkFrozenModule* m) const {
+      starlark_ffi::free_frozen_module(m);
+    }
+  };
+  std::unique_ptr<const starlark_ffi::StarlarkFrozenModule,
+                  StarlarkFrozenModuleDeleter>
+      module(starlark_ffi::load(loader, rust::Str(path.data(), path.size()), error_msg));
+
+  if (!module) {
+    *err = Err(function, "Failed to load Starlark file.", error_msg);
+    return Value();
+  }
+
+  for (size_t i = 1; i < args.size(); ++i) {
+    std::string_view var_name = get_literal(i);
+    if (err->has_error()) {
+      return Value();
+    }
+
+    std::string var_error;
+    Value gn_val;
+    starlark_ffi::get_value_from_module(*module, rust::Str(var_name.data(), var_name.size()), var_error, gn_val,
+                                        function);
+    if (!var_error.empty()) {
+      *err =
+          Err(function, "Failed to get value from Starlark module.", var_error);
+      return Value();
+    }
+    scope->SetValue(var_name, std::move(gn_val), function);
+  }
+
   return Value();
 }
 
@@ -1536,6 +1635,7 @@ struct FunctionInfoInitializer {
     INSERT_FUNCTION(GetPathInfo, false)
     INSERT_FUNCTION(GetTargetOutputs, false)
     INSERT_FUNCTION(Import, false)
+    INSERT_FUNCTION(Load, false)
     INSERT_FUNCTION(LabelMatches, false)
     INSERT_FUNCTION(Len, false)
     INSERT_FUNCTION(NotNeeded, false)
@@ -1589,6 +1689,35 @@ Value RunFunction(Scope* scope,
   FunctionInfoMap::const_iterator found_function =
       function_map.find(name.value());
   if (found_function == function_map.end()) {
+    const Value* val = scope->GetValue(name.value());
+    if (val) {
+      if (val->type() != Value::STARLARK_VALUE) {
+        *err = Err(name, "This identifier is not a Starlark function.");
+        return Value();
+      }
+
+      Value args = args_list->Execute(scope, err);
+      if (err->has_error())
+        return Value();
+
+      std::unique_ptr<Scope> block_scope = std::make_unique<Scope>(scope);
+      if (block) {
+        block->Execute(block_scope.get(), err);
+        if (err->has_error())
+          return Value();
+      }
+
+      std::string call_error;
+      Value result;
+      starlark_ffi::call_starlark_function(*val->starlark_value(), function,
+                                           args, Value(nullptr, std::move(block_scope)),
+                                           call_error, result);
+      if (!call_error.empty()) {
+        *err = Err(name, "Error calling Starlark function.", call_error);
+        return Value();
+      }
+      return result;
+    }
     *err = Err(name, "Unknown function.");
     return Value();
   }

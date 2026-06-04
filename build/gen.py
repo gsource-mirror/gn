@@ -285,7 +285,8 @@ def GenerateLastCommitPosition(host, header):
 def WriteGenericNinja(path, static_libraries, executables,
                       cxx, ar, ld, platform, host, options,
                       args_list, cflags=[], ldflags=[],
-                      libflags=[], include_dirs=[], solibs=[]):
+                      libflags=[], include_dirs=[], solibs=[],
+                      extra_deps=[], custom_targets=[]):
   args = args_list.gen_command_line_args(options)
   if args:
     args = " " + args
@@ -298,6 +299,11 @@ def WriteGenericNinja(path, static_libraries, executables,
     'rule regen',
     '  command = %s ../build/gen.py%s' % (sys.executable, args),
     '  description = Regenerating ninja files',
+    '',
+    'rule cargo',
+    '  command = cargo build --manifest-path=$manifest_path $cargo_flags',
+    '  description = CARGO $out',
+    '  restat = 1',
     '',
     'build build.ninja: regen',
     '  generator = 1',
@@ -350,12 +356,21 @@ def WriteGenericNinja(path, static_libraries, executables,
 
   ninja_lines = []
   def build_source(src_file, settings):
+    extra_deps_str = ''
+    if extra_deps and src_file in [
+        'src/gn/value.cc',
+        'src/gn/starlark_values.cc',
+        'src/gn/build_settings.cc',
+        'src/gn/functions.cc',
+    ]:
+      extra_deps_str = ' || ' + ' '.join(extra_deps)
     ninja_lines.extend([
-        'build %s: cxx %s' % (src_to_obj(src_file),
-                              escape_path_ninja(
-                                  os.path.relpath(
-                                      os.path.join(REPO_ROOT, src_file),
-                                      os.path.dirname(path)))),
+        'build %s: cxx %s%s' % (src_to_obj(src_file),
+                                escape_path_ninja(
+                                    os.path.relpath(
+                                        os.path.join(REPO_ROOT, src_file),
+                                        os.path.dirname(path))),
+                                extra_deps_str),
         '  includes = %s' % ' '.join(
             ['-I' + escape_path_ninja(dirname) for dirname in include_dirs]),
         '  cflags = %s' % ' '.join(cflags),
@@ -385,6 +400,10 @@ def WriteGenericNinja(path, static_libraries, executables,
       '  libs = %s' % ' '.join(
           [library_to_a(library) for library in settings['libs']]),
     ])
+
+  if custom_targets:
+    ninja_lines.append('')
+    ninja_lines.extend(custom_targets)
 
   ninja_lines.append('')  # Make sure the file ends with a newline.
 
@@ -429,6 +448,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
   libflags = os.environ.get('LIBFLAGS', '').split()
   include_dirs = [
       os.path.relpath(os.path.join(REPO_ROOT, 'src'), os.path.dirname(path)),
+      os.path.relpath(os.path.join(REPO_ROOT, 'src/gn/starlark/target/cxxbridge'), os.path.dirname(path)),
       '.',
   ]
   if platform.is_zos():
@@ -658,6 +678,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/build_settings.cc',
         'src/gn/builder.cc',
         'src/gn/builder_record.cc',
+        'src/gn/starlark_values.cc',
         'src/gn/bundle_data.cc',
         'src/gn/bundle_data_target_generator.cc',
         'src/gn/bundle_file_rule.cc',
@@ -986,13 +1007,38 @@ def WriteGNNinja(path, platform, host, options, args_list):
 
   libs.extend(options.link_libs)
 
+  starlark_profile = 'debug' if options.debug else 'release'
+  starlark_lib = os.path.relpath(
+      os.path.join(REPO_ROOT, f'src/gn/starlark/target/{starlark_profile}/libgn_starlark.a'),
+      os.path.dirname(path))
+  libs.append(starlark_lib)
+
+  cargo_toml = os.path.relpath(os.path.join(REPO_ROOT, 'src/gn/starlark/Cargo.toml'), os.path.dirname(path))
+  cargo_release_flag = '--release' if not options.debug else ''
+  
+  rust_sources = []
+  starlark_dir = os.path.join(REPO_ROOT, 'src/gn/starlark')
+  for root, dirs, files in os.walk(starlark_dir):
+    if 'target' in dirs:
+      dirs.remove('target')
+    for file in files:
+      if file.endswith('.rs'):
+        rust_sources.append(os.path.relpath(os.path.join(root, file), os.path.dirname(path)))
+
+  starlark_lib_target = (
+      f'build {starlark_lib}: cargo {cargo_toml} ' + ' '.join(rust_sources) + '\n'
+      f'  manifest_path = {cargo_toml}\n'
+      f'  cargo_flags = {cargo_release_flag}\n'
+  )
+
   # we just build static libraries that GN needs
   executables['gn']['libs'].extend(static_libraries.keys())
   executables['gn_unittests']['libs'].extend(static_libraries.keys())
 
   WriteGenericNinja(path, static_libraries, executables, cxx, ar, ld,
                     platform, host, options, args_list,
-                    cflags, ldflags, libflags, include_dirs, libs)
+                    cflags, ldflags, libflags, include_dirs, libs,
+                    extra_deps=[starlark_lib], custom_targets=[starlark_lib_target])
 
 if __name__ == '__main__':
   sys.exit(main(sys.argv[1:]))

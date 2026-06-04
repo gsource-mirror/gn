@@ -8,6 +8,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <utility>
 
@@ -19,6 +20,11 @@
 #include "gn/source_dir.h"
 #include "gn/source_file.h"
 #include "gn/version.h"
+#include "rust/cxx.h"
+
+namespace starlark_ffi {
+struct FileLoader;
+}
 
 class Item;
 
@@ -153,6 +159,8 @@ class BuildSettings {
     expand_directory_allowlist_ = std::move(list);
   }
 
+  const starlark_ffi::FileLoader& starlark_loader() const { return **starlark_loader_; }
+
  private:
   Label root_target_label_;
   std::vector<LabelPattern> root_patterns_;
@@ -178,6 +186,8 @@ class BuildSettings {
   std::unique_ptr<SourceFileSet> exec_script_allowlist_;
   std::unique_ptr<SourceFileSet> expand_directory_allowlist_ =
       std::make_unique<SourceFileSet>();
+
+  std::optional<rust::box<starlark_ffi::FileLoader>> starlark_loader_;
 
   BuildSettings& operator=(const BuildSettings&) = delete;
 };

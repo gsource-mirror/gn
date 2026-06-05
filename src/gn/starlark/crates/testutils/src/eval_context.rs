@@ -44,7 +44,7 @@ impl FakeEvalContext {
     /// Creates a new `FakeEvalContext` for a given package name.
     pub fn new(package: &str) -> Self {
         let session = FakeSession::new();
-        let package_ref = PackageRef::new_for_testing(package).to_owned();
+        let package_ref = PackageRef::new(package).unwrap().to_owned();
         Self {
             package: package_ref,
             current_toolchain: session.default_toolchain.clone(),

@@ -6,6 +6,7 @@
 
 #include "gn/ninja_toolchain_writer.h"
 #include "gn/test_with_scope.h"
+#include "gn/c_tool.h"
 #include "util/test/test.h"
 
 TEST(NinjaToolchainWriter, WriteToolRule) {

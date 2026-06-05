@@ -146,25 +146,30 @@ const BuiltinTool* Toolchain::GetToolForSourceTypeAsBuiltin(
 }
 
 const Tool* Toolchain::GetToolForTargetFinalOutput(const Target* target) const {
-  return GetTool(Tool::GetToolTypeForTargetFinalOutput(target));
+  const char* type = Tool::GetToolTypeForTargetFinalOutput(target);
+  return type == Tool::kToolNone ? nullptr : GetTool(type);
 }
 
 const CTool* Toolchain::GetToolForTargetFinalOutputAsC(
     const Target* target) const {
-  return GetToolAsC(Tool::GetToolTypeForTargetFinalOutput(target));
+  const char* type = Tool::GetToolTypeForTargetFinalOutput(target);
+  return type == Tool::kToolNone ? nullptr : GetToolAsC(type);
 }
 
 const GeneralTool* Toolchain::GetToolForTargetFinalOutputAsGeneral(
     const Target* target) const {
-  return GetToolAsGeneral(Tool::GetToolTypeForTargetFinalOutput(target));
+  const char* type = Tool::GetToolTypeForTargetFinalOutput(target);
+  return type == Tool::kToolNone ? nullptr : GetToolAsGeneral(type);
 }
 
 const RustTool* Toolchain::GetToolForTargetFinalOutputAsRust(
     const Target* target) const {
-  return GetToolAsRust(Tool::GetToolTypeForTargetFinalOutput(target));
+  const char* type = Tool::GetToolTypeForTargetFinalOutput(target);
+  return type == Tool::kToolNone ? nullptr : GetToolAsRust(type);
 }
 
 const BuiltinTool* Toolchain::GetToolForTargetFinalOutputAsBuiltin(
     const Target* target) const {
-  return GetToolAsBuiltin(Tool::GetToolTypeForTargetFinalOutput(target));
+  const char* type = Tool::GetToolTypeForTargetFinalOutput(target);
+  return type == Tool::kToolNone ? nullptr : GetToolAsBuiltin(type);
 }

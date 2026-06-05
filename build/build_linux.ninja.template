@@ -9,5 +9,5 @@ rule alink_thin
   description = AR $out
 
 rule link
-  command = $ld $ldflags -o $out -Wl,--start-group $in $libs -Wl,--end-group $solibs
+  command = $ld $ldflags -o $out -Wl,--start-group $in $libs $solibs -Wl,--end-group
   description = LINK $out

@@ -55,22 +55,28 @@ class DummyRule:
 
 class Rule(DummyRule):
 
-  def __init__(self, name, ninja_file, command, description=None, inputs=None):
+  def __init__(self, name, ninja_file, command, description=None, inputs=None,
+               depfile=None, deps=None, restat=None, pool=None):
     super().__init__(name, ninja_file, inputs)
     self.command = command
     self.description = description
+    self.depfile = depfile
+    self.deps = deps
+    self.restat = restat
+    self.pool = pool
     self.ninja_file.rules.append(self)
 
 
 class NinjaFile:
 
-  def __init__(self, platform, source_root, out_dir):
+  def __init__(self, platform, source_root, out_dir, debug=False):
     self.platform = platform
+    self.debug = debug
     self.out_dir = pathlib.Path(out_dir).resolve()
     # source_root is relative to out_dir
     self.source_root = pathlib.Path(os.path.relpath(source_root, self.out_dir))
 
-    self.regen_triggers = []
+    self.regen_triggers = set()
     self.rules = []
     self.actions = []
 
@@ -125,6 +131,72 @@ class NinjaFile:
         inputs=[compare_script],
     )
 
+    symlink_script = self.source_file('build/symlink_cargo_output.py')
+    self.Cargo = Rule(
+        name='cargo',
+        ninja_file=self,
+        command=self.chain(
+            '$cargo_env cargo build --color=always --manifest-path=$manifest_path'
+            ' $cargo_target_dir $cargo_flags',
+            python('build/symlink_cargo_output.py', '$target_type $out $cargo_out_dir'),
+        ),
+        description='CARGO build $out',
+        inputs=[symlink_script],
+        depfile='$depfile',
+        deps='gcc',
+        restat='1',
+        pool='cargo_pool',
+    )
+
+    self.RunTest = Rule(
+        name='run_test',
+        ninja_file=self,
+        command='./$in && touch $out',
+        description='RUN_TEST $in',
+        pool='console',
+    )
+
+  @property
+  def rust_profile(self):
+    return 'debug' if self.debug else 'release'
+
+  @property
+  def cargo_out_dir(self):
+    return f'starlark/{self.rust_profile}'
+
+  @property
+  def cargo_env(self):
+    return f'env NINJA_OUT_DIR={self.out_dir} RUSTFLAGS="-L {self.out_dir}"'
+
+  def CargoLibTarget(self, name, *, crate_dir, cargo_flags, **kwargs):
+    if not self.debug:
+      cargo_flags = cargo_flags + ' --release'
+    return self.Cargo(
+        name,
+        inputs=self.directory(crate_dir, ['target', 'testdata']),
+        manifest_path=crate_dir / 'Cargo.toml',
+        cargo_flags=cargo_flags,
+        target_type='lib',
+        cargo_out_dir=self.cargo_out_dir,
+        depfile=f'{name}.d',
+        **kwargs,
+    )
+
+  def CargoTestTarget(self, name, *, crate_dir, cargo_flags, **kwargs):
+    if not self.debug:
+      cargo_flags = cargo_flags + ' --release'
+    return self.Cargo(
+        name,
+        inputs=self.directory(crate_dir, ['target']),
+        manifest_path=crate_dir / 'Cargo.toml',
+        cargo_flags=cargo_flags + ' --tests',
+        target_type='test',
+        cargo_out_dir=self.cargo_out_dir,
+        depfile=f'{name}.d',
+        cargo_env=self.cargo_env,
+        **kwargs,
+    )
+
   def chain(self, *commands):
     joined = ' && '.join(commands)
     if self.platform.is_windows():
@@ -134,7 +206,7 @@ class NinjaFile:
   def source_file(self, path):
     return self.source_root / path
 
-  def directory(self, dir_path, exclude_dirs):
+  def directory(self, dir_path, exclude_dirs, *, include_dirs=True):
     # Join out_dir with dir_path (which is relative to out_dir) to get absolute path for filesystem walk
     full_dir_path = (self.out_dir / dir_path).resolve()
     inputs = []
@@ -143,8 +215,9 @@ class NinjaFile:
         if exc in dirs:
           dirs.remove(exc)
       root = pathlib.Path(os.path.relpath(root, self.out_dir))
-      self.regen_triggers.append(root)
-      inputs.append(root)
+      self.regen_triggers.add(root)
+      if include_dirs:
+        inputs.append(root)
       for file in files:
         inputs.append(root / file)
     return sorted(inputs)
@@ -170,6 +243,14 @@ class NinjaFile:
       out.append(f'rule {rule.name}')
       out.append(f'  command = {getattr(rule, "command", "")}')
       out.append(f'  description = {getattr(rule, "description", "")}')
+      if getattr(rule, 'depfile', None):
+        out.append(f'  depfile = {rule.depfile}')
+      if getattr(rule, 'deps', None):
+        out.append(f'  deps = {rule.deps}')
+      if getattr(rule, 'restat', None):
+        out.append(f'  restat = {rule.restat}')
+      if getattr(rule, 'pool', None):
+        out.append(f'  pool = {rule.pool}')
       out.append('')
 
     for action in self.actions:

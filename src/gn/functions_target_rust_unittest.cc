@@ -7,6 +7,7 @@
 #include "gn/scope.h"
 #include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
+#include "gn/parse_tree.h"
 #include "util/test/test.h"
 
 using RustFunctionsTarget = TestWithScheduler;

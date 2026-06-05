@@ -2,8 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use starlark::{environment::GlobalsBuilder, values::UnpackValue};
-use types::{EvaluatorContextExt, UnpackedOwnedValue};
+use starlark::{
+    environment::{FrozenModule, GlobalsBuilder},
+    values::UnpackValue,
+};
+use types::{EvaluatorContextExt, Label, PathResolver, UnpackedOwnedValue};
 
 use crate::{register_globals, FakeEvalContext};
 
@@ -65,6 +68,23 @@ impl Assert {
                 config(builder);
             }
         });
+    }
+
+    pub fn module_add(&mut self, module: FrozenModule) {
+        let name = module.frozen_heap().name().unwrap().to_string();
+        self.assert.module_add(&name, module);
+    }
+
+    pub fn load_file(&self, label: &str) -> String {
+        let loader = PathResolver::new_for_testing();
+        let parsed = Label::parse(label, types::PackageRef::root()).unwrap();
+        let path = loader.absolute_path(parsed.package(), parsed.name());
+        std::fs::read_to_string(path).unwrap()
+    }
+
+    pub fn load_module(&mut self, label: &str) -> FrozenModule {
+        let content = self.load_file(label);
+        self.assert.module(label, &content)
     }
 
     /// Returns a read-only reference to the fake evaluation context.

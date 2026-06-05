@@ -26,3 +26,16 @@ pub enum OutputType {
     RustLibrary,
     RustProcMacro,
 }
+
+impl OutputType {
+    pub fn fields(&self) -> (&'static [&'static str], usize) {
+        match self {
+            Self::Executable
+            | Self::SharedLibrary
+            | Self::LoadableModule
+            | Self::StaticLibrary
+            | Self::SourceSet => (&["sources", "public", "deps", "public_deps"], 2),
+            _ => (&[], 0),
+        }
+    }
+}

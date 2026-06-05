@@ -9,10 +9,11 @@ use std::{
 
 use allocative::Allocative;
 use starlark::{
+    eval::ParametersSpecParam,
     starlark_simple_value,
     values::{
-        none::NoneOr, Freeze, FreezeResult, Freezer, Heap, ProvidesStaticType, StarlarkValue,
-        Trace, Value,
+        none::NoneOr, Freeze, FreezeResult, Freezer, FrozenValue, Heap, ProvidesStaticType,
+        StarlarkValue, Trace, Value,
     },
 };
 use starlark_derive::{starlark_value, NoSerialize};
@@ -200,6 +201,31 @@ impl AttrSchema {
             AllowFilesSchema::Single(s) => Some(s),
             AllowFilesSchema::Many(s) => Some(s),
             AllowFilesSchema::None => None,
+        }
+    }
+
+    /// Returns the kind of this attribute.
+    pub fn kind(&self) -> &AttrKind {
+        &self.kind
+    }
+
+    /// Returns whether this attribute disallows being empty.
+    pub fn disallow_empty(&self) -> bool {
+        self.disallow_empty
+    }
+
+    /// Returns the configuration of this attribute.
+    pub fn cfg(&self) -> AttrCfg {
+        self.cfg
+    }
+
+    // Converts the attribute to a parameter spec.
+    // Note that we intentionally do not use Defaulted(T) as it only supports
+    // Defaulted(starlark::Value), while we want Defaulted(Attr).
+    pub fn as_param_spec(&self) -> ParametersSpecParam<FrozenValue> {
+        match &self.default {
+            None => ParametersSpecParam::Required,
+            Some(_) => ParametersSpecParam::Optional,
         }
     }
 }

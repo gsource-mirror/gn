@@ -4,24 +4,22 @@
 
 //! Low-level FFI bindings and types for interoperating between the C++
 //! GN codebase and the Rust Starlark interpreter crates using `cxx`.
-//!
-//! **Architecture & Bridge design**
-//!
-//! Rather than manually compiling raw `extern "C"` FFI wrappers, all FFI
-//! boundary mappings are consolidated within `bridge.rs` under a single
-//! `#[cxx::bridge]` module.
-//!
-//! This module is then transpiled with cxxbridge into a C++ header and source
-//! file.
-//!
-//! Safe APIs for C++ types are then exposed in the impl functions for each of
-//! these types in their own files.
+
 mod bridge;
 mod label;
 mod output_file;
 mod scope;
 mod settings;
 mod test_with_scope;
+mod value;
 
-pub use bridge::{Label, OutputFile, Scope, Settings, SourceDir};
+pub mod iter;
+
+pub use bridge::{Label, OutputFile, Scope, ScopePair, Settings, SourceDir, Value, ValueType};
 pub use test_with_scope::TestWithScope;
+
+pub mod slice;
+pub use slice::{OwnedSlice, Slice};
+
+pub mod opaque;
+pub use opaque::{NonOpaque, OpaqueSized};

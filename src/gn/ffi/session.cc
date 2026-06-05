@@ -18,6 +18,7 @@
 struct Session;
 
 
+
 bool IsValidIdentifier(std::string_view str) {
   if (str.empty())
     return false;

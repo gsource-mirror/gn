@@ -7,9 +7,12 @@
 #include <utility>
 
 #include "base/files/file_util.h"
+#include "gn/ffi/bridge.h"
 #include "gn/filesystem_utils.h"
 
-BuildSettings::BuildSettings() = default;
+BuildSettings::BuildSettings() {}
+
+BuildSettings::~BuildSettings() = default;
 
 BuildSettings::BuildSettings(const BuildSettings& other)
     : dotfile_name_(other.dotfile_name_),
@@ -23,7 +26,14 @@ BuildSettings::BuildSettings(const BuildSettings& other)
       build_config_file_(other.build_config_file_),
       arg_file_template_path_(other.arg_file_template_path_),
       build_dir_(other.build_dir_),
-      build_args_(other.build_args_) {}
+      build_args_(other.build_args_) {
+#ifdef STARLARK_ENABLED
+  if (other.starlark_session_.has_value()) {
+    starlark_session_ =
+        Session::new_cxx(other.root_path_utf8_, other.build_dir_.value());
+  }
+#endif
+}
 
 void BuildSettings::SetRootTargetLabel(const Label& r) {
   root_target_label_ = r;
@@ -37,6 +47,11 @@ void BuildSettings::SetRootPath(const base::FilePath& r) {
   DCHECK(r.value()[r.value().size() - 1] != base::FilePath::kSeparators[0]);
   root_path_ = r.NormalizePathSeparatorsTo('/');
   root_path_utf8_ = FilePathToUTF8(root_path_);
+#ifdef STARLARK_ENABLED
+  if (!root_path_.empty() && !build_dir_.is_null()) {
+    starlark_session_ = Session::new_cxx(root_path_utf8_, build_dir_.value());
+  }
+#endif
 }
 
 void BuildSettings::SetSecondarySourcePath(const SourceDir& d) {
@@ -59,6 +74,11 @@ void BuildSettings::SetPythonPath(base::FilePath p) {
 
 void BuildSettings::SetBuildDir(const SourceDir& d) {
   build_dir_ = d;
+#ifdef STARLARK_ENABLED
+  if (!root_path_.empty() && !build_dir_.is_null()) {
+    starlark_session_ = Session::new_cxx(root_path_utf8_, build_dir_.value());
+  }
+#endif
 }
 
 base::FilePath BuildSettings::GetFullPath(const SourceFile& file) const {
@@ -101,3 +121,10 @@ const BuildSettings::PrintCallback BuildSettings::swap_print_callback(
   print_callback_ = callback;
   return temp;
 }
+
+#ifdef STARLARK_ENABLED
+const Session& BuildSettings::starlark_session() const {
+  DCHECK(starlark_session_.has_value());
+  return **starlark_session_;
+}
+#endif

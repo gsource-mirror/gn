@@ -18,8 +18,7 @@ if [ -z "${CLANG_FORMAT:-}" ]; then
   CLANG_FORMAT="./clang/bin/clang-format"
 fi
 
-git ls-files | egrep '\.(h|cc)$' | grep -Ev 'third_party|vendor' |\
-    xargs "$CLANG_FORMAT" $opts
+git ls-files | egrep '\.(h|cc)$' | xargs "$CLANG_FORMAT" $opts
 
 if command -v cargo >/dev/null 2>&1; then
   cargo_cmd="cargo"

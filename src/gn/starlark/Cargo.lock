@@ -466,6 +466,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "depset"
+version = "0.1.0"
+dependencies = [
+ "allocative",
+ "starlark",
+ "starlark_derive",
+ "testutils",
+ "thiserror",
+ "types",
+]
+
+[[package]]
 name = "derivative"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

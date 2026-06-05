@@ -671,6 +671,7 @@ dependencies = [
 name = "ffi"
 version = "0.1.0"
 dependencies = [
+ "allocative",
  "cxx",
  "starlark",
  "starlark_derive",

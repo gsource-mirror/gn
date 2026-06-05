@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use allocative::Allocative;
 use starlark::{
     collections::SmallMap,
     values::{
@@ -34,6 +35,7 @@ pub struct CtxAttr<'v> {
 ///   "foo": attr.label_list(...),
 ///   "bar": attr.string(...),
 /// }
+#[derive(Debug, Allocative)]
 pub struct CtxAttrSchema {
     attrs: SmallMap<String, AttrSchema>,
     attr: FrozenValueTyped<'static, FrozenRecordType>,
@@ -133,6 +135,10 @@ impl CtxAttrSchema {
                 ctx_file.into_boxed_slice(),
             )),
         })
+    }
+
+    pub fn attrs(&self) -> &SmallMap<String, AttrSchema> {
+        &self.attrs
     }
 }
 

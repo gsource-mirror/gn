@@ -4,28 +4,26 @@
 
 #include "gn/test_with_scope.h"
 
+#include <iostream>
 #include <memory>
 #include <utility>
 
+#include "gn/c_tool.h"
+#include "gn/general_tool.h"
 #include "gn/parser.h"
+#include "gn/rust_tool.h"
 #include "gn/tokenizer.h"
 
 namespace {
 
-BuildSettings CreateBuildSettingsForTest() {
-  BuildSettings build_settings;
-  build_settings.SetBuildDir(SourceDir("//out/Debug/"));
-  return build_settings;
-}
-
 }  // namespace
 
 TestWithScope::TestWithScope()
-    : build_settings_(CreateBuildSettingsForTest()),
-      settings_(&build_settings_, std::string()),
+    : settings_(&build_settings_, std::string()),
       toolchain_(&settings_, Label(SourceDir("//toolchain/"), "default")),
       scope_(&settings_),
       scope_progammatic_provider_(&scope_, true) {
+  build_settings_.SetBuildDir(SourceDir("//out/Debug/"));
   build_settings_.set_print_callback(
       [this](const std::string& str) { AppendPrintOutput(str); });
 

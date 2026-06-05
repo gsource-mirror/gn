@@ -1,0 +1,23 @@
+[package]
+name = "runtime"
+version = "0.1.0"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[dependencies]
+types = { path = "../types" }
+attr = { path = "../attr" }
+depset = { path = "../depset" }
+loader = { path = "../loader" }
+args = { path = "../args" }
+providers = { path = "../providers" }
+gn_rule = { path = "../rule", package = "rule" }
+starlark = { workspace = true }
+starlark_derive = { workspace = true }
+thiserror = { workspace = true }
+cxx = { workspace = true }
+allocative = { workspace = true }
+either = { workspace = true }
+anyhow = { workspace = true }

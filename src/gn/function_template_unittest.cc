@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "gn/test_with_scope.h"
+#include "gn/parse_tree.h"
 #include "util/test/test.h"
 
 // Checks that variables used inside template definitions aren't reported

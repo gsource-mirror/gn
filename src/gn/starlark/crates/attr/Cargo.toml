@@ -1,0 +1,20 @@
+[package]
+name = "attr"
+version = "0.1.0"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[lib]
+
+[dependencies]
+starlark = { workspace = true }
+starlark_derive = { workspace = true }
+thiserror = { workspace = true }
+allocative = { workspace = true }
+types = { path = "../types" }
+either = { workspace = true }
+
+[dev-dependencies]
+testutils = { path = "../testutils" }

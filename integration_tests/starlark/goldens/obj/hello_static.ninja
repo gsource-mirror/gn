@@ -1,0 +1,16 @@
+defines =
+include_dirs =
+cflags = -fPIC -pthread
+target_out_dir = obj
+target_output_name = libhello_static
+
+build phony/$:hello_static_0: phony ../../integration_tests/starlark/hello_static.h phony/$:extra_files_0 obj/libhello_static.a
+extra_args = --extra-file ../../integration_tests/starlark/foo.txt --extra-file libhello_shared.so --extra-file obj/libhello_static.a --extra-file ../../integration_tests/starlark/hello_static.h
+build obj/libhello_static.hello_static.o: cxx ../../integration_tests/starlark/hello_static.cc | phony/$:hello_static_0
+  source_file_part = hello_static.cc
+  source_name_part = hello_static
+
+build obj/libhello_static.a: alink obj/libhello_static.hello_static.o | phony/$:hello_static_0
+  arflags =
+  output_extension = .a
+  output_dir =

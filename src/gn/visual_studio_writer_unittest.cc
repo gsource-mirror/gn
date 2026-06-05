@@ -8,6 +8,7 @@
 
 #include "base/strings/string_util.h"
 #include "gn/test_with_scope.h"
+#include "gn/c_tool.h"
 #include "gn/visual_studio_utils.h"
 #include "util/test/test.h"
 

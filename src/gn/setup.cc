@@ -4,6 +4,8 @@
 
 #include "gn/setup.h"
 
+#include "gn/ffi/starlark_session.h"
+
 #include <stdlib.h>
 
 #include <algorithm>
@@ -459,6 +461,8 @@ Setup::Setup()
   // we need to set it now.
   loader_->set_task_runner(scheduler_.task_runner());
 }
+
+Setup::~Setup() = default;
 
 bool Setup::DoSetup(const std::string& build_dir, bool force_create) {
   return DoSetup(build_dir, force_create,

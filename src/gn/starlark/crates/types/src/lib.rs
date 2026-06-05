@@ -28,3 +28,4 @@ pub use path_resolver::PathResolver;
 pub use session::Session;
 pub use target_ref::{IPromiseToImplementStarlarkEqAndHash, TargetRef};
 pub use unpacked_owned_value::UnpackedOwnedValue;
+pub use util::get_module_id;

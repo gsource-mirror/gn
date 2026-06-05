@@ -116,6 +116,7 @@ dependencies = [
  "either",
  "starlark",
  "starlark_derive",
+ "testutils",
  "thiserror",
  "types",
 ]

@@ -42,14 +42,14 @@ impl<'v> UnpackValue<'v> for AllowFiles {
 }
 
 impl AllowFiles {
-    pub(crate) fn validate(&self, path: &str) -> starlark::Result<()> {
+    pub(crate) fn matches(&self, path: &str) -> bool {
         match self {
-            Self::None => Err(crate::Error::NotALabel(path.to_owned()).into()),
-            Self::All => Ok(()),
+            Self::None => false,
+            Self::All => true,
             Self::Some(exts) => {
                 let p = std::path::Path::new(path);
                 let file_name = p.file_name().and_then(|e| e.to_str()).unwrap_or("");
-                if exts.iter().any(|ext| {
+                exts.iter().any(|ext| {
                     if ext.starts_with('.') {
                         file_name.ends_with(ext)
                     } else {
@@ -57,11 +57,21 @@ impl AllowFiles {
                             .strip_suffix(ext)
                             .is_some_and(|prefix| prefix.is_empty() || prefix.ends_with('.'))
                     }
-                }) {
+                })
+            },
+        }
+    }
+
+    pub(crate) fn validate(&self, path: &str) -> starlark::Result<()> {
+        match self {
+            Self::None => Err(crate::Error::NotALabel(path.to_owned()).into()),
+            Self::All => Ok(()),
+            Self::Some(exts) => {
+                if self.matches(path) {
                     Ok(())
                 } else {
                     Err(crate::Error::DisallowedExtension {
-                        file: p.to_path_buf(),
+                        file: std::path::Path::new(path).to_path_buf(),
                         allowed: exts.clone(),
                     }
                     .into())

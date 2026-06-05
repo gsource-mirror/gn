@@ -9,6 +9,7 @@ pub mod errors;
 pub mod globals;
 pub mod schema;
 pub mod traits;
+pub mod value;
 
 pub use allow_files::AllowFiles;
 pub use attr::{Attr, LabelOrFile};

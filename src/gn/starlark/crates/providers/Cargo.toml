@@ -11,6 +11,9 @@ doctest = false
 
 [dependencies]
 allocative = { workspace = true }
+anyhow = { workspace = true }
+args = { path = "../args" }
+depset = { path = "../depset" }
 either = { workspace = true }
 starlark = { workspace = true }
 starlark_derive = { workspace = true }

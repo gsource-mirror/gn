@@ -16,6 +16,7 @@ impl<'v> UnpackValue<'v> for Formatter {
     }
 }
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct FrozenArgsSequence<'v>(pub Vec<Either<&'v str, ValueTyped<'v, FrozenArgs>>>);
 
 impl<'v> StarlarkTypeRepr for FrozenArgsSequence<'v> {

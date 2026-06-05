@@ -55,6 +55,15 @@ pub struct FileLoader {
 }
 
 impl FileLoader {
+    /// Preloads a frozen module into the loader's cache.
+    pub fn preload(&self, module: FrozenModule) {
+        let mut files = self.files.write().unwrap();
+        files.insert(
+            module.frozen_heap().name().unwrap().to_string(),
+            Arc::new(Mutex::new(FileStatus::Loaded(Ok(Box::pin(module))))),
+        );
+    }
+
     fn wait_for_load(
         &self,
         file_status: &Arc<Mutex<FileStatus>>,

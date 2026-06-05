@@ -249,6 +249,14 @@ str(info2)
 "#,
             "MyInfo(first = [MyInfo(...)])".to_string(),
         );
+
+        // Unpacking check
+        let val = a.pass("1");
+        let err = <&ProviderInstance>::unpack_value_err(val.value()).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "Expected `provider`, but got `int (repr: 1)`"
+        );
     }
 
     #[test]

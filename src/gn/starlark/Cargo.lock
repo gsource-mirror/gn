@@ -1132,6 +1132,8 @@ name = "providers"
 version = "0.1.0"
 dependencies = [
  "allocative",
+ "args",
+ "depset",
  "either",
  "starlark",
  "starlark_derive",

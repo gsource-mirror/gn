@@ -234,6 +234,10 @@ class Scope {
   // scopes.
   void GetCurrentScopeValues(KeyValueMap* output) const;
 
+  // Returns all unused values set in the current scope, and marks them as used.
+  std::vector<std::pair<std::string_view, const Value*>>
+  GetAndMarkUnusedVariables();
+
   // Returns true if the values in the current scope are the same as all
   // values in the given scope, without going to the parent scopes. Returns
   // false if not.

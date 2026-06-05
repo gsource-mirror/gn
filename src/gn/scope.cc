@@ -311,6 +311,18 @@ void Scope::GetCurrentScopeValues(KeyValueMap* output) const {
     (*output)[pair.first] = pair.second.value;
 }
 
+std::vector<std::pair<std::string_view, const Value*>>
+Scope::GetAndMarkUnusedVariables() {
+  std::vector<std::pair<std::string_view, const Value*>> out;
+  for (auto& pair : values_) {
+    if (!pair.second.used) {
+      pair.second.used = true;
+      out.push_back({pair.first, &pair.second.value});
+    }
+  }
+  return out;
+}
+
 bool Scope::CheckCurrentScopeValuesEqual(const Scope* other) const {
   // If there are containing scopes, equality shouldn't work.
   if (containing()) {

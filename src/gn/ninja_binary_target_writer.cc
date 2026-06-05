@@ -69,7 +69,8 @@ void WriteModuleMapHeaders(std::ostream& out,
                            const Target::FileList& headers,
                            const Settings* settings) {
   for (const auto& header : headers) {
-    if (header.GetType() == SourceFile::SOURCE_H) {
+    if (header.GetType() == SourceFile::SOURCE_H ||
+        header.GetType() == SourceFile::SOURCE_DEF) {
       out << "  textual header \"";
       out << RebasePath(header.value(), out_dir,
                         settings->build_settings()->root_path_utf8());

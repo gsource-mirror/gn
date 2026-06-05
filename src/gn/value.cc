@@ -5,11 +5,12 @@
 #include "gn/value.h"
 
 #include <stddef.h>
+
 #include <utility>
 
 #include "base/strings/string_number_conversions.h"
-#include "base/strings/string_util.h"
 #include "gn/scope.h"
+#include "gn/value.h"
 
 ValueList::ValueList() = default;
 ValueList::ValueList(std::vector<Value> v) : values_(std::move(v)) {}

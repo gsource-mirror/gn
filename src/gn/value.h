@@ -7,15 +7,13 @@
 
 #include <stdint.h>
 
-#include <map>
 #include <memory>
 #include <vector>
 
-#include "base/logging.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_refptr.h"
+#include "cxx.h"
 #include "gn/err.h"
-
 class ParseNode;
 class Scope;
 class Value;

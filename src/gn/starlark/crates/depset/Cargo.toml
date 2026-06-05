@@ -7,6 +7,7 @@ edition = "2021"
 workspace = true
 
 [lib]
+doctest = false
 
 [dependencies]
 types = { path = "../types" }

@@ -34,6 +34,24 @@
       ],
       "revId": "7b1475d16d6a134586f4a283ef79fcbc5c484a3e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c890175_4c05aeb7",
+        "filename": "src/gn/command_format.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1551,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-06-05T17:32:46Z",
+      "side": 1,
+      "message": "Oh sorry, thanks a lot.",
+      "parentUuid": "927e996d_ffb4347e",
+      "revId": "7b1475d16d6a134586f4a283ef79fcbc5c484a3e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

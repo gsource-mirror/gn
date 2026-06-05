@@ -13,13 +13,11 @@ use types::{CtxState, Label, LabelRef, Package, PackageRef, PathResolver, Scope,
 use crate::{FakeSession, FakeTarget, FakeTargetRef};
 
 #[derive(Clone, Default, Debug)]
-pub struct FakeScope {
-    pub values: HashMap<String, Value<'static>>,
-}
+pub struct FakeScope(HashMap<String, Value<'static>>);
 
 impl Scope for FakeScope {
     fn copy_with<'a, 'v>(&self, kv: impl Iterator<Item = (&'a str, Value<'v>)>) -> Self {
-        let mut values = self.values.clone();
+        let mut values = self.0.clone();
         for (k, v) in kv {
             // Safety: Transmuting 'v to 'static is safe because this mock scope
             // is only used in tests, where the Starlark heap outlives the evaluation
@@ -27,11 +25,11 @@ impl Scope for FakeScope {
             let static_val = unsafe { std::mem::transmute::<Value<'v>, Value<'static>>(v) };
             values.insert(k.to_owned(), static_val);
         }
-        Self { values }
+        Self(values)
     }
 
     fn get<'v>(&self, key: &str, _heap: &Heap<'v>) -> Option<Value<'v>> {
-        self.values.get(key).map(|v| {
+        self.0.get(key).map(|v| {
             // Safety: Shortening the lifetime is always safe.
             unsafe { std::mem::transmute::<Value<'static>, Value<'v>>(*v) }
         })
@@ -124,14 +122,22 @@ impl AttrEvalContext for FakeEvalContext {
 }
 
 impl EvalContextAttrExt for FakeEvalContext {
-    fn create_starlark_target(
+    fn create_target<S: Scope>(
         &self,
+        target_type: &'static str,
         target_name: &str,
-        _rule: FrozenValue,
+        scope: &S,
+        rule: FrozenValue,
         attrs: Vec<Attr>,
     ) -> Result<<Self::Session as AttrSession>::TargetRef> {
         let label = Label::new(self.package.clone(), target_name.to_owned());
         let target = FakeTargetRef::new(FakeTarget {
+            target_type,
+            rule,
+            // Safety: We never pass a real scope in tests.
+            cxx_attrs: unsafe { std::mem::transmute::<&S, &FakeScope>(scope) }
+                .0
+                .clone(),
             outputs: vec![],
             attrs,
             ..Default::default()

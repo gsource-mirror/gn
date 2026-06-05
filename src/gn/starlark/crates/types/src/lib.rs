@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+pub mod coercable_option;
 pub mod ctx_state;
 pub mod errors;
 pub mod eval_context;
@@ -16,6 +17,7 @@ pub mod target_ref;
 pub mod unpacked_owned_value;
 pub mod util;
 
+pub use coercable_option::CoercableOption;
 pub use ctx_state::CtxState;
 pub(crate) use errors::Error;
 pub use eval_context::{EvalContext, EvaluatorContextExt};

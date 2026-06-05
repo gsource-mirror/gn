@@ -30,8 +30,8 @@ impl Assert {
         // mutated by the evaluator, running 3 times could cause state mutations
         // to happen three times, messing with tests. Calling `always_gc()`
         // forces the framework to run the code only once (specifically,
-        // under the "always GC" configuration), ensuring state is mutated only once.
-        assert.always_gc();
+        // under the "never GC" configuration), ensuring state is mutated only once.
+        assert.disable_gc();
         let mut context = Box::new(context);
         let context_ptr = &mut *context as *mut FakeEvalContext;
 

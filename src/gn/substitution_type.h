@@ -101,6 +101,9 @@ bool SubstitutionIsInOutputDir(const Substitution* type);
 // verify that they produce a file in the bundle directory.
 bool SubstitutionIsInBundleDir(const Substitution* type);
 
+bool IsCustomSubstitution(const Substitution* type);
+const Substitution* GetOrCreateCustomSubstitution(const std::string& name);
+
 // Returns true if the given substitution is valid for the named purpose.
 bool IsValidBundleDataSubstitution(const Substitution* type);
 bool IsValidSourceSubstitution(const Substitution* type);

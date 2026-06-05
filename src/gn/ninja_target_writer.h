@@ -107,6 +107,8 @@ class NinjaTargetWriter {
   // Writes the validation dependencies to the output stream.
   void WriteValidations();
 
+  void WriteCustomSubstitutions(bool indent);
+
   const Settings* settings_;  // Non-owning.
   const Target* target_;      // Non-owning.
   std::ostream& out_;

@@ -1,0 +1,104 @@
+[package]
+name = "gn_starlark"
+version = "0.1.0"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[lib]
+crate-type = ["staticlib"]
+test = false
+
+[workspace]
+members = [
+    ".",
+    "crates/types",
+    "crates/attr",
+    "crates/depset",
+    "crates/runtime",
+    "crates/rule",
+    "crates/testutils",
+    "crates/loader",
+    "crates/args",
+    "crates/providers",
+]
+
+[workspace.dependencies]
+anyhow = "1.0"
+starlark = "0.14.0"
+starlark_derive = "0.14.0"
+allocative = "0.3"
+thiserror = "1.0"
+cxx = "1.0"
+autocxx = "0.30.0"
+either = "1.16.0"
+
+[dependencies]
+types = { path = "crates/types" }
+depset = { path = "crates/depset" }
+runtime = { path = "crates/runtime" }
+starlark = { workspace = true }
+starlark_derive = { workspace = true }
+thiserror = { workspace = true }
+allocative = { workspace = true }
+
+
+# RUST_DEPS needs to be kept in sync with this
+# LINT.ThenChange(build/gen.py)
+
+# In debug mode, we still optimize our dependencies.
+# Otherwise our static library for this package is
+# ~400MB and our link times go through the roof.
+# This significantly improves link performance.
+[profile.dev.package."*"]
+opt-level = 3
+debug = false
+
+# Always build the code generator in release mode.
+[profile.dev.build-override]
+opt-level = 3
+
+[patch.crates-io]
+starlark = { path = "/usr/local/google/home/msta/starlark-rs/starlark" }
+starlark_derive = { path = "/usr/local/google/home/msta/starlark-rs/starlark_derive" }
+allocative = { path = "/usr/local/google/home/msta/starlark-rs/allocative/allocative" }
+allocative_derive = { path = "/usr/local/google/home/msta/starlark-rs/allocative/allocative_derive" }
+
+[workspace.lints.clippy]
+borrow_as_ptr = "warn"
+cast_lossless = "warn"
+cloned_instead_of_copied = "warn"
+elidable_lifetime_names = "warn"
+explicit_into_iter_loop = "warn"
+explicit_iter_loop = "warn"
+flat_map_option = "warn"
+format_collect = "warn"
+format_push_string = "warn"
+implicit_clone = "warn"
+manual_let_else = "warn"
+needless_for_each = "warn"
+not_unsafe_ptr_arg_deref = "allow"
+ptr_as_ptr = "warn"
+ptr_cast_constness = "warn"
+ref_as_ptr = "warn"
+ref_option = "warn"
+semicolon_if_nothing_returned = "warn"
+single_char_pattern = "warn"
+stable_sort_primitive = "warn"
+uninlined_format_args = "warn"
+unnecessary_literal_bound = "warn"
+unnecessary_semicolon = "warn"
+unnested_or_patterns = "warn"
+unused_trait_names = "warn"
+use_self = "warn"
+useless_conversion = "warn"
+while_let_loop = "warn"
+
+[workspace.lints.rust]
+let_underscore_drop = "warn"
+redundant_imports = "warn"
+# &str is not a proper C type.
+# However, rust::Str is defined in cxx.h and wraps it safely.
+improper_ctypes = "allow"
+

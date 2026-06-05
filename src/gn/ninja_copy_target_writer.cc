@@ -50,8 +50,8 @@ void NinjaCopyTargetWriter::Run() {
     required_bits.MergeFrom(stamp_tool->substitution_bits());
   }
 
-  // General target-related substitutions needed by the copy/stamp tool.
   WriteSharedVars(required_bits);
+  WriteCustomSubstitutions(false);
 
   std::vector<OutputFile> output_files;
   WriteCopyRules(&output_files);

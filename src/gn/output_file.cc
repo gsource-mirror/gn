@@ -12,9 +12,24 @@ OutputFile::OutputFile(const BuildSettings* build_settings,
   std::string rebased =
       RebasePath(source_file.value(), build_settings->build_dir(),
                  build_settings->root_path_utf8());
-  if (!rebased.empty()) {
-    value_.assign(rebased.begin(), rebased.end());
+  value_ = StringAtom(rebased);
+}
+
+void OutputFile::resize(std::size_t n) {
+  std::string_view v = value();
+  if (n < v.size()) {
+    value_ = StringAtom(v.substr(0, n));
+  } else if (n > v.size()) {
+    std::string s(v);
+    s.resize(n);
+    value_ = StringAtom(s);
   }
+}
+
+void OutputFile::append(std::string_view v) {
+  std::string s(value_);
+  s.append(v);
+  value_ = StringAtom(s);
 }
 
 SourceFile OutputFile::AsSourceFile(const BuildSettings* build_settings) const {

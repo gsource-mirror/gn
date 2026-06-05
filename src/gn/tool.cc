@@ -426,6 +426,8 @@ const char* Tool::GetToolTypeForTargetFinalOutput(const Target* target) {
       } else {
         return GeneralTool::kGeneralToolStamp;
       }
+    case Target::STARLARK_TARGET:
+      return kToolNone;
     default:
       NOTREACHED();
       return kToolNone;

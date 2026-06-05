@@ -33,6 +33,12 @@
 #include "gn/target.h"
 #include "gn/trace.h"
 
+#include "gn/build_settings.h"
+#include "gn/settings.h"
+#include "gn/ffi/rust_api.h"
+#include "gn/ffi/starlark_session.h"
+#include <string_view>
+
 NinjaTargetWriter::NinjaTargetWriter(const Target* target, std::ostream& out)
     : settings_(target->settings()),
       target_(target),
@@ -100,6 +106,9 @@ std::string NinjaTargetWriter::RunAndWriteFile(
     const Target* target,
     ResolvedTargetData* resolved,
     std::vector<OutputFile>* ninja_outputs) {
+  if (target->output_type() == Target::STARLARK_TARGET) {
+    return std::string();
+  }
   const Settings* settings = target->settings();
 
   ScopedTrace trace(TraceItem::TRACE_FILE_WRITE_NINJA,
@@ -532,11 +541,16 @@ NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep(
   // ---------
   // Write the outputs.
 
+  std::string_view extra_input = target_->get_extra_input();
+
   if (input_deps_sources.empty() && input_deps_targets.empty() &&
-      toolchain_deps_targets.empty())
+      toolchain_deps_targets.empty() && extra_input.empty())
     return InputDeps{};  // No input dependencies.
 
   InputDeps deps;
+  if (!extra_input.empty()) {
+    deps.implicit.push_back(OutputFile(extra_input));
+  }
   // File input deps.
   for (const SourceFile* source : input_deps_sources)
     deps.order_only.push_back(OutputFile(settings_->build_settings(), *source));
@@ -683,5 +697,14 @@ void NinjaTargetWriter::WriteValidations() {
     }
     out_ << " ";
     WriteOutput(pair.ptr->dependency_output());
+  }
+}
+
+void NinjaTargetWriter::WriteCustomSubstitutions(bool indent) {
+  const StarlarkSession& session = settings_->build_settings()->starlark_session();
+  std::string rust_subs;
+  rust::get_custom_ninja(*target_, session.rust_session(), rust_subs);
+  if (!rust_subs.empty()) {
+    out_ << rust_subs;
   }
 }

@@ -15,6 +15,7 @@ members = [
     ".",
     "crates/attr",
     "crates/ffi",
+    "crates/loader",
     "crates/testutils",
     "crates/types",
 ]

@@ -109,6 +109,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "attr"
+version = "0.1.0"
+dependencies = [
+ "allocative",
+ "either",
+ "starlark",
+ "starlark_derive",
+ "testutils",
+ "thiserror",
+ "types",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1587,6 +1600,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06794f8f6c5c898b3275aebefa6b8a1cb24cd2c6c79397ab15774837a0bc5755"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "testutils"
+version = "0.1.0"
+dependencies = [
+ "allocative",
+ "attr",
+ "starlark",
+ "starlark_derive",
+ "types",
 ]
 
 [[package]]

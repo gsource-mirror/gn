@@ -16,16 +16,44 @@
 // CxxBridge requires a module, but we don't want one. So we make a private one
 // and re-export all fields.
 mod dummy {
+    struct Any {
+        _private: u8,
+    }
+
+    // A &[T] compatible with both opaque and non-opaque types.
+    #[derive(Clone, Copy)]
+    struct SliceAny {
+        len: usize,
+        ptr: *mut Any,
+    }
+
+    struct KeyValue<'a> {
+        key: &'a str,
+        value: &'a Value,
+    }
+
+    #[derive(Clone, Copy)]
+    enum ValueType {
+        None = 0,
+        Boolean = 1,
+        Integer = 2,
+        String = 3,
+        List = 4,
+        Scope = 5,
+    }
     unsafe extern "C++" {
         // include! simply tells cxxbridge to put the #include in the generated C++
         // source code. It does not do anything on the rust side.
+        include!("gn/ffi/scope.h");
         include!("gn/ffi/test_with_scope.h");
+        include!("gn/ffi/value.h");
         include!("gn/label.h");
         include!("gn/output_file.h");
         include!("gn/scope.h");
         include!("gn/settings.h");
         include!("gn/source_dir.h");
         include!("gn/test_with_scope.h");
+        include!("gn/value.h");
 
         type OutputFile;
         #[cxx_return_type = "std::string_view"]
@@ -44,13 +72,72 @@ mod dummy {
         pub(in crate::settings) fn toolchain_label(self: &Settings) -> &Label;
 
         type Scope;
+        // Constructs a new child Scope, populates placeholder Values for the given
+        // keys, and returns an owned slice of references to the placeholders.
+        // For example, NewScope(&scope, ["foo", "bar"]) would return
+        // [scope["foo"], scope["bar"]].
+        // The caller is then responsible for filling in the values as needed.
+        pub(in crate::scope) fn NewScope(
+            parent_scope: &Scope,
+            keys: &[&str],
+            out_scope: &mut UniquePtr<Scope>,
+        ) -> SliceAny;
+        // Returns an OwnedSlice<KeyValue> corresponding to references to each element.
+        pub(in crate::scope) fn GetScopeItems(scope: &Scope) -> SliceAny;
         #[rust_name = "settings_cxx"]
-        pub(crate) fn settings(self: &Scope) -> *const Settings;
+        pub(in crate::scope) fn settings(self: &Scope) -> *const Settings;
 
         type TestWithScope;
         pub(in crate::test_with_scope) fn NewTestWithScope() -> UniquePtr<TestWithScope>;
         #[rust_name = "scope_cxx"]
         pub(in crate::test_with_scope) fn scope(self: Pin<&mut TestWithScope>) -> *mut Scope;
+
+        type Value;
+        type ParseNode;
+        // We allow dead code because this isn't used in production and we
+        // can't tag things in the bridge with cfg(test).
+        #[allow(dead_code)]
+        pub(in crate::value) fn NewValueForTesting() -> UniquePtr<Value>;
+        pub(in crate::value) fn ValueSize() -> usize;
+        #[cxx_return_type = "Value::Type"]
+        #[cxx_name = "type"]
+        // We can't call this "type" in rust since it's a keyword.
+        pub(in crate::value) fn kind(self: &Value) -> ValueType;
+        pub(in crate::value) fn boolean_value(self: &Value) -> &bool;
+        pub(in crate::value) fn int_value(self: &Value) -> &i64;
+        #[cxx_return_type = "const std::string&"]
+        pub(in crate::value) fn string_value(self: &Value) -> &str;
+        #[cxx_name = "GetValueList"]
+        pub(in crate::value) fn list_value_cxx(val: &Value) -> SliceAny;
+        pub(in crate::value) fn scope_value(self: &Value) -> *const Scope;
+        pub(in crate::value) unsafe fn SetValueNone(val: Pin<&mut Value>, origin: *const ParseNode);
+        pub(in crate::value) unsafe fn SetValueBool(
+            val: Pin<&mut Value>,
+            origin: *const ParseNode,
+            b: bool,
+        );
+        pub(in crate::value) unsafe fn SetValueInt(
+            val: Pin<&mut Value>,
+            origin: *const ParseNode,
+            i: i64,
+        );
+        pub(in crate::value) unsafe fn SetValueString(
+            val: Pin<&mut Value>,
+            origin: *const ParseNode,
+            s: &str,
+        );
+        // Initialises self as a list of `size` elements and returns a pointer to the
+        // start.
+        pub(in crate::value) unsafe fn SetValueList(
+            val: Pin<&mut Value>,
+            origin: *const ParseNode,
+            size: usize,
+        ) -> *mut Any;
+        pub(in crate::value) unsafe fn SetValueScope(
+            val: Pin<&mut Value>,
+            origin: *const ParseNode,
+            scope: UniquePtr<Scope>,
+        );
     }
 }
 

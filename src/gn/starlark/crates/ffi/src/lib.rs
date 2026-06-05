@@ -18,10 +18,17 @@
 //! these types in their own files.
 mod bridge;
 mod label;
+mod mutability;
+mod opaque;
 mod output_file;
 mod scope;
 mod settings;
+mod slice;
 mod test_with_scope;
+mod value;
 
-pub use bridge::{Label, OutputFile, Scope, Settings, SourceDir};
+pub use bridge::{KeyValue, Label, OutputFile, Scope, Settings, SourceDir, Value, ValueType};
+pub use mutability::Immutable;
+pub use opaque::{NonOpaque, OpaqueSized};
+pub use slice::{OwnedSlice, Slice};
 pub use test_with_scope::TestWithScope;

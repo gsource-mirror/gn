@@ -36,7 +36,7 @@ class ValueList : public base::RefCountedThreadSafe<ValueList> {
 // Represents a variable value in the interpreter.
 class Value {
  public:
-  enum Type {
+  enum Type : uint8_t {
     NONE = 0,
     BOOLEAN,
     INTEGER,

@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 fn require_lib(out_dir: &std::path::Path, name: &str) {
-    println!("cargo:rustc-link-lib=static={}", name);
+    println!("cargo:rustc-link-lib=static={name}");
     let lib = if cfg!(target_os = "windows") {
-        format!("{}.lib", name)
+        format!("{name}.lib")
     } else {
-        format!("lib{}.a", name)
+        format!("lib{name}.a")
     };
     println!("cargo:rerun-if-changed={}", out_dir.join(lib).display());
 }

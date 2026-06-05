@@ -12,6 +12,17 @@
 #include "gn/filesystem_utils.h"
 #include "gn/value.h"
 
+namespace {
+bool IsValidCustomSubstitutionName(std::string_view name) {
+  if (name.empty()) return false;
+  for (char c : name) {
+    if (!isalnum(c) && c != '_')
+      return false;
+  }
+  return true;
+}
+}  // namespace
+
 SubstitutionPattern::Subrange::Subrange() : type(&SubstitutionLiteral) {}
 
 SubstitutionPattern::Subrange::Subrange(const Substitution* t,
@@ -68,6 +79,19 @@ bool SubstitutionPattern::Parse(const std::string& str,
     }
 
     // Expect all occurrences of {{ to resolve to a pattern.
+    if (!found_match) {
+      size_t end_pattern = str.find("}}", next);
+      if (end_pattern != std::string::npos && end_pattern > next + 2) {
+        std::string var_name = str.substr(next + 2, end_pattern - (next + 2));
+        if (IsValidCustomSubstitutionName(var_name)) {
+          const Substitution* sub = GetOrCreateCustomSubstitution(var_name);
+          ranges_.push_back(Subrange(sub));
+          cur = end_pattern + 2;
+          found_match = true;
+        }
+      }
+    }
+
     if (!found_match) {
       // Could make this error message more friendly if it comes up a lot. But
       // most people will not be writing substitution patterns and the code

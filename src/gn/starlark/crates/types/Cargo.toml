@@ -16,3 +16,5 @@ cxx = { workspace = true }
 allocative = { workspace = true }
 either = { workspace = true }
 
+[dev-dependencies]
+testutils = { path = "../testutils" }

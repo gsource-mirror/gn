@@ -11,6 +11,7 @@
 #include "gn/scheduler.h"
 #include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
+#include "gn/parse_tree.h"
 #include "util/test/test.h"
 
 #if defined(OS_LINUX) || defined(OS_MACOSX) || defined(OS_HAIKU) || \

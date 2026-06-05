@@ -10,6 +10,9 @@
 #include "gn/c_substitution_type.h"
 #include "gn/err.h"
 #include "gn/rust_substitution_type.h"
+#include <map>
+#include <mutex>
+#include <memory>
 
 const std::vector<SubstitutionTypes*> AllSubstitutions = {
     &GeneralSubstitutions, &CSubstitutions, &RustSubstitutions};
@@ -140,6 +143,7 @@ bool SubstitutionIsInBundleDir(const Substitution* type) {
 }
 
 bool IsValidBundleDataSubstitution(const Substitution* type) {
+  if (IsCustomSubstitution(type)) return true;
   return type == &SubstitutionLiteral ||
          type == &SubstitutionSourceTargetRelative ||
          type == &SubstitutionSourceNamePart ||
@@ -152,6 +156,7 @@ bool IsValidBundleDataSubstitution(const Substitution* type) {
 }
 
 bool IsValidSourceSubstitution(const Substitution* type) {
+  if (IsCustomSubstitution(type)) return true;
   return type == &SubstitutionLiteral || type == &SubstitutionSource ||
          type == &SubstitutionSourceNamePart ||
          type == &SubstitutionSourceFilePart ||
@@ -163,12 +168,14 @@ bool IsValidSourceSubstitution(const Substitution* type) {
 }
 
 bool IsValidScriptArgsSubstitution(const Substitution* type) {
+  if (IsCustomSubstitution(type)) return true;
   return IsValidSourceSubstitution(type) || type == &SubstitutionRspFileName ||
          IsValidCompilerScriptArgsSubstitution(type) ||
          IsValidRustScriptArgsSubstitution(type);
 }
 
 bool IsValidToolSubstitution(const Substitution* type) {
+  if (IsCustomSubstitution(type)) return true;
   return type == &SubstitutionLiteral || type == &SubstitutionOutput ||
          type == &SubstitutionLabel || type == &SubstitutionLabelName ||
          type == &SubstitutionLabelNoToolchain ||
@@ -179,10 +186,12 @@ bool IsValidToolSubstitution(const Substitution* type) {
 }
 
 bool IsValidCopySubstitution(const Substitution* type) {
+  if (IsCustomSubstitution(type)) return true;
   return IsValidToolSubstitution(type) || type == &SubstitutionSource;
 }
 
 bool IsValidCompileXCassetsSubstitution(const Substitution* type) {
+  if (IsCustomSubstitution(type)) return true;
   return IsValidToolSubstitution(type) || type == &CSubstitutionLinkerInputs ||
          type == &SubstitutionBundleProductType ||
          type == &SubstitutionBundlePartialInfoPlist ||
@@ -203,4 +212,49 @@ bool EnsureValidSubstitutions(const std::vector<const Substitution*>& types,
     }
   }
   return true;
+}
+
+namespace {
+struct CustomSubstitutionsState {
+  std::mutex mutex;
+  std::map<std::string, std::unique_ptr<Substitution>> map;
+};
+CustomSubstitutionsState& GetCustomSubstitutionsState() {
+  static CustomSubstitutionsState state;
+  return state;
+}
+}  // namespace
+
+const Substitution* GetOrCreateCustomSubstitution(const std::string& name) {
+  auto& state = GetCustomSubstitutionsState();
+  std::lock_guard<std::mutex> lock(state.mutex);
+  auto it = state.map.find(name);
+  if (it != state.map.end()) {
+    return it->second.get();
+  }
+  std::string full_name = "{{" + name + "}}";
+  struct CustomSubstitution : public Substitution {
+    std::string name_holder;
+    std::string ninja_name_holder;
+    CustomSubstitution(std::string n, std::string nn)
+        : Substitution(nullptr, nullptr), name_holder(std::move(n)), ninja_name_holder(std::move(nn)) {
+      name = name_holder.c_str();
+      ninja_name = ninja_name_holder.c_str();
+    }
+  };
+  auto sub = std::make_unique<CustomSubstitution>(full_name, name);
+  const Substitution* ptr = sub.get();
+  state.map[name] = std::move(sub);
+  return ptr;
+}
+
+bool IsCustomSubstitution(const Substitution* type) {
+  auto& state = GetCustomSubstitutionsState();
+  std::lock_guard<std::mutex> lock(state.mutex);
+  for (const auto& pair : state.map) {
+    if (pair.second.get() == type) {
+      return true;
+    }
+  }
+  return false;
 }

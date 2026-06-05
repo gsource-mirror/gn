@@ -6,6 +6,7 @@
 #define TOOLS_GN_TARGET_H_
 
 #include <bitset>
+#include <map>
 #include <set>
 #include <string>
 #include <utility>
@@ -16,6 +17,7 @@
 #include "gn/action_values.h"
 #include "gn/bundle_data.h"
 #include "gn/config_values.h"
+#include "gn/ffi/types.h"
 #include "gn/item.h"
 #include "gn/label_pattern.h"
 #include "gn/label_ptr.h"
@@ -54,6 +56,7 @@ class Target : public Item {
     GENERATED_FILE,
     RUST_LIBRARY,
     RUST_PROC_MACRO,
+    STARLARK_TARGET,
   };
 
   enum DepsIterationType {
@@ -78,7 +81,6 @@ class Target : public Item {
   Target(const Settings* settings,
          const Label& label,
          const SourceFileSet& build_dependency_files = {});
-  ~Target() override;
 
   // Returns a string naming the output type.
   static const char* GetStringForOutputType(OutputType type);
@@ -249,6 +251,23 @@ class Target : public Item {
     write_runtime_deps_output_ = value;
   }
 
+  bool run_starlark_rule_impl(Err* err);
+
+  rust::RustTarget* starlark_target() const { return starlark_target_; }
+  void set_starlark_target(rust::RustTarget* starlark_target) {
+    starlark_target_ = starlark_target;
+  }
+  // Retrieves an extra input from rust. Only one is required, as it is a depset (in ninja, represented as a phony).
+  std::string_view get_extra_input() const;
+
+  using CustomSubstitutions = std::map<std::string, std::vector<std::string>>;
+  const CustomSubstitutions& custom_substitutions() const {
+    return custom_substitutions_;
+  }
+  void SetCustomSubstitutions(CustomSubstitutions substitutions) {
+    custom_substitutions_ = std::move(substitutions);
+  }
+
   // Runtime dependencies. These are "file-like things" that can either be
   // directories or files. They do not need to exist, these are just passed as
   // runtime dependencies to external test systems as necessary.
@@ -295,6 +314,9 @@ class Target : public Item {
   // have cycles so care should be taken if iterating over them recursively.
   const LabelTargetVector& gen_deps() const { return gen_deps_; }
   LabelTargetVector& gen_deps() { return gen_deps_; }
+
+  const LabelTargetVector& starlark_deps() const { return starlark_deps_; }
+  LabelTargetVector& starlark_deps() { return starlark_deps_; }
 
   // List of configs that this class inherits settings from. Once a target is
   // resolved, this will also list all-dependent and public configs.
@@ -360,8 +382,10 @@ class Target : public Item {
     return assert_no_deps_;
   }
 
+#ifndef RUST
   ModuleType module_type() const { return module_type_; }
   void set_module_type(ModuleType type);
+#endif
   const SourceFile* modulemap_file() const;
   const SourceFile* private_modulemap_file() const;
 
@@ -571,6 +595,11 @@ class Target : public Item {
   LabelTargetVector data_deps_;
   LabelTargetVector validations_;
   LabelTargetVector gen_deps_;
+  LabelTargetVector starlark_deps_;
+
+  rust::RustTarget* starlark_target_ = nullptr;
+
+  CustomSubstitutions custom_substitutions_;
 
   // See getters for more info.
   UniqueVector<LabelConfigPair> configs_;

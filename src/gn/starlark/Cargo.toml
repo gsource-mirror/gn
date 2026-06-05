@@ -13,6 +13,14 @@ test = false
 [workspace]
 members = [
     ".",
+    "crates/args",
+    "crates/attr",
+    "crates/depset",
+    "crates/loader",
+    "crates/providers",
+    "crates/rule",
+    "crates/runtime",
+    "crates/testutils",
     "crates/types",
 ]
 
@@ -45,8 +53,10 @@ pagable = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_st
 pagable_derive = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
 
 [dependencies]
+allocative = { workspace = true }
+depset = { path = "crates/depset" }
+runtime = { path = "crates/runtime" }
 types = { path = "crates/types" }
-
 # In debug mode, we still optimize our dependencies.
 # Otherwise our static library for this package is
 # ~400MB and our link times go through the roof.

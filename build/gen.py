@@ -730,6 +730,8 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/gn/err.cc',
               'src/gn/escape.cc',
               'src/gn/exec_process.cc',
+              'src/gn/ffi/scope.cc',
+              'src/gn/ffi/test_with_scope.cc',
               'src/gn/ffi/label.cc',
               'src/gn/ffi/output_file.cc',
               'src/gn/ffi/settings.cc',
@@ -854,6 +856,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/util/sys_info.cc',
               'src/util/ticks.cc',
               'src/util/worker_pool.cc',
+              'src/gn/test_with_scope.cc',
           ]
       },
   }
@@ -952,7 +955,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/target_unittest.cc',
         'src/gn/template_unittest.cc',
         'src/gn/test_with_scheduler.cc',
-        'src/gn/test_with_scope.cc',
         'src/gn/tokenizer_unittest.cc',
         'src/gn/unique_vector_unittest.cc',
         'src/gn/value_unittest.cc',

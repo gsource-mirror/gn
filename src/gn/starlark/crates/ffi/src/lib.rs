@@ -62,4 +62,4 @@
 pub mod label;
 pub mod opaque;
 
-pub use label::Label;
+pub use label::{Label, SourceDir};

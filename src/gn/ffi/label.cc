@@ -7,12 +7,16 @@
 
 extern "C" {
 
-rust::Str GetLabelDir(const Label& label) {
-  return label.dir().value();
+const SourceDir& GetLabelDir(const Label& label) {
+  return label.dir();
 }
 
 rust::Str GetLabelName(const Label& label) {
   return label.name();
+}
+
+rust::Str GetSourceDirValue(const SourceDir& dir) {
+  return dir.SourceWithNoTrailingSlash();
 }
 
 }  // extern "C"

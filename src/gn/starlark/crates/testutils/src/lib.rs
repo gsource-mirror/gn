@@ -4,10 +4,12 @@
 
 pub mod assert;
 pub mod eval_context;
+pub mod globals;
 pub mod session;
 pub mod target;
 
 pub use assert::Assert;
 pub use eval_context::FakeEvalContext;
+pub use globals::register_globals;
 pub use session::FakeSession;
 pub use target::{FakeTarget, FakeTargetRef};

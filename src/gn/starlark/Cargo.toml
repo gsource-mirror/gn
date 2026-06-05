@@ -33,6 +33,8 @@ thiserror = "2.0"
 # create records directly in rust (could only create them by running in starlark
 # previously).
 [patch.crates-io]
+cxx = { git = "https://github.com/matts1/cxx.git", branch = "gn" }
+cxxbridge-macro = { git = "https://github.com/matts1/cxx.git", branch = "gn" }
 starlark = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
 starlark_derive = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
 starlark_map = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }

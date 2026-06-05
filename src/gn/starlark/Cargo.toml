@@ -19,6 +19,7 @@ members = [
     "crates/ffi",
     "crates/loader",
     "crates/providers",
+    "crates/rule",
     "crates/testutils",
     "crates/types",
 ]
@@ -39,14 +40,14 @@ thiserror = "2.0"
 [patch.crates-io]
 cxx = { git = "https://github.com/matts1/cxx.git", branch = "gn" }
 cxxbridge-macro = { git = "https://github.com/matts1/cxx.git", branch = "gn" }
-starlark = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-starlark_derive = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-starlark_map = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-starlark_syntax = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-allocative = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-allocative_derive = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-pagable = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-pagable_derive = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
+starlark = { path = "/usr/local/google/home/msta/starlark-rs/starlark" }
+starlark_derive = { path = "/usr/local/google/home/msta/starlark-rs/starlark_derive" }
+starlark_map = { path = "/usr/local/google/home/msta/starlark-rs/starlark_map" }
+starlark_syntax = { path = "/usr/local/google/home/msta/starlark-rs/starlark_syntax" }
+allocative = { path = "/usr/local/google/home/msta/starlark-rs/allocative/allocative" }
+allocative_derive = { path = "/usr/local/google/home/msta/starlark-rs/allocative/allocative_derive" }
+pagable = { path = "/usr/local/google/home/msta/starlark-rs/pagable" }
+pagable_derive = { path = "/usr/local/google/home/msta/starlark-rs/pagable_derive" }
 
 # In debug mode, we still optimize our dependencies.
 # Otherwise our static library for this package is

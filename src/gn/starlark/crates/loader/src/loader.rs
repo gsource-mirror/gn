@@ -55,6 +55,15 @@ pub struct FileLoader {
 }
 
 impl FileLoader {
+    /// Pre-registers a module in the loader's cache.
+    pub fn register(&self, label: &str, module: FrozenModule) {
+        let mut loader = self.files.write().unwrap();
+        loader.insert(
+            label.to_owned(),
+            Arc::new(Mutex::new(FileStatus::Loaded(Ok(Box::pin(module))))),
+        );
+    }
+
     fn wait_for_load(
         &self,
         file_status: &Arc<Mutex<FileStatus>>,
@@ -96,7 +105,7 @@ impl FileLoader {
 
     /// Loads, parses, compiles, and evaluates a Starlark module, resolving
     /// dependencies recursively and caching the result.
-    pub fn load<'b, C: EvalContext, F: Fn(&PackageRef) -> Box<C>>(
+    pub fn load<'b, C: EvalContext + 'static, F: Fn(&PackageRef) -> Box<C>>(
         &self,
         label: LabelRef<'b>,
         path_resolver: &PathResolver,
@@ -130,7 +139,7 @@ impl FileLoader {
         self.set_complete(&file_status, result)
     }
 
-    fn load_and_evaluate<'b, C: EvalContext, F: Fn(&PackageRef) -> Box<C>>(
+    fn load_and_evaluate<'b, C: EvalContext + 'static, F: Fn(&PackageRef) -> Box<C>>(
         &self,
         label: LabelRef<'b>,
         label_str: &str,

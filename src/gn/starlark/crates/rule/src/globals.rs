@@ -1,0 +1,178 @@
+// Copyright 2026 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+use attr::traits::EvalContextAttrExt;
+use starlark::{
+    environment::{FrozenModule, Module},
+    values::FrozenHeapName,
+};
+use types::EvalContext;
+
+use crate::FrozenRule;
+
+const BUILTINS: &[&str] = &[
+    "group",
+    "executable",
+    "shared_library",
+    "loadable_module",
+    "static_library",
+    "source_set",
+    "copy",
+    "action",
+    "action_foreach",
+    "bundle_data",
+    "create_bundle",
+    "generated_file",
+    "rust_library",
+    "rust_proc_macro",
+];
+
+/// Registers and returns the built-in target rules as a frozen module.
+/// Usage:
+/// load("//builtins:rules.scl", "static_library")
+///
+/// static_library(
+///   name = "foo",
+///   sources = [...],
+///   ...
+/// )
+pub fn register_builtin_rules<C: EvalContext + EvalContextAttrExt>() -> FrozenModule {
+    Module::with_temp_heap(|module| {
+        for &name in BUILTINS {
+            let frozen_rule = FrozenRule::<C>::new_builtin(name, module.frozen_heap());
+            let frozen_value = module.frozen_heap().alloc(frozen_rule);
+            module.set(name, frozen_value.to_value());
+        }
+
+        module
+            .freeze_named(FrozenHeapName::User(Box::new(
+                "//builtins:rules.scl".to_owned(),
+            )))
+            .unwrap()
+    })
+}
+
+/// Registers standard target rules in the session.
+#[macro_export]
+macro_rules! register_rule_globals {
+    ($builder:expr, $ctx_type:ty) => {
+        #[starlark_derive::starlark_module]
+        fn register_rule_globals(builder: &mut starlark::environment::GlobalsBuilder) {
+            fn rule<'v>(
+                #[starlark(require = named)] implementation: starlark::values::Value<'v>,
+                #[starlark(require = named)] parent: Option<starlark::values::Value<'v>>,
+                #[starlark(require = named)] attrs: Option<
+                    starlark::collections::SmallMap<&str, &attr::AttrSchema>,
+                >,
+                eval: &mut starlark::eval::Evaluator<'v, '_, '_>,
+            ) -> starlark::Result<starlark::values::Value<'v>> {
+                // Rules can only be created while loading bzl files, not in macros or rule
+                // implementations.
+                use types::{EvalContext, EvaluatorContextExt};
+                eval.context::<$ctx_type>().require_bzl()?;
+
+                let attrs = attrs.unwrap_or_default();
+                let attrs = attrs
+                    .into_iter()
+                    .map(|(k, v)| (k.to_string(), v.clone()))
+                    .collect();
+                let rule = <$crate::Rule<'v, $ctx_type>>::new(
+                    attrs,
+                    None,
+                    parent,
+                    implementation,
+                    eval.frozen_heap(),
+                )?;
+                Ok(eval.heap().alloc(rule))
+            }
+        }
+        register_rule_globals($builder);
+    };
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use starlark::values::{
+        list::{ListRef, UnpackList},
+        FrozenValue, Value,
+    };
+    use testutils::FakeEvalContext;
+
+    pub(crate) fn make_attr_schema<'v>(
+        kind: attr::AttrKind,
+        args: attr::AttrSpecArgs<'v>,
+        eval: &mut starlark::eval::Evaluator<'v, '_, '_>,
+    ) -> starlark::Result<starlark::values::Value<'v>> {
+        attr::AttrSchema::create(
+            kind,
+            args,
+            types::PackageRef::root(),
+            &types::PathResolver::new_for_testing(),
+            &eval.heap(),
+        )
+    }
+
+    pub(crate) fn new_assert() -> testutils::Assert {
+        let mut assert = testutils::Assert::default();
+        assert.modify_globals(|builder| {
+            crate::register_rule_globals!(builder, FakeEvalContext);
+            builder.set("attr", attr::AttrModule { make_attr_schema });
+        });
+        let builtins = crate::register_builtin_rules::<FakeEvalContext>();
+        assert.module_add(builtins);
+        assert
+    }
+
+    #[test]
+    fn test_rule_creation() {
+        let mut a = new_assert();
+        let rules_value = a.pass(
+            r#"
+my_rule = rule(implementation = None)
+[my_rule, rule(implementation = None)]
+"#,
+        );
+        let list_ref = ListRef::from_value(rules_value.value()).unwrap();
+        let rules: Vec<FrozenValue> = list_ref
+            .iter()
+            .map(|v: Value<'_>| v.unpack_frozen().unwrap())
+            .collect();
+
+        a.modify_globals(move |b| {
+            b.set("my_rule", rules[0]);
+            b.set("anonymous", rules[1]);
+        });
+
+        a.eq(
+            r#"
+my_rule2 = rule(implementation = None)
+[str(my_rule), str(anonymous), str(my_rule2), str(rule(implementation = None))]
+"#,
+            UnpackList {
+                items: vec![
+                    "<rule: my_rule>".to_owned(),
+                    "<anonymous rule>".to_owned(),
+                    "<rule: my_rule2>".to_owned(),
+                    "<anonymous rule>".to_owned(),
+                ],
+            },
+        );
+
+        // Invoking anonymous rule
+        a.fail(
+            r#"anonymous(name = "anon_target")"#,
+            "Rule must be assigned to a global variable",
+        );
+
+        a.fail(
+            "rule()",
+            "Missing named-only parameter `implementation` for call to `rule`",
+        );
+
+        a.fail(
+            r#"rule(implementation = lambda ctx: None, attrs = {"name": attr.string()})"#,
+            "Attribute 'name' is reserved",
+        );
+    }
+}

@@ -2,16 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use crate::declare_opaque_type;
-
-declare_opaque_type!(pub Settings);
+use crate::Settings;
 
 impl Settings {
     /// Returns the toolchain label for the given settings.
     pub fn toolchain(&self) -> types::LabelRef<'_> {
-        extern "C" {
-            fn GetToolchainLabelFromSettings(settings: &Settings) -> &crate::Label;
-        }
-        unsafe { GetToolchainLabelFromSettings(self).as_ref() }
+        self.toolchain_label().as_ref()
     }
 }

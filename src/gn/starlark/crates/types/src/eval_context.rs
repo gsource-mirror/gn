@@ -13,8 +13,6 @@ use crate::{LabelRef, PackageRef, PathResolver, Session};
 pub trait EvalContext:
     for<'v> starlark::values::ProvidesStaticType<'v, StaticType = Self>
     + allocative::Allocative
-    + Send
-    + Sync
     + 'static
 {
     /// The session type associated with this context.
@@ -57,6 +55,9 @@ pub trait EvaluatorContextExt<'v, 'a, 'e> {
 
     /// Returns a mutable reference to the evaluation context.
     fn context_mut<C: EvalContext>(&mut self) -> &mut C;
+
+    /// Sets the evaluation context on the evaluator.
+    fn set_context<C: EvalContext>(&mut self, context: &'a mut C);
 }
 
 impl<'v, 'a, 'e> EvaluatorContextExt<'v, 'a, 'e> for starlark::eval::Evaluator<'v, 'a, 'e> {
@@ -76,5 +77,10 @@ impl<'v, 'a, 'e> EvaluatorContextExt<'v, 'a, 'e> for starlark::eval::Evaluator<'
         let dyn_any = unsafe { extra.unwrap_unchecked() };
         debug_assert!(dyn_any.is::<C>(), "failed to downcast evaluator context");
         unsafe { dyn_any.downcast_mut::<C>().unwrap_unchecked() }
+    }
+
+    #[inline]
+    fn set_context<C: EvalContext>(&mut self, context: &'a mut C) {
+        self.extra_mut = Some(context);
     }
 }

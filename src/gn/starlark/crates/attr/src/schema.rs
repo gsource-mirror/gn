@@ -202,6 +202,25 @@ impl AttrSchema {
             AllowFilesSchema::None => None,
         }
     }
+
+    #[cfg(test)]
+    pub(crate) fn new_for_testing(
+        kind: AttrKind,
+        default: Option<Attr>,
+        disallow_empty: bool,
+        allow_files: AllowFilesSchema,
+        cfg: AttrCfg,
+        doc: String,
+    ) -> Self {
+        Self {
+            kind,
+            default,
+            disallow_empty,
+            allow_files,
+            cfg,
+            doc,
+        }
+    }
 }
 
 #[cfg(test)]

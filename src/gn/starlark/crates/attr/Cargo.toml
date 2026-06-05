@@ -16,3 +16,6 @@ thiserror = { workspace = true }
 allocative = { workspace = true }
 types = { path = "../types" }
 either = { workspace = true }
+
+[dev-dependencies]
+testutils = { path = "../testutils" }

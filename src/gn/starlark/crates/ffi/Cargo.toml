@@ -15,3 +15,4 @@ starlark_derive = { workspace = true }
 cxx = { workspace = true }
 types = { path = "../types" }
 thiserror = { workspace = true }
+allocative = { workspace = true }

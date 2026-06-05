@@ -7,9 +7,11 @@ pub use types::{EvalContext, Session, TargetRef};
 
 /// Extension trait for EvalContext to support target creation.
 pub trait EvalContextAttrExt: types::EvalContext {
-    fn create_starlark_target(
+    fn create_target<S: types::Scope>(
         &self,
+        target_type: &'static str,
         target_name: &str,
+        scope: &S,
         rule: starlark::values::FrozenValue,
         attrs: Vec<crate::Attr>,
     ) -> starlark::Result<<Self::Session as types::Session>::TargetRef>;

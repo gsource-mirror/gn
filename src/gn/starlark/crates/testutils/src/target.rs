@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     hash::Hasher,
     sync::{Arc, Mutex},
 };
@@ -12,7 +12,7 @@ use allocative::Allocative;
 use attr::Attr;
 use starlark::{
     starlark_simple_value,
-    values::{ProvidesStaticType, StarlarkValue, Value, ValueLike},
+    values::{FrozenValue, ProvidesStaticType, StarlarkValue, Value, ValueLike},
 };
 use starlark_derive::{starlark_value, NoSerialize};
 use types::{File, IPromiseToImplementStarlarkEqAndHash, Label, TargetRef};
@@ -24,6 +24,10 @@ pub struct FakeTarget {
     pub outputs: Vec<File>,
     /// A list of attributes.
     pub attrs: Vec<Attr>,
+    pub target_type: &'static str,
+    pub rule: FrozenValue,
+    #[allocative(skip)]
+    pub cxx_attrs: HashMap<String, Value<'static>>,
     /// Registered target dependencies.
     #[allocative(skip)]
     pub dependencies: Mutex<HashSet<(Label, Label)>>,

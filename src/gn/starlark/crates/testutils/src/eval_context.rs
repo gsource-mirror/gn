@@ -1,15 +1,40 @@
 // Copyright 2026 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+use std::collections::HashMap;
 
 use attr::{Attr, EvalContext as AttrEvalContext, EvalContextAttrExt, Session as AttrSession};
 use starlark::{
-    values::{FrozenValue, ProvidesStaticType},
+    values::{FrozenValue, Heap, ProvidesStaticType, Value},
     Result,
 };
-use types::{CtxState, Label, LabelRef, Package, PackageRef, PathResolver, Session};
+use types::{CtxState, Label, LabelRef, Package, PackageRef, PathResolver, Scope, Session};
 
 use crate::{FakeSession, FakeTarget, FakeTargetRef};
+
+#[derive(Clone, Default, Debug)]
+pub struct FakeScope(HashMap<String, Value<'static>>);
+
+impl Scope for FakeScope {
+    fn copy_with<'a, 'v>(&self, kv: impl Iterator<Item = (&'a str, Value<'v>)>) -> Self {
+        let mut values = self.0.clone();
+        for (k, v) in kv {
+            // Safety: Transmuting 'v to 'static is safe because this mock scope
+            // is only used in tests, where the Starlark heap outlives the evaluation
+            // context.
+            let static_val = unsafe { std::mem::transmute::<Value<'v>, Value<'static>>(v) };
+            values.insert(k.to_owned(), static_val);
+        }
+        Self(values)
+    }
+
+    fn get<'v>(&self, key: &str, _heap: &Heap<'v>) -> Option<Value<'v>> {
+        self.0.get(key).map(|v| {
+            // Safety: Shortening the lifetime is always safe.
+            unsafe { std::mem::transmute::<Value<'static>, Value<'v>>(*v) }
+        })
+    }
+}
 
 /// A simple implementation of the evaluation context used in Starlark unit
 /// tests.
@@ -28,6 +53,9 @@ pub struct FakeEvalContext {
     /// The fake rule state.
     #[allocative(skip)]
     pub rule_state: CtxState<FakeTargetRef>,
+    /// The fake scope.
+    #[allocative(skip)]
+    pub scope: FakeScope,
 }
 
 unsafe impl<'v> ProvidesStaticType<'v> for FakeEvalContext {
@@ -50,6 +78,7 @@ impl FakeEvalContext {
             session,
             path_resolver: PathResolver::new_for_testing(),
             rule_state: CtxState::new(FakeTargetRef::default()),
+            scope: FakeScope::default(),
         }
     }
 }
@@ -73,8 +102,8 @@ impl AttrEvalContext for FakeEvalContext {
         self.current_toolchain.as_ref()
     }
 
-    fn require_macro(&self) -> Result<()> {
-        Ok(())
+    fn require_macro(&self) -> Result<&impl Scope> {
+        Ok(&self.scope)
     }
 
     fn require_bzl(&self) -> Result<()> {
@@ -93,14 +122,22 @@ impl AttrEvalContext for FakeEvalContext {
 }
 
 impl EvalContextAttrExt for FakeEvalContext {
-    fn create_starlark_target(
+    fn create_target<S: Scope>(
         &self,
+        target_type: &'static str,
         target_name: &str,
-        _rule: FrozenValue,
+        scope: &S,
+        rule: FrozenValue,
         attrs: Vec<Attr>,
     ) -> Result<<Self::Session as AttrSession>::TargetRef> {
         let label = Label::new(self.package.clone(), target_name.to_owned());
         let target = FakeTargetRef::new(FakeTarget {
+            target_type,
+            rule,
+            // Safety: We never pass a real scope in tests.
+            cxx_attrs: unsafe { std::mem::transmute::<&S, &FakeScope>(scope) }
+                .0
+                .clone(),
             outputs: vec![],
             attrs,
             ..Default::default()

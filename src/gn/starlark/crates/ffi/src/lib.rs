@@ -62,12 +62,17 @@
 //!     }
 //! }
 //! ```
-
 pub mod label;
 pub mod opaque;
 pub mod output_file;
+pub mod scope;
 pub mod settings;
+pub mod test_with_scope;
+pub mod types;
 
 pub use label::{Label, SourceDir};
 pub use output_file::OutputFile;
+pub use scope::Scope;
 pub use settings::Settings;
+pub use test_with_scope::TestWithScope;
+pub use types::CxxOwned;

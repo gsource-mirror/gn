@@ -6,13 +6,15 @@ fn main() {
     // When running with ninja, it should set NINJA_OUT_DIR.
     // If running directly with cargo, we know nothing about the output directory,
     // so we fall back to assuming the default one.
-    let out_dir = if let Ok(out_dir) = std::env::var("NINJA_OUT_DIR") {
-        std::path::PathBuf::from(out_dir)
-    } else {
+    if std::env::var("NINJA_OUT_DIR").is_err() {
         let manifest_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-        manifest_dir.join("../../../../../out")
-    };
+        std::env::set_var("NINJA_OUT_DIR", manifest_dir.join("../../../../../out"));
+    }
+    let out_dir = std::path::PathBuf::from(std::env::var("NINJA_OUT_DIR").unwrap());
+
     println!("cargo:rustc-link-search=native={}", out_dir.display());
     println!("cargo:rustc-link-lib=static=gn_lib");
     println!("cargo:rustc-link-lib=static=base");
+
+    println!("cargo:rustc-env=NINJA_OUT_DIR={}", out_dir.display());
 }

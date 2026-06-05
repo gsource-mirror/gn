@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use allocative::Allocative;
 use starlark::{
     collections::SmallMap,
     values::{
@@ -21,6 +22,7 @@ use crate::{
 /// Contains ctx.attr, ctx.files, and ctx.file.
 ///
 /// See https://bazel.build/rules/lib/builtins/ctx for more info on what they are.
+#[derive(Debug, Clone, Allocative)]
 pub struct CtxAttr<'v> {
     pub attr: Value<'v>,
     pub files: Value<'v>,
@@ -34,6 +36,7 @@ pub struct CtxAttr<'v> {
 ///   "foo": attr.label_list(...),
 ///   "bar": attr.string(...),
 /// }
+#[derive(Debug, Allocative)]
 pub struct CtxAttrSchema {
     attrs: SmallMap<String, AttrSchema>,
     attr: FrozenValueTyped<'static, FrozenRecordType>,
@@ -133,6 +136,10 @@ impl CtxAttrSchema {
                 ctx_file.into_boxed_slice(),
             )),
         })
+    }
+
+    pub fn attrs(&self) -> &SmallMap<String, AttrSchema> {
+        &self.attrs
     }
 }
 

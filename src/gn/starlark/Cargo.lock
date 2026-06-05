@@ -109,6 +109,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "attr"
+version = "0.1.0"
+dependencies = [
+ "allocative",
+ "either",
+ "starlark",
+ "starlark_derive",
+ "thiserror",
+ "types",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

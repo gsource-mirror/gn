@@ -13,6 +13,7 @@ test = false
 [workspace]
 members = [
     ".",
+    "crates/attr",
     "crates/ffi",
     "crates/types",
 ]

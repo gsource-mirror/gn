@@ -54,9 +54,9 @@ impl AllowFiles {
                     if ext.starts_with('.') {
                         file_name.ends_with(ext)
                     } else {
-                        file_name.strip_suffix(ext).map_or(false, |prefix| {
-                            prefix.is_empty() || prefix.ends_with('.')
-                        })
+                        file_name
+                            .strip_suffix(ext)
+                            .map_or(false, |prefix| prefix.is_empty() || prefix.ends_with('.'))
                     }
                 }) {
                     Ok(())

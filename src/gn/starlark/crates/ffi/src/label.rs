@@ -50,3 +50,19 @@ impl SourceDir {
         unsafe { types::PackageRef::new_unchecked(s) }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use types::{LabelRef, PackageRef};
+
+    use crate::TestWithScope;
+
+    #[test]
+    fn test_label() {
+        let mut setup = TestWithScope::new();
+        assert_eq!(
+            setup.scope().settings().toolchain(),
+            LabelRef::new(PackageRef::new_for_testing("//toolchain"), "default")
+        )
+    }
+}

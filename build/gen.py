@@ -631,6 +631,9 @@ def WriteGNNinja(path, platform, host, options, args_list):
         '/wd4838',
         '/wd4996',
         '/std:c++23preview',
+        # Enable __cplusplus macro to report the correct C++ standard version,
+        # otherwise it defaults to C++98.
+        '/Zc:__cplusplus',
         '/GR-',
         '/D_HAS_EXCEPTIONS=0',
     ])
@@ -1010,7 +1013,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
           '-lws2_32',
           '-lshlwapi',
       ])
-
 
   libs.extend(options.link_libs)
 

@@ -22,6 +22,9 @@
 #include "gn/tool.h"
 #include "gn/toolchain.h"
 #include "gn/trace.h"
+#include "gn/build_settings.h"
+#include "gn/ffi/starlark_session.h"
+#include "gn/ffi/rust_api.h"
 
 namespace {
 
@@ -411,8 +414,6 @@ Target::Target(const Settings* settings,
       module_name_(
           label.GetUserVisibleName(settings->default_toolchain_label())) {}
 
-Target::~Target() = default;
-
 Location Target::user_friendly_location() const {
   if (!user_friendly_location_.is_null())
     return user_friendly_location_;
@@ -562,6 +563,9 @@ const char* Target::GetStringForOutputType(OutputType type) {
       return functions::kRustLibrary;
     case RUST_PROC_MACRO:
       return functions::kRustProcMacro;
+    case STARLARK_TARGET:
+      // TODO later: this should get the rule name.
+      return "starlark_target";
     default:
       return "";
   }
@@ -718,6 +722,9 @@ bool Target::SetToolchain(const Toolchain* toolchain, Err* err) {
   DCHECK(!toolchain_);
   DCHECK_NE(UNKNOWN, output_type_);
   toolchain_ = toolchain;
+
+  if (output_type_ == STARLARK_TARGET)
+    return true;
 
   const Tool* tool = toolchain->GetToolForTargetFinalOutput(this);
   if (tool)
@@ -965,6 +972,9 @@ bool Target::HasRealInputs() const {
 }
 
 bool Target::FillOutputFiles(Err* err) {
+  if (output_type_ == STARLARK_TARGET) {
+    return true;
+  }
   const Tool* tool = toolchain_->GetToolForTargetFinalOutput(this);
   bool check_tool_outputs = false;
   switch (output_type_) {
@@ -1443,6 +1453,17 @@ const SourceFile* Target::private_modulemap_file() const {
         Value(nullptr, private_name), nullptr);
   }
   return &private_modulemap_file_;
+}
+
+bool Target::run_starlark_rule_impl(Err* err) {
+  const StarlarkSession& session = settings()->build_settings()->starlark_session();
+  if (!starlark_target_) {
+    // Generate a simple target with an associated DefaultInfo
+    starlark_target_ = rust::new_native_gn_target(session.rust_session(), this);
+    return true;
+  } else {
+    return rust::run_target_rule_implementation(starlark_target_, const_cast<Scope*>(settings()->base_config()), session.rust_session(), *err);
+  }
 }
 
 std::string Pretty(const Target& target) {

@@ -270,6 +270,7 @@ bool Builder::TargetDefined(BuilderRecord* record, Err* err) {
   if (!AddDeps(record, target->public_deps(), err) ||
       !AddDeps(record, target->private_deps(), err) ||
       !AddDeps(record, target->data_deps(), err) ||
+      !AddDeps(record, target->starlark_deps(), err) ||
       !AddDeps(record, target->configs().vector(), err) ||
       !AddDeps(record, target->all_dependent_configs(), err) ||
       !AddDeps(record, target->public_configs(), err) ||
@@ -533,6 +534,7 @@ bool Builder::ResolveItem(BuilderRecord* record, Err* err) {
     if (!ResolveDeps(&target->public_deps(), err) ||
         !ResolveDeps(&target->private_deps(), err) ||
         !ResolveDeps(&target->data_deps(), err) ||
+        !ResolveDeps(&target->starlark_deps(), err) ||
         !ResolveValidationDeps(&target->validations(), err) ||
         !ResolveConfigs(&target->configs(), err) ||
         !ResolveConfigs(&target->all_dependent_configs(), err) ||
@@ -544,6 +546,9 @@ bool Builder::ResolveItem(BuilderRecord* record, Err* err) {
                              record->ToDebugString().c_str());
 
     if (!target->OnResolvedWithoutChecks(err))
+      return false;
+
+    if (!target->run_starlark_rule_impl(err))
       return false;
 
     // Offload Target::RunChecksAfterResolution to a worker thread.

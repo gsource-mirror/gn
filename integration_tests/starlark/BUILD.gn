@@ -1,0 +1,47 @@
+# Copyright 2014 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+load("//:variables.bzl", "s", "sum", "complex_input_type")
+load("//:macros.bzl", "hello_shared_macro")
+load("//rules:extension.bzl", "extra_files")
+
+assert(s.b == true, "expected starlark booleans to convert to GN booleans")
+assert(s.n == 1, "expected starlark integers to convert to GN integers")
+assert(s.s == "hello", "expected starlark strings to convert to GN strings")
+assert(s.l == [1, "hello"], "expected starlark lists to convert to GN lists")
+p = s.p
+assert(p.foo == 1, "Expected record types to convert to starlark")
+assert(sum(1, 2) == 3, "expected function calls with args only to work")
+assert(sum(1) {
+  a = 2
+} == 3, "expected function calls with args and kwargs to work")
+assert(complex_input_type(s.d) == 1, "expected to be able to pass types unknown to GN to and from the starlark boundary")
+
+executable("hello") {
+  sources = ["hello.cc"]
+  deps = [
+    ":hello_shared",
+    ":hello_static",
+  ]
+  executable_attr = "hello"
+}
+
+hello_shared_macro("hello_shared") {
+  sources = [
+    "hello_shared.cc",
+  ]
+}
+
+static_library("hello_static") {
+  sources = [
+    "hello_static.cc",
+    "hello_static.h",
+  ]
+  static_library_attr = "hello_static"
+  extra_files = [ ":extra_files" ]
+}
+
+extra_files("extra_files") {
+  extra_files = ["foo.txt", ":hello_shared"]
+}

@@ -13,6 +13,9 @@
 #include "gn/binary_target_generator.h"
 #include "gn/build_settings.h"
 #include "gn/bundle_data_target_generator.h"
+#include "gn/ffi/cxx_api.h"
+#include "gn/ffi/rust_api.h"
+#include "gn/ffi/starlark_session.h"
 #include "gn/config.h"
 #include "gn/copy_target_generator.h"
 #include "gn/create_bundle_target_generator.h"
@@ -92,13 +95,22 @@ void TargetGenerator::GenerateTarget(Scope* scope,
     return;
   }
 
+  DefineTarget(scope, function_call, args[0].string_value(), output_type, err);
+}
+
+// static
+void TargetGenerator::DefineTarget(Scope* scope,
+                                   const FunctionCallNode* function_call,
+                                   const std::string& name,
+                                   const std::string& output_type,
+                                   Err* err) {
   // The location of the target is the directory name with no slash at the end.
   // FIXME(brettw) validate name.
   const Label& toolchain_label = ToolchainLabelForScope(scope);
-  Label label(scope->GetSourceDir(), args[0].string_value(),
+  Label label(scope->GetSourceDir(), name,
               toolchain_label.dir(), toolchain_label.name());
 
-  if (g_scheduler->verbose_logging())
+  if (g_scheduler && g_scheduler->verbose_logging())
     g_scheduler->Log("Defining target", label.GetUserVisibleName(true));
 
   std::unique_ptr<Target> target = std::make_unique<Target>(
@@ -160,6 +172,8 @@ void TargetGenerator::GenerateTarget(Scope* scope,
     BinaryTargetGenerator generator(target.get(), scope, function_call,
                                     Target::RUST_PROC_MACRO, err);
     generator.Run();
+  } else if (output_type == "") {
+    target->set_output_type(Target::STARLARK_TARGET);
   } else {
     *err = Err(function_call, "Not a known target type",
                "I am very confused by the target type \"" + output_type + "\"");
@@ -167,6 +181,35 @@ void TargetGenerator::GenerateTarget(Scope* scope,
 
   if (err->has_error())
     return;
+
+  // ai: This should not be removed. We need it for rule extensions
+  // Look for a starlark function overriding target_type.
+  const Value* val = scope->GetValue(output_type);
+  if (val && val->type() == Value::STARLARK_VALUE) {
+    const StarlarkSession& starlark_session = scope->settings()->build_settings()->starlark_session();
+    const auto& rust_session = starlark_session.rust_session();
+    std::vector<StarlarkValue> positional_args{
+        StarlarkValue(rust::convert_target(*target, val->starlark_value().to_rust(), rust_session))
+    };
+
+    std::vector<KeyVal> kwargs;
+    for (const auto& pair : scope->GetAndMarkUnusedVariables()) {
+      kwargs.push_back(KeyVal{rust::Str(pair.first.data(), pair.first.size()), *pair.second, rust_session});
+    }
+    Value result;
+    val->starlark_value().call(positional_args, kwargs, result, *scope, function_call, *err);
+    if (err->has_error()) {
+      return;
+    }
+
+    Scope::ItemVector* collector = scope->GetItemCollector();
+    if (!collector) {
+      *err = Err(function_call, "Can't define a target in this context.");
+      return;
+    }
+    collector->push_back(std::move(target));
+    return;
+  }
 
   // Save this target for the file.
   Scope::ItemVector* collector = scope->GetItemCollector();

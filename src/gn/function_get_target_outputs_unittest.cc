@@ -8,6 +8,7 @@
 #include "gn/functions.h"
 #include "gn/target.h"
 #include "gn/test_with_scope.h"
+#include "gn/parse_tree.h"
 #include "util/test/test.h"
 
 namespace {

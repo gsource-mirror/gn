@@ -731,6 +731,8 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/gn/escape.cc',
               'src/gn/exec_process.cc',
               'src/gn/ffi/bridge.cc',
+              'src/gn/ffi/scope.cc',
+              'src/gn/ffi/value.cc',
               'src/gn/filesystem_utils.cc',
               'src/gn/file_writer.cc',
               'src/gn/frameworks_utils.cc',

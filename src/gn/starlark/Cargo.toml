@@ -12,11 +12,12 @@ test = false
 
 [workspace]
 members = [
-    ".",
     "crates/attr",
     "crates/ffi",
+    "crates/testutils",
     "crates/types",
 ]
+
 
 [workspace.dependencies]
 allocative = "0.3"

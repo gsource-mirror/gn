@@ -14,6 +14,8 @@
 #include "gn/settings.h"
 #include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
+#include "gn/c_tool.h"
+#include "gn/rust_tool.h"
 #include "gn/toolchain.h"
 #include "util/test/test.h"
 

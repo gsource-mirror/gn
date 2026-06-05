@@ -39,6 +39,11 @@ class TargetGenerator {
                              const std::vector<Value>& args,
                              const std::string& output_type,
                              Err* err);
+  static void DefineTarget(Scope* scope,
+                           const FunctionCallNode* function_call,
+                           const std::string& name,
+                           const std::string& output_type,
+                           Err* err);
 
  protected:
   // Derived classes implement this to do type-specific generation.

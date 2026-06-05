@@ -34,6 +34,7 @@ extern const char kDotfile_Help[];
 class Setup {
  public:
   Setup();
+  ~Setup();
 
   // Configures the build for the current command line. On success returns
   // true. On failure, prints the error and returns false.

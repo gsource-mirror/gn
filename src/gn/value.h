@@ -7,14 +7,13 @@
 
 #include <stdint.h>
 
-#include <map>
 #include <memory>
 #include <vector>
 
-#include "base/logging.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_refptr.h"
 #include "gn/err.h"
+#include "gn/ffi/starlark_value.h"
 
 class ParseNode;
 class Scope;
@@ -43,6 +42,7 @@ class Value {
     STRING,
     LIST,
     SCOPE,
+    STARLARK_VALUE,
   };
 
   Value();
@@ -50,6 +50,7 @@ class Value {
   Value(const ParseNode* origin, bool bool_val);
   Value(const ParseNode* origin, int64_t int_val);
   Value(const ParseNode* origin, std::string str_val);
+  Value(const ParseNode* origin, rust::Str str_val);
   Value(const ParseNode* origin, const char* str_val);
   // Values "shouldn't" have null scopes when type == Scope, so be sure to
   // always set one. However, this is not asserted since there are some
@@ -57,6 +58,8 @@ class Value {
   // you can pass a null scope here if you promise to set it before any other
   // code gets it (code will generally assume the scope is not null).
   Value(const ParseNode* origin, std::unique_ptr<Scope> scope);
+  // Takes ownership of the StarlarkValue object.
+  Value(const ParseNode* origin, StarlarkValue val);
 
   Value(const Value& other);
   Value(Value&& other) noexcept;
@@ -114,6 +117,11 @@ class Value {
   }
   void SetScopeValue(std::unique_ptr<Scope> scope);
 
+  const StarlarkValue& starlark_value() const {
+    DCHECK(type_ == STARLARK_VALUE);
+    return starlark_value_;
+  }
+
   // Converts the given value to a string. Returns true if strings should be
   // quoted or the ToString of a string should be the string itself. If the
   // string is quoted, it will also enable escaping.
@@ -145,7 +153,9 @@ class Value {
     // copied, only performing a real copy when a modification is attempted.
     scoped_refptr<ValueList> list_ptr_;
     std::unique_ptr<Scope> scope_value_;
+    StarlarkValue starlark_value_;
   };
 };
+
 
 #endif  // TOOLS_GN_VALUE_H_

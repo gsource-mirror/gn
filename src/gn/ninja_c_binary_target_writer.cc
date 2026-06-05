@@ -193,6 +193,7 @@ void NinjaCBinaryTargetWriter::WriteCompilerVars(
   }
 
   WriteSharedVars(subst);
+  WriteCustomSubstitutions(false);
 }
 
 void NinjaCBinaryTargetWriter::WriteModuleNameSubstitution() {

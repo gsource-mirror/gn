@@ -33,6 +33,12 @@
 #include "gn/target.h"
 #include "gn/trace.h"
 
+#include "gn/build_settings.h"
+#include "gn/settings.h"
+#include "gn/ffi/rust_api.h"
+#include "gn/ffi/starlark_session.h"
+#include <string_view>
+
 NinjaTargetWriter::NinjaTargetWriter(const Target* target, std::ostream& out)
     : settings_(target->settings()),
       target_(target),
@@ -100,6 +106,9 @@ std::string NinjaTargetWriter::RunAndWriteFile(
     const Target* target,
     ResolvedTargetData* resolved,
     std::vector<OutputFile>* ninja_outputs) {
+  if (target->output_type() == Target::STARLARK_TARGET) {
+    return std::string();
+  }
   const Settings* settings = target->settings();
 
   ScopedTrace trace(TraceItem::TRACE_FILE_WRITE_NINJA,
@@ -683,5 +692,13 @@ void NinjaTargetWriter::WriteValidations() {
     }
     out_ << " ";
     WriteOutput(pair.ptr->dependency_output());
+  }
+}
+
+void NinjaTargetWriter::WriteCustomSubstitutions(bool indent) {
+  const StarlarkSession& session = settings_->build_settings()->starlark_session();
+  rust::Str rust_subs = rust::get_custom_ninja(*target_, session.rust_session());
+  if (!rust_subs.empty()) {
+    out_ << std::string_view(rust_subs.data(), rust_subs.size());
   }
 }

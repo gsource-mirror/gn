@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "gn/scheduler.h"
 #include "gn/scope.h"
 #include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
+#include "gn/parse_tree.h"
+#include "base/files/file_path.h"
+#include "base/files/file_util.h"
+#include "base/files/scoped_temp_dir.h"
 #include "util/test/test.h"
 
 using FunctionsTarget = TestWithScheduler;
@@ -204,3 +207,95 @@ TEST_F(FunctionsTarget, MixedSourceError) {
   ASSERT_TRUE(err.has_error());
   ASSERT_EQ(err.message(), "More than one language used in target sources.");
 }
+
+TEST_F(FunctionsTarget, StarlarkRuleTarget) {
+  TestWithScope setup;
+
+  // The target generator needs a place to put the targets or it will fail.
+  Scope::ItemVector item_collector;
+  setup.scope()->set_item_collector(&item_collector);
+
+  base::ScopedTempDir temp_dir;
+  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
+  setup.build_settings()->SetRootPath(temp_dir.GetPath());
+
+  std::string bzl_content = R"bzl(
+def _impl(ctx):
+  if ctx.attr.some_val == 42:
+    fail("expected failure for 42")
+
+my_rule = rule_extension(
+  implementation = _impl,
+  attrs = {
+    "some_val": attr.int(default = 1),
+  },
+)
+)bzl";
+
+  base::FilePath bzl_path = temp_dir.GetPath().AppendASCII("rules.bzl");
+  ASSERT_EQ(static_cast<int>(bzl_content.size()),
+            base::WriteFile(bzl_path, bzl_content.c_str(), bzl_content.size()));
+
+  // 1. Success case: some_val = 10
+  {
+    TestParseInput input(R"gn(
+      load("//:rules.bzl", "my_rule")
+      static_library = my_rule
+      static_library("target_ok") {
+        some_val = 10
+      }
+    )gn");
+    ASSERT_SUCCESS(input);
+
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    ASSERT_FALSE(err.has_error()) << err.message() << "\n" << err.help_text();
+
+    ASSERT_EQ(1u, item_collector.size());
+    Target* target = item_collector[0]->AsTarget();
+    ASSERT_TRUE(target);
+
+    target->SetToolchain(setup.toolchain());
+    Err resolve_err;
+    ASSERT_TRUE(target->OnResolvedWithoutChecks(&resolve_err));
+
+    Err callback_err;
+    bool callback_ok = target->run_starlark_rule_impl(&callback_err);
+    ASSERT_FALSE(callback_err.has_error()) << callback_err.message();
+    ASSERT_TRUE(callback_ok);
+
+    item_collector.clear();
+  }
+
+  // 2. Failure case: some_val = 42
+  {
+    TestParseInput input(R"gn(
+      load("//:rules.bzl", "my_rule")
+      static_library = my_rule
+      static_library("target_fail") {
+        some_val = 42
+      }
+    )gn");
+    ASSERT_SUCCESS(input);
+
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    ASSERT_FALSE(err.has_error()) << err.message() << "\n" << err.help_text();
+
+    ASSERT_EQ(1u, item_collector.size());
+    Target* target = item_collector[0]->AsTarget();
+    ASSERT_TRUE(target);
+
+    target->SetToolchain(setup.toolchain());
+    Err resolve_err;
+    ASSERT_TRUE(target->OnResolvedWithoutChecks(&resolve_err));
+
+    Err callback_err;
+    bool callback_ok = target->run_starlark_rule_impl(&callback_err);
+    ASSERT_FALSE(callback_ok);
+    ASSERT_TRUE(callback_err.has_error());
+
+    item_collector.clear();
+  }
+}
+

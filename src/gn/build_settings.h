@@ -20,7 +20,10 @@
 #include "gn/source_file.h"
 #include "gn/version.h"
 
+
+
 class Item;
+class StarlarkSession;
 
 // Settings for one build, which is one toplevel output directory. There
 // may be multiple Settings objects that refer to this, one for each toolchain.
@@ -30,6 +33,7 @@ class BuildSettings {
   using PrintCallback = std::function<void(const std::string&)>;
 
   BuildSettings();
+  ~BuildSettings();
   BuildSettings(const BuildSettings& other);
 
   // Root target label.
@@ -153,6 +157,8 @@ class BuildSettings {
     expand_directory_allowlist_ = std::move(list);
   }
 
+  const StarlarkSession& starlark_session() const;
+
  private:
   Label root_target_label_;
   std::vector<LabelPattern> root_patterns_;
@@ -178,6 +184,8 @@ class BuildSettings {
   std::unique_ptr<SourceFileSet> exec_script_allowlist_;
   std::unique_ptr<SourceFileSet> expand_directory_allowlist_ =
       std::make_unique<SourceFileSet>();
+
+  std::unique_ptr<StarlarkSession> starlark_session_;
 
   BuildSettings& operator=(const BuildSettings&) = delete;
 };

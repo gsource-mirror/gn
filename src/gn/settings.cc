@@ -14,7 +14,6 @@ Settings::Settings(const BuildSettings* build_settings,
   if (output_subdir_name.empty()) {
     toolchain_output_dir_ = build_settings->build_dir();
   } else {
-    // We guarantee this ends in a slash.
     DCHECK(output_subdir_name[output_subdir_name.size() - 1] == '/');
     toolchain_output_subdir_ = OutputFile(output_subdir_name);
 

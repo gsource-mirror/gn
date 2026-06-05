@@ -9,12 +9,8 @@
 #include <vector>
 
 #include "gn/build_settings.h"
-#include "gn/c_tool.h"
 #include "gn/err.h"
-#include "gn/general_tool.h"
 #include "gn/input_file.h"
-#include "gn/parse_tree.h"
-#include "gn/rust_tool.h"
 #include "gn/scope.h"
 #include "gn/scope_per_file_provider.h"
 #include "gn/settings.h"

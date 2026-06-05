@@ -5,6 +5,7 @@
 use std::path::PathBuf;
 
 use starlark::values::UnpackValueError;
+use types::Label;
 
 /// Errors returned by target attribute validation and coercion.
 #[derive(thiserror::Error, Debug, Clone)]
@@ -33,6 +34,12 @@ pub enum Error {
     DuplicateLabel(crate::LabelOrFile),
     #[error("got {0}, want value in signed 32-bit range")]
     Int32Expected(i64),
+    #[error("target `{0}` must produce a single output file")]
+    MustProduceSingleFile(Label),
+    #[error(
+        "target `{target}` does not produce any outputs matching allowed extensions: {allowed:?}"
+    )]
+    NoMatchingOutputs { target: Label, allowed: Vec<String> },
 }
 
 impl From<Error> for starlark::Error {

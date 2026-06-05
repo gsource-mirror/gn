@@ -6,11 +6,18 @@ use starlark::values::{AllocValue, StarlarkValue};
 
 use crate::File;
 
+/// Unfortunately while we could specify that Eq and Hash are implemented, there
+/// is no way to delegate starlark's equality and hash function to it
+/// automatically.
+pub trait IPromiseToImplementStarlarkEqAndHash {}
+
 /// An interface for a target in the build graph.
 ///
 /// Since the real Target involves a lot of C++ interop, this allows us to
 /// decouple the target from C++
-pub trait TargetRef: for<'v> StarlarkValue<'v> + for<'v> AllocValue<'v> + Clone {
+pub trait TargetRef:
+    for<'v> StarlarkValue<'v> + for<'v> AllocValue<'v> + Clone + IPromiseToImplementStarlarkEqAndHash
+{
     /// Returns the output files produced by this target.
     fn outputs(&self) -> Vec<File>;
 

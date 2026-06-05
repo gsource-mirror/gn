@@ -4,6 +4,7 @@
 
 use std::{
     collections::HashSet,
+    hash::Hasher,
     sync::{Arc, Mutex},
 };
 
@@ -11,10 +12,10 @@ use allocative::Allocative;
 use attr::Attr;
 use starlark::{
     starlark_simple_value,
-    values::{ProvidesStaticType, StarlarkValue},
+    values::{ProvidesStaticType, StarlarkValue, Value, ValueLike},
 };
 use starlark_derive::{starlark_value, NoSerialize};
-use types::{File, Label, TargetRef};
+use types::{File, IPromiseToImplementStarlarkEqAndHash, Label, TargetRef};
 
 /// A fake target struct for testing.
 #[derive(Debug, Allocative, Default)]
@@ -76,8 +77,27 @@ impl std::fmt::Display for FakeTargetRef {
     }
 }
 
+impl IPromiseToImplementStarlarkEqAndHash for FakeTargetRef {}
+
 #[starlark_value(type = "Target")]
-impl<'v> StarlarkValue<'v> for FakeTargetRef {}
+impl<'v> StarlarkValue<'v> for FakeTargetRef {
+    fn equals(&self, other: Value<'v>) -> starlark::Result<bool> {
+        if let Some(other) = other.downcast_ref::<Self>() {
+            Ok(Arc::ptr_eq(&self.0, &other.0))
+        } else {
+            Ok(false)
+        }
+    }
+
+    fn write_hash(
+        &self,
+        hasher: &mut starlark::collections::StarlarkHasher,
+    ) -> starlark::Result<()> {
+        let ptr = Arc::as_ptr(&self.0) as usize;
+        hasher.write_usize(ptr);
+        Ok(())
+    }
+}
 
 impl TargetRef for FakeTargetRef {
     fn outputs(&self) -> Vec<File> {

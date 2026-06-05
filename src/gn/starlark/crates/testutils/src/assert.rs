@@ -2,16 +2,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use starlark::values::UnpackValue;
+use starlark::{
+    environment::GlobalsBuilder,
+    values::UnpackValue,
+};
 use types::{EvaluatorContextExt, UnpackedOwnedValue};
 
-use crate::FakeEvalContext;
+use crate::{FakeEvalContext, register_globals};
 
 /// A simple wrapper around starlark::Assert that provides fake evaluation
 /// contexts.
 pub struct Assert {
     assert: starlark::assert::Assert<'static>,
     context: Box<FakeEvalContext>,
+    globals_configs: Vec<Box<dyn Fn(&mut GlobalsBuilder)>>,
 }
 
 impl Default for Assert {
@@ -43,7 +47,22 @@ impl Assert {
             eval.set_context(context_mut);
         });
 
-        Self { assert, context }
+        let mut s = Self {
+            assert,
+            context,
+            globals_configs: vec![],
+        };
+        s.globals_add(register_globals);
+        s
+    }
+
+    pub fn globals_add(&mut self, f: impl Fn(&mut GlobalsBuilder) + 'static) {
+        self.globals_configs.push(Box::new(f));
+        self.assert.globals_add(|builder| {
+            for config in &self.globals_configs {
+                config(builder);
+            }
+        });
     }
 
     /// Returns a read-only reference to the fake evaluation context.
@@ -101,20 +120,5 @@ impl Assert {
     #[track_caller]
     pub fn fails(&mut self, code: &str, expected_errors: &[&str]) -> starlark::Error {
         self.assert.fails(code, expected_errors)
-    }
-}
-
-// We implement deref to get for free all the methods on starlark::Assert.
-impl std::ops::Deref for Assert {
-    type Target = starlark::assert::Assert<'static>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.assert
-    }
-}
-
-impl std::ops::DerefMut for Assert {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.assert
     }
 }

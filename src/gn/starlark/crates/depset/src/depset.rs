@@ -244,10 +244,7 @@ mod tests {
     use testutils::Assert;
 
     use super::*;
-    use crate::{
-        globals::tests::{new_assert, test_globals},
-        UnpackFileDepset,
-    };
+    use crate::{globals::tests::new_assert, UnpackFileDepset};
 
     #[test]
     fn test_depset_deduplication() {
@@ -289,7 +286,6 @@ mod tests {
         let frozen_file_depset = a.pass("depset([make_file('a.txt'), make_file('b.txt')])");
 
         a.globals_add(move |builder: &mut starlark::environment::GlobalsBuilder| {
-            test_globals(builder);
             builder.set("frozen_str_depset", frozen_str_depset.clone());
             builder.set("frozen_file_depset", frozen_file_depset.clone());
         });

@@ -220,7 +220,7 @@ bool Builder::CheckForBadItems(Err* err) const {
     if (!src.should_generate())
       continue;  // Skip ungenerated nodes.
 
-    if (!src.is_resolved())
+    if (!src.is_finalized())
       bad_records.push_back(&src);
   }
   if (bad_records.empty())
@@ -553,6 +553,18 @@ bool Builder::ResolveItem(BuilderRecord* record, Err* err) {
 
     // Offload Target::RunChecksAfterResolution to a worker thread.
     ScheduleBackgroundTargetChecks(record);
+
+    // Record generated_file() targets that perform metadata collection for
+    // later. The NinjaGeneratedTargetWriter::Run() class does a similar check
+    // to write content-based files directly for speed. This is critical
+    // for performance, i.e. moving all generated_file() targets after the
+    // build makes `gn gen` time more than 15% slower on a medium-size
+    // Fuchsia graph, while doing this selection here doesn't impact
+    // timing.
+    if (target->output_type() == Target::GENERATED_FILE &&
+        target->contents().type() == Value::NONE)
+      generated_file_targets_.push_back(target);
+
     return CompleteItemResolution(record, err);
   } else if (record->type() == BuilderRecord::ITEM_CONFIG) {
     Config* config = record->item()->AsConfig();
@@ -733,4 +745,10 @@ std::string Builder::CheckForCircularDependencies(
   }
 
   return ret;
+}
+
+void Builder::WriteGeneratedFilesAfterFullResolution() {
+  if (write_generated_files_callback_) {
+    write_generated_files_callback_(generated_file_targets_);
+  }
 }

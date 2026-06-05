@@ -76,8 +76,38 @@ class ParseNode;
 //
 //    Resolved -> Finalized:
 //      This requires all standard dependencies to be Finalized, and all
-//      validation dependencies to be Resolved. Ensuring that the
-//      dependency graph from the root to this item is fully immutable.
+//      validation dependencies to be Resolved. This ensures that the
+//      corresponding target or toolchain can be appended to the Ninja
+//      build plan, because the output paths of all validations is
+//      known.
+//
+//      Consider the following valid example:
+//
+//      foo ---validation---> bar --validation--> qux --deps--> zoo
+//        ^                   | ^                 |
+//        |                   | |                 |
+//        +--------deps-------+ +--------deps-----+
+//
+//      Here, 'foo' can be finalized as soon a 'bar' is resolved, which
+//      allows a statement like the following to be appended to the
+//      Ninja build plan, because the output paths of 'bar' are known.
+//
+//         build foo.output: some_rule |@ bar.output
+//
+//      Ninja doesn't enforce an order for the build statements of foo
+//      and bar, but computing `bar.output` can only be done when `bar`
+//      is Resolved.
+//
+//      However, while 'bar' might be resolved, 'qux' can still be
+//      in the Defined state, if 'zoo' has not been loaded yet.
+//
+//      In this case, the 'qux --> zoo' dependency pointer is still
+//      null, and trying to perform a metadata walk from 'foo', which
+//      traverses all transitive dependencies, will CRASH.
+//
+//      To avoid this, metadata walks MUST be delayed *after* all
+//      items in the graph have been resolved, and cannot be performed
+//      in the NinjaGeneratedFileTargetWriter::Run() function.
 //
 // Every time a record's state is changed, checks are performed to see
 // if the state of other dependents can now be changed accordingly.
@@ -93,31 +123,6 @@ class ParseNode;
 //
 // The Ninja build statement can only be written if the target's record
 // is in the Finalized state.
-//
-// A note on validations:
-//
-// Validation dependencies are a bit special, because they can introduce
-// cycles in the dependency graph. For example, this is valid:
-//
-//     foo ------validation------> bar
-//        ^                        |
-//        |                        |
-//        +--------deps------------+
-//
-// In this case, foo can be Resolved as soon as bar is Defined, but
-// won't be Finalized until bar is Resolved itself. This ensures that
-// bar's output path is known when foo is written to the Ninja file,
-// as it is required by the build statement which will look like:
-//
-//     build foo.output: some_rule |@ bar.output
-//
-// Ninja doesn't enforce an order for the build statements of foo and
-// bar, but computing `bar.output` can only be done when `bar` is
-// Resolved.
-//
-// Another issue is that metadata walks, performed when writing
-// the build statement for generated_file() targets, will walk over
-// validation dependencies as well. This requires these to be resolved.
 //
 class BuilderRecord {
  public:

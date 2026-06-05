@@ -549,8 +549,24 @@ bool Setup::Run() {
 
 bool Setup::Run(const base::CommandLine& cmdline) {
   RunPreMessageLoop();
+  // The first run will resolve all items in the graph,
+  // but will not write generated_file() targets yet.
   if (!scheduler_.Run())
     return false;
+
+  // The second run will write the generated files to disk
+  // in parallel since all items are now resolved.
+  if (!scheduler_.is_failed()) {
+    Err err;
+    if (!builder_.CheckForBadItems(&err)) {
+      err.PrintToStdout();
+      return false;
+    }
+    builder_.WriteGeneratedFilesAfterFullResolution();
+    if (!scheduler_.Run())
+      return false;
+  }
+
   return RunPostMessageLoop(cmdline);
 }
 
@@ -568,10 +584,6 @@ void Setup::RunPreMessageLoop() {
 
 bool Setup::RunPostMessageLoop(const base::CommandLine& cmdline) {
   Err err;
-  if (!builder_.CheckForBadItems(&err)) {
-    err.PrintToStdout();
-    return false;
-  }
 
   if (!build_settings_.build_args().VerifyAllOverridesUsed(&err)) {
     if (cmdline.HasSwitch(switches::kFailOnUnusedArgs)) {

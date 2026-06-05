@@ -18,6 +18,7 @@
 #include "gn/compile_commands_writer.h"
 #include "gn/eclipse_writer.h"
 #include "gn/filesystem_utils.h"
+#include "gn/generated_file_writer.h"
 #include "gn/json_project_writer.h"
 #include "gn/label_pattern.h"
 #include "gn/ninja_outputs_writer.h"
@@ -131,6 +132,18 @@ void ItemResolvedAndGeneratedCallback(TargetWriteInfo* write_info,
   if (target) {
     g_scheduler->ScheduleWork(
         [write_info, target]() { BackgroundDoWrite(write_info, target); });
+  }
+}
+
+// Called on the main thread.
+void WriteGeneratedFilesCallback(
+    const std::vector<const Target*>& generated_file_targets) {
+  for (const Target* target : generated_file_targets) {
+    g_scheduler->ScheduleWork([target]() {
+      Err err;
+      if (!WriteGeneratedFileToDisk(target, &err))
+        g_scheduler->FailWithError(err);
+    });
   }
 }
 
@@ -816,7 +829,14 @@ int RunGen(const std::vector<std::string>& args) {
         ItemResolvedAndGeneratedCallback(&write_info, record);
       });
 
-  // Do the actual load. This will also write out the target ninja files.
+  // Ensure the generated_file() are written once all items in
+  // the graph are resolved, to prevent crashes when performing
+  // metadata walks over transitive validation deps.
+  setup->builder().set_write_generated_files_callback(
+      WriteGeneratedFilesCallback);
+
+  // Do the actual load. This will also write out the target ninja files
+  // and write the generated files.
   if (!setup->Run())
     return 1;
 
@@ -842,6 +862,10 @@ int RunGen(const std::vector<std::string>& args) {
     err.PrintToStdout();
     return 1;
   }
+
+  // Write the generated_file() outputs now that the graph is fully
+  // resolved, this allows metadata walks over transitive validation
+  // dependencies to be performed safely.
 
   if (!RunNinjaPostProcessTools(
           &setup->build_settings(),

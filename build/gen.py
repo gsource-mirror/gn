@@ -13,7 +13,7 @@ import shlex
 import subprocess
 import sys
 
-from ninja_file import NinjaFile, escape_path_ninja
+from ninja_file import NinjaFile, escape_path_ninja, DummyRule
 
 assert sys.version_info >= (3, 9, 0)
 
@@ -286,24 +286,34 @@ def GenerateLastCommitPosition(host, header):
 def WriteGenericNinja(path, static_libraries, executables,
                       cxx, ar, ld, platform, host, options,
                       args_list, cflags=[], ldflags=[],
-                      libflags=[], include_dirs=[], solibs=[]):
+                      libflags=[], include_dirs=[], solibs=[],
+                      extra_deps=[], custom_targets=[],
+                      ninja=None):
   # Generate integration tests using NinjaFile
   build_dir = os.path.dirname(path)
-  ninja = NinjaFile(platform, REPO_ROOT, build_dir)
+  if ninja is None:
+    ninja = NinjaFile(platform, REPO_ROOT, build_dir)
+
   args = args_list.gen_command_line_args(options)
 
   if args:
     args = " " + args
+  out_dir = os.path.abspath(os.path.dirname(path))
 
   ninja_header_lines = [
     'cxx = ' + cxx,
     'ar = ' + ar,
     'ld = ' + ld,
+    'cargo_target_dir = --target-dir=' + os.path.join(out_dir, 'starlark'),
+    '',
+    'pool cargo_pool',
+    '  depth = 1',
     '',
     'rule regen',
     '  command = %s ../build/gen.py%s' % (sys.executable, args),
     '  description = Regenerating ninja files',
     '',
+
     'build build.ninja: regen',
     '  generator = 1',
     '  depfile = build.ninja.d',
@@ -347,16 +357,26 @@ def WriteGenericNinja(path, static_libraries, executables,
     return escape_path_ninja('%s' % os.path.splitext(path)[0] + object_ext)
 
   def library_to_a(library):
-    return '%s%s' % (library, library_ext)
+    if platform.is_msvc():
+      return '%s%s' % (library, library_ext)
+    return 'lib%s%s' % (library, library_ext)
 
   ninja_lines = []
   def build_source(src_file, settings):
+    extra_deps_str = ''
+    if extra_deps and src_file in [
+        'src/gn/value.cc',
+        'src/gn/build_settings.cc',
+        'src/gn/functions.cc',
+    ]:
+      extra_deps_str = ' || ' + ' '.join(extra_deps)
     ninja_lines.extend([
-        'build %s: cxx %s' % (src_to_obj(src_file),
-                              escape_path_ninja(
-                                  os.path.relpath(
-                                      os.path.join(REPO_ROOT, src_file),
-                                      os.path.dirname(path)))),
+        'build %s: cxx %s%s' % (src_to_obj(src_file),
+                                escape_path_ninja(
+                                    os.path.relpath(
+                                        os.path.join(REPO_ROOT, src_file),
+                                        os.path.dirname(path))),
+                                extra_deps_str),
         '  includes = %s' % ' '.join(
             ['-I' + escape_path_ninja(dirname) for dirname in include_dirs]),
         '  cflags = %s' % ' '.join(cflags),
@@ -375,44 +395,48 @@ def WriteGenericNinja(path, static_libraries, executables,
     for src_file in settings['sources']:
       build_source(src_file, settings)
 
+    implicit_deps = [library_to_a(library) for library in settings['libs']]
+    for lib in solibs:
+      if not lib.startswith('-') and ('/' in lib or '\\' in lib or lib.endswith('.a') or lib.endswith('.lib')):
+        implicit_deps.append(os.path.normpath(lib))
+
     ninja_lines.extend([
       'build %s%s: link %s | %s' % (
           executable, executable_ext,
           ' '.join([src_to_obj(src_file) for src_file in settings['sources']]),
-          ' '.join([library_to_a(library) for library in settings['libs']])),
+          ' '.join(implicit_deps)),
       '  ldflags = %s' % ' '.join(ldflags),
       '  solibs = %s' % ' '.join(solibs),
       '  libs = %s' % ' '.join(
           [library_to_a(library) for library in settings['libs']]),
     ])
 
+  if custom_targets:
+    ninja_lines.append('')
+    ninja_lines.extend(custom_targets)
+
   ninja_lines.append('')  # Make sure the file ends with a newline.
 
-  ninja.Phony(
-      'run_tests',
-      inputs=[
-          ninja.RunBinary(
-              'run_gn_unittests',
-              inputs=['gn_unittests' + platform.exe_suffix],
-              args='--quiet',
-          ),
-          ninja.Phony(
-              'run_integration_tests', inputs=[ninja.IntegrationTest('simple')]
-          ),
-      ],
-  )
 
-  with open(path, 'w') as f:
-    f.write('\n'.join(ninja_header_lines))
-    f.write(ninja_template)
-    f.write('\n'.join(ninja_lines))
-    f.write(ninja.write_ninja())
+
+  new_contents = '\n'.join(ninja_header_lines) + ninja_template + '\n'.join(ninja_lines) + ninja.write_ninja()
+  old_contents = ''
+  if os.path.isfile(path):
+    with open(path, 'r') as f:
+      old_contents = f.read()
+
+  if old_contents != new_contents:
+    with open(path, 'w') as f:
+      f.write(new_contents)
+  else:
+    # Update modification time to prevent Ninja dirty loop if generators changed but output is same.
+    os.utime(path, None)
 
   depfile_deps = [
       os.path.relpath(os.path.join(SCRIPT_DIR, 'gen.py'), build_dir),
       os.path.relpath(template_filename, build_dir),
       os.path.relpath(os.path.join(SCRIPT_DIR, 'ninja_file.py'), build_dir),
-  ] + [str(path) for path in ninja.regen_triggers]
+  ] + [str(path) for path in sorted(ninja.regen_triggers)]
   with open(path + '.d', 'w') as f:
     f.write('build.ninja: ' + ' '.join(depfile_deps) + '\n')
 
@@ -421,7 +445,22 @@ def WriteGenericNinja(path, static_libraries, executables,
       subprocess.run(
           ['ninja', '-C', build_dir, '-t', 'compdb'], stdout=f, check=True)
 
+def GetTransitiveFiles(dir_path, exclude_dirs, relative_to):
+  inputs = []
+  for root, dirs, files in os.walk(dir_path):
+    for exc in exclude_dirs:
+      if exc in dirs:
+        dirs.remove(exc)
+    for file in files:
+      rel_path = os.path.relpath(os.path.join(root, file), relative_to)
+      inputs.append(rel_path)
+  return sorted(inputs)
+
 def WriteGNNinja(path, platform, host, options, args_list):
+  starlark_profile = 'debug' if options.debug else 'release'
+  target_subdir = 'x86_64-unknown-linux-gnu/' if platform.is_linux() else ''
+  starlark_lib = f'starlark/{target_subdir}{starlark_profile}/libgn_starlark.a'
+
   if platform.is_msvc():
     cxx = os.environ.get('CXX', 'cl.exe')
     ld = os.environ.get('LD', 'link.exe')
@@ -805,6 +844,9 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/source_dir.cc',
         'src/gn/source_file.cc',
         'src/gn/standard_out.cc',
+        'src/gn/ffi/starlark_session.cc',
+        'src/gn/ffi/cxx_api.cc',
+        'src/gn/ffi/starlark_value.cc',
         'src/gn/string_output_buffer.cc',
         'src/gn/string_utils.cc',
         'src/gn/substitution_list.cc',
@@ -840,6 +882,13 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/util/sys_info.cc',
         'src/util/ticks.cc',
         'src/util/worker_pool.cc',
+      ]},
+      'test_support': {'sources': [
+        'src/gn/test_with_scheduler.cc',
+        'src/gn/test_with_scope.cc',
+        # Provides C++ helpers (like wrapping TestWithScope) exposed to Rust
+        # unit tests via autocxx/FFI.
+        'src/gn/starlark/src/starlark_test_helper.cc',
       ]},
   }
 
@@ -935,8 +984,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/target_public_pair_unittest.cc',
         'src/gn/target_unittest.cc',
         'src/gn/template_unittest.cc',
-        'src/gn/test_with_scheduler.cc',
-        'src/gn/test_with_scope.cc',
         'src/gn/tokenizer_unittest.cc',
         'src/gn/unique_vector_unittest.cc',
         'src/gn/value_unittest.cc',
@@ -1009,13 +1056,67 @@ def WriteGNNinja(path, platform, host, options, args_list):
 
   libs.extend(options.link_libs)
 
+  libs.append('rust_lib.a')
+
+
+  build_dir = os.path.dirname(path)
+  ninja = NinjaFile(platform, REPO_ROOT, build_dir, debug=options.debug)
+
+  starlark_path = ninja.source_file('src/gn/starlark')
+  rust_lib_a = ninja.CargoLibTarget(
+      'rust_lib.a',
+      crate_dir = ninja.source_file('src/gn/starlark'),
+      cargo_flags='--lib',
+  )
+
+  ninja.Phony('rust_lib', inputs=[rust_lib_a])
+
+  lib_prefix = '' if platform.is_msvc() else 'lib'
+  lib_ext = '.lib' if platform.is_msvc() else '.a'
+
+  rust_unittests = ninja.CargoTestTarget(
+      'rust_unittests',
+      crate_dir = ninja.source_file('src/gn/starlark'),
+      cargo_flags='--workspace',
+      implicit_inputs=[
+          f'{lib_prefix}base{lib_ext}',
+          f'{lib_prefix}gn_lib{lib_ext}',
+          f'{lib_prefix}test_support{lib_ext}',
+          f'{lib_prefix}string_atom{lib_ext}',
+      ],
+  )
+
   # we just build static libraries that GN needs
   executables['gn']['libs'].extend(static_libraries.keys())
   executables['gn_unittests']['libs'].extend(static_libraries.keys())
 
+  # Define run_tests target containing run_gn_unittests, cargo unit tests, and integration tests.
+  ninja.Phony(
+      'run_tests',
+      inputs=[
+          ninja.RunBinary(
+              'run_gn_unittests',
+              inputs=['gn_unittests' + platform.exe_suffix],
+              args='--quiet',
+          ),
+          ninja.RunTest(
+              'run_rust_unittests',
+              inputs=[rust_unittests],
+          ),
+          ninja.Phony(
+              'run_integration_tests',
+              inputs=[
+                  ninja.IntegrationTest('simple'),
+                  ninja.IntegrationTest('starlark'),
+              ],
+          ),
+      ],
+  )
+
   WriteGenericNinja(path, static_libraries, executables, cxx, ar, ld,
                     platform, host, options, args_list,
-                    cflags, ldflags, libflags, include_dirs, libs)
+                    cflags, ldflags, libflags, include_dirs, libs,
+                    extra_deps=[], ninja=ninja)
 
 if __name__ == '__main__':
   sys.exit(main(sys.argv[1:]))

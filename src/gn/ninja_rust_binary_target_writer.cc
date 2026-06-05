@@ -249,6 +249,7 @@ void NinjaRustBinaryTargetWriter::WriteCompilerVars() {
   WriteRustCompilerVars(subst, /*indent=*/false, /*always_write=*/true);
 
   WriteSharedVars(subst);
+  WriteCustomSubstitutions(false);
 }
 
 void NinjaRustBinaryTargetWriter::AppendSourcesAndInputsToImplicitDeps(

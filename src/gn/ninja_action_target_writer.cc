@@ -311,4 +311,5 @@ void NinjaActionTargetWriter::WriteNinjaVariablesForAction() {
   target_->action_values().args().FillRequiredTypes(&subst);
   WriteRustCompilerVars(subst, /*indent=*/true, /*always_write=*/false);
   WriteCCompilerVars(subst, /*indent=*/true, /*respect_source_types=*/false);
+  WriteCustomSubstitutions(true);
 }

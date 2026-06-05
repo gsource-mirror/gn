@@ -36,18 +36,28 @@ TEST(SubstitutionPattern, ParseComplex) {
 }
 
 TEST(SubstitutionPattern, ParseErrors) {
+  {
+    SubstitutionPattern pattern;
+    Err err;
+    EXPECT_FALSE(pattern.Parse("AA{{source", nullptr, &err));
+    EXPECT_TRUE(err.has_error());
+  }
+
+  {
+    SubstitutionPattern pattern;
+    Err err;
+    EXPECT_FALSE(pattern.Parse("{{source{{source}}", nullptr, &err));
+    EXPECT_TRUE(err.has_error());
+  }
+}
+
+TEST(SubstitutionPattern, ParseCustom) {
   SubstitutionPattern pattern;
   Err err;
-  EXPECT_FALSE(pattern.Parse("AA{{source", nullptr, &err));
-  EXPECT_TRUE(err.has_error());
-
-  err = Err();
-  EXPECT_FALSE(pattern.Parse("{{source_of_evil}}", nullptr, &err));
-  EXPECT_TRUE(err.has_error());
-
-  err = Err();
-  EXPECT_FALSE(pattern.Parse("{{source{{source}}", nullptr, &err));
-  EXPECT_TRUE(err.has_error());
+  EXPECT_TRUE(pattern.Parse("{{source_of_evil}}", nullptr, &err));
+  EXPECT_SUCCESS(err);
+  ASSERT_EQ(1u, pattern.ranges().size());
+  EXPECT_EQ(GetOrCreateCustomSubstitution("source_of_evil"), pattern.ranges()[0].type);
 }
 
 TEST(SubstitutionPattern, ParseRust) {

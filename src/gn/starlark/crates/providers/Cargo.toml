@@ -1,0 +1,22 @@
+[package]
+name = "providers"
+version = "0.1.0"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[lib]
+
+[dependencies]
+types = { path = "../types" }
+depset = { path = "../depset" }
+starlark = { workspace = true }
+starlark_derive = { workspace = true }
+starlark_map = { version = "0.14" }
+allocative = { workspace = true }
+thiserror = { workspace = true }
+either = { workspace = true }
+
+[dev-dependencies]
+testutils = { path = "../testutils" }

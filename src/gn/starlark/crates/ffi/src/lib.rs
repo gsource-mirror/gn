@@ -65,5 +65,7 @@
 
 pub mod label;
 pub mod opaque;
+pub mod settings;
 
 pub use label::{Label, SourceDir};
+pub use settings::Settings;

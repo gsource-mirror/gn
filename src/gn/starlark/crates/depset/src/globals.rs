@@ -89,7 +89,7 @@ pub fn depset_constructor<'v, C: types::EvalContext>(
                 order,
                 direct: child_depset.direct.clone(),
                 transitive: child_depset.transitive.clone(),
-                kind: child_depset.kind.clone(),
+                kind: child_depset.kind,
                 phony: child_depset.phony.clone(),
             }))
         }

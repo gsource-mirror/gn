@@ -7,12 +7,14 @@ use types::{EvaluatorContextExt, UnpackedOwnedValue};
 
 use crate::{register_globals, FakeEvalContext};
 
+type GlobalsConfig = Box<dyn Fn(&mut GlobalsBuilder)>;
+
 /// A simple wrapper around starlark::Assert that provides fake evaluation
 /// contexts.
 pub struct Assert {
     assert: starlark::assert::Assert<'static>,
     context: Box<FakeEvalContext>,
-    globals_configs: Vec<Box<dyn Fn(&mut GlobalsBuilder)>>,
+    globals_configs: Vec<GlobalsConfig>,
 }
 
 impl Default for Assert {

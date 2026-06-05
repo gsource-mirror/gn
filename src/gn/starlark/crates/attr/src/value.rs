@@ -203,18 +203,15 @@ impl Attr {
             crate::LabelOrFile::Label(lbl) => {
                 let target = session.get_target(lbl.as_ref(), *current_toolchain);
                 if let Some(matcher) = schema.file_matcher() {
-                    match matcher {
-                        crate::allow_files::AllowFiles::Some(exts) => {
-                            if !target.outputs().iter().any(|f| matcher.matches(f.as_str())) {
-                                return Err(starlark::Error::new_other(
-                                    crate::Error::NoMatchingOutputs {
-                                        target: lbl.clone(),
-                                        allowed: exts.clone(),
-                                    },
-                                ));
-                            }
-                        },
-                        _ => {},
+                    if let crate::allow_files::AllowFiles::Some(exts) = matcher {
+                        if !target.outputs().iter().any(|f| matcher.matches(f.as_str())) {
+                            return Err(starlark::Error::new_other(
+                                crate::Error::NoMatchingOutputs {
+                                    target: lbl.clone(),
+                                    allowed: exts.clone(),
+                                },
+                            ));
+                        }
                     }
                 }
                 for f in target.outputs() {
@@ -349,7 +346,7 @@ mod tests {
                     .items,
                 vec![&file1]
             );
-            assert_eq!(file, None)
+            assert_eq!(file, None);
         });
     }
 

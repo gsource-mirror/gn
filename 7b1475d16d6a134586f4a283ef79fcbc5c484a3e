@@ -1,0 +1,39 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "927e996d_ffb4347e",
+        "filename": "src/gn/command_format.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1551,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-06-05T17:27:06Z",
+      "side": 1,
+      "message": "Don\u0027t forget to remove.",
+      "fixSuggestions": [
+        {
+          "fixId": "d2c3fc95_0f6b69be",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_format.cc",
+              "range": {
+                "startLine": 1551,
+                "startChar": 0,
+                "endLine": 1553,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "7b1475d16d6a134586f4a283ef79fcbc5c484a3e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -17,6 +17,7 @@
 #include "gn/config.h"
 #include "gn/config_values_generator.h"
 #include "gn/err.h"
+#include "gn/ffi/session.h"
 #include "gn/input_file.h"
 #include "gn/parse_node_value_adapter.h"
 #include "gn/parse_tree.h"
@@ -690,6 +691,49 @@ Value RunImport(Scope* scope,
     scope->settings()->import_manager().DoImport(import_file, function, scope,
                                                  err);
   }
+  return Value();
+}
+
+// load -----------------------------------------------------------------------
+
+const char kLoad[] = "load";
+const char kLoad_HelpShort[] =
+    "load: Load variables from a starlark file into the current scope.";
+const char kLoad_Help[] =
+    R"(load: Load a starlark file into the current scope.
+
+  Leave it blank for now.
+)";
+
+Value RunLoad(Scope* scope,
+              const FunctionCallNode* function,
+              const ListNode* args_list,
+              Err* err) {
+  const std::vector<std::unique_ptr<const ParseNode>>& args =
+      args_list->contents();
+  if (args.size() < 2) {
+    *err = Err(function->function(), "Incorrect arguments.",
+               "This function requires at least a file to import and a list of "
+               "variables to load.");
+    return Value();
+  }
+
+  std::vector<Value> values;
+  values.reserve(args.size());
+  for (const auto& arg : args) {
+    Value val = arg->Execute(scope, err);
+    if (err->has_error()) {
+      return Value();
+    }
+    values.emplace_back(std::move(val));
+  }
+
+  const ::Session& loader =
+      scope->settings()->build_settings()->starlark_session();
+
+  session_load(loader, values[0], std::span(values).subspan(1), *scope,
+               ParseNodePtr{function}, *err);
+
   return Value();
 }
 
@@ -1536,6 +1580,7 @@ struct FunctionInfoInitializer {
     INSERT_FUNCTION(GetPathInfo, false)
     INSERT_FUNCTION(GetTargetOutputs, false)
     INSERT_FUNCTION(Import, false)
+    INSERT_FUNCTION(Load, false)
     INSERT_FUNCTION(LabelMatches, false)
     INSERT_FUNCTION(Len, false)
     INSERT_FUNCTION(NotNeeded, false)

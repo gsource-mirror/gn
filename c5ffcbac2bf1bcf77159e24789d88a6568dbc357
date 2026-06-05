@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9ae1b95_59925a34",
+        "filename": "src/gn/builder.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-06-05T11:21:07Z",
+      "side": 1,
+      "message": "From review agent:\n\nThis logic appears to be inverted.\n\nIf `target-\u003econtents().type() !\u003d Value::NONE`, it is a target with explicit \u0027contents\u0027 which, according to the commit message and `NinjaGeneratedFileTargetWriter::Run()`, should be written immediately for performance.\n\nThe targets that perform metadata walks (and thus need to be delayed to avoid the race condition) are those where `target-\u003econtents().type() \u003d\u003d Value::NONE`.\n\nAs written, metadata-based files won\u0027t be recorded here and won\u0027t be written at the end of the build, while content-based files will be written twice (once in the target writer and once in the delayed callback).\n\n----\n\nAARGH, this is why this CL is faster, but it also means the problem is not completely fixed by it. If I correct the comparison here, we\u0027re back to 15%-20% slow down in `gn gen` time.\n\nWe\u0027re going to need to remove validations from metadata walks entirely after all. Damn, what a waste of time. Adding another -1 here.",
+      "range": {
+        "startLine": 560,
+        "startChar": 0,
+        "endLine": 560,
+        "endChar": 0
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "e6ae9ff4_075ec08e",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/builder.cc",
+              "range": {
+                "startLine": 560,
+                "startChar": 0,
+                "endLine": 561,
+                "endChar": 0
+              },
+              "replacement": "        target-\u003econtents().type() \u003d\u003d Value::NONE)\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c5ffcbac2bf1bcf77159e24789d88a6568dbc357",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

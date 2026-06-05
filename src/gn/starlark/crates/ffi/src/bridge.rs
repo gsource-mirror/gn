@@ -82,8 +82,8 @@ mod dummy {
             keys: &[&str],
             out_scope: &mut UniquePtr<Scope>,
         ) -> SliceAny;
-        // Returns an OwnedSlice<KeyValue> corresponding to references to each element.
         pub(in crate::scope) fn GetScopeItems(scope: &Scope) -> SliceAny;
+        pub(in crate::scope) fn GetValue(scope: &Scope, ident: &str) -> *const Value;
         #[rust_name = "settings_cxx"]
         pub(in crate::scope) fn settings(self: &Scope) -> *const Settings;
 

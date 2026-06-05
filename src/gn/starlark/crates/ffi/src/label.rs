@@ -4,26 +4,18 @@
 
 use types::{LabelRef, PackageRef};
 
-use crate::declare_opaque_type;
-declare_opaque_type!(pub Label);
+use crate::bridge::{Label, SourceDir};
+use crate::types::CxxStringExt;
 
 impl Label {
     /// Returns the directory part of the label (the package path).
     pub fn package(&self) -> &PackageRef {
-        extern "C" {
-            fn GetLabelDir(label: &Label) -> &SourceDir;
-        }
-        // Safety: Just an FFI function.
-        unsafe { GetLabelDir(self) }.as_rust()
+        self.dir().as_rust()
     }
 
     /// Returns the name part of the label.
     pub fn name(&self) -> &str {
-        extern "C" {
-            fn GetLabelName(label: &Label) -> &str;
-        }
-        // Safety: Just an FFI function.
-        unsafe { GetLabelName(self) }
+        self.name_cxx().as_str()
     }
 
     /// Returns a `LabelRef` referencing the directory and name of this label.
@@ -32,21 +24,27 @@ impl Label {
     }
 }
 
-declare_opaque_type!(pub SourceDir);
-
 impl SourceDir {
     pub fn as_rust(&self) -> &types::PackageRef {
-        extern "C" {
-            fn GetSourceDirValue(dir: &SourceDir) -> &str;
-        }
-        // Safety: Just an FFI function.
-        let s = unsafe { GetSourceDirValue(self) };
-        // While source dirs aren't guarunteed to start with "//" (they may be
-        // absolute), we only convert source dirs to rust for either labels or
-        // BUILD.gn directories, both of which are guarunteed to be
-        // source-relative.
+        let s = self.SourceWithNoTrailingSlash().as_str();
         debug_assert!(s.starts_with("//"));
-        // Safety: Guarunteed to be a valid package.
+        // Safety: All SourceDir objects passed to rust should start with //
         unsafe { types::PackageRef::new_unchecked(s) }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use types::{LabelRef, PackageRef};
+
+    use crate::TestWithScope;
+
+    #[test]
+    fn test_label() {
+        let mut setup = TestWithScope::new();
+        assert_eq!(
+            setup.scope().settings().toolchain(),
+            LabelRef::new(PackageRef::new_for_testing("//toolchain"), "default")
+        )
     }
 }

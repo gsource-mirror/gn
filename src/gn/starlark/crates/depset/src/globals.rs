@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+
 use starlark::{
     collections::SmallSet,
     values::{list::UnpackList, Heap, UnpackValue as _, Value, ValueLike as _},
@@ -136,6 +137,47 @@ pub fn depset_constructor<'v, C: types::EvalContext>(
     }
 }
 
+#[doc(hidden)]
+pub mod __private {
+    pub use starlark::environment::GlobalsBuilder;
+    pub use starlark::eval::Evaluator;
+    pub use starlark::values::{list::UnpackList, Value};
+    pub use starlark::Result;
+    pub use starlark_derive::starlark_module;
+    pub use types::EvaluatorContextExt;
+}
+
+/// Helper macro to register the `depset` function.
+/// Required because this module isn't aware of the real EvaluatorContext type.
+#[macro_export]
+macro_rules! depset_globals {
+    ($builder:expr, $ctx_type:ty) => {
+        {
+            #[$crate::__private::starlark_module]
+            fn depset_globals(builder: &mut $crate::__private::GlobalsBuilder) {
+                fn depset<'v>(
+                    direct: Option<$crate::__private::UnpackList<$crate::__private::Value<'v>>>,
+                    transitive: Option<$crate::__private::UnpackList<$crate::UnpackDepset<'v>>>,
+                    #[starlark(default = $crate::Order::Unspecified)] order: $crate::Order,
+                    eval: &mut $crate::__private::Evaluator<'v, '_, '_>,
+                ) -> starlark::Result<$crate::__private::Value<'v>> {
+                    use $crate::__private::EvaluatorContextExt;
+
+                    $crate::depset_constructor::<$ctx_type>(
+                        direct,
+                        transitive,
+                        order,
+                        &eval.heap(),
+                        eval.context_mut(),
+                    )
+                }
+            }
+
+            depset_globals($builder);
+        }
+    };
+}
+
 #[cfg(test)]
 pub(crate) mod tests {
     use starlark::{environment::GlobalsBuilder, eval::Evaluator};
@@ -146,13 +188,6 @@ pub(crate) mod tests {
 
     #[starlark_module]
     pub(crate) fn test_globals(builder: &mut GlobalsBuilder) {
-        fn make_file<'v>(
-            eval: &mut Evaluator<'v, '_, '_>,
-            path: String,
-        ) -> starlark::Result<Value<'v>> {
-            Ok(eval.heap().alloc(types::File::intern(&path)))
-        }
-
         fn new_file_depset<'v>(
             files: UnpackList<&File>,
             eval: &mut Evaluator<'v, '_, '_>,
@@ -162,26 +197,14 @@ pub(crate) mod tests {
             let direct = files.items.into_iter().cloned().collect();
             Depset::new_file_depset(direct, &heap, ctx)
         }
-
-        fn depset<'v>(
-            direct: Option<UnpackList<Value<'v>>>,
-            transitive: Option<UnpackList<crate::UnpackDepset<'v>>>,
-            #[starlark(default = crate::Order::Unspecified)] order: crate::Order,
-            eval: &mut Evaluator<'v, '_, '_>,
-        ) -> starlark::Result<Value<'v>> {
-            crate::depset_constructor::<testutils::FakeEvalContext>(
-                direct,
-                transitive,
-                order,
-                &eval.heap(),
-                eval.context_mut(),
-            )
-        }
     }
 
     pub(crate) fn new_assert() -> testutils::Assert {
         let mut a = testutils::Assert::default();
-        a.globals_add(test_globals);
+        a.modify_globals(|builder| {
+            test_globals(builder);
+            depset_globals!(builder, testutils::FakeEvalContext);
+        });
         a
     }
 }

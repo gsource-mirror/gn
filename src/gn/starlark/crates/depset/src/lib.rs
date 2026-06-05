@@ -10,5 +10,5 @@ mod unpack;
 
 pub use depset::{Depset, DepsetGen, FrozenDepset, Kind, Order};
 pub use errors::Error;
-pub use globals::depset_constructor;
+pub use globals::{depset_constructor, __private};
 pub use unpack::{UnpackDepset, UnpackFileDepset};

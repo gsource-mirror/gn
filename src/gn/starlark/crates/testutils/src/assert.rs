@@ -2,16 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use starlark::values::UnpackValue;
+use starlark::{environment::GlobalsBuilder, values::UnpackValue};
 use types::{EvaluatorContextExt, UnpackedOwnedValue};
 
-use crate::FakeEvalContext;
+use crate::{register_globals, FakeEvalContext};
 
 /// A simple wrapper around starlark::Assert that provides fake evaluation
 /// contexts.
 pub struct Assert {
     assert: starlark::assert::Assert<'static>,
     context: Box<FakeEvalContext>,
+    globals_configs: Vec<Box<dyn Fn(&mut GlobalsBuilder)>>,
 }
 
 impl Default for Assert {
@@ -43,7 +44,25 @@ impl Assert {
             eval.set_context(context_mut);
         });
 
-        Self { assert, context }
+        let mut s = Self {
+            assert,
+            context,
+            globals_configs: vec![],
+        };
+        s.modify_globals(register_globals);
+        s
+    }
+
+    /// Adds a modifier to globals.
+    /// This modifier is applied after all existing modifiers.
+    pub fn modify_globals(&mut self, f: impl Fn(&mut GlobalsBuilder) + 'static) {
+        self.globals_configs.push(Box::new(f));
+        // globals_add overwrites all previous calls to globals_add.
+        self.assert.globals_add(|builder| {
+            for config in &self.globals_configs {
+                config(builder);
+            }
+        });
     }
 
     /// Returns a read-only reference to the fake evaluation context.
@@ -79,11 +98,10 @@ impl Assert {
     }
 
     // We explicitly implement `pass`, `fail`, and `fails` with `&mut self`
-    // signatures despite `Deref` existing. The inherited methods on
-    // `starlark::assert::Assert` only take `&self`, which would bypass the
-    // borrow checker and allow running the evaluator while holding an active
-    // context borrow (leading to UB). Exposing them as `&mut self` methods on
-    // the wrapper statically prevents this.
+    // signatures. The inherited methods on `starlark::assert::Assert` only
+    // take `&self`, which would bypass the borrow checker and allow running
+    // the evaluator while holding an active context borrow (leading to UB).
+    // Exposing them as `&mut self` methods on the wrapper statically prevents this.
 
     /// Evaluates code and returns the Starlark value.
     #[track_caller]
@@ -101,20 +119,5 @@ impl Assert {
     #[track_caller]
     pub fn fails(&mut self, code: &str, expected_errors: &[&str]) -> starlark::Error {
         self.assert.fails(code, expected_errors)
-    }
-}
-
-// We implement deref to get for free all the methods on starlark::Assert.
-impl std::ops::Deref for Assert {
-    type Target = starlark::assert::Assert<'static>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.assert
-    }
-}
-
-impl std::ops::DerefMut for Assert {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.assert
     }
 }

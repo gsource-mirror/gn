@@ -730,9 +730,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/gn/err.cc',
               'src/gn/escape.cc',
               'src/gn/exec_process.cc',
-              'src/gn/ffi/label.cc',
-              'src/gn/ffi/output_file.cc',
-              'src/gn/ffi/settings.cc',
+              'src/gn/ffi/bridge.cc',
               'src/gn/filesystem_utils.cc',
               'src/gn/file_writer.cc',
               'src/gn/frameworks_utils.cc',
@@ -854,6 +852,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/util/sys_info.cc',
               'src/util/ticks.cc',
               'src/util/worker_pool.cc',
+              'src/gn/test_with_scope.cc',
           ]
       },
   }
@@ -952,7 +951,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/target_unittest.cc',
         'src/gn/template_unittest.cc',
         'src/gn/test_with_scheduler.cc',
-        'src/gn/test_with_scope.cc',
         'src/gn/tokenizer_unittest.cc',
         'src/gn/unique_vector_unittest.cc',
         'src/gn/value_unittest.cc',
@@ -1028,9 +1026,37 @@ def WriteGNNinja(path, platform, host, options, args_list):
   executables['gn']['libs'].extend(static_libraries.keys())
   executables['gn_unittests']['libs'].extend(static_libraries.keys())
 
+  import json
+  rust_config = {
+      'string_view_ptr_first': detect_string_view_ptr_first(cxx, cflags, platform)
+  }
+  with open(os.path.join(options.out_path, 'rust_config.json'), 'w') as f:
+      json.dump(rust_config, f)
+
   WriteGenericNinja(path, static_libraries, executables, cxx, ar, ld,
                     platform, host, options, args_list,
                     cflags, ldflags, libflags, include_dirs, libs)
+
+def detect_string_view_ptr_first(cxx, cflags, platform):
+  if platform.is_windows() or platform.is_darwin():
+    return True
+
+  import subprocess
+  cmd_args = [cxx]
+  for flag in cflags:
+    if flag.startswith('-std=') or flag.startswith('-stdlib=') or flag.startswith('--target='):
+      cmd_args.append(flag)
+  cmd_args.extend(['-E', '-'])
+  try:
+    ret = subprocess.run(
+        cmd_args,
+        input='#include <string_view>\n#ifdef _LIBCPP_VERSION\nIS_LIBCXX\n#endif',
+        capture_output=True,
+        text=True,
+        check=True)
+    return 'IS_LIBCXX' in ret.stdout
+  except Exception:
+    return False
 
 if __name__ == '__main__':
   sys.exit(main(sys.argv[1:]))

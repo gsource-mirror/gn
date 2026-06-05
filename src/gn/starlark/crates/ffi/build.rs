@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 fn main() {
+    println!("cargo:rustc-check-cfg=cfg(string_view_ptr_first)");
     // When running with ninja, it should set NINJA_OUT_DIR.
     // If running directly with cargo, we know nothing about the output directory,
     // so we fall back to assuming the default one.
@@ -15,4 +16,16 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", out_dir.display());
     println!("cargo:rustc-link-lib=static=gn_lib");
     println!("cargo:rustc-link-lib=static=base");
+
+    if detect_string_view_ptr_first(&out_dir) {
+        println!("cargo:rustc-cfg=string_view_ptr_first");
+    }
+}
+
+fn detect_string_view_ptr_first(out_dir: &std::path::Path) -> bool {
+    if let Ok(content) = std::fs::read_to_string(out_dir.join("rust_config.json")) {
+        content.contains("\"string_view_ptr_first\": true")
+    } else {
+        false
+    }
 }

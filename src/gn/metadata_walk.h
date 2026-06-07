@@ -17,8 +17,8 @@
 // returns the list of metadata values.
 std::vector<Value> WalkMetadata(
     const UniqueVector<const Target*>& targets_to_walk,
-    const std::vector<std::string>& keys_to_extract,
-    const std::vector<std::string>& keys_to_walk,
+    const std::vector<std::string>& data_keys,
+    const std::vector<std::string>& walk_keys,
     const SourceDir& rebase_dir,
     TargetSet* targets_walked,
     Err* err);

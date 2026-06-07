@@ -146,20 +146,20 @@ Common Uses
 )";
 
 bool Metadata::WalkStep(const BuildSettings* settings,
-                        const std::vector<std::string>& keys_to_extract,
-                        const std::vector<std::string>& keys_to_walk,
+                        const std::vector<std::string>& data_keys,
+                        const std::vector<std::string>& walk_keys,
                         const SourceDir& rebase_dir,
-                        std::vector<Value>* next_walk_keys,
+                        std::vector<Value>* next_walk_labels,
                         std::vector<Value>* result,
                         Err* err) const {
   // If there's no metadata, there's nothing to find, so quick exit.
   if (contents_.empty()) {
-    next_walk_keys->emplace_back(nullptr, "");
+    next_walk_labels->emplace_back(nullptr, "");
     return true;
   }
 
   // Pull the data from each specified key.
-  for (const auto& key : keys_to_extract) {
+  for (const auto& key : data_keys) {
     auto iter = contents_.find(key);
     if (iter == contents_.end())
       continue;
@@ -179,11 +179,11 @@ bool Metadata::WalkStep(const BuildSettings* settings,
     }
   }
 
-  // Get the targets to look at next. If no keys_to_walk are present, we push
+  // Get the targets to look at next. If no walk_keys are present, we push
   // the empty string to the list so that the target knows to include its deps
   // and data_deps. The values used here must be lists of strings.
   bool found_walk_key = false;
-  for (const auto& key : keys_to_walk) {
+  for (const auto& key : walk_keys) {
     auto iter = contents_.find(key);
     if (iter != contents_.end()) {
       found_walk_key = true;
@@ -191,13 +191,13 @@ bool Metadata::WalkStep(const BuildSettings* settings,
       for (const auto& val : iter->second.list_value()) {
         if (!val.VerifyTypeIs(Value::STRING, err))
           return false;
-        next_walk_keys->emplace_back(val);
+        next_walk_labels->emplace_back(val);
       }
     }
   }
 
   if (!found_walk_key)
-    next_walk_keys->emplace_back(nullptr, "");
+    next_walk_labels->emplace_back(nullptr, "");
 
   return true;
 }

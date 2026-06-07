@@ -6,16 +6,16 @@
 
 std::vector<Value> WalkMetadata(
     const UniqueVector<const Target*>& targets_to_walk,
-    const std::vector<std::string>& keys_to_extract,
-    const std::vector<std::string>& keys_to_walk,
+    const std::vector<std::string>& data_keys,
+    const std::vector<std::string>& walk_keys,
     const SourceDir& rebase_dir,
     TargetSet* targets_walked,
     Err* err) {
   std::vector<Value> result;
   for (const auto* target : targets_to_walk) {
     if (targets_walked->add(target)) {
-      if (!target->GetMetadata(keys_to_extract, keys_to_walk, rebase_dir, false,
-                               &result, targets_walked, err))
+      if (!target->GetMetadata(data_keys, walk_keys, rebase_dir, false, &result,
+                               targets_walked, err))
         return std::vector<Value>();
     }
   }

@@ -48,14 +48,14 @@ class Metadata {
 
   // Collect the specified metadata from this instance.
   //
-  // Calling this will populate `next_walk_keys` with the values of targets to
+  // Calling this will populate `next_walk_labels` with the values of targets to
   // be walked next (with the empty string "" indicating that the target should
   // walk all of its deps and data_deps).
   bool WalkStep(const BuildSettings* settings,
-                const std::vector<std::string>& keys_to_extract,
-                const std::vector<std::string>& keys_to_walk,
+                const std::vector<std::string>& data_keys,
+                const std::vector<std::string>& walk_keys,
                 const SourceDir& rebase_dir,
-                std::vector<Value>* next_walk_keys,
+                std::vector<Value>* next_walk_labels,
                 std::vector<Value>* result,
                 Err* err) const;
 

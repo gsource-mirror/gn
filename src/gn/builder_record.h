@@ -123,7 +123,7 @@ class BuilderRecord {
  public:
   using BuilderRecordSet = PointerSet<BuilderRecord>;
 
-  enum ItemType : char {
+  enum ItemType : unsigned char {
     ITEM_UNKNOWN,
     ITEM_TARGET,
     ITEM_CONFIG,
@@ -131,12 +131,16 @@ class BuilderRecord {
     ITEM_POOL
   };
 
-  enum RecordState : char {
+  enum RecordState : unsigned char {
     STATE_INIT,
     STATE_DEFINED,
     STATE_RESOLVED,
     STATE_FINALIZED,
   };
+
+#if DEBUG_BUILDER_RECORD
+  static const char* ToDebugCString(RecordState);
+#endif  // DEBUG_BUILDER_RECORD
 
   BuilderRecord(ItemType type,
                 const Label& label,
@@ -183,21 +187,8 @@ class BuilderRecord {
   void AddGenDep(BuilderRecord* dep_record);
   void AddValidationDep(BuilderRecord* dep_record);
 
-  // Iterate over all records waiting on this one to be defined, and call
-  // |func| on each one that no longer needs to wait. If |func| returns
-  // false, stop and return false.
-  template <typename Func>
-  bool NotifyDependentsWaitingOnValidationDefinition(Func&& func) {
-    for (auto& pair : waiting_map_) {
-      if (pair.second.wait_validation_defined) {
-        pair.second.wait_validation_defined = false;
-        BuilderRecord* waiting = pair.first;
-        if (waiting->OnDefinedValidationDep(this) && !func(waiting))
-          return false;
-      }
-    }
-    return true;
-  }
+  // Return current record state.
+  RecordState state() const { return state_; }
 
   // Returns true if the items has been resolved.
   bool is_resolved() const { return state_ >= STATE_RESOLVED; }
@@ -218,33 +209,20 @@ class BuilderRecord {
   // NotifyDependentsWaitingOnValidationResolution().
   void SetResolved();
 
-  // Iterate over all records waiting on this one to be resolved, and call
-  // |func| on each one that no longer needs to wait. If |func| returns false,
-  // stop and return false.
-  template <typename Func>
-  bool NotifyDependentsWaitingOnResolution(Func&& func) {
-    for (auto& pair : waiting_map_) {
-      if (pair.second.wait_resolved) {
-        pair.second.wait_resolved = false;
-        BuilderRecord* waiting = pair.first;
-        if (waiting->OnResolvedDep(this) && !func(waiting))
-          return false;
-      }
-    }
-    return true;
-  }
-
-  // Iterate over all records waiting on this one to be resolved as a
-  // validation, and call |func| on each one that no longer needs to wait. If
-  // |func| returns false, stop and return false.
-  template <typename Func>
-  bool NotifyDependentsWaitingOnValidationResolution(Func&& func) {
-    for (auto& pair : waiting_map_) {
-      if (pair.second.wait_validation_resolved) {
-        pair.second.wait_validation_resolved = false;
-        BuilderRecord* waiting = pair.first;
-        if (waiting->OnResolvedValidationDep(this) && !func(waiting))
-          return false;
+  // Notiyfy all dependents that the current record's item state
+  // has changed. |update_state()| will be called for any
+  // dependent whose state may change itself. |from_state| is
+  // the initial state the record had before its current one.
+  // Return true on success, or false in case of error.
+  template <typename UPDATE_DEPENDENT>
+  bool NotifyDependentsOfStateChange(RecordState from_state,
+                                     UPDATE_DEPENDENT update_dependent) {
+    if (from_state != state_) {
+      for (auto& pair : waiting_map_) {
+        BuilderRecord* dependent = pair.first;
+        if (dependent->OnDepStateChange(this, from_state, state_, pair.second))
+          if (!update_dependent(dependent))
+            return false;
       }
     }
     return true;
@@ -262,22 +240,6 @@ class BuilderRecord {
   // Change the state to Finalized. This requires can_finalize() to be true.
   // Callers should then call NotifyDependentsWaitingOnFinalization().
   void SetFinalized();
-
-  // Iterate over all records waiting on this one to be finalized, and call
-  // |func| on each one that no longer needs to wait. If |func| returns false,
-  // stop and return false.
-  template <typename Func>
-  bool NotifyDependentsWaitingOnFinalization(Func&& func) {
-    for (auto& pair : waiting_map_) {
-      if (pair.second.wait_finalized) {
-        pair.second.wait_finalized = false;
-        BuilderRecord* waiting = pair.first;
-        if (waiting->OnFinalizedDep(this) && !func(waiting))
-          return false;
-      }
-    }
-    return true;
-  }
 
   // All records this one is depending on. Note that this includes gen_deps for
   // targets, which can have cycles.
@@ -384,6 +346,11 @@ class BuilderRecord {
     bool wait_validation_resolved = false;
   };
   base::flat_map<BuilderRecord*, WaitInfo> waiting_map_;
+
+  bool OnDepStateChange(BuilderRecord* dep,
+                        RecordState from_state,
+                        RecordState to_state,
+                        WaitInfo& wait_info);
 
   BuilderRecord(const BuilderRecord&) = delete;
   BuilderRecord& operator=(const BuilderRecord&) = delete;

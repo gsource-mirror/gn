@@ -121,6 +121,10 @@ class Builder {
 
   void ScheduleItemLoadIfNecessary(BuilderRecord* record);
 
+  bool UpdateItem(BuilderRecord* record,
+                  BuilderRecord::RecordState prev_state,
+                  Err* err);
+
   // This takes a BuilderRecord with resolved dependencies, and fills in the
   // target's Label*Vectors with the resolved pointers.
   bool ResolveItem(BuilderRecord* record, Err* err);

@@ -145,9 +145,99 @@ Common Uses
   to put together the correct image.
 )";
 
+Metadata::KeyList::KeyList(const std::vector<std::string>& keys) {
+  this->reserve(keys.size());
+  for (const auto& key : keys)
+    this->emplace_back(StringAtom(key));
+}
+
+Metadata::Contents::Contents() = default;
+
+Metadata::Contents::Contents(const Scope::KeyValueListView& content) {
+  size_t total_count = 0;
+  for (const auto& pair : content) {
+    DCHECK(pair.second->type() == Value::LIST);
+    const std::vector<Value>& key_list_values = pair.second->list_value();
+    total_count += key_list_values.size();
+  }
+
+  values_.reserve(total_count);
+
+  uint32_t start = 0;
+  for (const auto& pair : content) {
+    StringAtom key_atom(pair.first);
+    const std::vector<Value>& key_list_values = pair.second->list_value();
+    uint32_t count = static_cast<uint32_t>(key_list_values.size());
+    keys_.emplace(key_atom, ValueRange{start, count});
+    start += count;
+    for (const Value& val : key_list_values)
+      values_.push_back(val);
+  }
+}
+
+std::pair<bool, std::span<const Value>> Metadata::Contents::Lookup(
+    std::string_view key) const {
+  return LookupAtom(StringAtom(key));
+}
+
+std::pair<bool, std::span<const Value>> Metadata::Contents::LookupAtom(
+    StringAtom key) const {
+  auto it = keys_.find(key);
+  if (it == keys_.end())
+    return {false, {}};
+
+  return std::make_pair(
+      true, std::span<const Value>(values_.begin() + it->second.start,
+                                   it->second.count));
+}
+
+std::pair<bool, Value> Metadata::Contents::LookupForTest(
+    std::string_view key) const {
+  auto ret = Lookup(key);
+  if (!ret.first) {
+    return {false, Value()};
+  }
+  Value list(nullptr, Value::LIST);
+  std::vector<Value>& list_values = list.list_value();
+  list_values.reserve(ret.second.size());
+  for (const Value& val : ret.second)
+    list_values.push_back(val);
+
+  return {true, std::move(list)};
+}
+
+Metadata::Contents::MapView Metadata::Contents::ToMapView() const {
+  MapView result;
+  result.reserve(keys_.size());
+  for (const auto& pair : keys_) {
+    result.emplace(pair.first.str(),
+                   std::span<const Value>(values_.begin() + pair.second.start,
+                                          pair.second.count));
+  }
+  return result;
+}
+
+void Metadata::Contents::InsertForTest(std::string_view key,
+                                       const Value& value) {
+  DCHECK(value.type() == Value::LIST);
+  const std::vector<Value>& list_values = value.list_value();
+
+  uint32_t start = static_cast<uint32_t>(values_.size());
+  uint32_t count = static_cast<uint32_t>(list_values.size());
+
+  for (const Value& val : list_values)
+    values_.push_back(val);
+
+  auto ret = keys_.emplace(StringAtom(key), ValueRange{start, count});
+  if (!ret.second) {
+    ret.first->second.start = start;
+    ret.first->second.count = count;
+  }
+}
+
 bool Metadata::WalkStep(const BuildSettings* settings,
-                        const std::vector<std::string>& data_keys,
-                        const std::vector<std::string>& walk_keys,
+                        const KeyList& data_keys,
+                        const KeyList& walk_keys,
                         const SourceDir& rebase_dir,
                         std::vector<Value>* next_walk_labels,
                         std::vector<Value>* result,
@@ -160,22 +250,21 @@ bool Metadata::WalkStep(const BuildSettings* settings,
 
   // Pull the data from each specified key.
   for (const auto& key : data_keys) {
-    auto iter = contents_.find(key);
-    if (iter == contents_.end())
+    auto ret = contents_.LookupAtom(key);
+    if (!ret.first)
       continue;
-    assert(iter->second.type() == Value::LIST);
 
     if (!rebase_dir.is_null()) {
-      for (const auto& val : iter->second.list_value()) {
+      for (const Value& val : ret.second) {
         std::pair<Value, bool> pair =
             this->RebaseValue(settings, rebase_dir, val, err);
         if (!pair.second)
           return false;
-        result->push_back(pair.first);
+        result->push_back(std::move(pair.first));
       }
     } else {
-      result->insert(result->end(), iter->second.list_value().begin(),
-                     iter->second.list_value().end());
+      for (const Value& val : ret.second)
+        result->push_back(val);
     }
   }
 
@@ -184,11 +273,10 @@ bool Metadata::WalkStep(const BuildSettings* settings,
   // and data_deps. The values used here must be lists of strings.
   bool found_walk_key = false;
   for (const auto& key : walk_keys) {
-    auto iter = contents_.find(key);
-    if (iter != contents_.end()) {
+    auto ret = contents_.LookupAtom(key);
+    if (ret.first) {
       found_walk_key = true;
-      assert(iter->second.type() == Value::LIST);
-      for (const auto& val : iter->second.list_value()) {
+      for (const Value& val : ret.second) {
         if (!val.VerifyTypeIs(Value::STRING, err))
           return false;
         next_walk_labels->emplace_back(val);

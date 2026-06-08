@@ -297,16 +297,18 @@ bool TargetGenerator::FillMetadata() {
 
   Scope* scope_value = value->scope_value();
 
-  scope_value->GetCurrentScopeValues(&target_->metadata().contents());
-  scope_value->MarkAllUsed();
+  Scope::KeyValueListView metadata_view = scope_value->GetCurrentScopeValues();
 
   // Metadata values should always hold lists of Values, such that they can be
   // collected and concatenated. Any additional specific type verification is
   // done at walk time.
-  for (const auto& iter : target_->metadata().contents()) {
-    if (!iter.second.VerifyTypeIs(Value::LIST, err_))
+  for (const auto& iter : metadata_view) {
+    if (!iter.second->VerifyTypeIs(Value::LIST, err_))
       return false;
   }
+
+  target_->metadata().set_contents(Metadata::Contents(metadata_view));
+  scope_value->MarkAllUsed();
 
   target_->metadata().set_source_dir(scope_->GetSourceDir());
   target_->metadata().set_origin(value->origin());

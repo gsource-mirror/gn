@@ -16,26 +16,22 @@ TEST(MetadataWalkTest, CollectNoRecurse) {
   TestTarget one(setup, "//foo:one", Target::SOURCE_SET);
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "foo"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  one.metadata().contents().InsertForTest("a", a_expected);
 
   Value b_expected(nullptr, Value::LIST);
   b_expected.list_value().push_back(Value(nullptr, true));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("b", b_expected));
+  one.metadata().contents().InsertForTest("b", b_expected);
 
   one.metadata().set_source_dir(SourceDir("/usr/home/files/"));
 
   TestTarget two(setup, "//foo:two", Target::SOURCE_SET);
   Value a_2_expected(nullptr, Value::LIST);
   a_2_expected.list_value().push_back(Value(nullptr, "bar"));
-  two.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_2_expected));
+  two.metadata().contents().InsertForTest("a", a_2_expected);
 
   Value b_2_expected(nullptr, Value::LIST);
   b_2_expected.list_value().push_back(Value(nullptr, false));
-  two.metadata().contents().insert(
-      std::pair<std::string_view, Value>("b", b_2_expected));
+  two.metadata().contents().InsertForTest("b", b_2_expected);
 
   two.metadata().set_source_dir(SourceDir("/usr/home/files/inner"));
 
@@ -74,19 +70,16 @@ TEST(MetadataWalkTest, CollectWithRecurse) {
   TestTarget one(setup, "//foo:one", Target::SOURCE_SET);
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "foo"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  one.metadata().contents().InsertForTest("a", a_expected);
 
   Value b_expected(nullptr, Value::LIST);
   b_expected.list_value().push_back(Value(nullptr, true));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("b", b_expected));
+  one.metadata().contents().InsertForTest("b", b_expected);
 
   TestTarget two(setup, "//foo:two", Target::SOURCE_SET);
   Value a_2_expected(nullptr, Value::LIST);
   a_2_expected.list_value().push_back(Value(nullptr, "bar"));
-  two.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_2_expected));
+  two.metadata().contents().InsertForTest("a", a_2_expected);
 
   one.public_deps().push_back(LabelTargetPair(&two));
 
@@ -123,26 +116,22 @@ TEST(MetadataWalkTest, CollectWithBarrier) {
   TestTarget one(setup, "//foo:one", Target::SOURCE_SET);
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "foo"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  one.metadata().contents().InsertForTest("a", a_expected);
 
   Value walk_expected(nullptr, Value::LIST);
   walk_expected.list_value().push_back(
       Value(nullptr, "//foo:two(//toolchain:default)"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("walk", walk_expected));
+  one.metadata().contents().InsertForTest("walk", walk_expected);
 
   TestTarget two(setup, "//foo:two", Target::SOURCE_SET);
   Value a_2_expected(nullptr, Value::LIST);
   a_2_expected.list_value().push_back(Value(nullptr, "bar"));
-  two.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_2_expected));
+  two.metadata().contents().InsertForTest("a", a_2_expected);
 
   TestTarget three(setup, "//foo:three", Target::SOURCE_SET);
   Value a_3_expected(nullptr, Value::LIST);
   a_3_expected.list_value().push_back(Value(nullptr, "baz"));
-  three.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_3_expected));
+  three.metadata().contents().InsertForTest("a", a_3_expected);
 
   one.public_deps().push_back(LabelTargetPair(&two));
   one.public_deps().push_back(LabelTargetPair(&three));
@@ -179,13 +168,11 @@ TEST(MetadataWalkTest, CollectWithError) {
   TestTarget one(setup, "//foo:one", Target::SOURCE_SET);
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "foo"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  one.metadata().contents().InsertForTest("a", a_expected);
 
   Value walk_expected(nullptr, Value::LIST);
   walk_expected.list_value().push_back(Value(nullptr, "//foo:missing"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("walk", walk_expected));
+  one.metadata().contents().InsertForTest("walk", walk_expected);
 
   UniqueVector<const Target*> targets;
   targets.push_back(&one);

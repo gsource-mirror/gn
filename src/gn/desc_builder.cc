@@ -198,6 +198,13 @@ class BaseDescBuilder {
     return base::Value();
   }
 
+  base::Value ToBaseValue(std::span<const Value> span) {
+    base::Value::ListStorage res;
+    for (const auto& v : span)
+      res.emplace_back(ToBaseValue(v));
+    return base::Value(std::move(res));
+  }
+
   template <class VectorType>
   void FillInConfigVector(base::ListValue* out,
                           const VectorType& configs,
@@ -363,8 +370,8 @@ class TargetDescBuilder : public BaseDescBuilder {
 
     if (what(variables::kMetadata)) {
       base::DictionaryValue metadata;
-      for (const auto& v : target_->metadata().contents())
-        metadata.SetKey(v.first, ToBaseValue(v.second));
+      for (const auto& pair : target_->metadata().contents().ToMapView())
+        metadata.SetKey(pair.first, ToBaseValue(pair.second));
       res->SetKey(variables::kMetadata, std::move(metadata));
     }
 

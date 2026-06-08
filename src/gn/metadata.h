@@ -6,7 +6,10 @@
 #define TOOLS_GN_METADATA_H_
 
 #include <memory>
+#include <span>
 
+#include "base/containers/flat_map.h"
+#include "base/containers/span.h"
 #include "gn/build_settings.h"
 #include "gn/scope.h"
 #include "gn/source_dir.h"
@@ -29,7 +32,40 @@ extern const char kMetadata_Help[];
 // their values across targets.
 class Metadata {
  public:
-  using Contents = Scope::KeyValueMap;
+  struct Contents {
+    Contents();
+
+    Contents(const Scope::KeyValueListView& content);
+
+    std::pair<bool, std::span<const Value>> LookupAtom(StringAtom key) const;
+    std::pair<bool, std::span<const Value>> Lookup(std::string_view key) const;
+
+    using MapView = base::flat_map<std::string_view, std::span<const Value>>;
+    MapView ToMapView() const;
+
+    bool empty() const { return keys_.empty(); }
+    size_t size() const { return keys_.size(); }
+
+    // Only use for unit-tests, performance is O(N)
+    void InsertForTest(std::string_view key, const Value& v);
+
+    // A version of Lookup() that returns a list Value, to make comparisons
+    // easier in unit-tests.
+    std::pair<bool, Value> LookupForTest(std::string_view key) const;
+
+   private:
+    struct ValueRange {
+      uint32_t start;
+      uint32_t count;
+    };
+    base::flat_map<StringAtom, ValueRange> keys_;
+    std::vector<Value> values_;
+  };
+
+  struct KeyList : public std::vector<StringAtom> {
+    KeyList() = default;
+    KeyList(const std::vector<std::string>& keys);
+  };
 
   Metadata() = default;
 
@@ -52,8 +88,8 @@ class Metadata {
   // be walked next (with the empty string "" indicating that the target should
   // walk all of its deps and data_deps).
   bool WalkStep(const BuildSettings* settings,
-                const std::vector<std::string>& data_keys,
-                const std::vector<std::string>& walk_keys,
+                const KeyList& data_keys,
+                const KeyList& walk_keys,
                 const SourceDir& rebase_dir,
                 std::vector<Value>* next_walk_labels,
                 std::vector<Value>* result,

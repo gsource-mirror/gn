@@ -1261,13 +1261,11 @@ TEST(TargetTest, CollectMetadataNoRecurse) {
   TestTarget one(setup, "//foo:one", Target::SOURCE_SET);
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "foo"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  one.metadata().contents().InsertForTest("a", a_expected);
 
   Value b_expected(nullptr, Value::LIST);
   b_expected.list_value().push_back(Value(nullptr, true));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("b", b_expected));
+  one.metadata().contents().InsertForTest("b", b_expected);
 
   one.metadata().set_source_dir(SourceDir("/usr/home/files/"));
 
@@ -1296,19 +1294,16 @@ TEST(TargetTest, CollectMetadataWithRecurse) {
   TestTarget one(setup, "//foo:one", Target::SOURCE_SET);
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "foo"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  one.metadata().contents().InsertForTest("a", a_expected);
 
   Value b_expected(nullptr, Value::LIST);
   b_expected.list_value().push_back(Value(nullptr, true));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("b", b_expected));
+  one.metadata().contents().InsertForTest("b", b_expected);
 
   TestTarget two(setup, "//foo:two", Target::SOURCE_SET);
   Value a_2_expected(nullptr, Value::LIST);
   a_2_expected.list_value().push_back(Value(nullptr, "bar"));
-  two.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_2_expected));
+  two.metadata().contents().InsertForTest("a", a_2_expected);
 
   one.public_deps().push_back(LabelTargetPair(&two));
 
@@ -1338,13 +1333,11 @@ TEST(TargetTest, CollectMetadataWithRecurseHole) {
   TestTarget one(setup, "//foo:one", Target::SOURCE_SET);
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "foo"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  one.metadata().contents().InsertForTest("a", a_expected);
 
   Value b_expected(nullptr, Value::LIST);
   b_expected.list_value().push_back(Value(nullptr, true));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("b", b_expected));
+  one.metadata().contents().InsertForTest("b", b_expected);
 
   // Target two does not have metadata but depends on three
   // which does.
@@ -1353,8 +1346,7 @@ TEST(TargetTest, CollectMetadataWithRecurseHole) {
   TestTarget three(setup, "//foo:three", Target::SOURCE_SET);
   Value a_3_expected(nullptr, Value::LIST);
   a_3_expected.list_value().push_back(Value(nullptr, "bar"));
-  three.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_3_expected));
+  three.metadata().contents().InsertForTest("a", a_3_expected);
 
   one.public_deps().push_back(LabelTargetPair(&two));
   two.public_deps().push_back(LabelTargetPair(&three));
@@ -1385,25 +1377,21 @@ TEST(TargetTest, CollectMetadataWithBarrier) {
   TestTarget one(setup, "//foo:one", Target::SOURCE_SET);
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "foo"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  one.metadata().contents().InsertForTest("a", a_expected);
 
   Value walk_expected(nullptr, Value::LIST);
   walk_expected.list_value().push_back(Value(nullptr, "two"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("walk", walk_expected));
+  one.metadata().contents().InsertForTest("walk", walk_expected);
 
   TestTarget two(setup, "//foo/two:two", Target::SOURCE_SET);
   Value a_2_expected(nullptr, Value::LIST);
   a_2_expected.list_value().push_back(Value(nullptr, "bar"));
-  two.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_2_expected));
+  two.metadata().contents().InsertForTest("a", a_2_expected);
 
   TestTarget three(setup, "//foo:three", Target::SOURCE_SET);
   Value a_3_expected(nullptr, Value::LIST);
   a_3_expected.list_value().push_back(Value(nullptr, "baz"));
-  three.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_3_expected));
+  three.metadata().contents().InsertForTest("a", a_3_expected);
 
   one.private_deps().push_back(LabelTargetPair(&two));
   one.public_deps().push_back(LabelTargetPair(&three));
@@ -1433,13 +1421,11 @@ TEST(TargetTest, CollectMetadataWithError) {
   TestTarget one(setup, "//foo:one", Target::SOURCE_SET);
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "foo"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  one.metadata().contents().InsertForTest("a", a_expected);
 
   Value walk_expected(nullptr, Value::LIST);
   walk_expected.list_value().push_back(Value(nullptr, "//foo:missing"));
-  one.metadata().contents().insert(
-      std::pair<std::string_view, Value>("walk", walk_expected));
+  one.metadata().contents().InsertForTest("walk", walk_expected);
 
   std::vector<std::string> data_keys;
   data_keys.push_back("a");
@@ -1545,12 +1531,12 @@ TEST(TargetTest, CollectMetadataWithValidation) {
   TestTarget a(setup, "//foo:a", Target::SOURCE_SET);
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "foo"));
-  a.metadata().contents().emplace("walk", a_expected);
+  a.metadata().contents().InsertForTest("walk", a_expected);
 
   TestTarget b(setup, "//foo:b", Target::SOURCE_SET);
   Value b_expected(nullptr, Value::LIST);
   b_expected.list_value().push_back(Value(nullptr, "bar"));
-  b.metadata().contents().emplace("walk", b_expected);
+  b.metadata().contents().InsertForTest("walk", b_expected);
 
   a.validations().push_back(LabelTargetPair(&b));
 

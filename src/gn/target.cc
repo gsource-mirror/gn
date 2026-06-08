@@ -1283,8 +1283,8 @@ void Target::CheckSourcesGenerated() const {
   // http://crbug.com/571731
 }
 
-bool Target::GetMetadata(const std::vector<std::string>& data_keys,
-                         const std::vector<std::string>& walk_keys,
+bool Target::GetMetadata(const Metadata::KeyList& data_keys,
+                         const Metadata::KeyList& walk_keys,
                          const SourceDir& rebase_dir,
                          bool deps_only,
                          std::vector<Value>* result,

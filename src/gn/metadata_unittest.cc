@@ -16,19 +16,17 @@ TEST(MetadataTest, SetContents) {
   Value b_expected(nullptr, Value::LIST);
   b_expected.list_value().push_back(Value(nullptr, true));
 
-  Metadata::Contents contents;
-  contents.insert(std::pair<std::string_view, Value>("a", a_expected));
-  contents.insert(std::pair<std::string_view, Value>("b", b_expected));
+  Metadata::Contents contents({{"a", a_expected}, {"b", b_expected}});
 
   metadata.set_contents(std::move(contents));
 
   ASSERT_EQ(metadata.contents().size(), 2);
-  auto a_actual = metadata.contents().find("a");
-  auto b_actual = metadata.contents().find("b");
-  ASSERT_FALSE(a_actual == metadata.contents().end());
-  ASSERT_FALSE(b_actual == metadata.contents().end());
-  ASSERT_EQ(a_actual->second, a_expected);
-  ASSERT_EQ(b_actual->second, b_expected);
+  auto a_actual = metadata.contents().LookupForTest("a");
+  auto b_actual = metadata.contents().LookupForTest("b");
+  ASSERT_TRUE(a_actual.first);
+  ASSERT_TRUE(b_actual.first);
+  ASSERT_EQ(a_actual.second, a_expected);
+  ASSERT_EQ(b_actual.second, b_expected);
 }
 
 TEST(MetadataTest, Walk) {
@@ -40,8 +38,7 @@ TEST(MetadataTest, Walk) {
   a_expected.list_value().push_back(Value(nullptr, "foo.cpp"));
   a_expected.list_value().push_back(Value(nullptr, "bar.h"));
 
-  metadata.contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  metadata.contents().InsertForTest("a", a_expected);
 
   std::vector<std::string> data_keys;
   data_keys.emplace_back("a");
@@ -74,8 +71,7 @@ TEST(MetadataTest, WalkWithRebase) {
   a_expected.list_value().push_back(Value(nullptr, "foo.cpp"));
   a_expected.list_value().push_back(Value(nullptr, "foo/bar.h"));
 
-  metadata.contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  metadata.contents().InsertForTest("a", a_expected);
 
   std::vector<std::string> data_keys;
   data_keys.emplace_back("a");
@@ -117,7 +113,7 @@ TEST(MetadataTest, WalkWithRebaseNonString) {
   inner_scope.SetScopeValue(std::move(scope));
   a.list_value().push_back(inner_scope);
 
-  metadata.contents().insert(std::pair<std::string_view, Value>("a", a));
+  metadata.contents().InsertForTest("a", a);
   std::vector<std::string> data_keys;
   data_keys.emplace_back("a");
   std::vector<std::string> walk_keys;
@@ -161,8 +157,7 @@ TEST(MetadataTest, WalkKeysToWalk) {
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "//target"));
 
-  metadata.contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  metadata.contents().InsertForTest("a", a_expected);
 
   std::vector<std::string> data_keys;
   std::vector<std::string> walk_keys;
@@ -212,8 +207,7 @@ TEST(MetadataTest, WalkNoKeysWithContents) {
   Value a_expected(nullptr, Value::LIST);
   a_expected.list_value().push_back(Value(nullptr, "//target"));
 
-  metadata.contents().insert(
-      std::pair<std::string_view, Value>("a", a_expected));
+  metadata.contents().InsertForTest("a", a_expected);
 
   std::vector<std::string> data_keys;
   std::vector<std::string> walk_keys;

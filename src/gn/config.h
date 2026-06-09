@@ -42,9 +42,9 @@ class Config : public Item {
   // contents of the sub-configs).
   const ConfigValues& resolved_values() const {
     DCHECK(resolved_);
-    if (configs_.empty())  // No sub configs, just use the regular values.
+    if (!composite_values_)  // No sub configs, just use the regular values.
       return own_values_;
-    return composite_values_;
+    return *composite_values_;
   }
 
   // List of sub-configs.
@@ -55,10 +55,10 @@ class Config : public Item {
   ConfigValues own_values_;
 
   // Contains the own_values combined with sub-configs. Most configs don't have
-  // sub-configs. So as an optimization, this is not populated if there are no
+  // sub-configs. So as an optimization, this is not allocataed if there are no
   // items in configs_. The resolved_values() getter handles this.
   bool resolved_ = false;
-  ConfigValues composite_values_;
+  std::unique_ptr<ConfigValues> composite_values_;
 
   UniqueVector<LabelConfigPair> configs_;
 

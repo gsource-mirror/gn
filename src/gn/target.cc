@@ -1353,35 +1353,24 @@ bool Target::GetMetadata(const Metadata::KeyList& data_keys,
       *err = Err(next.origin(), std::string("Failed to canonicalize ") +
                                     next.string_value() + std::string("."));
     }
-    std::string canonicalize_next_label = next_label.GetUserVisibleName(true);
-
-    bool found_next = false;
+    const Target* found_next = nullptr;
     for (const auto& dep : all_deps) {
       // Match against the label with the toolchain.
-      if (dep.label.GetUserVisibleName(true) == canonicalize_next_label) {
-        // If we haven't walked this dep yet, go down into it.
-        if (targets_walked->add(dep.ptr)) {
-          if (!dep.ptr->GetMetadata(data_keys, walk_keys, rebase_dir, false,
-                                    result, targets_walked, err))
-            return false;
-        }
-        // We found it, so we can exit this search now.
-        found_next = true;
+      if (dep.label == next_label) {
+        DCHECK(dep.ptr) << "Unresolved dependency "
+                        << dep.label.GetUserVisibleName(true) << " of target "
+                        << label().GetUserVisibleName(true);
+        found_next = dep.ptr;
         break;
       }
     }
     if (!found_next) {
       for (const auto& dep : validations_) {
-        // Match against the label with the toolchain.
-        if (dep.label.GetUserVisibleName(true) == canonicalize_next_label) {
-          // If we haven't walked this dep yet, go down into it.
-          if (targets_walked->add(dep.ptr)) {
-            if (!dep.ptr->GetMetadata(data_keys, walk_keys, rebase_dir, false,
-                                      result, targets_walked, err))
-              return false;
-          }
-          // We found it, so we can exit this search now.
-          found_next = true;
+        if (dep.label == next_label) {
+          DCHECK(dep.ptr) << "Unresolved dependency "
+                          << dep.label.GetUserVisibleName(true) << " of target "
+                          << label().GetUserVisibleName(true);
+          found_next = dep.ptr;
           break;
         }
       }
@@ -1390,12 +1379,19 @@ bool Target::GetMetadata(const Metadata::KeyList& data_keys,
     // Propagate it back to the user.
     if (!found_next) {
       *err = Err(next.origin(),
-                 std::string("I was expecting ") + canonicalize_next_label +
+                 std::string("I was expecting ") +
+                     next_label.GetUserVisibleName(true) +
                      std::string(" to be a dependency of ") +
                      label().GetUserVisibleName(true) +
                      ". Make sure it's included in the deps or data_deps, and "
                      "that you've specified the appropriate toolchain.");
       return false;
+    }
+    if (targets_walked->add(found_next)) {
+      if (!found_next->GetMetadata(data_keys, walk_keys, rebase_dir, false,
+                                   result, targets_walked, err)) {
+        return false;
+      }
     }
   }
   result->insert(result->end(), std::make_move_iterator(current_result.begin()),

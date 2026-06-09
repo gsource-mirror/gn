@@ -118,6 +118,12 @@ void SummarizeScriptExecs(std::vector<const TraceItem*>& execs,
   SummarizeCoalesced(execs, out);
 }
 
+void SummarizeTargetChecks(std::vector<const TraceItem*>& checks,
+                           std::ostream& out) {
+  out << "Target check times: (total time in ms, # targets, name)\n";
+  SummarizeCoalesced(checks, out);
+}
+
 }  // namespace
 
 TraceItem::TraceItem(Type type,
@@ -190,6 +196,7 @@ std::string SummarizeTraces() {
   std::vector<const TraceItem*> parses;
   std::vector<const TraceItem*> file_execs;
   std::vector<const TraceItem*> script_execs;
+  std::vector<const TraceItem*> check_targets;
   std::vector<const TraceItem*> check_headers;
   int headers_checked = 0;
   for (auto* event : events) {
@@ -202,6 +209,9 @@ std::string SummarizeTraces() {
         break;
       case TraceItem::TRACE_SCRIPT_EXECUTE:
         script_execs.push_back(event);
+        break;
+      case TraceItem::TRACE_CHECK_TARGET:
+        check_targets.push_back(event);
         break;
       case TraceItem::TRACE_CHECK_HEADERS:
         check_headers.push_back(event);
@@ -218,6 +228,8 @@ std::string SummarizeTraces() {
       case TraceItem::TRACE_FILE_WRITE_GENERATED:
       case TraceItem::TRACE_FILE_WRITE_NINJA:
       case TraceItem::TRACE_DEFINE_TARGET:
+      case TraceItem::TRACE_RESOLVE_ITEM:
+      case TraceItem::TRACE_FINALIZE_ITEM:
       case TraceItem::TRACE_ON_RESOLVED:
       case TraceItem::TRACE_WALK_METADATA:
         break;  // Ignore these for the summary.
@@ -230,6 +242,8 @@ std::string SummarizeTraces() {
   SummarizeFileExecs(file_execs, out);
   out << std::endl;
   SummarizeScriptExecs(script_execs, out);
+  out << std::endl;
+  SummarizeTargetChecks(check_targets, out);
   out << std::endl;
 
   // Generally there will only be one header check, but it's theoretically
@@ -324,6 +338,15 @@ void SaveTraces(const base::FilePath& file_name) {
         break;
       case TraceItem::TRACE_ON_RESOLVED:
         out << "\"onresolved\"";
+        break;
+      case TraceItem::TRACE_RESOLVE_ITEM:
+        out << "\"resolve\"";
+        break;
+      case TraceItem::TRACE_FINALIZE_ITEM:
+        out << "\"finalize\"";
+        break;
+      case TraceItem::TRACE_CHECK_TARGET:
+        out << "\"check_target\"";
         break;
       case TraceItem::TRACE_CHECK_HEADER:
         out << "\"hdr\"";

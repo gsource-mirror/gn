@@ -530,6 +530,9 @@ void Builder::ScheduleItemLoadIfNecessary(BuilderRecord* record) {
 }
 
 bool Builder::ResolveItem(BuilderRecord* record, Err* err) {
+  ScopedTrace trace(TraceItem::TRACE_RESOLVE_ITEM, record->label());
+  trace.SetToolchain(record->item()->settings()->toolchain_label());
+
   DCHECK(record->can_resolve() && !record->is_resolved());
 
   if (record->type() == BuilderRecord::ITEM_TARGET) {
@@ -576,6 +579,9 @@ void Builder::ScheduleBackgroundTargetChecks(BuilderRecord* record) {
 
   g_scheduler->IncrementWorkCount();
   g_scheduler->ScheduleWork([record]() {
+    ScopedTrace trace(TraceItem::TRACE_FINALIZE_ITEM, record->label());
+    trace.SetToolchain(record->item()->settings()->toolchain_label());
+
     Err err;
     if (!record->item()->AsTarget()->RunChecksAfterResolution(&err)) {
       g_scheduler->FailWithError(err);
@@ -591,6 +597,9 @@ bool Builder::CompleteItemResolution(BuilderRecord* record, Err* err) {
 }
 
 bool Builder::FinalizeItem(BuilderRecord* record, Err* err) {
+  ScopedTrace trace(TraceItem::TRACE_FINALIZE_ITEM, record->label());
+  trace.SetToolchain(record->item()->settings()->toolchain_label());
+
   record->SetFinalized();
 
   DEBUG_BUILDER_RECORD_LOG("BEGIN_FINALIZE %s\n",

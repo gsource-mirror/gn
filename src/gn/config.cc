@@ -42,9 +42,9 @@ bool Config::OnResolved(Err* err) {
     // will naturally de-dupe and also prevents recursive config walking to
     // compute every possible flag, although it will expand the configs list on
     // a target nontrivially (depending on build configuration).
-    composite_values_ = own_values_;
+    composite_values_ = std::make_unique<ConfigValues>(own_values_);
     for (const auto& pair : configs_)
-      composite_values_.AppendValues(pair.ptr->resolved_values());
+      composite_values_->AppendValues(pair.ptr->resolved_values());
   }
   return true;
 }

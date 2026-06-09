@@ -41,6 +41,32 @@ class Template;
 class Scope {
  public:
   using KeyValueMap = std::map<std::string_view, Value>;
+
+  // A view over the values defined in a scope. Unlike
+  // KeyValueMap, this is not ordered by default, and doesn't
+  // copy any Values.
+  struct KeyValueListView
+      : public std::vector<std::pair<std::string_view, const Value*>> {
+    KeyValueListView() = default;
+
+    // Supports direct initialization for unit tests.
+    KeyValueListView(
+        std::initializer_list<std::pair<std::string_view, const Value&>>);
+
+    using Base = std::vector<std::pair<std::string_view, const Value*>>;
+    using Pair = Base::value_type;
+    using const_iterator = Base::const_iterator;
+
+    // Sort by named key.
+    void SortInPlace();
+
+    // Lookup for a given named value. This performs a linear scan.
+    const_iterator find(std::string_view name) const;
+
+    const Value* FindUnsorted(std::string_view name) const;
+    const Value* FindSorted(std::string_view name) const;
+  };
+
   // Holds an owning list of Items.
   using ItemVector = std::vector<std::unique_ptr<Item>>;
 
@@ -233,6 +259,8 @@ class Scope {
   // Returns all values set in the current scope, without going to the parent
   // scopes.
   void GetCurrentScopeValues(KeyValueMap* output) const;
+  KeyValueListView GetCurrentScopeValues() const;
+  KeyValueListView GetSortedScopeValues() const;
 
   // Returns true if the values in the current scope are the same as all
   // values in the given scope, without going to the parent scopes. Returns

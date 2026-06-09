@@ -231,15 +231,15 @@ std::string Value::ToString(bool quote_string) const {
       return result;
     }
     case SCOPE: {
-      Scope::KeyValueMap scope_values;
-      scope_value_->GetCurrentScopeValues(&scope_values);
+      Scope::KeyValueListView scope_values =
+          scope_value_->GetSortedScopeValues();
       if (scope_values.empty())
         return std::string("{ }");
 
       std::string result = "{\n";
       for (const auto& pair : scope_values) {
         result += "  " + std::string(pair.first) + " = " +
-                  pair.second.ToString(true) + "\n";
+                  pair.second->ToString(true) + "\n";
       }
       result += "}";
 

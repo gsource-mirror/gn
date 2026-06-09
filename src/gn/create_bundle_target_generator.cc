@@ -126,17 +126,16 @@ bool CreateBundleTargetGenerator::FillXcodeExtraAttributes() {
 
   Scope* scope_value = value->scope_value();
 
-  Scope::KeyValueMap value_map;
-  scope_value->GetCurrentScopeValues(&value_map);
+  Scope::KeyValueListView value_map = scope_value->GetSortedScopeValues();
   scope_value->MarkAllUsed();
 
   std::map<std::string, std::string> xcode_extra_attributes;
   for (const auto& iter : value_map) {
-    if (!iter.second.VerifyTypeIs(Value::STRING, err_))
+    if (!iter.second->VerifyTypeIs(Value::STRING, err_))
       return false;
 
     xcode_extra_attributes.insert(
-        std::make_pair(std::string(iter.first), iter.second.string_value()));
+        std::make_pair(std::string(iter.first), iter.second->string_value()));
   }
 
   target_->bundle_data().xcode_extra_attributes() =

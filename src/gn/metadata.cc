@@ -258,11 +258,11 @@ std::pair<Value, bool> Metadata::RebaseScopeValue(const BuildSettings* settings,
   if (!value.VerifyTypeIs(Value::SCOPE, err))
     return std::make_pair(value, false);
   Value rebased_scope_value(value);
-  Scope::KeyValueMap scope_values;
-  value.scope_value()->GetCurrentScopeValues(&scope_values);
+  Scope::KeyValueListView scope_values =
+      value.scope_value()->GetSortedScopeValues();
   for (auto& value_pair : scope_values) {
     std::pair<Value, bool> pair =
-        RebaseValue(settings, rebase_dir, value_pair.second, err);
+        RebaseValue(settings, rebase_dir, *value_pair.second, err);
     if (!pair.second)
       return std::make_pair(value, false);
 

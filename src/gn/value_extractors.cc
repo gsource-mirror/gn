@@ -120,25 +120,27 @@ struct ExternConverter {
                   Err* err) const {
     if (!v.VerifyTypeIs(Value::SCOPE, err))
       return false;
-    Scope::KeyValueMap scope;
-    v.scope_value()->GetCurrentScopeValues(&scope);
+    Scope::KeyValueListView scope = v.scope_value()->GetCurrentScopeValues();
     std::string cratename;
     if (auto it = scope.find("crate_name"); it != scope.end()) {
-      if (!it->second.VerifyTypeIs(Value::STRING, err))
+      const Value& crate_value = *it->second;
+      if (!crate_value.VerifyTypeIs(Value::STRING, err))
         return false;
-      cratename = it->second.string_value();
+      cratename = crate_value.string_value();
     } else {
       return false;
     }
     LibFile path;
     if (auto it = scope.find("path"); it != scope.end()) {
-      if (!it->second.VerifyTypeIs(Value::STRING, err))
+      const Value& path_value = *it->second;
+      if (!path_value.VerifyTypeIs(Value::STRING, err))
         return false;
-      if (it->second.string_value().find('/') == std::string::npos) {
-        path = LibFile(it->second.string_value());
+      const std::string& path_str = path_value.string_value();
+      if (path_str.find('/') == std::string::npos) {
+        path = LibFile(path_str);
       } else {
         path = LibFile(current_dir.ResolveRelativeFile(
-            it->second, err, build_settings->root_path_utf8()));
+            path_value, err, build_settings->root_path_utf8()));
       }
     } else {
       return false;

@@ -4,6 +4,7 @@
 
 #include "gn/scope.h"
 
+#include <algorithm>
 #include <memory>
 
 #include "base/logging.h"
@@ -26,6 +27,25 @@ bool IsPrivateVar(std::string_view name) {
 }
 
 }  // namespace
+
+Scope::KeyValueListView::KeyValueListView(
+    std::initializer_list<std::pair<std::string_view, const Value&>> init) {
+  this->reserve(init.size());
+  for (const auto& pair : init)
+    this->emplace_back(pair.first, &pair.second);
+}
+
+void Scope::KeyValueListView::SortInPlace() {
+  std::sort(begin(), end(), [](const Pair& a, const Pair& b) -> bool {
+    return a.first < b.first;
+  });
+}
+
+Scope::KeyValueListView::const_iterator Scope::KeyValueListView::find(
+    std::string_view name) const {
+  return std::find_if(begin(), end(),
+                      [name](const Pair& p) { return p.first == name; });
+}
 
 // Defaults to all false, which are the things least likely to cause errors.
 Scope::MergeOptions::MergeOptions()
@@ -309,6 +329,20 @@ bool Scope::CheckForUnusedVars(Err* err) const {
 void Scope::GetCurrentScopeValues(KeyValueMap* output) const {
   for (const auto& pair : values_)
     (*output)[pair.first] = pair.second.value;
+}
+
+Scope::KeyValueListView Scope::GetCurrentScopeValues() const {
+  KeyValueListView result;
+  result.reserve(values_.size());
+  for (const auto& pair : values_)
+    result.emplace_back(pair.first, &pair.second.value);
+  return result;
+}
+
+Scope::KeyValueListView Scope::GetSortedScopeValues() const {
+  KeyValueListView result = GetCurrentScopeValues();
+  result.SortInPlace();
+  return result;
 }
 
 bool Scope::CheckCurrentScopeValuesEqual(const Scope* other) const {

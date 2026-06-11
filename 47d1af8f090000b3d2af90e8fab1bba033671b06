@@ -22,6 +22,30 @@
       },
       "revId": "47d1af8f090000b3d2af90e8fab1bba033671b06",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93bf5046_a91552d2",
+        "filename": "src/gn/rust_project_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 4906838
+      },
+      "writtenOn": "2026-06-11T17:12:22Z",
+      "side": 1,
+      "message": "See https://gn-review.git.corp.google.com/c/gn/+/23160/.",
+      "parentUuid": "a0f705ce_045cf6b0",
+      "range": {
+        "startLine": 176,
+        "startChar": 30,
+        "endLine": 176,
+        "endChar": 41
+      },
+      "revId": "47d1af8f090000b3d2af90e8fab1bba033671b06",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

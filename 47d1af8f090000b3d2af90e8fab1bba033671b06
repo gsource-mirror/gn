@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0f705ce_045cf6b0",
+        "filename": "src/gn/rust_project_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-11T05:19:52Z",
+      "side": 1,
+      "message": "Not sure why other places do like this, but I think this cast is not necessary?",
+      "range": {
+        "startLine": 176,
+        "startChar": 30,
+        "endLine": 176,
+        "endChar": 41
+      },
+      "revId": "47d1af8f090000b3d2af90e8fab1bba033671b06",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

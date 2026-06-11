@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdaef7cb_bf78f423",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4910317
+      },
+      "writtenOn": "2026-06-11T10:08:30Z",
+      "side": 1,
+      "message": "Nimenciones",
+      "revId": "7ecf26c4148fd141741775347af89aa9c00a80bc",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

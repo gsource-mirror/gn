@@ -16,6 +16,24 @@
       "message": "This LGTM but can you fix the merge conflict first?",
       "revId": "3cffca3355f2e1508240c752dfe9c15e9b21990a",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3951a007_2f101342",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4906838
+      },
+      "writtenOn": "2026-06-12T13:41:56Z",
+      "side": 1,
+      "message": "I don\u0027t understand Gerrit\u0027s logic for deciding when there is a conflict. There wasn\u0027t one, as far as I could tell. I rebased on the parent change and that warning went away.",
+      "parentUuid": "1b9be0f2_518d8f46",
+      "revId": "3cffca3355f2e1508240c752dfe9c15e9b21990a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

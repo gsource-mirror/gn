@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b9be0f2_518d8f46",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-06-12T11:13:25Z",
+      "side": 1,
+      "message": "This LGTM but can you fix the merge conflict first?",
+      "revId": "3cffca3355f2e1508240c752dfe9c15e9b21990a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

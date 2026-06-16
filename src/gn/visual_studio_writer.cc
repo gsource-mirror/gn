@@ -642,9 +642,9 @@ bool VisualStudioWriter::WriteProjectFileContents(
             compile_type, "Include", SourceFileWriter(path_output, file));
         build->SubElement("Command")->Text("call " + ninja_exe +
                                            " -C $(OutDir) " + ninja_extra_args +
-                                           " " + tool_outputs[0].value());
+                                           " " + std::string(tool_outputs[0].value()));
         build->SubElement("Outputs")->Text("$(OutDir)" +
-                                           tool_outputs[0].value());
+                                           std::string(tool_outputs[0].value()));
       } else {
         compile_type = "None";
         group->SubElement(compile_type, "Include",

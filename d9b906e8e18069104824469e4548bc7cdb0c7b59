@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f187d0c_8fb041c3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-17T04:58:48Z",
+      "side": 1,
+      "message": "Sorry, but I prefer to keep verbosity on CI. Can we keep those logs?",
+      "revId": "d9b906e8e18069104824469e4548bc7cdb0c7b59",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

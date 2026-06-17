@@ -13,6 +13,8 @@ import shlex
 import subprocess
 import sys
 
+from ninja_file import NinjaFile, escape_path_ninja
+
 # IMPORTANT: This script is also executed as python2 on
 # GN's CI builders.
 
@@ -102,6 +104,11 @@ class Platform(object):
 
   def is_serenity(self):
     return self._platform == 'serenity'
+
+  @property
+  def exe_suffix(self):
+    return '.exe' if self.is_windows() else ''
+
 
 class ArgumentsList:
   """Helper class to accumulate ArgumentParser argument definitions
@@ -286,7 +293,11 @@ def WriteGenericNinja(path, static_libraries, executables,
                       cxx, ar, ld, platform, host, options,
                       args_list, cflags=[], ldflags=[],
                       libflags=[], include_dirs=[], solibs=[]):
+  # Generate integration tests using NinjaFile
+  build_dir = os.path.dirname(path)
+  ninja = NinjaFile(platform, REPO_ROOT, build_dir)
   args = args_list.gen_command_line_args(options)
+
   if args:
     args = " " + args
 
@@ -304,7 +315,6 @@ def WriteGenericNinja(path, static_libraries, executables,
     '  depfile = build.ninja.d',
     '',
   ]
-
 
   template_filename = os.path.join(SCRIPT_DIR, {
       'msvc': 'build_win.ninja.template',
@@ -339,9 +349,6 @@ def WriteGenericNinja(path, static_libraries, executables,
     library_ext = '.a'
     object_ext = '.o'
 
-  def escape_path_ninja(path):
-    return path.replace('$ ', '$$ ').replace(' ', '$ ').replace(':', '$:')
-
   def src_to_obj(path):
     return escape_path_ninja('%s' % os.path.splitext(path)[0] + object_ext)
 
@@ -370,7 +377,6 @@ def WriteGenericNinja(path, static_libraries, executables,
         ' '.join([src_to_obj(src_file) for src_file in settings['sources']])))
     ninja_lines.append('  libflags = %s' % ' '.join(libflags))
 
-
   for executable, settings in executables.items():
     for src_file in settings['sources']:
       build_source(src_file, settings)
@@ -388,17 +394,33 @@ def WriteGenericNinja(path, static_libraries, executables,
 
   ninja_lines.append('')  # Make sure the file ends with a newline.
 
+  ninja.Phony(
+      'run_tests',
+      inputs=[
+          ninja.RunBinary(
+              'run_gn_unittests',
+              inputs=['gn_unittests' + platform.exe_suffix],
+              args='--quiet',
+          ),
+          ninja.Phony(
+              'run_integration_tests', inputs=[ninja.IntegrationTest('simple')]
+          ),
+      ],
+  )
+
   with open(path, 'w') as f:
     f.write('\n'.join(ninja_header_lines))
     f.write(ninja_template)
     f.write('\n'.join(ninja_lines))
+    f.write(ninja.write_ninja())
 
-  build_dir = os.path.dirname(path)
+  depfile_deps = [
+      os.path.relpath(os.path.join(SCRIPT_DIR, 'gen.py'), build_dir),
+      os.path.relpath(template_filename, build_dir),
+      os.path.relpath(os.path.join(SCRIPT_DIR, 'ninja_file.py'), build_dir),
+  ] + [str(path) for path in ninja.regen_triggers]
   with open(path + '.d', 'w') as f:
-    f.write('build.ninja: ' +
-            os.path.relpath(os.path.join(SCRIPT_DIR, 'gen.py'),
-                            build_dir) + ' ' +
-            os.path.relpath(template_filename, build_dir) + '\n')
+    f.write('build.ninja: ' + ' '.join(depfile_deps) + '\n')
 
   if options.generate_compilation_database:
     with open(os.path.join(REPO_ROOT, 'compile_commands.json'), 'w') as f:

@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12201b9c_c8cdede7",
+        "filename": "src/gn/filesystem_utils.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-06-17T03:09:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0a8cf53_66f2cf1e",
+      "range": {
+        "startLine": 186,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 0
+      },
+      "revId": "bb6f8f8f47445d09d50f81f7c6175d65091121e8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f0b404b9_54a1acfc",
@@ -65,6 +89,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "39f48e82_0c753eed",
+        "filename": "src/gn/filesystem_utils.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-06-17T03:09:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0b404b9_54a1acfc",
+      "range": {
+        "startLine": 235,
+        "startChar": 44,
+        "endLine": 235,
+        "endChar": 47
+      },
+      "revId": "bb6f8f8f47445d09d50f81f7c6175d65091121e8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99f33393_2e2c1248",
@@ -88,6 +136,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e04e0cd7_b909e11b",
+        "filename": "src/gn/ninja_target_command_util.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-06-17T03:09:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99f33393_2e2c1248",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 0
+      },
+      "revId": "bb6f8f8f47445d09d50f81f7c6175d65091121e8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ccfe36f3_361b6e02",
@@ -101,6 +173,30 @@
       "writtenOn": "2026-06-17T03:04:27Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: The implementation does not actually append a null terminator (e.g., `append` just uses `insert`, and `assign` copies exactly the length of the string_view). If `OutputFile` really must be null-terminated, you\u0027ll need to manually maintain a `\\0` at the end of the vector. Otherwise, I suggest removing \"Always null-terminated.\" to prevent developers from unsafely passing `value().data()` to C APIs.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 0
+      },
+      "revId": "bb6f8f8f47445d09d50f81f7c6175d65091121e8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eebb5995_e1d4ca0a",
+        "filename": "src/gn/output_file.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-06-17T03:09:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ccfe36f3_361b6e02",
       "range": {
         "startLine": 18,
         "startChar": 0,

@@ -263,12 +263,13 @@ def RunSteps(api, repository):
                      ['python3', '-u', src_dir.join('build', 'gen.py')] + args)
 
             # Windows requires the environment modifications when building too.
+            ninja_cmd = [cipd_dir.join('ninja'), '--quiet', '-C',
+                      src_dir.join('out')]
             api.step('build',
-                     [cipd_dir.join('ninja'), '--quiet', '-C',
-                      src_dir.join('out')])
+                     ninja_cmd + ['gn', 'gn_unittests'])
 
             if target.is_host:
-              api.step('test', [src_dir.join('out', 'gn_unittests'), '--quiet'])
+              api.step('test', ninja_cmd + ['run_tests'])
 
               if api.platform.is_linux:
                 with api.context(env={'CLANG_FORMAT': cipd_dir.join('bin', 'clang-format')}):

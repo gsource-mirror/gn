@@ -1,0 +1,114 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0a8cf53_66f2cf1e",
+        "filename": "src/gn/filesystem_utils.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-17T03:04:27Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: NIT: You can simplify this by using `substr` to avoid manual pointer arithmetic and length calculations:\n```cpp\nresult-\u003eappend(std::string_view(source_dir.value()).substr(build_dir_size));\n```",
+      "range": {
+        "startLine": 186,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 0
+      },
+      "revId": "bb6f8f8f47445d09d50f81f7c6175d65091121e8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0b404b9_54a1acfc",
+        "filename": "src/gn/filesystem_utils.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-17T03:04:27Z",
+      "side": 1,
+      "message": "Better to subtract after static_cast?",
+      "range": {
+        "startLine": 235,
+        "startChar": 44,
+        "endLine": 235,
+        "endChar": 47
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "7bcff421_371ae648",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/filesystem_utils.cc",
+              "range": {
+                "startLine": 235,
+                "startChar": 0,
+                "endLine": 236,
+                "endChar": 0
+              },
+              "replacement": "  for (int i \u003d static_cast\u003cint\u003e(path.size()) - 1; i \u003e\u003d 0; i--) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "bb6f8f8f47445d09d50f81f7c6175d65091121e8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99f33393_2e2c1248",
+        "filename": "src/gn/ninja_target_command_util.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-17T03:04:27Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Since `extension_offset` is a `size_t` (unsigned), `extension_offset \u003e\u003d 0` is tautological and will always be true. If `extension_offset` was `0` before the decrement, it would wrap around to `SIZE_MAX`, this `DCHECK` would still pass, and the subsequent line would perform an out-of-bounds access. \n\nConsider restoring the original `DCHECK(extension_offset \u003e\u003d 1);` **before** the decrement.",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 0
+      },
+      "revId": "bb6f8f8f47445d09d50f81f7c6175d65091121e8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ccfe36f3_361b6e02",
+        "filename": "src/gn/output_file.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-17T03:04:27Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: The implementation does not actually append a null terminator (e.g., `append` just uses `insert`, and `assign` copies exactly the length of the string_view). If `OutputFile` really must be null-terminated, you\u0027ll need to manually maintain a `\\0` at the end of the vector. Otherwise, I suggest removing \"Always null-terminated.\" to prevent developers from unsafely passing `value().data()` to C APIs.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 0
+      },
+      "revId": "bb6f8f8f47445d09d50f81f7c6175d65091121e8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

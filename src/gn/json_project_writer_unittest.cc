@@ -71,17 +71,34 @@ TEST_F(JSONWriter, ActionWithResponseFile) {
       "      \"root_path\": \"/path/to/src\"\n"
 #endif
       R"_(   },
+   "gen_files": {
+   },
    "targets": {
       "//foo:bar()": {
          "args": [ "{{response_file_name}}" ],
          "check_includes_strict": false,
+         "defined_from": "",
          "deps": [  ],
+         "deps_loc": "",
+         "deps_origins": {
+
+         },
+         "externs": {
+
+         },
          "inputs": [ "//foo/input1.txt" ],
          "metadata": {
 
          },
          "outputs": [ "//out/Debug/output1.out" ],
+         "private_deps": [  ],
          "public": "*",
+         "public_deps": [  ],
+         "public_deps_loc": "",
+         "public_deps_origins": {
+
+         },
+         "public_loc": "",
          "response_file_contents": [ "-j", "3" ],
          "script": "//foo/script.py",
          "sources": [ "//foo/source1.txt" ],
@@ -309,6 +326,8 @@ TEST_F(JSONWriter, RustTarget) {
       "gen_input_files": [  ],
       "root_path": ""
    },
+   "gen_files": {
+   },
    "targets": {
       "//foo:bar()": {
          "allow_circular_includes_from": [  ],
@@ -316,7 +335,12 @@ TEST_F(JSONWriter, RustTarget) {
          "check_includes_strict": false,
          "crate_name": "foo",
          "crate_root": "//foo/lib.rs",
+         "defined_from": "",
          "deps": [  ],
+         "deps_loc": "",
+         "deps_origins": {
+
+         },
          "externs": {
 
          },
@@ -324,7 +348,14 @@ TEST_F(JSONWriter, RustTarget) {
 
          },
          "outputs": [ "//out/Debug/obj/foo/libbar.rlib" ],
+         "private_deps": [  ],
          "public": "*",
+         "public_deps": [  ],
+         "public_deps_loc": "",
+         "public_deps_origins": {
+
+         },
+         "public_loc": "",
          "sources": [ "//foo/lib.rs" ],
          "testonly": false,
          "toolchain": "",
@@ -574,17 +605,34 @@ TEST_F(JSONWriter, ForEachWithResponseFile) {
       "      \"root_path\": \"/path/to/src\"\n"
 #endif
       R"_(   },
+   "gen_files": {
+   },
    "targets": {
       "//foo:bar()": {
          "args": [ "{{source}}", "{{source_file_part}}", "{{response_file_name}}" ],
          "check_includes_strict": false,
+         "defined_from": "",
          "deps": [  ],
+         "deps_loc": "",
+         "deps_origins": {
+
+         },
+         "externs": {
+
+         },
          "metadata": {
 
          },
          "output_patterns": [ "//out/Debug/{{source_name_part}}.out" ],
          "outputs": [ "//out/Debug/input1.out" ],
+         "private_deps": [  ],
          "public": "*",
+         "public_deps": [  ],
+         "public_deps_loc": "",
+         "public_deps_origins": {
+
+         },
+         "public_loc": "",
          "response_file_contents": [ "-j", "{{source_name_part}}" ],
          "script": "//foo/script.py",
          "source_outputs": {
@@ -865,15 +913,29 @@ TEST_F(JSONWriter, GroupWithData) {
       "gen_input_files": [  ],
       "root_path": ""
    },
+   "gen_files": {
+   },
    "targets": {
       "//foo:docs()": {
          "check_includes_strict": false,
          "data": [ "README.md", "docs/help.txt" ],
+         "defined_from": "",
          "deps": [  ],
+         "deps_loc": "",
+         "deps_origins": {
+
+         },
          "metadata": {
 
          },
+         "private_deps": [  ],
          "public": "*",
+         "public_deps": [  ],
+         "public_deps_loc": "",
+         "public_deps_origins": {
+
+         },
+         "public_loc": "",
          "testonly": false,
          "toolchain": "",
          "type": "group",

@@ -386,6 +386,16 @@ StringOutputBuffer JSONProjectWriter::GenerateJSON(
   }
   json_writer.EndDict();  // build_settings
 
+  // Files written by GN at gen time (write_file() and generated_file targets),
+  // with their resolved contents. These are part of GN's gen output but are not
+  // build actions, so they do not appear under "targets".
+  json_writer.BeginDict("gen_files");
+  {
+    for (const auto& kv : g_scheduler->GetGenFileContents())
+      json_writer.AddString(kv.first, kv.second);
+  }
+  json_writer.EndDict();  // gen_files
+
   std::map<Label, const Toolchain*> toolchains;
   // Shared across all targets so that inherited lib/framework information is
   // memoized once rather than recomputed per target (avoids quadratic blowup).

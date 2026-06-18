@@ -105,6 +105,17 @@ void Scheduler::AddWrittenFile(const SourceFile& file) {
   written_files_.push_back(file);
 }
 
+void Scheduler::RecordGenFileContents(const SourceFile& file,
+                                      std::string contents) {
+  std::lock_guard<std::mutex> lock(lock_);
+  gen_file_contents_[file.value()] = std::move(contents);
+}
+
+const std::map<std::string, std::string>& Scheduler::GetGenFileContents()
+    const {
+  return gen_file_contents_;
+}
+
 void Scheduler::AddUnknownGeneratedInput(const Target* target,
                                          const SourceFile& file) {
   std::lock_guard<std::mutex> lock(lock_);

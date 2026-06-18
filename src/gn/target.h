@@ -296,6 +296,17 @@ class Target : public Item {
   const LabelTargetVector& public_deps() const { return public_deps_; }
   LabelTargetVector& public_deps() { return public_deps_; }
 
+  // ParseNode of the `deps`/`public_deps`/`public` assignment's value (the RHS
+  // list), captured so --ide=json can emit the source location of each list for
+  // tooling that edits BUILD.gn (e.g. the public_deps-completion patcher). Null
+  // when the variable was not assigned in the target body.
+  const ParseNode* private_deps_origin() const { return private_deps_origin_; }
+  void set_private_deps_origin(const ParseNode* p) { private_deps_origin_ = p; }
+  const ParseNode* public_deps_origin() const { return public_deps_origin_; }
+  void set_public_deps_origin(const ParseNode* p) { public_deps_origin_ = p; }
+  const ParseNode* public_origin() const { return public_origin_; }
+  void set_public_origin(const ParseNode* p) { public_origin_ = p; }
+
   // Non-linked dependencies.
   const LabelTargetVector& data_deps() const { return data_deps_; }
   LabelTargetVector& data_deps() { return data_deps_; }
@@ -591,6 +602,9 @@ class Target : public Item {
 
   LabelTargetVector private_deps_;
   LabelTargetVector public_deps_;
+  const ParseNode* private_deps_origin_ = nullptr;
+  const ParseNode* public_deps_origin_ = nullptr;
+  const ParseNode* public_origin_ = nullptr;
   LabelTargetVector data_deps_;
   LabelTargetVector validations_;
   LabelTargetVector gen_deps_;

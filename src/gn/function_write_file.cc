@@ -95,6 +95,10 @@ Value RunWriteFile(Scope* scope,
   base::FilePath file_path =
       scope->settings()->build_settings()->GetFullPath(source_file);
 
+  // Record the resolved contents so `gn gen --ide=json` can export this file
+  // (it is written at gen time and is not a build action).
+  g_scheduler->RecordGenFileContents(source_file, storage.str());
+
   // Make sure we're not replacing the same contents.
   if (!storage.WriteToFileIfChanged(file_path, err)) {
     *err = Err(function->function(), err->message(), err->help_text());

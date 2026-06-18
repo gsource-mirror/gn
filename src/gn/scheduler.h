@@ -66,6 +66,13 @@ class Scheduler {
   // inputs (see AddUnknownGeneratedInput below).
   void AddWrittenFile(const SourceFile& file);
 
+  // Records the resolved contents of a file written at gen time (write_file()
+  // side-effects and generated_file targets), so `gn gen --ide=json` can export
+  // them. These files are part of GN's gen output but are not build actions, so
+  // they don't otherwise appear in the JSON project description.
+  void RecordGenFileContents(const SourceFile& file, std::string contents);
+  const std::map<std::string, std::string>& GetGenFileContents() const;
+
   // Schedules a file to be written due to a target setting write_runtime_deps.
   void AddWriteRuntimeDepsTarget(const Target* entry);
   std::vector<const Target*> GetWriteRuntimeDepsTargets() const;
@@ -148,6 +155,7 @@ class Scheduler {
   // Protected by the lock. See the corresponding Add/Get functions above.
   std::vector<base::FilePath> gen_dependencies_;
   std::vector<SourceFile> written_files_;
+  std::map<std::string, std::string> gen_file_contents_;
   std::vector<const Target*> write_runtime_deps_targets_;
   std::multimap<SourceFile, const Target*> unknown_generated_inputs_;
   std::map<SourceFile, bool> generated_files_;

@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "gn/err.h"
 #include "gn/output_conversion.h"
+#include "gn/scheduler.h"
 #include "gn/source_file.h"
 #include "gn/string_output_buffer.h"
 #include "gn/target.h"
@@ -58,5 +59,10 @@ bool WriteGeneratedFileToDisk(const Target* target, Err* err) {
   if (err->has_error()) {
     return false;
   }
+
+  // Record the resolved contents so `gn gen --ide=json` can export this file
+  // (it is written at gen time and is not a build action).
+  g_scheduler->RecordGenFileContents(outputs_as_sources[0], storage.str());
+
   return storage.WriteToFileIfChanged(output, err);
 }

@@ -209,6 +209,7 @@ bool TargetGenerator::FillPublic() {
 
   // If the public headers are defined, don't default to public.
   target_->set_all_headers_public(false);
+  target_->set_public_origin(value->origin());
 
   Target::FileList dest_public;
   if (!ExtractListOfRelativeFiles(scope_->settings()->build_settings(), *value,
@@ -286,8 +287,12 @@ bool TargetGenerator::FillData() {
 bool TargetGenerator::FillDependencies() {
   if (!FillGenericDeps(variables::kDeps, &target_->private_deps()))
     return false;
+  if (const Value* v = scope_->GetValue(variables::kDeps, false))
+    target_->set_private_deps_origin(v->origin());
   if (!FillGenericDeps(variables::kPublicDeps, &target_->public_deps()))
     return false;
+  if (const Value* v = scope_->GetValue(variables::kPublicDeps, false))
+    target_->set_public_deps_origin(v->origin());
   if (!FillGenericDeps(variables::kDataDeps, &target_->data_deps()))
     return false;
   if (!FillGenericDeps(variables::kValidations, &target_->validations()))

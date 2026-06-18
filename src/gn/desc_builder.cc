@@ -509,7 +509,15 @@ class TargetDescBuilder : public BaseDescBuilder {
     if (target_->output_type() == Target::CREATE_BUNDLE && what("bundle_data"))
       FillInBundle(res.get());
 
-    if (is_binary_output) {
+    // Export resolved compile-flag config values for binary targets AND for
+    // action targets — GN expands {{defines}}/{{include_dirs}}/{{cflags}}/
+    // {{cflags_cc}} substitutions in action args from the action's
+    // config_values (e.g. bindgen actions), but --ide=json previously dropped
+    // them for actions.
+    const bool export_config_flags =
+        is_binary_output || target_->output_type() == Target::ACTION ||
+        target_->output_type() == Target::ACTION_FOREACH;
+    if (export_config_flags) {
 #define CONFIG_VALUE_ARRAY_HANDLER(name, type, config)                    \
   if (what(#name)) {                                                      \
     ValuePtr ptr = RenderConfigValues<type>(config, &ConfigValues::name); \
@@ -593,6 +601,83 @@ class TargetDescBuilder : public BaseDescBuilder {
 
     if (what(variables::kDeps))
       res->SetWithoutPathExpansion(variables::kDeps, RenderDeps());
+
+    // Source locations (each "//path/BUILD.gn:line", or "" when absent) of the
+    // target declaration and the deps/public_deps/public assignments, for
+    // tooling that edits BUILD.gn by location (the public_deps-completion
+    // patcher) rather than by textual search.
+    auto loc_str = [](const ParseNode* n) -> std::string {
+      if (!n)
+        return std::string();
+      Location loc = n->GetRange().begin();
+      if (!loc.file())
+        return std::string();
+      return loc.Describe(false);
+    };
+    if (what("defined_from"))
+      res->SetKey("defined_from",
+                  base::Value(loc_str(target_->defined_from())));
+    if (what("deps_loc"))
+      res->SetKey("deps_loc",
+                  base::Value(loc_str(target_->private_deps_origin())));
+    if (what("public_deps_loc"))
+      res->SetKey("public_deps_loc",
+                  base::Value(loc_str(target_->public_deps_origin())));
+    if (what("public_loc"))
+      res->SetKey("public_loc", base::Value(loc_str(target_->public_origin())));
+
+    // Per-dependency origin maps {label -> "//path/BUILD.gn:line"}. GN
+    // templates (almost every Chromium target goes through one) reassign `deps`
+    // inside the template body (e.g. `deps += [libc++]`), so the merged-list
+    // origin above points into the template, not the user's BUILD.gn. Each
+    // LabelTargetPair, however, keeps the origin of the individual label
+    // literal — user-written deps resolve to the real BUILD.gn line,
+    // template-added ones to the template. The applier keys edits off these.
+    // Label form matches the "deps" field (toolchain suffix only when not the
+    // default). Null origins (group auto- expansion) are skipped.
+    Label default_tc_label = target_->settings()->default_toolchain_label();
+    auto origin_map = [&](const LabelTargetVector& deps) -> ValuePtr {
+      auto m = std::make_unique<base::DictionaryValue>();
+      for (const auto& pair : deps) {
+        if (!pair.origin)
+          continue;
+        Location loc = pair.origin->GetRange().begin();
+        if (!loc.file())
+          continue;
+        m->SetKey(pair.label.GetUserVisibleName(
+                      pair.label.GetToolchainLabel() != default_tc_label),
+                  base::Value(loc.Describe(false)));
+      }
+      return m;
+    };
+    if (what("deps_origins"))
+      res->SetWithoutPathExpansion("deps_origins",
+                                   origin_map(target_->private_deps()));
+    if (what("public_deps_origins"))
+      res->SetWithoutPathExpansion("public_deps_origins",
+                                   origin_map(target_->public_deps()));
+
+    // The split private/public dependency lists. The legacy "deps" field above
+    // (GetDeps(DEPS_ALL)) merges private + public + data, losing GN's
+    // header-visibility split. Label form matches "deps".
+    auto dep_list = [&](const LabelTargetVector& deps) -> ValuePtr {
+      auto l = std::make_unique<base::ListValue>();
+      std::vector<std::string> names;
+      names.reserve(deps.size());
+      for (const auto& pair : deps)
+        names.push_back(pair.label.GetUserVisibleName(
+            pair.label.GetToolchainLabel() != default_tc_label));
+      std::sort(names.begin(), names.end());
+      for (const auto& n : names)
+        l->AppendString(n);
+      return l;
+    };
+    if (what("private_deps"))
+      res->SetWithoutPathExpansion("private_deps",
+                                   dep_list(target_->private_deps()));
+    if (what(variables::kPublicDeps))
+      res->SetWithoutPathExpansion(variables::kPublicDeps,
+                                   dep_list(target_->public_deps()));
 
     if (what(variables::kGenDeps) && !target_->gen_deps().empty())
       res->SetWithoutPathExpansion(variables::kGenDeps, RenderGenDeps());

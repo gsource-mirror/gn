@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "839d8c95_a18bcbcd",
+        "filename": "build/ninja_file.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-19T07:22:09Z",
+      "side": 1,
+      "message": "It is better to avoid using object for default value?\ngo/python-tips/020#the-unexpected-behaviour",
+      "range": {
+        "startLine": 47,
+        "startChar": 32,
+        "endLine": 47,
+        "endChar": 61
+      },
+      "revId": "5b77a8f69711e74a454493bc851339df850e67d7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c785f48_a088394f",
+        "filename": "integration_tests/simple/build/toolchain/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-19T07:22:09Z",
+      "side": 1,
+      "message": "remove trailing space?",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 9
+      },
+      "revId": "5b77a8f69711e74a454493bc851339df850e67d7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -13,13 +13,7 @@ import shlex
 import subprocess
 import sys
 
-# IMPORTANT: This script is also executed as python2 on
-# GN's CI builders.
-
-try:  # py3
-  from shlex import quote as shell_quote
-except ImportError:  # py2
-  from pipes import quote as shell_quote
+from shlex import quote as shell_quote
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(SCRIPT_DIR)

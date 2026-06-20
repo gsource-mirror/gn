@@ -679,6 +679,24 @@ class TargetDescBuilder : public BaseDescBuilder {
       res->SetWithoutPathExpansion(variables::kPublicDeps,
                                    dep_list(target_->public_deps()));
 
+    // Declaration-ordered companions to private_deps/public_deps. The sorted
+    // lists above lose GN's declaration order, which decides the link line:
+    // ComputeInheritedLibs walks public_deps then private_deps in declaration
+    // order with first-occurrence dedup. Label form matches "deps".
+    auto dep_list_ordered = [&](const LabelTargetVector& deps) -> ValuePtr {
+      auto l = std::make_unique<base::ListValue>();
+      for (const auto& pair : deps)
+        l->AppendString(pair.label.GetUserVisibleName(
+            pair.label.GetToolchainLabel() != default_tc_label));
+      return l;
+    };
+    if (what("private_deps_ordered"))
+      res->SetWithoutPathExpansion("private_deps_ordered",
+                                   dep_list_ordered(target_->private_deps()));
+    if (what("public_deps_ordered"))
+      res->SetWithoutPathExpansion("public_deps_ordered",
+                                   dep_list_ordered(target_->public_deps()));
+
     if (what(variables::kGenDeps) && !target_->gen_deps().empty())
       res->SetWithoutPathExpansion(variables::kGenDeps, RenderGenDeps());
 

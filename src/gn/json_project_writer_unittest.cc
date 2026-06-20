@@ -92,9 +92,11 @@ TEST_F(JSONWriter, ActionWithResponseFile) {
          },
          "outputs": [ "//out/Debug/output1.out" ],
          "private_deps": [  ],
+         "private_deps_ordered": [  ],
          "public": "*",
          "public_deps": [  ],
          "public_deps_loc": "",
+         "public_deps_ordered": [  ],
          "public_deps_origins": {
 
          },
@@ -349,9 +351,11 @@ TEST_F(JSONWriter, RustTarget) {
          },
          "outputs": [ "//out/Debug/obj/foo/libbar.rlib" ],
          "private_deps": [  ],
+         "private_deps_ordered": [  ],
          "public": "*",
          "public_deps": [  ],
          "public_deps_loc": "",
+         "public_deps_ordered": [  ],
          "public_deps_origins": {
 
          },
@@ -626,9 +630,11 @@ TEST_F(JSONWriter, ForEachWithResponseFile) {
          "output_patterns": [ "//out/Debug/{{source_name_part}}.out" ],
          "outputs": [ "//out/Debug/input1.out" ],
          "private_deps": [  ],
+         "private_deps_ordered": [  ],
          "public": "*",
          "public_deps": [  ],
          "public_deps_loc": "",
+         "public_deps_ordered": [  ],
          "public_deps_origins": {
 
          },
@@ -929,9 +935,11 @@ TEST_F(JSONWriter, GroupWithData) {
 
          },
          "private_deps": [  ],
+         "private_deps_ordered": [  ],
          "public": "*",
          "public_deps": [  ],
          "public_deps_loc": "",
+         "public_deps_ordered": [  ],
          "public_deps_origins": {
 
          },

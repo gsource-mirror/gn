@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff5e7d42_3e43cd47",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-06-22T08:03:03Z",
+      "side": 1,
+      "message": "Yes, Gerrit is like that sometimes, and the fix is usually to upload a change rebased on top of the latest upstream. Thanks.",
+      "revId": "28df2d93df29e5f773dd51ed2f19c112987626ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

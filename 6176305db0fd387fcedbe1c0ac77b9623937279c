@@ -1,0 +1,91 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "749548d6_8661ecaf",
+        "filename": "src/gn/ninja_rust_binary_target_writer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-23T09:38:48Z",
+      "side": 1,
+      "message": "Can we use unordered_set here?",
+      "range": {
+        "startLine": 241,
+        "startChar": 9,
+        "endLine": 241,
+        "endChar": 12
+      },
+      "revId": "6176305db0fd387fcedbe1c0ac77b9623937279c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a328602_cd25689e",
+        "filename": "src/gn/ninja_rust_binary_target_writer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-23T09:38:48Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: NIT: This traversal stops if `pair.ptr` is a `Target::GROUP`, even though rustc might natively link the transitive rlibs through the group (because GN flattens groups into `--extern` for intermediate crates). This means rlibs behind groups might be passed to the linker twice (once by rustc natively, once explicitly via `-Clink-arg` below). \n\nSince linkers gracefully handle duplicate static archives (`.rlib`), this is harmless in practice, but just something to be aware of.",
+      "range": {
+        "startLine": 254,
+        "startChar": 0,
+        "endLine": 254,
+        "endChar": 0
+      },
+      "revId": "6176305db0fd387fcedbe1c0ac77b9623937279c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a64b258_0e6ac38f",
+        "filename": "src/gn/ninja_rust_binary_target_writer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-23T09:38:48Z",
+      "side": 1,
+      "message": "Use contains?",
+      "range": {
+        "startLine": 265,
+        "startChar": 10,
+        "endLine": 265,
+        "endChar": 60
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "5c16ef0c_0621a4b4",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_rust_binary_target_writer.cc",
+              "range": {
+                "startLine": 265,
+                "startChar": 0,
+                "endLine": 266,
+                "endChar": 0
+              },
+              "replacement": "          !linked_by_rustc.contains(dep)) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "6176305db0fd387fcedbe1c0ac77b9623937279c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

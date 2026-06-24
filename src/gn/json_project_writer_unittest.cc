@@ -77,6 +77,7 @@ TEST_F(JSONWriter, ActionWithResponseFile) {
       "//foo:bar()": {
          "args": [ "{{response_file_name}}" ],
          "check_includes_strict": false,
+         "data_deps": [  ],
          "defined_from": "",
          "deps": [  ],
          "deps_loc": "",
@@ -337,6 +338,7 @@ TEST_F(JSONWriter, RustTarget) {
          "check_includes_strict": false,
          "crate_name": "foo",
          "crate_root": "//foo/lib.rs",
+         "data_deps": [  ],
          "defined_from": "",
          "deps": [  ],
          "deps_loc": "",
@@ -615,6 +617,7 @@ TEST_F(JSONWriter, ForEachWithResponseFile) {
       "//foo:bar()": {
          "args": [ "{{source}}", "{{source_file_part}}", "{{response_file_name}}" ],
          "check_includes_strict": false,
+         "data_deps": [  ],
          "defined_from": "",
          "deps": [  ],
          "deps_loc": "",
@@ -925,6 +928,7 @@ TEST_F(JSONWriter, GroupWithData) {
       "//foo:docs()": {
          "check_includes_strict": false,
          "data": [ "README.md", "docs/help.txt" ],
+         "data_deps": [  ],
          "defined_from": "",
          "deps": [  ],
          "deps_loc": "",

@@ -697,6 +697,13 @@ class TargetDescBuilder : public BaseDescBuilder {
       res->SetWithoutPathExpansion("public_deps_ordered",
                                    dep_list_ordered(target_->public_deps()));
 
+    // Data dependencies: runtime-only deps (helper binaries, loadable .so's,
+    // data files a target needs at run time but not to build or link). GN keeps
+    // them out of the private/public header-visibility split, so the lists
+    // above miss them. Label form matches "deps".
+    if (what("data_deps"))
+      res->SetWithoutPathExpansion("data_deps", dep_list(target_->data_deps()));
+
     if (what(variables::kGenDeps) && !target_->gen_deps().empty())
       res->SetWithoutPathExpansion(variables::kGenDeps, RenderGenDeps());
 

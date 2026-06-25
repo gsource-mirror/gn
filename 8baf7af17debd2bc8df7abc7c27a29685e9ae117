@@ -1,0 +1,86 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "863559fa_04d8b080",
+        "filename": "src/gn/builder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-25T12:10:08Z",
+      "side": 1,
+      "message": "Better to add explanation comment for this function?",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 28
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "8147b855_c87f77ba",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/builder.h",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "  // Updates the state of a BuilderRecord and triggers subsequent steps\n  // like dependency resolution or finalization based on the state change.\n  // |prev_state| is the state of the record before the update.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "8baf7af17debd2bc8df7abc7c27a29685e9ae117",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "219eb77b_391b6628",
+        "filename": "src/gn/builder_record.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-25T12:10:08Z",
+      "side": 1,
+      "message": "Can we use structured bindings here?",
+      "range": {
+        "startLine": 213,
+        "startChar": 11,
+        "endLine": 213,
+        "endChar": 36
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "ecddde15_608a6818",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/builder_record.h",
+              "range": {
+                "startLine": 213,
+                "startChar": 0,
+                "endLine": 216,
+                "endChar": 0
+              },
+              "replacement": "      for (auto\u0026 [dependent, wait_info] : waiting_map_) {\n        if (dependent-\u003eOnDepStateChange(this, from_state, state_, wait_info))\n"
+            }
+          ]
+        }
+      ],
+      "revId": "8baf7af17debd2bc8df7abc7c27a29685e9ae117",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

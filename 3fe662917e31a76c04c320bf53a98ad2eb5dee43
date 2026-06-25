@@ -94,6 +94,24 @@
       ],
       "revId": "3fe662917e31a76c04c320bf53a98ad2eb5dee43",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d55dcd1e_bc0625e9",
+        "filename": "src/gn/builder_record.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-06-25T12:24:02Z",
+      "side": 1,
+      "message": "We could do that here, but since all this code is replaced by a different version that does use structured binding, let\u0027s submit this as is.",
+      "parentUuid": "c281b38c_d39d1022",
+      "revId": "3fe662917e31a76c04c320bf53a98ad2eb5dee43",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

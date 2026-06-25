@@ -42,6 +42,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4f4c295_3cab37e0",
+        "filename": "src/gn/builder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-06-25T12:21:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "863559fa_04d8b080",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 28
+      },
+      "revId": "8baf7af17debd2bc8df7abc7c27a29685e9ae117",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "219eb77b_391b6628",
@@ -79,6 +103,30 @@
           ]
         }
       ],
+      "revId": "8baf7af17debd2bc8df7abc7c27a29685e9ae117",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6006a34f_0baae985",
+        "filename": "src/gn/builder_record.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-06-25T12:21:17Z",
+      "side": 1,
+      "message": "Good idea. This works!",
+      "parentUuid": "219eb77b_391b6628",
+      "range": {
+        "startLine": 213,
+        "startChar": 11,
+        "endLine": 213,
+        "endChar": 36
+      },
       "revId": "8baf7af17debd2bc8df7abc7c27a29685e9ae117",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

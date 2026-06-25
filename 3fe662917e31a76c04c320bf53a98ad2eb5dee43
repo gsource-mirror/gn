@@ -1,0 +1,99 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c281b38c_d39d1022",
+        "filename": "src/gn/builder_record.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-25T11:45:49Z",
+      "side": 1,
+      "message": "Can we use structured bindings here and belows for better readability?",
+      "fixSuggestions": [
+        {
+          "fixId": "e70f84b4_594dfef3",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/builder_record.h",
+              "range": {
+                "startLine": 191,
+                "startChar": 0,
+                "endLine": 195,
+                "endChar": 0
+              },
+              "replacement": "    for (auto\u0026 [waiting, wait_info] : waiting_map_) {\n      if (wait_info.wait_validation_defined) {\n        wait_info.wait_validation_defined \u003d false;\n"
+            },
+            {
+              "path": "src/gn/builder_record.h",
+              "range": {
+                "startLine": 226,
+                "startChar": 0,
+                "endLine": 230,
+                "endChar": 0
+              },
+              "replacement": "    for (auto\u0026 [waiting, wait_info] : waiting_map_) {\n      if (wait_info.wait_resolved) {\n        wait_info.wait_resolved \u003d false;\n"
+            },
+            {
+              "path": "src/gn/builder_record.h",
+              "range": {
+                "startLine": 242,
+                "startChar": 0,
+                "endLine": 246,
+                "endChar": 0
+              },
+              "replacement": "    for (auto\u0026 [waiting, wait_info] : waiting_map_) {\n      if (wait_info.wait_validation_resolved) {\n        wait_info.wait_validation_resolved \u003d false;\n"
+            },
+            {
+              "path": "src/gn/builder_record.h",
+              "range": {
+                "startLine": 271,
+                "startChar": 0,
+                "endLine": 275,
+                "endChar": 0
+              },
+              "replacement": "    for (auto\u0026 [waiting, wait_info] : waiting_map_) {\n      if (wait_info.wait_finalized) {\n        wait_info.wait_finalized \u003d false;\n"
+            },
+            {
+              "path": "src/gn/builder_record.h",
+              "range": {
+                "startLine": 298,
+                "startChar": 0,
+                "endLine": 301,
+                "endChar": 0
+              },
+              "replacement": "    for (const auto\u0026 [waiting, wait_info] : waiting_map_) {\n      if (wait_info.wait_validation_defined)\n        result.add(waiting);\n"
+            },
+            {
+              "path": "src/gn/builder_record.h",
+              "range": {
+                "startLine": 309,
+                "startChar": 0,
+                "endLine": 312,
+                "endChar": 0
+              },
+              "replacement": "    for (const auto\u0026 [waiting, wait_info] : waiting_map_) {\n      if (wait_info.wait_resolved)\n        result.add(waiting);\n"
+            },
+            {
+              "path": "src/gn/builder_record.h",
+              "range": {
+                "startLine": 320,
+                "startChar": 0,
+                "endLine": 323,
+                "endChar": 0
+              },
+              "replacement": "    for (const auto\u0026 [waiting, wait_info] : waiting_map_) {\n      if (wait_info.wait_validation_resolved)\n        result.add(waiting);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "3fe662917e31a76c04c320bf53a98ad2eb5dee43",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

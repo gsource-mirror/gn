@@ -1,0 +1,41 @@
+[dependencies.core]
+optional = true
+package = "rustc-std-workspace-core"
+version = "1.0"
+
+[dependencies.std]
+optional = true
+package = "rustc-std-workspace-std"
+version = "1.0"
+
+[features]
+cjk = []
+default = ["cjk"]
+no_std = []
+rustc-dep-of-std = ["std", "core"]
+
+[lib]
+path = "src/lib.rs"
+
+[package]
+authors = ["kwantam <kwantam@gmail.com>", "Manish Goregaokar <manishsmail@gmail.com>"]
+autobenches = false
+autobins = false
+autoexamples = false
+autolib = false
+autotests = false
+categories = ["command-line-interface", "internationalization", "no-std::no-alloc", "text-processing"]
+description = """
+Determine displayed width of `char` and `str` types
+according to Unicode Standard Annex #11 rules.
+"""
+edition = "2021"
+exclude = ["/.github/*"]
+homepage = "https://github.com/unicode-rs/unicode-width"
+keywords = ["text", "width", "unicode"]
+license = "MIT OR Apache-2.0"
+name = "unicode-width"
+readme = "README.md"
+repository = "https://github.com/unicode-rs/unicode-width"
+rust-version = "1.66"
+version = "0.2.2"

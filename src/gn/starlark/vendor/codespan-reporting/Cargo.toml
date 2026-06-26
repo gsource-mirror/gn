@@ -1,0 +1,66 @@
+[dependencies.serde]
+default-features = false
+features = ["derive", "alloc"]
+optional = true
+version = "1"
+
+[dependencies.termcolor]
+optional = true
+version = "1.0.4"
+
+[dependencies.unicode-width]
+version = ">=0.1,<0.3"
+
+[dev-dependencies.anyhow]
+version = "1"
+
+[dev-dependencies.insta]
+version = "1.6.3"
+
+[dev-dependencies.peg]
+version = "0.7"
+
+[dev-dependencies.pico-args]
+version = "0.5.0"
+
+[dev-dependencies.rustyline]
+version = "6"
+
+[dev-dependencies.unindent]
+version = "0.1"
+
+[features]
+ascii-only = []
+default = ["std", "termcolor"]
+serialization = ["serde"]
+std = ["serde?/std"]
+termcolor = ["std", "dep:termcolor"]
+
+[lib]
+path = "src/lib.rs"
+
+[lints.clippy]
+alloc_instead_of_core = "warn"
+std_instead_of_alloc = "warn"
+std_instead_of_core = "warn"
+
+[package]
+authors = ["Brendan Zabarauskas <bjzaba@yahoo.com.au>"]
+autobenches = false
+autobins = false
+autoexamples = false
+autolib = false
+autotests = false
+categories = ["compilers", "command-line-interface"]
+description = "Beautiful diagnostic reporting for text-based programming languages"
+documentation = "https://docs.rs/codespan-reporting"
+edition = "2021"
+exclude = ["assets/**"]
+homepage = "https://github.com/brendanzab/codespan"
+keywords = ["diagnostic-reporting"]
+license = "Apache-2.0"
+name = "codespan-reporting"
+readme = "README.md"
+repository = "https://github.com/brendanzab/codespan"
+rust-version = "1.67"
+version = "0.13.1"

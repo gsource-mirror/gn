@@ -1,0 +1,36 @@
+[features]
+monitor = ["windows-win"]
+std = ["error-code/std"]
+
+[lib]
+path = "src/lib.rs"
+
+[package]
+authors = ["Douman <douman@gmx.se>"]
+autobenches = false
+autobins = false
+autoexamples = false
+autolib = false
+autotests = false
+categories = ["os::windows-apis"]
+description = "Provides simple way to interact with Windows clipboard."
+documentation = "https://docs.rs/crate/clipboard-win"
+edition = "2018"
+include = ["**/*.rs", "Cargo.toml", "README.md"]
+keywords = ["Windows", "winapi", "clipboard"]
+license = "BSL-1.0"
+name = "clipboard-win"
+readme = "README.md"
+repository = "https://github.com/DoumanAsh/clipboard-win"
+version = "5.4.1"
+
+[package.metadata.docs.rs]
+default-target = "x86_64-pc-windows-msvc"
+features = ["monitor"]
+
+[target."cfg(windows)".dependencies.error-code]
+version = "3"
+
+[target."cfg(windows)".dependencies.windows-win]
+optional = true
+version = "3"

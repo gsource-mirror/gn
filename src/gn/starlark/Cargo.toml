@@ -27,6 +27,11 @@ members = [
     "crates/types",
 ]
 
+# If you modify these, you will need to re-vendor dependencies. To do so:
+# 1. Temporarily comment out the source replacement in `.cargo/config.toml`
+# 2. Run: `cargo install cargo-vendor-filterer`
+# 3. Run: `rm -rf vendor && cargo vendor-filterer`
+# 4. Re-enable the source replacement in `.cargo/config.toml`
 [workspace.dependencies]
 allocative = "0.3"
 anyhow = "1.0"
@@ -109,3 +114,45 @@ redundant_imports = "warn"
 # &str is not a proper C type.
 # However, rust::Str is defined in cxx.h and wraps it safely.
 improper_ctypes = "allow"
+
+# By stripping out all this random crap, we get the vendored deps down from
+# 500MB to a more managable 60MB.
+[package.metadata.vendor-filter]
+exclude-crate-paths = [
+    { name = "*", exclude = "**/*.bazel" },
+    { name = "*", exclude = "**/*.bzl" },
+    { name = "*", exclude = "**/*.cmake" },
+    { name = "*", exclude = "**/*.golden" },
+    { name = "*", exclude = "**/*.orig" },
+    { name = "*", exclude = "**/*.png" },
+    { name = "*", exclude = "**/*.sh" },
+    { name = "*", exclude = "**/*.star" },
+    { name = "*", exclude = "**/*.svg" },
+    { name = "*", exclude = "**/*.yaml" },
+    { name = "*", exclude = "**/*.yml" },
+    { name = "*", exclude = "**/*_tests" },
+    { name = "*", exclude = "**/.github" },
+    { name = "*", exclude = "**/Dockerfile" },
+    { name = "*", exclude = "**/benches" },
+    { name = "*", exclude = "**/benchmark" },
+    { name = "*", exclude = "**/examples" },
+    { name = "*", exclude = "**/test" },
+    { name = "*", exclude = "**/testcases" },
+    { name = "*", exclude = "**/testdata" },
+    { name = "*", exclude = "**/tests" },
+    { name = "*", exclude = "**/*_tests" },
+    { name = "*", exclude = "**/unused_loads" },
+]
+# This is not a complete list of all platforms we support.
+# It will likely work on other platforms as well, as long as there's no
+# dependencies required *specifically* for those platforms.
+platforms = [
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+    "x86_64-pc-windows-msvc",
+    "aarch64-pc-windows-msvc",
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin",
+]
+# Strip dev dependencies - we're not vendoring / running the tests.
+keep-dep-kinds = "no-dev"

@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eca3e23e_cde30943",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-26T05:18:38Z",
+      "side": 1,
+      "message": "Hmm, I prefer to have internet access for now to avoid repository size increase.",
+      "revId": "1e6928accd61d24e9f5a337ad56b309a0435da9d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d373bda7_c6e906b2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-26T05:18:38Z",
+      "side": 1,
+      "message": "Can we check in only files relevant to this?",
+      "revId": "1e6928accd61d24e9f5a337ad56b309a0435da9d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99c5304c_5dc6bfba",
+        "filename": "src/gn/starlark/Cargo.toml",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-26T05:18:38Z",
+      "side": 1,
+      "message": "Is it possible to exclude md files too?",
+      "revId": "1e6928accd61d24e9f5a337ad56b309a0435da9d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

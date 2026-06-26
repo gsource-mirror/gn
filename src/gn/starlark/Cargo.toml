@@ -13,6 +13,7 @@ test = false
 [workspace]
 members = [
     ".",
+    "crates/types",
 ]
 
 # If you modify these, you will need to re-vendor dependencies. To do so:
@@ -42,6 +43,9 @@ allocative = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn
 allocative_derive = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
 pagable = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
 pagable_derive = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
+
+[dependencies]
+types = { path = "crates/types" }
 
 # In debug mode, we still optimize our dependencies.
 # Otherwise our static library for this package is

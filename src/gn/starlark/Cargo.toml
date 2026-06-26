@@ -13,6 +13,7 @@ test = false
 [workspace]
 members = [
     ".",
+    "crates/types",
 ]
 
 # If you modify these, you will need to re-vendor dependencies. To do so:

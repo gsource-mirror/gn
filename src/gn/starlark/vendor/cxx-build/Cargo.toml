@@ -1,0 +1,61 @@
+[dependencies]
+cc = "1.0.101"
+codespan-reporting = "0.13.1"
+indexmap = "2.9.0"
+scratch = "1.0.5"
+
+[dependencies.proc-macro2]
+default-features = false
+features = ["span-locations"]
+version = "1.0.74"
+
+[dependencies.quote]
+default-features = false
+version = "1.0.35"
+
+[dependencies.syn]
+default-features = false
+features = ["clone-impls", "full", "parsing", "printing"]
+version = "2.0.46"
+
+[dev-dependencies]
+pkg-config = "0.3.27"
+
+[dev-dependencies.cxx]
+path = "../.."
+version = "1.0"
+
+[dev-dependencies.cxx-gen]
+path = "../lib"
+version = "0.7"
+
+[features]
+parallel = ["cc/parallel"]
+
+[lib]
+path = "src/lib.rs"
+
+[package]
+authors = ["David Tolnay <dtolnay@gmail.com>"]
+autobenches = false
+autobins = false
+autoexamples = false
+autolib = false
+autotests = false
+categories = ["development-tools::build-utils", "development-tools::ffi"]
+description = "C++ code generator for integrating `cxx` crate into a Cargo build."
+documentation = "https://docs.rs/cxx-build"
+edition = "2024"
+exclude = ["build.rs"]
+homepage = "https://cxx.rs"
+keywords = ["ffi", "build-dependencies"]
+license = "MIT OR Apache-2.0"
+name = "cxx-build"
+readme = false
+repository = "https://github.com/dtolnay/cxx"
+rust-version = "1.85"
+version = "1.0.196"
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--generate-link-to-definition", "--generate-macro-expansion", "--extern-html-root-url=core=https://doc.rust-lang.org", "--extern-html-root-url=alloc=https://doc.rust-lang.org", "--extern-html-root-url=std=https://doc.rust-lang.org"]
+targets = ["x86_64-unknown-linux-gnu"]

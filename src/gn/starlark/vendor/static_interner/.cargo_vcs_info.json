@@ -1,0 +1,7 @@
+{
+  "git": {
+    "sha1": "f90bfd1dc4376ecdad40048d7644cdac809f328b",
+    "dirty": true
+  },
+  "path_in_vcs": "shed/static_interner"
+}

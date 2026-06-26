@@ -1,2 +1,8 @@
 [env]
 CXXFLAGS = { value = "-std=c++23", relative = false }
+
+[source.crates-io]
+replace-with = "vendored-sources"
+
+[source.vendored-sources]
+directory = "vendor"

@@ -14,7 +14,12 @@ test = false
 members = [
     ".",
     "crates/types",
+    "crates/ffi",
 ]
+
+[dependencies]
+ffi = { path = "crates/ffi" }
+
 
 [workspace.dependencies]
 allocative = "0.3"

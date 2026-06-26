@@ -16,6 +16,24 @@
       "message": "Could you file a tracking issue for this?",
       "revId": "a67194e26dfd0bdedde4605573a5c171a374be15",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18ef1a67_b8e7e5e9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-06-26T10:02:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c00316f8_b4eb0024",
+      "revId": "a67194e26dfd0bdedde4605573a5c171a374be15",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

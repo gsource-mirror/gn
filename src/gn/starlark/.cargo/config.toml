@@ -1,0 +1,2 @@
+[env]
+CXXFLAGS = { value = "-std=c++20", relative = false }

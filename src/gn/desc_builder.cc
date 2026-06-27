@@ -555,6 +555,14 @@ class TargetDescBuilder : public BaseDescBuilder {
                                  kRecursiveWriterKeepDuplicates)
 #undef CONFIG_VALUE_ARRAY_HANDLER
 
+      // The cflags, cflags_c and cflags_cc above, split by the config that
+      // supplied them.
+      if (what("config_cflags")) {
+        ValuePtr ptr = RenderConfigCflagSegments();
+        if (ptr)
+          res->SetWithoutPathExpansion("config_cflags", std::move(ptr));
+      }
+
       // Libs and lib_dirs are handled specially below.
 
       if (what(variables::kExterns)) {
@@ -1071,6 +1079,42 @@ class TargetDescBuilder : public BaseDescBuilder {
       }
     }
     return res->empty() ? nullptr : std::move(res);
+  }
+
+  // Emits the cflags/cflags_c/cflags_cc contributions grouped by the config
+  // that supplied them, in ConfigValuesIterator order (the same order the
+  // flattened cflags* fields use). Each segment carries its config's label
+  // (empty when the flags were set directly on the target). Because the
+  // flattened fields use kRecursiveWriterKeepDuplicates, concatenating the
+  // segments' arrays in order reproduces those fields byte-for-byte.
+  ValuePtr RenderConfigCflagSegments() {
+    auto segments = std::make_unique<base::ListValue>();
+    for (ConfigValuesIterator iter(target_); !iter.done(); iter.Next()) {
+      const ConfigValues& cur = iter.cur();
+      const std::vector<std::string>& cf = cur.cflags();
+      const std::vector<std::string>& cfc = cur.cflags_c();
+      const std::vector<std::string>& cfcc = cur.cflags_cc();
+      if (cf.empty() && cfc.empty() && cfcc.empty())
+        continue;
+      auto seg = std::make_unique<base::DictionaryValue>();
+      const Config* config = iter.GetCurrentConfig();
+      seg->SetKey("config",
+                  base::Value(config ? config->label().GetUserVisibleName(false)
+                                     : std::string()));
+      auto add = [&seg](const char* key, const std::vector<std::string>& vec) {
+        if (vec.empty())
+          return;
+        auto arr = std::make_unique<base::ListValue>();
+        for (const std::string& s : vec)
+          arr->AppendString(s);
+        seg->SetWithoutPathExpansion(key, std::move(arr));
+      };
+      add("cflags", cf);
+      add("cflags_c", cfc);
+      add("cflags_cc", cfcc);
+      segments->Append(std::move(seg));
+    }
+    return segments->empty() ? nullptr : std::move(segments);
   }
 
   Label GetToolchainLabel() const override {

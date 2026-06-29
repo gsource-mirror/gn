@@ -34,6 +34,24 @@
       "parentUuid": "81beb816_c6c28d40",
       "revId": "892b337b76b5fcac0314e902a20ee9c6485da70d",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bccb8ec_b00d3c6c",
+        "filename": "src/gn/starlark/vendor/cxx/include/cxx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-29T02:46:34Z",
+      "side": 1,
+      "message": "I still want README.md to be somewhere under vendor directory while we don\u0027t use `cargo vendor` to know how this is generated if this is not written by ourselves.",
+      "parentUuid": "97f3449c_56466695",
+      "revId": "892b337b76b5fcac0314e902a20ee9c6485da70d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

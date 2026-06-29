@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3968a0c0_043d9ea0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-29T01:43:34Z",
+      "side": 1,
+      "message": "Run tools/run_formatter.sh to format?",
+      "revId": "0aeba3870a8c69d775bd384ed314a001aa79b72b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

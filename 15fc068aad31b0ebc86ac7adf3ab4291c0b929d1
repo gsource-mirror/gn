@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cd72ffb_bed0f858",
+        "filename": "src/gn/desc_builder.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 957,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-29T01:29:24Z",
+      "side": 1,
+      "message": "Better to initialize this member to nullptr.",
+      "range": {
+        "startLine": 957,
+        "startChar": 22,
+        "endLine": 957,
+        "endChar": 31
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "4fc7e6d9_bdb36199",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/desc_builder.cc",
+              "range": {
+                "startLine": 957,
+                "startChar": 0,
+                "endLine": 958,
+                "endChar": 0
+              },
+              "replacement": "  ResolvedTargetData* resolved_ \u003d nullptr;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "15fc068aad31b0ebc86ac7adf3ab4291c0b929d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

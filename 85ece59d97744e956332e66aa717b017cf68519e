@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e020019a_d8b46985",
+        "filename": "src/gn/ffi/intern_string.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-06-29T05:10:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca033819_03b1fe62",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 16
+      },
+      "revId": "85ece59d97744e956332e66aa717b017cf68519e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6f0188ac_af92b390",
@@ -37,6 +61,24 @@
       "writtenOn": "2026-06-29T04:52:14Z",
       "side": 1,
       "message": "Is it possible to use existing constructors and avoid modifying vendored code?",
+      "revId": "85ece59d97744e956332e66aa717b017cf68519e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01f3dcc7_3ce20c33",
+        "filename": "src/gn/starlark/vendor/cxx/include/cxx.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-06-29T05:10:27Z",
+      "side": 1,
+      "message": "It\u0027s possible, but since we already need to make a PR, and I sent the PRs at the same time, if we have access to the first patched PR (which is a hard blocker that we explicitly need), we should also have access to the second.",
+      "parentUuid": "6f0188ac_af92b390",
       "revId": "85ece59d97744e956332e66aa717b017cf68519e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

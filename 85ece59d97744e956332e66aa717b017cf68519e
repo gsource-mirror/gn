@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca033819_03b1fe62",
+        "filename": "src/gn/ffi/intern_string.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-29T04:52:14Z",
+      "side": 1,
+      "message": "Insert an empty line after STL includes block.",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 16
+      },
+      "revId": "85ece59d97744e956332e66aa717b017cf68519e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f0188ac_af92b390",
+        "filename": "src/gn/starlark/vendor/cxx/include/cxx.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-29T04:52:14Z",
+      "side": 1,
+      "message": "Is it possible to use existing constructors and avoid modifying vendored code?",
+      "revId": "85ece59d97744e956332e66aa717b017cf68519e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

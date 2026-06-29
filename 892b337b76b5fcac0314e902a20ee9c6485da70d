@@ -52,6 +52,24 @@
       "parentUuid": "97f3449c_56466695",
       "revId": "892b337b76b5fcac0314e902a20ee9c6485da70d",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4281fa8_ed243ab4",
+        "filename": "src/gn/starlark/vendor/cxx/include/cxx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-06-29T02:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bccb8ec_b00d3c6c",
+      "revId": "892b337b76b5fcac0314e902a20ee9c6485da70d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

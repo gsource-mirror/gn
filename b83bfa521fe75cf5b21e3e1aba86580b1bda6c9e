@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9acac298_b62af21f",
+        "filename": "src/gn/starlark/.cargo/config.toml",
+        "patchSetId": 11
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-06-29T07:29:36Z",
+      "side": 1,
+      "message": "This forces `-std\u003dc++20` for C++ compiled under cargo, but the ninja build (`build/gen.py:531`) uses `-std\u003dc++23`.\n\nLinking objects built under different C++ standards is a subtle footgun - is the `c++20` here intentional (cxx requirement?), or should it track `c++23` to match the main build? If intended, could you add a one-line comment explaining why?",
+      "range": {
+        "startLine": 2,
+        "startChar": 22,
+        "endLine": 2,
+        "endChar": 32
+      },
+      "revId": "b83bfa521fe75cf5b21e3e1aba86580b1bda6c9e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "839f03c4_7769083e",
+        "filename": "src/gn/starlark/crates/types/src/errors.rs",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-06-29T07:29:36Z",
+      "side": 1,
+      "message": "Missing the copyright header.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 39
+      },
+      "revId": "b83bfa521fe75cf5b21e3e1aba86580b1bda6c9e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48330656_cd9400cb",
+        "filename": "src/gn/starlark/crates/types/src/eval_context.rs",
+        "patchSetId": 11
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-06-29T07:29:36Z",
+      "side": 1,
+      "message": "Is there any way to ensure that we find out if future code accidentally causes `extra` to not contain the evaluator context payload?\n\nMaybe we could use `.expect(\"evaluator context not set\")` here to turn the unset case into a defined panic?\n\n(Same in the block below.)",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 44
+      },
+      "revId": "b83bfa521fe75cf5b21e3e1aba86580b1bda6c9e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8459288d_33b7e686",
+        "filename": "src/gn/starlark/crates/types/src/file.rs",
+        "patchSetId": 11
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-06-29T07:29:36Z",
+      "side": 1,
+      "message": "nit: Could you please remove trailing whitespace (ideally automatically when saving)?",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 26,
+        "endChar": 4
+      },
+      "revId": "b83bfa521fe75cf5b21e3e1aba86580b1bda6c9e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b6fcacc_fdde593b",
+        "filename": "src/gn/starlark/crates/types/src/file.rs",
+        "patchSetId": 11
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-06-29T07:29:36Z",
+      "side": 1,
+      "message": "`File` overrides `write_hash` but not `equals`. The default `StarlarkValue::equals` returns `Ok(false)` (\"Type is only equal via a pointer\"), so two `File` values for the same interned path hash equal but compare *un*equal in Starlark: `declare_file(\"x\") \u003d\u003d declare_file(\"x\")` is `False`, and a Starlark dict/set keyed by `File` never dedups them. That contradicts the pointer-equality intent documented above this type.\n\nEvery hashable builtin in starlark-rust (`bytes`, `bigint`) overrides both `write_hash` and `equals` - should we do the same here and in `label.rs`?\n\n```rust\nfn equals(\u0026self, other: Value\u003c\u0027v\u003e) -\u003e starlark::Result\u003cbool\u003e {\n    Ok(other.downcast_ref::\u003cFile\u003e().is_some_and(|o| self \u003d\u003d o))\n}\n```",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 5
+      },
+      "revId": "b83bfa521fe75cf5b21e3e1aba86580b1bda6c9e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95d79856_ba15a666",
+        "filename": "src/gn/starlark/crates/types/src/label.rs",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-06-29T07:29:36Z",
+      "side": 1,
+      "message": "I think it\u0027s risky for a public function to not validate that the string actually starts with a `//` prefix. For example, it currently accepts an empty package: `parse_absolute(\":foo\")` which splits into `[\"\", \"foo\"]` and returns `Ok` with `package \u003d\u003d \"\"`, probably unintended?\n\nA later `package.as_str_without_slashes()` then does `\"\"[2..]` and panics. `parse()` guards this today, but `parse_absolute` is `pub`. Maybe we could restrict visibility here, or assert/return an error when `package` doesn\u0027t start with `//`?",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 62
+      },
+      "revId": "b83bfa521fe75cf5b21e3e1aba86580b1bda6c9e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd1a471b_42c54cfd",
+        "filename": "src/gn/starlark/crates/types/src/label.rs",
+        "patchSetId": 11
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-06-29T07:29:36Z",
+      "side": 1,
+      "message": "This panics on empty input. Same issue as above, I think it\u0027s risky to trust the guarantee as public function, if the only enforcement mechanism is a comment...",
+      "range": {
+        "startLine": 83,
+        "startChar": 8,
+        "endLine": 83,
+        "endChar": 27
+      },
+      "revId": "b83bfa521fe75cf5b21e3e1aba86580b1bda6c9e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8e12159_86cd3548",
+        "filename": "src/gn/starlark/crates/types/src/package_ref.rs",
+        "patchSetId": 11
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-06-29T07:29:36Z",
+      "side": 1,
+      "message": "Same pattern here - what if the string doesn\u0027t start with leading \"//\"?\n\n`PackageRef::new` / `Package::from` accept any string and don\u0027t even have a doc note telling callers about it, so this is a latent panic.",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 5
+      },
+      "revId": "b83bfa521fe75cf5b21e3e1aba86580b1bda6c9e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b68ba43_7a53800c",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-06-29T07:29:36Z",
+      "side": 1,
+      "message": "That `if pkg.as_str().len() \u003e 2` I guess is a check for \"is this (not) the root package `//`\", which I find a bit hard to understand for readers not used to the code and conventions.\n\n`as_str_without_slashes()` already returns `\"\"` for the root package `//` and `\"foo/bar\"` otherwise, could we use that property?\n\nWhat about extracting a helper:\n\n```rust\n/// Builds the output-relative path string for a file in `pkg`.\nfn relative_path(\u0026self, pkg: \u0026PackageRef, s: \u0026str) -\u003e String {\n  let pkg_dir \u003d pkg.as_str_without_slashes();\n  // The root package (\"//\") has no subdirectory, so no separator before `s`.\n  let sep \u003d if pkg_dir.is_empty() { \"\" } else { \"/\" };\n  format!(\"{}{pkg_dir}{sep}{s}\", self.root_source_dir_rel)\n}\n```\n\nThat should result in:\n- For the root package: `root_rel + \"\" + \"\" + s`.\n- For `//foo/bar`: `root_rel + \"foo/bar\" + \"/\" + s`.\n\nOr if you prefer it inlined, maybe this?\n\n```rust\nlet pkg_dir \u003d pkg.as_str_without_slashes();\nlet rel_path \u003d if pkg_dir.is_empty() {\n  format!(\"{}{s}\", self.root_source_dir_rel)\n} else {\n  format!(\"{}{pkg_dir}/{s}\", self.root_source_dir_rel)\n};\nOk(File::from_rust(rel_path))\n```",
+      "range": {
+        "startLine": 46,
+        "startChar": 27,
+        "endLine": 46,
+        "endChar": 52
+      },
+      "revId": "b83bfa521fe75cf5b21e3e1aba86580b1bda6c9e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1743ac19_b606286d",
+        "filename": "src/gn/starlark/crates/types/src/util.rs",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-06-29T07:29:36Z",
+      "side": 1,
+      "message": "Mhm, why do we need this? `extend_lifetime` is exported but has no call sites in the crate. What about we introduce it later once there\u0027s code calling it?",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 1
+      },
+      "revId": "b83bfa521fe75cf5b21e3e1aba86580b1bda6c9e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

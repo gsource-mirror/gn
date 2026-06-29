@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "898fd287_81e58fe9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-06-29T04:34:11Z",
+      "side": 1,
+      "message": "@tikuta@google.com PTAL, I lost votes after addressing the comments.",
+      "revId": "2c46d58be544dc02cb44d0d2115409166692de90",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -16,6 +16,24 @@
       "message": "Run tools/run_formatter.sh to format?",
       "revId": "0aeba3870a8c69d775bd384ed314a001aa79b72b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86173230_88c007bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-06-29T03:48:57Z",
+      "side": 1,
+      "message": "Thanks, I didn\u0027t know about that script. That\u0027s helpful.",
+      "parentUuid": "3968a0c0_043d9ea0",
+      "revId": "0aeba3870a8c69d775bd384ed314a001aa79b72b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

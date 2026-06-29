@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a41abe4e_c6b9d25c",
+        "filename": "src/gn/starlark/vendor/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-29T02:54:35Z",
+      "side": 1,
+      "message": "Could you leave link to the file and revision of the file?",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 35
+      },
+      "revId": "b73a120d99dacfe4265f60d6ed5e72aee6661b37",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

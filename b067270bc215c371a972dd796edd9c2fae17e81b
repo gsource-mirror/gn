@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aafce333_4ec93be4",
+        "filename": ".agents/AGENTS.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-29T02:11:13Z",
+      "side": 1,
+      "message": "Can we follow\nhttps://google.github.io/styleguide/docguide/style.html#character-line-limit\n?",
+      "revId": "b067270bc215c371a972dd796edd9c2fae17e81b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

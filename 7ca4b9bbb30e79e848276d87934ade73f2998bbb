@@ -1,0 +1,372 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05b48732_bd09d750",
+        "filename": "src/gn/starlark/crates/types/src/file.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "I don\u0027t like that we have to learn the generic word \"File\" as a new concept as distinct from SourceFile and OutputFile with the implication that what makes it different is that it\u0027s relative to a very specific dir.\n\nWhat is the *concept* of a File, not what is its internal shape?\n\nBazel\u0027s File, at the top level, doesn\u0027t need to carry the weight of saying \"a file is *a file* and it\u0027s *relative to this specific path*\" as part of its public contract, seemingly because it clearly defines that a File\u0027s `dirname` is always execroot relative.\n\nCan we do the same?\n\ni.e. a File is conceptually defined as *a file*, not \"a path relative to foo bar\", and the fact it has to be `root_build_dir` relative is instead moved as part of the contract of using it?\n\nHence we always construct a File using the `root_build_dir` relative path, and the `dirname` of a File when used in a build rule is always `root_build_dir` relative?\n\nIf it doesn\u0027t contravene Rust doc commenting style, I also want to see the comment distinguishing File from GN\u0027s SourceFile and OutputFile as the next line right after the opening line for the same reason.",
+      "range": {
+        "startLine": 25,
+        "startChar": 9,
+        "endLine": 25,
+        "endChar": 56
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7c8e34b_a995c877",
+        "filename": "src/gn/starlark/crates/types/src/file.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "s/`build`/`root build`?\n\nOr even better `root_build_dir`?\n\ncf my comments in path_resolver.rs\n\nI also realize it\u0027s confusing to someone not intimately familiar with GN internals and/or terminology as to the fact the \"root build directory\" is an \"output\" directory.\n\nMaybe we need a continuation\n\n```\n/// For example, if the root build directory is out/Default relative to the source root,\n/// then the file src/foo.cc relative to the source root would be ../../src/foo.cc\n```\n\nWould help further clarify?",
+      "range": {
+        "startLine": 25,
+        "startChar": 41,
+        "endLine": 25,
+        "endChar": 46
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29a9e6f9_f751d717",
+        "filename": "src/gn/starlark/crates/types/src/file.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "As a consequence of what I\u0027m saying above, this might end up needing to look like\n\n```\n    /// Creates a `File` from a raw static string slice originating from C++.\n    /// The path is treated as relative to the root_build_dir.\n    pub fn from_cxx(path: \u0026\u0027static str) -\u003e Self {\n\n    /// Creates a `File` from a Rust `String` by interning it into a static string slice.\n    /// The path is treated as relative to the root_build_dir.\n    pub fn from_rust(s: String) -\u003e Self {\n\n    /// Returns the file path as a \u0026Path for use in rust.\n    /// The returned path is root_build_dir relative.\n    pub fn as_path(\u0026self) -\u003e \u0026\u0027static Path {\n\n    /// Returns the file path as a \u0026str for use in C++.\n    /// The returned path is root_build_dir relative.\n    pub fn as_str(\u0026self) -\u003e \u0026\u0027static str {\n```\n\netc",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 5
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db66b249_29300ba6",
+        "filename": "src/gn/starlark/crates/types/src/label.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "Why not differentiate it from a GN label by saying a starlark label has no toolchain, and instead of just assuming we know why a GN label turns into a tuple like that to suggest that a fully-qualified i.e. with toolchain GN label must be represented as that?\n\nI\u0027d therefore also want to know what `//foo:foo()` would be represented as, as a consequence",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 59
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b679df0e_7a948d64",
+        "filename": "src/gn/starlark/crates/types/src/label.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "Help me understand as a Rust noob: this dance of `new_unchecked` across multiple files is worthwhile and happening because getting a `Package` out of a string will likely happen often, and we know that `Package` happens to be string-shaped?",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 82
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb1a48d4_41adc478",
+        "filename": "src/gn/starlark/crates/types/src/label.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "https://gn.googlesource.com/gn/+/main/docs/reference.md#implicit-names\n\n?",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 70
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3f3a712_8097b66a",
+        "filename": "src/gn/starlark/crates/types/src/package.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "A package is a string, where the domain of all strings is narrowed to \"starts with `//`\", \"might contain `/` but never trailing with it unlike a SourceDir\"?\n\nShould we add some brief description about what a package *conceptually* is?",
+      "range": {
+        "startLine": 7,
+        "startChar": 17,
+        "endLine": 7,
+        "endChar": 72
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f1cd0cb_d680d958",
+        "filename": "src/gn/starlark/crates/types/src/package_ref.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "Should we be using GN terminology where it makes sense internally?\n\nIf so then `as_source_relative`, given GN internally makes reference to source-relative/source-absolute paths conceptually?\n\nI think PathResolver also reads more clearly as a result, see the comments there",
+      "range": {
+        "startLine": 42,
+        "startChar": 11,
+        "endLine": 42,
+        "endChar": 33
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0832665b_2d2f1631",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "Does this wording need to be clarified given my comments below?",
+      "range": {
+        "startLine": 9,
+        "startChar": 44,
+        "endLine": 9,
+        "endChar": 59
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b822bb9_d81ffca1",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "This is confusing, GN already has a SourceDir, internally refers to the concept of a \"source root\" all over the place, and has the `{{source_root_relative_dir}}` substitution as part of the public contract too\n\nCall this `source_root`?",
+      "range": {
+        "startLine": 13,
+        "startChar": 4,
+        "endLine": 13,
+        "endChar": 23
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f939196_8e22a215",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "What is \"the output directory\"?\n\nIf I had to use GN wording, this is root_build_dir, not root_out_dir, right?",
+      "range": {
+        "startLine": 14,
+        "startChar": 48,
+        "endLine": 14,
+        "endChar": 68
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab0e906a_f1649fba",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "Should we be enforcing the contract this has a trailing slash?",
+      "range": {
+        "startLine": 24,
+        "startChar": 12,
+        "endLine": 24,
+        "endChar": 31
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21cdf4df_39f759be",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "Given this comment and the one I left in path_resolver.rs this would then read as\n\n```rs\n        self.source_root\n            .join(pkg.as_source_relative())\n            .join(s)\n```\n\nWhich reads more naturally for me coming over from GN internals\n\nIn fact I didn\u0027t catch it earlier but I think `as_source_relative` as a result also reads *much* clearer than \"without slashes\", because the latter needs the double-layered mental load of knowing:\n\n1. Rust-land dir paths don\u0027t have GN-land trailing slashes\n2. Therefore we will only be stripping `//` here\n\nWhereas this version says: We\u0027re sticking the source (root) relative path onto the source root, and that\u0027s how you get your absolute path.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 20
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d16994d_3914a051",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "This reads confusingly\n\nIs this correct: \"This is because native GN allows referencing files generated outside of its build graph.\"",
+      "range": {
+        "startLine": 39,
+        "startChar": 11,
+        "endLine": 39,
+        "endChar": 83
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d05c7503_266ee21a",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "\"We explicitly disallow that in Starlark\"?",
+      "range": {
+        "startLine": 40,
+        "startChar": 11,
+        "endLine": 40,
+        "endChar": 38
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d512c9f_7839cc86",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-06-30T08:22:31Z",
+      "side": 1,
+      "message": "This isn\u0027t really for the user\u0027s convenience is it, it\u0027s for enforcing the correctness of the build graph we want\n\nSo, `for correctness reasons, so enforce the files exist on disk now.`?",
+      "range": {
+        "startLine": 40,
+        "startChar": 38,
+        "endLine": 41,
+        "endChar": 45
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

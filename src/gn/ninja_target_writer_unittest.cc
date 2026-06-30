@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "gn/ninja_action_target_writer.h"
+#include "gn/ninja_group_target_writer.h"
 #include "gn/ninja_target_writer.h"
 #include "gn/target.h"
 #include "gn/test_with_scope.h"
@@ -157,7 +158,7 @@ TEST(NinjaTargetWriter, WriteInputDepsStampOrPhonyAndGetDep) {
         "build: __foo_action___rule | ../../foo/script.py"
         " ../../foo/action_source.txt ./target\n"
         "\n"
-        "build phony/foo/action: phony\n",
+        "build phony/foo/action: phony ./target\n",
         stream.str());
   }
 
@@ -257,7 +258,7 @@ TEST(NinjaTargetWriter, WriteInputDepsStampOrPhonyAndGetDepUseStampFiles) {
         "build: __foo_action___rule | ../../foo/script.py"
         " ../../foo/action_source.txt ./target\n"
         "\n"
-        "build obj/foo/action.stamp: stamp\n",
+        "build obj/foo/action.stamp: stamp ./target\n",
         stream.str());
   }
 
@@ -439,4 +440,81 @@ TEST(NinjaTargetWriter, ValidationsWithNoOutput) {
   // Should not contain validation separator since the validation target has no
   // output.
   EXPECT_EQ("build phony/foo/target: phony phony/foo/dep\n", out);
+}
+
+TEST(NinjaTargetWriter, PublicDepsPhonyPropagationComplex) {
+  TestWithScope setup;
+  Err err;
+
+  // C (action) -> B (group) -> A (action)
+  // B has A in public_deps.
+  // C has B in private_deps.
+  // We want to verify that B's dependency_output (which is a stamp/phony)
+  // contains A's dependency_output, so C indirectly depends on A.
+
+  Target a(setup.settings(), Label(SourceDir("//foo/"), "a"));
+  a.set_output_type(Target::ACTION);
+  a.visibility().SetPublic();
+  a.SetToolchain(setup.toolchain());
+  a.action_values().set_script(SourceFile("//foo/script.py"));
+  a.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/foo.out");
+
+  Target b(setup.settings(), Label(SourceDir("//foo/"), "b"));
+  b.set_output_type(Target::GROUP);
+  b.visibility().SetPublic();
+  b.SetToolchain(setup.toolchain());
+  b.public_deps().push_back(LabelTargetPair(&a));
+
+  Target c(setup.settings(), Label(SourceDir("//foo/"), "c"));
+  c.set_output_type(Target::ACTION);
+  c.visibility().SetPublic();
+  c.SetToolchain(setup.toolchain());
+  c.action_values().set_script(SourceFile("//foo/script.py"));
+  c.private_deps().push_back(LabelTargetPair(&b));
+
+  ASSERT_TRUE(a.OnResolved(&err));
+  ASSERT_TRUE(b.OnResolved(&err));
+  ASSERT_TRUE(c.OnResolved(&err));
+
+  // 0. Verify A's build rule and phony target.
+  {
+    std::ostringstream stream;
+    NinjaActionTargetWriter writer(&a, stream);
+    writer.Run();
+    EXPECT_EQ(
+        "rule __foo_a___rule\n"
+        "  command =  ../../foo/script.py\n"
+        "  description = ACTION //foo:a()\n"
+        "  restat = 1\n"
+        "\n"
+        "build foo.out: __foo_a___rule | ../../foo/script.py\n"
+        "\n"
+        "build phony/foo/a: phony foo.out\n",
+        stream.str());
+  }
+
+  // 1. Verify B's stamp/phony target contains A's stamp/phony target.
+  {
+    std::ostringstream stream;
+    NinjaGroupTargetWriter writer(&b, stream);
+    writer.Run();
+    EXPECT_EQ("build phony/foo/b: phony phony/foo/a\n", stream.str());
+  }
+
+  // 2. Verify C's inputdeps contains B's stamp/phony, but NOT A's stamp/phony
+  // directly (because it's transitively covered by B's stamp/phony).
+  {
+    std::ostringstream stream;
+    TestingNinjaTargetWriter writer(&c, setup.toolchain(), stream);
+    auto dep = writer.WriteInputDepsStampOrPhonyAndGetDep(
+        std::vector<const Target*>(), 10u);
+
+    ASSERT_EQ(1u, dep.implicit.size());
+    EXPECT_EQ("phony/foo/c.inputdeps", dep.implicit[0].value());
+    EXPECT_EQ(
+        "build phony/foo/c.inputdeps: phony ../../foo/script.py "
+        "phony/foo/b\n",
+        stream.str());
+  }
 }

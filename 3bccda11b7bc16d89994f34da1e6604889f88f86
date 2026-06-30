@@ -16,6 +16,24 @@
       "message": "Are there any downside or behavior changes that we should care about?",
       "revId": "3bccda11b7bc16d89994f34da1e6604889f88f86",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81510648_5a7e7a38",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-06-30T06:42:49Z",
+      "side": 1,
+      "message": "This increases the inputs of action if action uses public_deps instead of deps unnecessarily.",
+      "parentUuid": "28c40e0e_a0e2e6b8",
+      "revId": "3bccda11b7bc16d89994f34da1e6604889f88f86",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

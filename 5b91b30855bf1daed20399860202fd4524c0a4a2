@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "6c0dc3c9_486452fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-01T06:28:24Z",
+      "side": 1,
+      "message": "Let me submit this as https://crrev.com/c/8023463 is merged.",
+      "revId": "5b91b30855bf1daed20399860202fd4524c0a4a2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "1cf9a633_8b24666a",
         "filename": "src/gn/ninja_target_writer_unittest.cc",
         "patchSetId": 7

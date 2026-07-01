@@ -143,6 +143,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f983216_58042398",
+        "filename": "src/gn/starlark/crates/types/src/file.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-01T02:02:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c533968b_bdbff2e1",
+      "range": {
+        "startLine": 25,
+        "startChar": 41,
+        "endLine": 25,
+        "endChar": 46
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "29a9e6f9_f751d717",

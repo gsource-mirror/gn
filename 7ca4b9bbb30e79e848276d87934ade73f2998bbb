@@ -97,6 +97,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4614e8f4_f32d4d52",
+        "filename": "src/gn/starlark/crates/types/src/file.rs",
+        "patchSetId": 13
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-01T01:20:49Z",
+      "side": 1,
+      "message": "Just double checking here that I was mistaken and `File` should be is relative to `root_out_dir` not `root_build_dir`?\n\nOtherwise LGTM",
+      "parentUuid": "614bb785_ccb005c6",
+      "range": {
+        "startLine": 25,
+        "startChar": 41,
+        "endLine": 25,
+        "endChar": 46
+      },
+      "revId": "7ca4b9bbb30e79e848276d87934ade73f2998bbb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "29a9e6f9_f751d717",
         "filename": "src/gn/starlark/crates/types/src/file.rs",
         "patchSetId": 13

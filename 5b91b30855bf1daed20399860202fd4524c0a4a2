@@ -16,6 +16,24 @@
       "message": "How was this before this CL?\n\nBtw, I wanted to represent data deps using phony like this instead of order only deps for\nbuilding the target without waiting for the data deps to be build. https://crbug.com/gn/413507213. \n\nIs it wort leaving the bug number here as for further discussions?",
       "revId": "5b91b30855bf1daed20399860202fd4524c0a4a2",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "deb011d5_6ea72460",
+        "filename": "src/gn/ninja_target_writer_unittest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-01T05:57:34Z",
+      "side": 1,
+      "message": "\u003e How was this before this CL?\n\nI uploaded test only CL in\nhttps://gn-review.git.corp.google.com/c/gn/+/23581/5/src/gn/ninja_target_writer_unittest.cc#613\nso this part isn\u0027t changed by this change.\n\n\u003e Btw, I wanted to represent data deps using phony like this instead of order only deps for building the target without waiting for the data deps to be build. https://crbug.com/gn/413507213.\n\nDo we want to use validation deps rather than order only deps for data_deps? Also I\u0027m not sure how you use phony to make difference for order of build dependency.",
+      "parentUuid": "1cf9a633_8b24666a",
+      "revId": "5b91b30855bf1daed20399860202fd4524c0a4a2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

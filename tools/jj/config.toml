@@ -7,8 +7,17 @@
 [revset-aliases]
 "trunk()" = "main@origin"
 
+# For users of jj-on-piper, this is enabled by default for *all* repos.
+# We want GN's formatters, not google3's.
+[fix.tools.google3format]
+enabled = false
+# If you're not using the google-internal jj, this will complain that
+# google3format is an invalid fix tool because it has no command/patterns
+command = ["/dev/null"]
+patterns = ["null"]
+
 [fix.tools.clang-format]
-command = ["clang-format", "--assume-filename=$path"]
+command = ["clang/bin/clang-format", "--assume-filename=$path"]
 patterns = [
   "glob:'src/**/*.cc' ~ (glob:'**/third_party/**' | glob:'**/vendor/**')",
   "glob:'src/**/*.h' ~ (glob:'**/third_party/**' | glob:'**/vendor/**')",

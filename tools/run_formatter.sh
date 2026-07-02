@@ -4,8 +4,10 @@ cd $(dirname $(dirname $0))
 
 if [ "${1:-}" = "--diff" ]; then
   opts="--dry-run -Werror"
+  fmt_opts="--check"
 else
   opts="-i"
+  fmt_opts=""
 fi
 
 if [ -z "${CLANG_FORMAT:-}" ]; then
@@ -18,3 +20,13 @@ fi
 
 git ls-files | egrep '\.(h|cc)$' | grep -Ev 'third_party|vendor' |\
     xargs "$CLANG_FORMAT" $opts
+
+if command -v cargo >/dev/null 2>&1; then
+  cargo_cmd="cargo"
+  extra_opts=""
+  if cargo +nightly --version >/dev/null 2>&1; then
+    cargo_cmd="cargo +nightly"
+    extra_opts="-- --config-path rustfmt-nightly.toml"
+  fi
+  (cd src/gn/starlark && $cargo_cmd fmt --all $fmt_opts $extra_opts)
+fi

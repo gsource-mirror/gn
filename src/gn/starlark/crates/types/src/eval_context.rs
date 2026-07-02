@@ -33,24 +33,28 @@ pub trait EvalContext:
     fn current_toolchain(&self) -> LabelRef<'_>;
 
     /// Asserts that the current evaluation context is a macro context.
-    /// Use when a function cannot be called from other contexts (eg. `static_library` cannot be called inside rule evaluation)
+    /// Use when a function cannot be called from other contexts (eg.
+    /// `static_library` cannot be called inside rule evaluation)
     fn require_macro(&self) -> starlark::Result<()>;
 
     /// Asserts that the current evaluation context is a bzl file context.
     fn require_bzl(&self) -> starlark::Result<()>;
 
-    /// Asserts that the evaluator is executing a rule implementation, and returns the state of the rule implementation.
+    /// Asserts that the evaluator is executing a rule implementation, and
+    /// returns the state of the rule implementation.
     fn require_rule_impl(
         &self,
     ) -> starlark::Result<&crate::CtxState<<Self::Session as Session>::TargetRef>>;
 
-    /// Asserts that the evaluator is executing a rule implementation, and returns the mutable state of the rule implementation.
+    /// Asserts that the evaluator is executing a rule implementation, and
+    /// returns the mutable state of the rule implementation.
     fn require_rule_impl_mut(
         &mut self,
     ) -> starlark::Result<&mut crate::CtxState<<Self::Session as Session>::TargetRef>>;
 }
 
-/// Extension trait to add the methods `.context` and `.context_mut` to the starlark Evaluator.
+/// Extension trait to add the methods `.context` and `.context_mut` to the
+/// starlark Evaluator.
 pub trait EvaluatorContextExt<'v, 'a, 'e> {
     /// Returns a reference to the evaluation context.
     fn context<C: EvalContext>(&self) -> &C;

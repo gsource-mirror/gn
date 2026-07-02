@@ -17,7 +17,8 @@ pub struct PathResolver {
 }
 
 impl PathResolver {
-    /// Creates a new `PathResolver` with the given absolute and relative root paths.
+    /// Creates a new `PathResolver` with the given absolute and relative root
+    /// paths.
     pub fn new(source_root: PathBuf, source_root_rel: String) -> Self {
         assert!(source_root_rel.ends_with('/'));
         Self {
@@ -26,7 +27,8 @@ impl PathResolver {
         }
     }
 
-    /// Creates a new PathResolver preconfigured for the starlark testdata directory.
+    /// Creates a new PathResolver preconfigured for the starlark testdata
+    /// directory.
     pub fn new_for_testing() -> Self {
         Self::new(
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../src/testdata"),

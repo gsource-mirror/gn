@@ -29,7 +29,8 @@ impl PackageRef {
     /// Requires that the string starts with "//"
     pub unsafe fn new_unchecked(s: &str) -> &Self {
         debug_assert!(s.starts_with("//"), "Package name must start with //");
-        // Safety: PackageRef is #[repr(transparent)] wrapping str, so their memory layouts are identical.
+        // Safety: PackageRef is #[repr(transparent)] wrapping str, so their memory
+        // layouts are identical.
         unsafe { &*(s as *const str as *const PackageRef) }
     }
 
@@ -59,6 +60,7 @@ impl std::fmt::Display for PackageRef {
 
 impl ToOwned for PackageRef {
     type Owned = Package;
+
     fn to_owned(&self) -> Self::Owned {
         Package(self.0.to_owned())
     }

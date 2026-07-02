@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use crate::File;
 use starlark::values::{AllocValue, StarlarkValue};
+
+use crate::File;
 
 /// An interface for a target in the build graph.
 ///
@@ -16,7 +17,8 @@ pub trait TargetRef: for<'v> StarlarkValue<'v> + for<'v> AllocValue<'v> + Clone 
     /// Returns the target's output directory path string.
     /// Toolchain_prefix goes right at the very front, before the toolchain
     /// Label_prefix goes in between the toolchain and the label
-    /// Package_name_separator is what separates packages and labels (usually ":" or "/").
+    /// Package_name_separator is what separates packages and labels (usually
+    /// ":" or "/").
     fn target_out_dir(
         &self,
         toolchain_prefix: &str,

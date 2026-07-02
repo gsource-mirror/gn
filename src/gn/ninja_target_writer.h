@@ -54,6 +54,11 @@ class NinjaTargetWriter {
       ResolvedTargetData* resolved = nullptr,
       std::vector<OutputFile>* ninja_outputs = nullptr);
 
+  static void WritePublicInputsStampOrPhony(
+      const Target* target,
+      ResolvedTargetData* resolved,
+      std::ostream& out);
+
   virtual void Run() = 0;
 
  protected:

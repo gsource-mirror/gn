@@ -22,4 +22,8 @@ SourceFile GetNinjaFileForToolchain(const Settings* settings);
 // don't collide with rules from other toolchains.
 std::string GetNinjaRulePrefixForToolchain(const Settings* settings);
 
+class OutputFile;
+class BuildSettings;
+OutputFile GetPublicInputsOutputFile(const Target* target, const BuildSettings* build_settings);
+
 #endif  // TOOLS_GN_NINJA_UTILS_H_

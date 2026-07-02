@@ -34,6 +34,24 @@
       "parentUuid": "c0591ae8_b80b860f",
       "revId": "579f1ace16d634a65f7e25b748b1fbc54bf25e4c",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79909906_cfc21835",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-02T03:02:47Z",
+      "side": 1,
+      "message": "Seems not? Also formatter should somehow show what is the expected format?",
+      "parentUuid": "25507676_c94212a8",
+      "revId": "579f1ace16d634a65f7e25b748b1fbc54bf25e4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

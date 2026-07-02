@@ -1,0 +1,21 @@
+# Jujutsu configuration for repository-specific jj features.
+# Schema: https://docs.jj-vcs.dev/latest/config-schema.json
+#
+# To enable this configuration, symlink it to your local repo config:
+# `ln -sf $(pwd)/tools/jj/config.toml $(jj config path --repo)`
+
+[revset-aliases]
+"trunk()" = "main@origin"
+
+[fix.tools.clang-format]
+command = ["clang-format", "--assume-filename=$path"]
+patterns = [
+  "glob:'src/**/*.cc' ~ (glob:'**/third_party/**' | glob:'**/vendor/**')",
+  "glob:'src/**/*.h' ~ (glob:'**/third_party/**' | glob:'**/vendor/**')",
+]
+
+[fix.tools.rustfmt]
+command = ["bash", "tools/jj/rustfmt.sh"]
+patterns = [
+  "glob:'src/gn/starlark/**/*.rs' ~ (glob:'**/third_party/**' | glob:'**/vendor/**')",
+]

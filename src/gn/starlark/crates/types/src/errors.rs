@@ -12,7 +12,8 @@ pub(crate) enum Error {
     /// The string is not a valid label (e.g. doesn't start with "//" or ":").
     #[error("Not a label: {0}")]
     NotALabel(String),
-    /// An absolute label is invalid (e.g. missing a colon, or has too many colons).
+    /// An absolute label is invalid (e.g. missing a colon, or has too many
+    /// colons).
     #[error("Invalid absolute label, must contain exactly one colon: {0}")]
     InvalidAbsoluteLabel(String),
     /// A relative label contains a colon (which is invalid).

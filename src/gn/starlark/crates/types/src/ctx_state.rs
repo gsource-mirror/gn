@@ -2,15 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use crate::{File, TargetRef};
 use starlark::collections::SmallSet;
 
-/// The state associated with the `ctx` object during the rule implementation function.
+use crate::{File, TargetRef};
+
+/// The state associated with the `ctx` object during the rule implementation
+/// function.
 #[derive(Clone, Debug, allocative::Allocative)]
 pub struct CtxState<T: TargetRef> {
     /// Reference to the underlying target.
     pub target: T,
-    /// All files declared by ctx.actions.declare_file that were never generated.
+    /// All files declared by ctx.actions.declare_file that were never
+    /// generated.
     pub unused_declared_outputs: SmallSet<File>,
     /// A list of phonies declared during this execution step.
     pub phonies: Vec<(File, Vec<File>)>,

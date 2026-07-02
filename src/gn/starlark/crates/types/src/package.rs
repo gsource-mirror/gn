@@ -17,6 +17,7 @@ pub struct Package(pub(crate) String);
 
 impl std::ops::Deref for Package {
     type Target = PackageRef;
+
     fn deref(&self) -> &Self::Target {
         // Safety: already validated
         unsafe { PackageRef::new_unchecked(&self.0) }

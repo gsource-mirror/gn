@@ -2,25 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::borrow::Cow;
-use std::path::Path;
+use std::{borrow::Cow, path::Path};
 
-use starlark::collections::StarlarkHasher;
-use starlark::environment::Methods;
-use starlark::environment::MethodsBuilder;
-use starlark::environment::MethodsStatic;
-use starlark::starlark_simple_value;
-use starlark::values::Freeze;
-use starlark::values::FreezeResult;
-use starlark::values::Freezer;
-use starlark::values::ProvidesStaticType;
-use starlark::values::StarlarkValue;
-use starlark::values::Trace;
-use starlark::values::Tracer;
-use starlark::values::ValueLike;
-use starlark_derive::starlark_module;
-use starlark_derive::starlark_value;
-use starlark_derive::NoSerialize;
+use starlark::{
+    collections::StarlarkHasher,
+    environment::{Methods, MethodsBuilder, MethodsStatic},
+    starlark_simple_value,
+    values::{
+        Freeze, FreezeResult, Freezer, ProvidesStaticType, StarlarkValue, Trace, Tracer, ValueLike,
+    },
+};
+use starlark_derive::{starlark_module, starlark_value, NoSerialize};
 
 /// File is equivalent to GN's OutputFile. Like OutputFile, its path is relative
 /// to the root_build_dir (which is also the execution directory).
@@ -36,7 +28,8 @@ use starlark_derive::NoSerialize;
 ///
 /// We use a &str instead of an &Path, as would be standard in rust, because:
 /// * Path::new(&str) is a zero cost transmute and always succeeds
-/// * Path::new(&str).to_string_lossy() always returns the input str but has to perform an error check.
+/// * Path::new(&str).to_string_lossy() always returns the input str but has to
+///   perform an error check.
 #[derive(Clone, Debug, ProvidesStaticType, NoSerialize, allocative::Allocative)]
 pub struct File(#[allocative(skip)] &'static str);
 
@@ -71,7 +64,8 @@ impl File {
         self.0
     }
 
-    /// Returns the file path with proper escaping applied for use in the inputs section of a ninja file.
+    /// Returns the file path with proper escaping applied for use in the inputs
+    /// section of a ninja file.
     pub fn ninja_escaped_path(&self) -> Cow<'static, str> {
         let s = self.0;
         if s.contains(|c| c == ' ' || c == '$' || c == ':') {
@@ -116,6 +110,7 @@ unsafe impl<'v> Trace<'v> for File {
 
 impl Freeze for File {
     type Frozen = File;
+
     fn freeze(self, _freezer: &Freezer) -> FreezeResult<Self::Frozen> {
         Ok(self)
     }
@@ -202,7 +197,8 @@ mod tests {
         let f2 = File::intern("foo/bar.txt");
 
         assert_eq!(f1.as_str(), "foo/bar.txt");
-        // Verify pointer equality (they point to the exact same static string backing memory)
+        // Verify pointer equality (they point to the exact same static string backing
+        // memory)
         assert!(std::ptr::eq(f1.as_str(), f2.as_str()));
     }
 

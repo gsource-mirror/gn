@@ -2,29 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use starlark::collections::StarlarkHasher;
-use starlark::environment::Methods;
-use starlark::environment::MethodsBuilder;
-use starlark::environment::MethodsStatic;
-use starlark::starlark_simple_value;
-use starlark::values::Freeze;
-use starlark::values::FreezeResult;
-use starlark::values::Freezer;
-use starlark::values::ProvidesStaticType;
-use starlark::values::StarlarkValue;
-use starlark::values::Trace;
-use starlark::values::Tracer;
-use starlark::values::ValueLike;
-use starlark_derive::starlark_module;
-use starlark_derive::starlark_value;
-use starlark_derive::NoSerialize;
+use starlark::{
+    collections::StarlarkHasher,
+    environment::{Methods, MethodsBuilder, MethodsStatic},
+    starlark_simple_value,
+    values::{
+        Freeze, FreezeResult, Freezer, ProvidesStaticType, StarlarkValue, Trace, Tracer, ValueLike,
+    },
+};
+use starlark_derive::{starlark_module, starlark_value, NoSerialize};
 
-use crate::LabelRef;
-use crate::Package;
-use crate::PackageRef;
+use crate::{LabelRef, Package, PackageRef};
 
 /// A Label represents a target label, e.g., "//foo/bar:baz".
-/// Note that unlike a regular GN label, this label does *not* include a toolchain.
+/// Note that unlike a regular GN label, this label does *not* include a
+/// toolchain.
 ///
 /// In Starlark, a fully qualified GN label is represented as a tuple
 /// (label, toolchain). "//foo:bar(//toolchain:name)" would thus convert to
@@ -99,7 +91,8 @@ impl Label {
         })
     }
 
-    /// Parses a label. If it is relative, it is parsed as relative to the given package.
+    /// Parses a label. If it is relative, it is parsed as relative to the given
+    /// package.
     pub fn parse(s: &str, relative_to: &PackageRef) -> starlark::Result<Self> {
         if s.starts_with("//") {
             Self::parse_absolute(s)
@@ -141,6 +134,7 @@ unsafe impl<'v> Trace<'v> for Label {
 
 impl Freeze for Label {
     type Frozen = Label;
+
     fn freeze(self, _freezer: &Freezer) -> FreezeResult<Self::Frozen> {
         Ok(self)
     }

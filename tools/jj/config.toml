@@ -8,7 +8,7 @@
 "trunk()" = "main@origin"
 
 [fix.tools.clang-format]
-command = ["clang-format", "--assume-filename=$path"]
+command = ["clang/bin/clang-format", "--assume-filename=$path"]
 patterns = [
   "glob:'src/**/*.cc' ~ (glob:'**/third_party/**' | glob:'**/vendor/**')",
   "glob:'src/**/*.h' ~ (glob:'**/third_party/**' | glob:'**/vendor/**')",

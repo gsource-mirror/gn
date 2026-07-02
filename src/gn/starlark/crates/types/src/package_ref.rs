@@ -26,12 +26,15 @@ impl PackageRef {
 
     /// Creates a new `PackageRef` from a string slice.
     ///
-    /// Requires that the string starts with "//"
+    /// # Safety
+    ///
+    /// The caller must ensure that the string `s` is a valid package path
+    /// starting with "//".
     pub unsafe fn new_unchecked(s: &str) -> &Self {
         debug_assert!(s.starts_with("//"), "Package name must start with //");
         // Safety: PackageRef is #[repr(transparent)] wrapping str, so their memory
         // layouts are identical.
-        unsafe { &*(s as *const str as *const PackageRef) }
+        unsafe { &*(std::ptr::from_ref(s) as *const Self) }
     }
 
     /// Returns the full package name, eg. "//foo/bar"

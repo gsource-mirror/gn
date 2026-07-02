@@ -9,7 +9,8 @@ use starlark::{
     environment::{Methods, MethodsBuilder, MethodsStatic},
     starlark_simple_value,
     values::{
-        Freeze, FreezeResult, Freezer, ProvidesStaticType, StarlarkValue, Trace, Tracer, ValueLike,
+        Freeze, FreezeResult, Freezer, ProvidesStaticType, StarlarkValue, Trace, Tracer,
+        ValueLike as _,
     },
 };
 use starlark_derive::{starlark_module, starlark_value, NoSerialize};
@@ -68,7 +69,7 @@ impl File {
     /// section of a ninja file.
     pub fn ninja_escaped_path(&self) -> Cow<'static, str> {
         let s = self.0;
-        if s.contains(|c| c == ' ' || c == '$' || c == ':') {
+        if s.contains([' ', '$', ':']) {
             let mut result = String::with_capacity(s.len());
             for c in s.chars() {
                 if c == '$' || c == ' ' || c == ':' {
@@ -109,7 +110,7 @@ unsafe impl<'v> Trace<'v> for File {
 }
 
 impl Freeze for File {
-    type Frozen = File;
+    type Frozen = Self;
 
     fn freeze(self, _freezer: &Freezer) -> FreezeResult<Self::Frozen> {
         Ok(self)
@@ -127,23 +128,23 @@ impl<'v> StarlarkValue<'v> for File {
     }
 
     fn write_hash(&self, hasher: &mut StarlarkHasher) -> starlark::Result<()> {
-        use std::hash::Hash;
+        use std::hash::Hash as _;
         self.hash(hasher);
         Ok(())
     }
 
     fn equals(&self, other: starlark::values::Value<'v>) -> starlark::Result<bool> {
-        Ok(other.downcast_ref::<File>().is_some_and(|o| self == o))
+        Ok(other.downcast_ref::<Self>().is_some_and(|o| self == o))
     }
 
     fn collect_repr(&self, collector: &mut String) {
-        use std::fmt::Write;
-        write!(collector, "{:?}", self).unwrap();
+        use std::fmt::Write as _;
+        write!(collector, "{self:?}").unwrap();
     }
 
     fn collect_str(&self, collector: &mut String) {
-        use std::fmt::Write;
-        write!(collector, "{}", self).unwrap();
+        use std::fmt::Write as _;
+        write!(collector, "{self}").unwrap();
     }
 }
 
@@ -185,6 +186,14 @@ fn file_methods(methods: &mut MethodsBuilder) {
     fn path<'v>(this: &'v File) -> starlark::Result<&'static str> {
         Ok(this.0)
     }
+}
+
+#[allow(dead_code)]
+fn dummy_to_force_cxx_linking() {
+    // The C++ code depends on the cxx crate being linked for the rust::Str type.
+    // Because the rust code doesn't depend on the cxx crate, we need a dummy
+    // function that uses some part of cxx to ensure it links.
+    drop(cxx::UniquePtr::<cxx::CxxString>::null());
 }
 
 #[cfg(test)]
@@ -235,12 +244,4 @@ mod tests {
         a.eq("str(generated_file)", "\"foo/bar/baz.txt\"");
         a.eq("repr(generated_file)", "'File(\"foo/bar/baz.txt\")'");
     }
-}
-
-#[allow(dead_code)]
-fn dummy_to_force_cxx_linking() {
-    // The C++ code depends on the cxx crate being linked for the rust::Str type.
-    // Because the rust code doesn't depend on the cxx crate, we need a dummy
-    // function that uses some part of cxx to ensure it links.
-    drop(cxx::UniquePtr::<cxx::CxxString>::null());
 }

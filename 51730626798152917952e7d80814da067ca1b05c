@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6df7dc81_272af1be",
+        "filename": "tools/run_formatter.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-07-02T00:56:52Z",
+      "side": 1,
+      "message": "Can we install cargo using CIPD like this? You can leave a TODO if a CIPD package isn\u0027t ready.",
+      "revId": "51730626798152917952e7d80814da067ca1b05c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -52,6 +52,24 @@
       "parentUuid": "25507676_c94212a8",
       "revId": "579f1ace16d634a65f7e25b748b1fbc54bf25e4c",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a75a615_f0e6078a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-02T03:12:00Z",
+      "side": 1,
+      "message": "Sorry, apparently the issue was that the google3 formatters were running after the GN ones.\n\nFormatter showing the expected format is unnecessary since the correct response is just \"run the formmatter yourself\".",
+      "parentUuid": "79909906_cfc21835",
+      "revId": "579f1ace16d634a65f7e25b748b1fbc54bf25e4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

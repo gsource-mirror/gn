@@ -16,6 +16,24 @@
       "message": "Why don\u0027t you run `tools/run_formatter.sh`?",
       "revId": "d331733d9c55810ffc218fa688f181f1a606693e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a23e18e8_29ec42e3",
+        "filename": "tools/jj/config.toml",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-02T01:20:49Z",
+      "side": 1,
+      "message": "That runs the formatter on *every* file in the repo.\n\njj formatters have a very specific API. They must output to stdout rather than writing to files, and they must read from stdin.\n\nThis allows you to run `jj fix` on a revision, and the whole chain of commits gets formatted correctly. If you were to just run tools/run_formatter.sh, you would only be able to format the current commit, and if you were to run it on the current commit you would introduce merge conflicts in the child.",
+      "parentUuid": "9f7ef086_198b9d50",
+      "revId": "d331733d9c55810ffc218fa688f181f1a606693e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

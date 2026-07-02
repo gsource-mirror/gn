@@ -11,6 +11,7 @@
 #include "gn/builder_record.h"
 #include "gn/filesystem_utils.h"
 #include "gn/ninja_target_writer.h"
+#include "gn/resolved_target_data.h"
 #include "gn/setup.h"
 #include "gn/switches.h"
 #include "gn/test_with_scheduler.h"
@@ -33,7 +34,8 @@ struct TargetWriteInfo {
 // Called on worker thread to write the ninja file.
 void BackgroundDoWrite(TargetWriteInfo* write_info, const Target* target) {
   std::vector<OutputFile> target_ninja_outputs;
-  std::string rule = NinjaTargetWriter::RunAndWriteFile(target, nullptr,
+  ResolvedTargetData resolved;
+  std::string rule = NinjaTargetWriter::RunAndWriteFile(target, &resolved,
                                                         &target_ninja_outputs);
 
   std::lock_guard<std::mutex> lock(write_info->lock);

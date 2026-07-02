@@ -338,3 +338,21 @@ void ResolvedTargetData::ComputeOrderOnlyDeps(TargetInfo* info) const {
 
   info->order_only_deps = all_order_only_deps.release();
 }
+
+void ResolvedTargetData::ComputeExportsPublicInputs(TargetInfo* info) const {
+  const Target* target = info->target;
+
+  if (!target->public_inputs().empty()) {
+    info->exports_public_inputs = true;
+    return;
+  }
+
+  for (const auto& dep : target->public_deps()) {
+    if (ExportsPublicInputs(dep.ptr)) {
+      info->exports_public_inputs = true;
+      return;
+    }
+  }
+
+  info->exports_public_inputs = false;
+}

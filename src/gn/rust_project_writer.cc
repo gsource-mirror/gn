@@ -137,6 +137,22 @@ std::optional<std::string> FindArgValue(const char* arg,
   return std::nullopt;
 }
 
+std::vector<std::string> FindAllArgValues(
+    const char* arg,
+    const std::vector<std::string>& args) {
+  std::vector<std::string> values;
+  for (auto it = args.begin(); it != args.end(); ++it) {
+    if (*it == arg) {
+      ++it;
+      if (it == args.end()) {
+        break;
+      }
+      values.push_back(*it);
+    }
+  }
+  return values;
+}
+
 std::optional<std::string> FindArgValueAfterPrefix(
     const std::string& prefix,
     const std::vector<std::string>& args) {
@@ -231,6 +247,9 @@ void AddTarget(const BuildSettings* build_settings,
     crate.SetCompilerTarget(compiler_target.value());
 
   ConfigList cfgs = FindAllArgValuesAfterPrefix("--cfg=", compiler_args);
+  auto exact_cfgs = FindAllArgValues("--cfg", compiler_args);
+  cfgs.insert(cfgs.end(), std::make_move_iterator(exact_cfgs.begin()),
+              std::make_move_iterator(exact_cfgs.end()));
 
   crate.AddConfigItem("test");
   crate.AddConfigItem("debug_assertions");

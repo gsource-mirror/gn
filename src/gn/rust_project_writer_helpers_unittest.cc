@@ -252,3 +252,28 @@ TEST_F(RustProjectWriterHelper, ExtractAllArgValueWithPrefix) {
                                        "feature=\"bar_enabled\""};
   EXPECT_EQ(expected, result);
 }
+
+TEST_F(RustProjectWriterHelper, FindAllArgValues) {
+  TestWithScope setup;
+
+  Target target(setup.settings(), Label(SourceDir("//foo/"), "bar"));
+  target.set_output_type(Target::RUST_LIBRARY);
+  target.visibility().SetPublic();
+  SourceFile lib("//foo/lib.rs");
+  target.sources().push_back(lib);
+  target.source_types_used().Set(SourceFile::SOURCE_RS);
+  target.rust_values().set_crate_root(lib);
+  target.rust_values().crate_name() = "foo";
+  target.config_values().rustflags().push_back("--cfg");
+  target.config_values().rustflags().push_back("feature=\"foo_enabled\"");
+  target.config_values().rustflags().push_back("--edition=2018");
+  target.config_values().rustflags().push_back("--cfg");
+  target.config_values().rustflags().push_back("feature=\"bar_enabled\"");
+  target.config_values().rustflags().push_back("--target");
+
+  auto args = ExtractCompilerArgs(&target);
+  std::vector<std::string> result = FindAllArgValues("--cfg", args);
+  std::vector<std::string> expected = {"feature=\"foo_enabled\"",
+                                       "feature=\"bar_enabled\""};
+  EXPECT_EQ(expected, result);
+}

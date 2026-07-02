@@ -143,6 +143,11 @@ std::optional<std::string> FindArgValueAfterPrefix(
     const std::string& prefix,
     const std::vector<std::string>& args);
 
+// Find all arguments that match the given exact string, returning the value
+// after.
+std::vector<std::string> FindAllArgValues(const char* arg,
+                                          const std::vector<std::string>& args);
+
 // Find all arguments that match the given prefix, returning the value after
 // the prefix for each one.  e.g. "--cfg=value" is returned as "value" if the
 // prefix "--cfg=" is used.

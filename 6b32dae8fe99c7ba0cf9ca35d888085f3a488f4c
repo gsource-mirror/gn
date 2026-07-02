@@ -22,6 +22,30 @@
       },
       "revId": "6b32dae8fe99c7ba0cf9ca35d888085f3a488f4c",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f95b2308_099f0053",
+        "filename": "src/gn/ffi/test_with_scope.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-02T13:55:14Z",
+      "side": 1,
+      "message": "Ok, so I went down a massive rabbit hole here. I\u0027ll give you the TLDR:\n* My first solution from a few weeks ago tried to use `autocxx` to just generate rust code for all C++ headers. It was a massive nightmare, and really not worth the hassle.\n* The current solution involves rust and C++ not knowing about each other, but they just happen to agree on certain FFI-compatible things.\n\nI found a happy middle ground which I think is the right way to go. The rust code generates a C++ header and source file that provide a shim to rust. This ensures that rust is compatible with the shim. If the shim is not compatible with the actual code (eg. the real function declares a Label* but we declared Label\u0026 in rust), then when you compile the shim itself, it will fail.\n\nSo don\u0027t review bridge.cc/bridge.h, they\u0027re generated files. Start by reading bridge.rs.",
+      "parentUuid": "1b8b3923_f96c9aac",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 1
+      },
+      "revId": "6b32dae8fe99c7ba0cf9ca35d888085f3a488f4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f7ef086_198b9d50",
+        "filename": "tools/jj/config.toml",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-07-02T01:12:00Z",
+      "side": 1,
+      "message": "Why don\u0027t you run `tools/run_formatter.sh`?",
+      "revId": "d331733d9c55810ffc218fa688f181f1a606693e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

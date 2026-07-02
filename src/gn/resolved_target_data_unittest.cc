@@ -440,3 +440,53 @@ TEST(ResolvedTargetDataTest, ModuleDepsInheritance) {
   EXPECT_EQ(&b, a_module_deps[1].target());
   EXPECT_EQ(&c, a_module_deps[2].target());
 }
+
+TEST(ResolvedTargetDataTest, PublicInputsInheritance) {
+  TestWithScope setup;
+  Err err;
+
+  // A has public_inputs.
+  TestTarget a(setup, "//foo:a", Target::ACTION);
+  a.public_inputs().push_back(SourceFile("//foo/a.in"));
+
+  // B depends on A via private deps.
+  TestTarget b(setup, "//foo:b", Target::ACTION);
+  b.private_deps().push_back(LabelTargetPair(&a));
+
+  // C depends on A via public deps.
+  TestTarget c(setup, "//foo:c", Target::ACTION);
+  c.public_deps().push_back(LabelTargetPair(&a));
+
+  // D depends on C (which has A as public dep) via private deps.
+  TestTarget d(setup, "//foo:d", Target::ACTION);
+  d.private_deps().push_back(LabelTargetPair(&c));
+
+  // E depends on B (which has A as private dep) via private deps.
+  TestTarget e(setup, "//foo:e", Target::ACTION);
+  e.private_deps().push_back(LabelTargetPair(&b));
+
+  ASSERT_TRUE(a.OnResolved(&err));
+  ASSERT_TRUE(b.OnResolved(&err));
+  ASSERT_TRUE(c.OnResolved(&err));
+  ASSERT_TRUE(d.OnResolved(&err));
+  ASSERT_TRUE(e.OnResolved(&err));
+
+  ResolvedTargetData resolved;
+
+  // A has public_inputs directly.
+  EXPECT_TRUE(resolved.ExportsPublicInputs(&a));
+
+  // B has A as a private dependency, so B itself does NOT export public_inputs
+  // for its dependents.
+  EXPECT_FALSE(resolved.ExportsPublicInputs(&b));
+
+  // C has A as a public dependency, so C exports public_inputs to propagate.
+  EXPECT_TRUE(resolved.ExportsPublicInputs(&c));
+
+  // D has C as a private dependency, so D itself does NOT export public_inputs
+  // for its dependents.
+  EXPECT_FALSE(resolved.ExportsPublicInputs(&d));
+
+  // E has B as a private dependency, B has no public inputs, so E has none.
+  EXPECT_FALSE(resolved.ExportsPublicInputs(&e));
+}

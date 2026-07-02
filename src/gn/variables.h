@@ -222,6 +222,10 @@ extern const char kInputs[];
 extern const char kInputs_HelpShort[];
 extern const char kInputs_Help[];
 
+extern const char kPublicInputs[];
+extern const char kPublicInputs_HelpShort[];
+extern const char kPublicInputs_Help[];
+
 extern const char kLdflags[];
 extern const char kLdflags_HelpShort[];
 extern const char kLdflags_Help[];

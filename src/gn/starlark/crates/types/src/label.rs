@@ -7,7 +7,8 @@ use starlark::{
     environment::{Methods, MethodsBuilder, MethodsStatic},
     starlark_simple_value,
     values::{
-        Freeze, FreezeResult, Freezer, ProvidesStaticType, StarlarkValue, Trace, Tracer, ValueLike,
+        Freeze, FreezeResult, Freezer, ProvidesStaticType, StarlarkValue, Trace, Tracer,
+        ValueLike as _,
     },
 };
 use starlark_derive::{starlark_module, starlark_value, NoSerialize};
@@ -60,7 +61,7 @@ impl Label {
         let mut iter = s.split(':');
         // Verify that there is exactly one colon.
         match (iter.next(), iter.next(), iter.next()) {
-            (Some(package), Some(name), None) if !name.is_empty() => Ok(Label {
+            (Some(package), Some(name), None) if !name.is_empty() => Ok(Self {
                 // Safety: already checked.
                 package: unsafe { PackageRef::new_unchecked(package) }.to_owned(),
                 name: name.to_owned(),
@@ -85,7 +86,7 @@ impl Label {
         if name.contains(':') {
             return Err(crate::Error::ColonInRelativeLabel(s.to_owned()).into());
         }
-        Ok(Label {
+        Ok(Self {
             package: relative_to.to_owned(),
             name: name.to_owned(),
         })
@@ -133,7 +134,7 @@ unsafe impl<'v> Trace<'v> for Label {
 }
 
 impl Freeze for Label {
-    type Frozen = Label;
+    type Frozen = Self;
 
     fn freeze(self, _freezer: &Freezer) -> FreezeResult<Self::Frozen> {
         Ok(self)
@@ -151,22 +152,22 @@ impl<'v> StarlarkValue<'v> for Label {
     }
 
     fn write_hash(&self, hasher: &mut StarlarkHasher) -> starlark::Result<()> {
-        use std::hash::Hash;
+        use std::hash::Hash as _;
         self.hash(hasher);
         Ok(())
     }
 
     fn equals(&self, other: starlark::values::Value<'v>) -> starlark::Result<bool> {
-        Ok(other.downcast_ref::<Label>().is_some_and(|o| self == o))
+        Ok(other.downcast_ref::<Self>().is_some_and(|o| self == o))
     }
 
     fn collect_repr(&self, collector: &mut String) {
-        use std::fmt::Write;
+        use std::fmt::Write as _;
         write!(collector, "{:?}", self.as_ref()).unwrap();
     }
 
     fn collect_str(&self, collector: &mut String) {
-        use std::fmt::Write;
+        use std::fmt::Write as _;
         write!(collector, "{}", self.as_ref()).unwrap();
     }
 }
@@ -219,7 +220,7 @@ mod tests {
             PackageRef::new_for_testing("//foo/bar")
         );
         assert_eq!(lbl.name, "baz");
-        assert_eq!(format!("{:?}", lbl), "Label(\"//foo/bar:baz\")");
+        assert_eq!(format!("{lbl:?}"), "Label(\"//foo/bar:baz\")");
     }
 
     #[test]

@@ -26,7 +26,7 @@ pub(crate) enum Error {
 
 impl From<Error> for starlark::Error {
     fn from(err: Error) -> Self {
-        starlark::Error::new_other(err)
+        Self::new_other(err)
     }
 }
 

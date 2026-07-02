@@ -3,7 +3,13 @@
 // found in the LICENSE file.
 
 /// Like std::mem::transmute, but can only affect lifetime.
-pub unsafe fn extend_lifetime<'to, 'from, T: ?Sized>(val: &'from T) -> &'to T {
-    // Safety: None - this function is marked unsafe.
+///
+/// # Safety
+///
+/// The caller must ensure that the returned reference is not used after the
+/// underlying data is dropped.
+pub unsafe fn extend_lifetime<'to, T: ?Sized>(val: &T) -> &'to T {
+    // Safety: Transmuting lifetime of reference is unsafe, safety is guaranteed by
+    // the caller.
     unsafe { std::mem::transmute(val) }
 }

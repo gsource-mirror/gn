@@ -1393,6 +1393,42 @@ Example
   }
 )";
 
+const char kPublicInputs[] = "public_inputs";
+const char kPublicInputs_HelpShort[] =
+    "public_inputs: [file list] Declare public inputs.";
+const char kPublicInputs_Help[] =
+    R"(public_inputs: Declare public inputs.
+
+  Inputs to a target that should be treated as implicit inputs of any dependent
+  targets.
+
+  If target A declares public_inputs and target B depends on A (either via
+  deps or public_deps), B will inherit A's public_inputs.
+
+  If target B depends on A via public_deps, B's public_inputs will also
+  propagate to any targets depending on B.
+
+  See also "inputs" and "public_deps".
+
+  Example
+
+    action("A") {
+      ...
+      public_inputs = [ "a.in" ]
+    }
+
+    action("B") {
+      ...
+      deps = [ ":A" ]  # B inherits "a.in" as an implicit input
+    }
+
+    action("C") {
+      ...
+      public_deps = [ ":A" ]  # C inherits "a.in", and propagates it to
+                              # C's dependents.
+    }
+)";
+
 const char kLdflags[] = "ldflags";
 const char kLdflags_HelpShort[] =
     "ldflags: [string list] Flags passed to the linker.";
@@ -2551,6 +2587,7 @@ const VariableInfoMap& GetTargetVariables() {
     INSERT_VARIABLE(Public)
     INSERT_VARIABLE(PublicConfigs)
     INSERT_VARIABLE(PublicDeps)
+    INSERT_VARIABLE(PublicInputs)
     INSERT_VARIABLE(Rebase)
     INSERT_VARIABLE(ResponseFileContents)
     INSERT_VARIABLE(Script)

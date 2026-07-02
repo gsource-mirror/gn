@@ -192,6 +192,8 @@ std::string NinjaTargetWriter::RunAndWriteFile(
     CHECK(0) << "Output type of target not handled.";
   }
 
+  WritePublicInputsStampOrPhony(target, resolved, rules);
+
   if (needs_file_write) {
     // Write the ninja file.
     SourceFile ninja_file = GetNinjaFileForTarget(target);
@@ -213,6 +215,45 @@ std::string NinjaTargetWriter::RunAndWriteFile(
 
   // No separate file required, just return the rules.
   return storage.str();
+}
+
+// static
+void NinjaTargetWriter::WritePublicInputsStampOrPhony(
+    const Target* target,
+    ResolvedTargetData* resolved,
+    std::ostream& out) {
+  DCHECK(resolved);
+  if (!resolved->ExportsPublicInputs(target))
+    return;
+
+  const BuildSettings* build_settings = target->settings()->build_settings();
+  OutputFile output = GetPublicInputsOutputFile(target, build_settings);
+
+  std::vector<OutputFile> deps;
+  for (const auto& file : target->public_inputs()) {
+    deps.push_back(OutputFile(build_settings, file));
+  }
+  for (const auto& dep : target->public_deps()) {
+    if (resolved->ExportsPublicInputs(dep.ptr)) {
+      deps.push_back(GetPublicInputsOutputFile(dep.ptr, build_settings));
+    }
+  }
+
+  PathOutput path_output(build_settings->build_dir(),
+                         build_settings->root_path_utf8(), ESCAPE_NINJA);
+
+  out << "build ";
+  path_output.WriteFile(out, output);
+
+  if (build_settings->no_stamp_files()) {
+    out << ": " << BuiltinTool::kBuiltinToolPhony;
+  } else {
+    out << ": " << GetNinjaRulePrefixForToolchain(target->settings())
+        << GeneralTool::kGeneralToolStamp;
+  }
+
+  path_output.WriteFiles(out, deps);
+  out << std::endl << std::endl;
 }
 
 void NinjaTargetWriter::WriteEscapedSubstitution(const Substitution* type) {
@@ -538,6 +579,27 @@ NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep(
     return InputDeps{};  // No input dependencies.
 
   InputDeps deps;
+  // Inherited public_inputs target dependencies.
+  std::vector<OutputFile> public_inputs_deps;
+  for (const auto& pair : target_->public_deps()) {
+    if (resolved().ExportsPublicInputs(pair.ptr)) {
+      public_inputs_deps.push_back(
+          GetPublicInputsOutputFile(pair.ptr, settings_->build_settings()));
+    }
+  }
+  for (const auto& pair : target_->private_deps()) {
+    if (resolved().ExportsPublicInputs(pair.ptr)) {
+      public_inputs_deps.push_back(
+          GetPublicInputsOutputFile(pair.ptr, settings_->build_settings()));
+    }
+  }
+  std::sort(public_inputs_deps.begin(), public_inputs_deps.end());
+  public_inputs_deps.erase(
+      std::unique(public_inputs_deps.begin(), public_inputs_deps.end()),
+      public_inputs_deps.end());
+  deps.implicit.insert(deps.implicit.end(), public_inputs_deps.begin(),
+                       public_inputs_deps.end());
+
   // File input deps.
   for (const SourceFile* source : input_deps_sources)
     deps.order_only.push_back(OutputFile(settings_->build_settings(), *source));

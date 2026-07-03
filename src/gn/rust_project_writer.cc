@@ -138,19 +138,15 @@ std::optional<std::string> FindArgValue(const char* arg,
 }
 
 std::vector<std::string> FindAllArgValues(
-    const char* arg,
+    std::string_view arg,
     const std::vector<std::string>& args) {
-  std::vector<std::string> values;
-  for (auto it = args.begin(); it != args.end(); ++it) {
-    if (*it == arg) {
-      ++it;
-      if (it == args.end()) {
-        break;
-      }
-      values.push_back(*it);
-    }
-  }
-  return values;
+  auto matching_values =
+      std::views::zip(args, args | std::views::drop(1)) |
+      std::views::filter(
+          [arg](const auto& pair) { return std::get<0>(pair) == arg; }) |
+      std::views::transform([](const auto& pair) { return std::get<1>(pair); });
+
+  return std::ranges::to<std::vector>(matching_values);
 }
 
 std::optional<std::string> FindArgValueAfterPrefix(

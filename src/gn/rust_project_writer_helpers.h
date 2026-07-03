@@ -145,7 +145,7 @@ std::optional<std::string> FindArgValueAfterPrefix(
 
 // Find all arguments that match the given exact string, returning the value
 // after.
-std::vector<std::string> FindAllArgValues(const char* arg,
+std::vector<std::string> FindAllArgValues(std::string_view arg,
                                           const std::vector<std::string>& args);
 
 // Find all arguments that match the given prefix, returning the value after

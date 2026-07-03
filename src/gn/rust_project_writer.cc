@@ -138,17 +138,15 @@ std::optional<std::string> FindArgValue(const char* arg,
 }
 
 std::vector<std::string> FindAllArgValues(
-    const char* arg,
+    std::string_view arg,
     const std::vector<std::string>& args) {
   std::vector<std::string> values;
-  for (auto it = args.begin(); it != args.end(); ++it) {
-    if (*it == arg) {
-      ++it;
-      if (it == args.end()) {
-        break;
-      }
-      values.push_back(*it);
+  auto it = args.begin();
+  while ((it = std::ranges::find(it, args.end(), arg)) != args.end()) {
+    if (++it == args.end()) {
+      break;
     }
+    values.push_back(*it++);
   }
   return values;
 }

@@ -97,6 +97,29 @@
       "message": "Include STL header in separated block.",
       "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a788894c_57d551a0",
+        "filename": "src/gn/starlark/crates/ffi/src/string_view.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-06T06:18:48Z",
+      "side": 1,
+      "message": "Seems to fail on all three platforms?\n\n- https://ci.chromium.org/ui/p/gn/builders/try/win/b8677049091079797073/overview\n- https://ci.chromium.org/ui/p/gn/builders/try/linux/b8677048887349304305/overview\n- https://ci.chromium.org/ui/p/gn/builders/try/mac/b8677048881660972913/overview",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 49
+      },
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

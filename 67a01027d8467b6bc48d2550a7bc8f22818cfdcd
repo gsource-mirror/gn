@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "681226cd_be10a016",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T03:57:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd0d59b6_72102cbf",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "51391ab2_197eee5a",
         "filename": "src/gn/starlark/crates/attr/src/attr.rs",
         "patchSetId": 8
@@ -31,6 +49,24 @@
       "writtenOn": "2026-07-06T02:54:16Z",
       "side": 1,
       "message": "`register_dependency` takes `source` by value, so the list/dict branches below clone it once per dependency.\n\nThe only impl just reads it via `.get()`, so if the trait took `\u0026Self::TargetRef` I think we could safely drop these clones.\n\nNot a blocker, just noticed and thought I\u0027d mention it.",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45eb92c1_5dba7bcc",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T03:57:41Z",
+      "side": 1,
+      "message": "TargetRef is a reference type, so it should be passed by value rather than reference (similar to how you always pass string_view by value in C++).",
+      "parentUuid": "51391ab2_197eee5a",
       "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -52,6 +88,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "75b38989_64fd144b",
+        "filename": "src/gn/starlark/crates/attr/src/globals.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T03:57:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b41b2b1_73c4040b",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dce1ca4d_61efe824",
@@ -65,6 +119,24 @@
       "writtenOn": "2026-07-06T02:54:16Z",
       "side": 1,
       "message": "`label_keyed_string_dict` has no `allow_files` / `allow_single_file` params, unlike `label_list` just below.\n\nThe key coercion for `LabelKeyedStringDict` still runs through `schema.file_matcher()`, but since this Starlark API can never set `allow_files`, the matcher is always `AllowFiles::None` and unqualified source-file keys get rejected as `NotALabel`.\n\nDo we want file-key support here? If so, I think we\u0027d need to forward those params the way the list variants do.",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ebb0171_2861134c",
+        "filename": "src/gn/starlark/crates/attr/src/globals.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T03:57:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dce1ca4d_61efe824",
       "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -86,6 +158,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "877e9b80_04e4c417",
+        "filename": "src/gn/starlark/crates/attr/src/schema.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T03:57:41Z",
+      "side": 1,
+      "message": "I did this to match bazel\u0027s behaviour. Bazel does precisely this wierd behaviour.",
+      "parentUuid": "722ce73f_fee47b95",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bffbb75d_2dd2b8d6",
@@ -99,6 +189,24 @@
       "writtenOn": "2026-07-06T02:54:16Z",
       "side": 1,
       "message": "`Single` and `Many` are handled identically here and nothing else branches on the distinction, so `allow_single_file` currently behaves exactly like `allow_files` with no single-file enforcement. Is this WAI?",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46f92bf2_aa98de15",
+        "filename": "src/gn/starlark/crates/attr/src/schema.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T03:57:41Z",
+      "side": 1,
+      "message": "Yes, this is WAI. Because we have a label, rather than a target, at this phase, we don\u0027t yet know the number of files the target resolves to.\n\nI do allow_single_file validation when creating the ctx object for the rule implementation, because at that point in time we know that the dependencies have resolved, and thus know how many files the label resolves to.",
+      "parentUuid": "bffbb75d_2dd2b8d6",
       "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

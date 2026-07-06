@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc507bad_5bbed488",
+        "filename": "src/gn/starlark/crates/testutils/src/assert.rs",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 4984856
+      },
+      "writtenOn": "2026-07-06T20:16:14Z",
+      "side": 1,
+      "message": "It would be safer to use `Arc\u003cMutex\u003c_\u003e\u003e`, but I guess you\u0027re trying to optimize. Depending on how the starlark rust crate works, (like if this is only called once) I guess you could pass an owned context here, and have the extra field be something like a Cow?",
+      "revId": "78109c989c50a07848aa788e174f106a41f368a6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

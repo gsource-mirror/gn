@@ -11,6 +11,8 @@
 #include "gn/source_dir.h"
 #include "gn/test_with_scope.h"
 #include "gn/value.h"
+#include "gn/ffi/err.h"
+#include "gn/err.h"
 #include <array>
 #include <cassert>
 #include <cstddef>
@@ -502,6 +504,8 @@ struct Any;
 struct SliceAny;
 struct KeyValue;
 enum class ValueType : ::std::uint8_t;
+using Err = ::Err;
+using InputFile = ::InputFile;
 using OutputFile = ::OutputFile;
 using SourceDir = ::SourceDir;
 using Label = ::Label;

@@ -44,6 +44,8 @@ mod dummy {
     unsafe extern "C++" {
         // include! simply tells cxxbridge to put the #include in the generated C++
         // source code. It does not do anything on the rust side.
+        include!("gn/err.h");
+        include!("gn/ffi/err.h");
         include!("gn/ffi/scope.h");
         include!("gn/ffi/test_with_scope.h");
         include!("gn/ffi/value.h");
@@ -54,6 +56,37 @@ mod dummy {
         include!("gn/source_dir.h");
         include!("gn/test_with_scope.h");
         include!("gn/value.h");
+
+        type Err;
+        pub fn has_error(self: &Err) -> bool;
+
+        pub(in crate::err) fn PopulateErrWithLocation(
+            err: Pin<&mut Err>,
+            message: &str,
+            help: &str,
+            file: &InputFile,
+            start_line: i32,
+            start_column: i32,
+            end_line: i32,
+            end_column: i32,
+        );
+        pub(in crate::err) fn PopulateErrWithMessage(
+            err: Pin<&mut Err>,
+            message: &str,
+            help: &str,
+        );
+        pub(in crate::err) fn AppendSubErr(
+            err: Pin<&mut Err>,
+            message: &str,
+            file: &InputFile,
+            start_line: i32,
+            start_column: i32,
+            end_line: i32,
+            end_column: i32,
+        );
+
+        type InputFile;
+        pub(in crate::err) fn NewInputFile<'a, 'b>(name: &'a str, code: &'a str) -> &'b InputFile;
 
         type OutputFile;
         #[cxx_return_type = "std::string_view"]

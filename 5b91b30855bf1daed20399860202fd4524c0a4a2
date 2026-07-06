@@ -123,6 +123,24 @@
       "parentUuid": "2b87856f_0d1233a6",
       "revId": "5b91b30855bf1daed20399860202fd4524c0a4a2",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e80ca5f_9a53f9c9",
+        "filename": "src/gn/ninja_target_writer_unittest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-07-06T08:17:09Z",
+      "side": 1,
+      "message": "Yeah, \"ninja B\" doesn\u0027t guarantee to build A. \n\n\u003e  we may still possible to move deps to A from compilation step of read_a.cc to link step.\n\nThat doesn\u0027t help the issue that I saw because the both target A and B were slow link steps.\n\nI guess we could still workaround by having A as a \"validation\" step of B, in addition to the `build phony/B: phony B a.in`, though.\n\ne.g.\n```\nbuild phony/B: phony B phony/A\nbuild B: ... |@ phony/A\n```",
+      "parentUuid": "3f717474_c50a9751",
+      "revId": "5b91b30855bf1daed20399860202fd4524c0a4a2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ],
   "submitRequirementResults": [

@@ -1,0 +1,102 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4c14cb2_46b98178",
+        "filename": "src/gn/ffi/ffi_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-06T05:06:00Z",
+      "side": 1,
+      "message": "Include STL in separated block.",
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c6d4396_b4a7797b",
+        "filename": "src/gn/ffi/ffi_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-06T05:06:00Z",
+      "side": 1,
+      "message": "Is it difficult to avoid using reinterpret_cast?",
+      "range": {
+        "startLine": 19,
+        "startChar": 17,
+        "endLine": 19,
+        "endChar": 33
+      },
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "880502e8_5331b339",
+        "filename": "src/gn/ffi/ffi_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-06T05:06:00Z",
+      "side": 1,
+      "message": "s.size()?",
+      "range": {
+        "startLine": 20,
+        "startChar": 24,
+        "endLine": 20,
+        "endChar": 26
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "b941a7b2_d8b8b060",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ffi/ffi_unittest.cc",
+              "range": {
+                "startLine": 20,
+                "startChar": 0,
+                "endLine": 21,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_EQ(layout.len, s.size());\n"
+            }
+          ]
+        }
+      ],
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "619e1b93_bbce43a5",
+        "filename": "src/gn/ffi/test_with_scope.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-06T05:06:00Z",
+      "side": 1,
+      "message": "Include STL header in separated block.",
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

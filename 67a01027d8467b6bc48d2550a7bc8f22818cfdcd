@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8928f0b_3f3c0af8",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T05:25:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6ba6ba7_895af6b9",
+      "range": {
+        "startLine": 120,
+        "startChar": 24,
+        "endLine": 120,
+        "endChar": 27
+      },
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd0d59b6_72102cbf",
@@ -72,6 +96,30 @@
       "writtenOn": "2026-07-06T04:14:00Z",
       "side": 1,
       "message": "https://bazel.build/rules/lib/toplevel/attr#label_list\n\n\"This attribute contains unique Label values.\"\n\nDo we need a uniqueness check?",
+      "range": {
+        "startLine": 174,
+        "startChar": 0,
+        "endLine": 183,
+        "endChar": 18
+      },
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbe924fd_867a2b29",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T05:25:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f76aec9_90652670",
       "range": {
         "startLine": 174,
         "startChar": 0,
@@ -165,6 +213,30 @@
       "writtenOn": "2026-07-06T04:14:00Z",
       "side": 1,
       "message": "Does Bazel allow `attr.string(\"hello\")` or do we need `#[starlark(require \u003d named)]` to be applied through here?",
+      "range": {
+        "startLine": 80,
+        "startChar": 15,
+        "endLine": 80,
+        "endChar": 27
+      },
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cd5eb10_15b69e30",
+        "filename": "src/gn/starlark/crates/attr/src/globals.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T05:25:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75c6246c_c46ba027",
       "range": {
         "startLine": 80,
         "startChar": 15,

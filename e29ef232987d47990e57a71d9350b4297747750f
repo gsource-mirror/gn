@@ -48,6 +48,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ffc7cb3_7a76fc52",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-07-06T08:18:39Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "f3f08d93_17edfe9b",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 18
+      },
+      "revId": "e29ef232987d47990e57a71d9350b4297747750f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c5461772_3fca8469",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "Filed http://b/531579666 and sent https://groups.google.com/a/chromium.org/g/gn-dev/c/i2uOiLzsy6E as proposal for this feature.",
       "parentUuid": "c5461772_3fca8469",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 14
+      },
+      "revId": "e29ef232987d47990e57a71d9350b4297747750f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64297bae_aac087d4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-07-06T08:18:39Z",
+      "side": 1,
+      "message": "Thank you for starting the discussion!",
+      "parentUuid": "ac161967_99791161",
       "range": {
         "startLine": 23,
         "startChar": 0,

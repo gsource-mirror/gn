@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "94c0460b_a84956f5",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-06T05:28:36Z",
+      "side": 1,
+      "message": "Bazel ints are int32 though, just confirming that ingesting as i64 like in patchset 10 is fine?",
+      "parentUuid": "f8928f0b_3f3c0af8",
+      "range": {
+        "startLine": 120,
+        "startChar": 24,
+        "endLine": 120,
+        "endChar": 27
+      },
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cd0d59b6_72102cbf",
         "filename": "src/gn/starlark/crates/attr/src/attr.rs",
         "patchSetId": 8

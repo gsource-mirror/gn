@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4efb24a6_cbdc978a",
+        "filename": "docs/reference.md",
+        "patchSetId": 12
+      },
+      "lineNbr": 6891,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-07-06T09:56:53Z",
+      "side": 1,
+      "message": "nit: Can you add a note that explains that this is very useful for actions that generate source code which contain implicit imports/includes of the public inputs? This will clarify the use case greatly.",
+      "fixSuggestions": [
+        {
+          "fixId": "99df5888_0f08d506",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "docs/reference.md",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "  This is very useful for actions that generate source code which contain\n  implicit imports/includes of the public inputs.\n\n"
+            }
+          ]
+        }
+      ],
+      "revId": "abe841da20820fc632e82efe805239389a9d1cd7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4d69be7_3e3e9109",
+        "filename": "src/gn/ninja_target_writer.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-07-06T09:56:53Z",
+      "side": 1,
+      "message": "nit: Document function properly. In particular explain that this does nothing if `resolved-\u003eExportsPublicInputs(target)` returns false.",
+      "revId": "abe841da20820fc632e82efe805239389a9d1cd7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f268e1e9_336fe06e",
+        "filename": "src/gn/resolved_target_data.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-07-06T09:56:53Z",
+      "side": 1,
+      "message": "nit: Document method, e.g. \"Returns true if this target exports public inputs, either directly or from public dependencies which do.\"",
+      "revId": "abe841da20820fc632e82efe805239389a9d1cd7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f534ba9_32bf1814",
+        "filename": "src/gn/resolved_target_data.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-07-06T09:56:53Z",
+      "side": 1,
+      "message": "nit: This could be simplified by using an atomic enum with three states (Unknown / True / False) instead. Given that the result of the computation is the same from any thread, this could even avoid any locking when trying to compute this concurrently. Wdyt?\n\nAlso, name could be `does_export_public_inputs` for consistency with the `has_` prefix for other flags.\n\nE.g.\n\n```\n// A boolean flag evaluated on demand.\nenum class LazyBool {\n  Unknown,\n  True,\n  False,\n};\n\nstd::atomic\u003cLazyBool\u003e does_export_public_inputs \u003d ExportsPublicInputsValue::Unknown;\n...\n\nbool ExportsPublicInputs(const Target* target) {\n  TargetInfo* info \u003d GetTargetInfo(target);\n  LazyBool value \u003d info-\u003edoes_export_public_inputs.load(std::memory_order_acquire);\n  if (value \u003d\u003d LazyBool::Unknown) {\n    // optional locking can be added here.\n    value \u003d ComputeExportsPublicInputs(info);\n    info-\u003edoes_export_public_inputs.store(value ? LazyBool::kTrue : LazyBool::kFalse, std::memory_order_release);\n  }\n  return (value \u003d\u003d LazyBool::True);\n}\n...\nbool ComputeExportsPublicInputs(info) {\n  if (!target-\u003epublic_inputs().empty())\n    return true;\n  for (const auto\u0026 dep : target-\u003epublic_deps()) {\n    if (ExportsPublicInputs(dep.ptr))\n      return true;\n  }\n  return false;\n}\n```",
+      "fixSuggestions": [
+        {
+          "fixId": "35d549fb_aecd2193",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/resolved_target_data.h",
+              "range": {
+                "startLine": 156,
+                "startChar": 0,
+                "endLine": 157,
+                "endChar": 0
+              },
+              "replacement": "    return GetTargetExportsPublicInputs(target);\n"
+            },
+            {
+              "path": "src/gn/resolved_target_data.h",
+              "range": {
+                "startLine": 163,
+                "startChar": 0,
+                "endLine": 164,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "src/gn/resolved_target_data.h",
+              "range": {
+                "startLine": 182,
+                "startChar": 0,
+                "endLine": 183,
+                "endChar": 0
+              },
+              "replacement": "\n    enum class LazyBool : uint8_t {\n      kUnknown,\n      kTrue,\n      kFalse,\n    };\n    std::atomic\u003cLazyBool\u003e does_export_public_inputs \u003d LazyBool::kUnknown;\n"
+            },
+            {
+              "path": "src/gn/resolved_target_data.h",
+              "range": {
+                "startLine": 224,
+                "startChar": 0,
+                "endLine": 226,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "src/gn/resolved_target_data.h",
+              "range": {
+                "startLine": 329,
+                "startChar": 0,
+                "endLine": 330,
+                "endChar": 0
+              },
+              "replacement": "  bool GetTargetExportsPublicInputs(const Target* target) const {\n"
+            },
+            {
+              "path": "src/gn/resolved_target_data.h",
+              "range": {
+                "startLine": 331,
+                "startChar": 0,
+                "endLine": 332,
+                "endChar": 0
+              },
+              "replacement": "    TargetInfo::LazyBool value \u003d\n        info-\u003edoes_export_public_inputs.load(std::memory_order_acquire);\n    if (value \u003d\u003d TargetInfo::LazyBool::kUnknown) {\n"
+            },
+            {
+              "path": "src/gn/resolved_target_data.h",
+              "range": {
+                "startLine": 333,
+                "startChar": 0,
+                "endLine": 338,
+                "endChar": 0
+              },
+              "replacement": "      value \u003d info-\u003edoes_export_public_inputs.load(std::memory_order_relaxed);\n      if (value \u003d\u003d TargetInfo::LazyBool::kUnknown) {\n        bool result \u003d ComputeExportsPublicInputs(info);\n        value \u003d result ? TargetInfo::LazyBool::kTrue : TargetInfo::LazyBool::kFalse;\n        info-\u003edoes_export_public_inputs.store(value, std::memory_order_release);\n"
+            },
+            {
+              "path": "src/gn/resolved_target_data.h",
+              "range": {
+                "startLine": 340,
+                "startChar": 0,
+                "endLine": 341,
+                "endChar": 0
+              },
+              "replacement": "    return value \u003d\u003d TargetInfo::LazyBool::kTrue;\n"
+            },
+            {
+              "path": "src/gn/resolved_target_data.h",
+              "range": {
+                "startLine": 354,
+                "startChar": 0,
+                "endLine": 355,
+                "endChar": 0
+              },
+              "replacement": "  bool ComputeExportsPublicInputs(TargetInfo* info) const;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "abe841da20820fc632e82efe805239389a9d1cd7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

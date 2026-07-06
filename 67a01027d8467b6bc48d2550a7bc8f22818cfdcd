@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd0d59b6_72102cbf",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-06T02:54:16Z",
+      "side": 1,
+      "message": "When a rule author writes `attr.label(default\u003dNone)`, `AttrSchema::create` calls `create_without_defaults` before `schema.default` has been populated. This branch therefore treats the `None` as mandatory and returns `MandatoryAttribute`, even though omitting the default creates the same optional `Attr::Label(None)`.\n\nI\u0027d argue that the two should be equivalent from a user perspective (and I think that\u0027s what Bazel does, but admittedly haven\u0027t tested it).",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51391ab2_197eee5a",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-06T02:54:16Z",
+      "side": 1,
+      "message": "`register_dependency` takes `source` by value, so the list/dict branches below clone it once per dependency.\n\nThe only impl just reads it via `.get()`, so if the trait took `\u0026Self::TargetRef` I think we could safely drop these clones.\n\nNot a blocker, just noticed and thought I\u0027d mention it.",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b41b2b1_73c4040b",
+        "filename": "src/gn/starlark/crates/attr/src/globals.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-06T02:54:16Z",
+      "side": 1,
+      "message": "The macro body expands bare `use std::fmt;`, `use starlark::values::Value;`, `use starlark::values::none::NoneOr;`, etc. at the invocation site.\n\n`macro_rules!` does not hygienically isolate imports, so the first real caller that invokes this in a module already containing `use starlark::values::Value;`, or invokes the macro twice, gets \"error[E0252]: the name Value is defined multiple times\".",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dce1ca4d_61efe824",
+        "filename": "src/gn/starlark/crates/attr/src/globals.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-06T02:54:16Z",
+      "side": 1,
+      "message": "`label_keyed_string_dict` has no `allow_files` / `allow_single_file` params, unlike `label_list` just below.\n\nThe key coercion for `LabelKeyedStringDict` still runs through `schema.file_matcher()`, but since this Starlark API can never set `allow_files`, the matcher is always `AllowFiles::None` and unqualified source-file keys get rejected as `NotALabel`.\n\nDo we want file-key support here? If so, I think we\u0027d need to forward those params the way the list variants do.",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "722ce73f_fee47b95",
+        "filename": "src/gn/starlark/crates/attr/src/schema.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-06T02:54:16Z",
+      "side": 1,
+      "message": "For optional `attr.string(values\u003d[...])` or `attr.int(values\u003d[...])` declarations with no explicit default, this branch installs `\"\"` or `0` directly and never checks whether those values are in the allowed set.\n\nWhen the user omits the attribute, `Attr::create` clones this stored default, so the rule sees a value that violates its own values constraint.\n\nShould we validate the implicit default against `allowed` here, or require `mandatory` / an explicit in-range default in that case?",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bffbb75d_2dd2b8d6",
+        "filename": "src/gn/starlark/crates/attr/src/schema.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-06T02:54:16Z",
+      "side": 1,
+      "message": "`Single` and `Many` are handled identically here and nothing else branches on the distinction, so `allow_single_file` currently behaves exactly like `allow_files` with no single-file enforcement. Is this WAI?",
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -16,6 +16,24 @@
       "message": "It would be safer to use `Arc\u003cMutex\u003c_\u003e\u003e`, but I guess you\u0027re trying to optimize. Depending on how the starlark rust crate works, (like if this is only called once) I guess you could pass an owned context here, and have the extra field be something like a Cow?",
       "revId": "78109c989c50a07848aa788e174f106a41f368a6",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82641013_6997a567",
+        "filename": "src/gn/starlark/crates/testutils/src/assert.rs",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T23:48:28Z",
+      "side": 1,
+      "message": "`Arc\u003cMutex\u003c_\u003e\u003e` unfortunately doesn\u0027t work due to the way the starlark crate is designed.\n\nIn the evaluator, the context is stored here:\n`pub extra_mut: Option\u003c\u0026\u0027a mut dyn AnyLifetime\u003c\u0027e\u003e\u003e,`\n\nSince it is a reference rather than an actual object, we are unable to detect when `extra_mut` is dropped in order to release the lock. Also, the `Evaluator` object has no callabck mechanisms like drop hooks or anything.\n\n`Cow` doesn\u0027t work because we need to read the mutations at times to verify that the mutation was correct.",
+      "parentUuid": "bc507bad_5bbed488",
+      "revId": "78109c989c50a07848aa788e174f106a41f368a6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

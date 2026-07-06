@@ -101,6 +101,63 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c345ec18_d66ab3d2",
+        "filename": "src/gn/ffi/update_bridge.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-06T06:38:23Z",
+      "side": 1,
+      "message": "Would a presubmit to ensure the generation doesn\u0027t go stale help?",
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9936be8_7612712a",
+        "filename": "src/gn/starlark/crates/ffi/src/label.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-06T06:38:23Z",
+      "side": 1,
+      "message": "I understand this CL is swapping the FFI bindings so this is just preserving the existing state, but in a similar vein to my reviews on the crate introducing the types, I\u0027m concerned about the ambiguity with terminology that the API shape is introducing.\n\nThis is a \"Label\" just as there is a \"Label\" in Starlark land, but it is actually a GN \"Label\" which has the toolchain, and conceptual translations between GN-shaped data and Starlark-shaped data are being pushed right into the FFI layer.\n\nSo this API says a GN \"Label\" in Rust land gets to have a `.package` which is a Bazel/Starlark-shaped declaration. Likewise `as_ref` drops the toolchain.\n\nIn the pre-diff version I would\u0027ve been understanding that this conceptual translation is pushed into FFI so that consumers don\u0027t worry about `unsafe`, but that\u0027s now no longer the case.\n\nThere\u0027s no more `unsafe`s here, so why is conceptual translation of GN concepts into Bazel/Starlark concepts happening at the FFI layer?\n\nAgain, this is a comment on what\u0027s already landed and I won\u0027t block submit on the CL being a migration of FFI methods itself.",
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95300ba7_61318784",
+        "filename": "src/gn/starlark/crates/ffi/src/label.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-06T06:38:23Z",
+      "side": 1,
+      "message": "https://source.chromium.org/gn/gn/+/main:src/gn/label.cc;l\u003d212;drc\u003dafcf992bb8805ba7e7157230bb929ee9416bf5d3",
+      "range": {
+        "startLine": 31,
+        "startChar": 33,
+        "endLine": 32,
+        "endChar": 26
+      },
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a788894c_57d551a0",
         "filename": "src/gn/starlark/crates/ffi/src/string_view.rs",
         "patchSetId": 6
@@ -117,6 +174,29 @@
         "startChar": 0,
         "endLine": 11,
         "endChar": 49
+      },
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dccd1312_dff32048",
+        "filename": "src/gn/starlark/crates/ffi/src/string_view.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-06T06:38:23Z",
+      "side": 1,
+      "message": "Rust noob question: Is it possible to call `as_str\u003c\u0027static\u003e` here?",
+      "range": {
+        "startLine": 28,
+        "startChar": 11,
+        "endLine": 28,
+        "endChar": 39
       },
       "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"

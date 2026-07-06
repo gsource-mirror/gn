@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7fcf5c4_ea3445a6",
+        "filename": "src/gn/starlark/crates/testutils/src/assert.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-06T02:58:37Z",
+      "side": 1,
+      "message": "Mhm, if a caller keeps the reference from `context()` alive across an evaluation, this block hands out `\u0026mut FakeEvalContext` to the same object while that shared `\u0026` is still live.\n\nThe current `\u0026self` signatures on both `context()` and the eval methods allow exactly that overlap, and it becomes UB as soon as evaluated code touches `context_mut` (e.g. `require_rule_impl_mut`).\n\nSequential use (inspect only after eval returns) is safe, so nothing breaks today. But should we enforce real exclusivity instead - interior mutability with runtime borrow checking (`RefCell`), or requiring `\u0026mut` for evaluation?",
+      "revId": "3bc39ffe71f1584c5bc2feaa951d8f83d2b48cbd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83bd6a4d_e77619b4",
+        "filename": "src/gn/starlark/crates/types/src/eval_context.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-06T02:58:37Z",
+      "side": 1,
+      "message": "This patch drops the `+ Send + Sync` bounds from the trait. I tried re-adding them and `cargo check --workspace --tests` still passes, so maybe the fake context does not actually need them gone? What was the reason to remove them?",
+      "revId": "3bc39ffe71f1584c5bc2feaa951d8f83d2b48cbd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a5cad25_ad9a2df9",
+        "filename": "src/gn/starlark/crates/types/src/unpacked_owned_value.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-06T02:58:37Z",
+      "side": 1,
+      "message": "I think this wrapper can hand out dangling references. `\u0027v` is a free parameter (only in `PhantomData`), and `try_from` builds the value from `unchecked_frozen_value().to_value()` with an unconstrained `\u0027v`.\n\nFor a borrowing `T` like `\u0026str` or `Value\u003c\u0027v\u003e`, `deref` lets safe code copy the inner value out (`let s: \u0026str \u003d *assert.eval::\u003c\u0026str\u003e(...)`); the temporary then drops its `FrozenHeapRef` and `s` dangles. The safety comment assumes the heap outlives `T`, but the two lifetimes are not actually tied. \n\nShould we restrict this to owned `T`, or reuse starlark\u0027s `OwnedFrozenValueTyped` / `downcast_starlark`, which bundle the keep-alive safely?",
+      "revId": "3bc39ffe71f1584c5bc2feaa951d8f83d2b48cbd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

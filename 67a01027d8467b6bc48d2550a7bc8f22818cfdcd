@@ -72,6 +72,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "39be425b_243c5857",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T23:49:08Z",
+      "side": 1,
+      "message": "Ah didn\u0027t realise that. Fixed.",
+      "parentUuid": "94c0460b_a84956f5",
+      "range": {
+        "startLine": 120,
+        "startChar": 24,
+        "endLine": 120,
+        "endChar": 27
+      },
+      "revId": "67a01027d8467b6bc48d2550a7bc8f22818cfdcd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd0d59b6_72102cbf",

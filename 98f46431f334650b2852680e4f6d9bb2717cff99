@@ -16,6 +16,24 @@
       "message": "It might be more straightforward to have `AttrModule` have some field in it that can do the differentiating? Like a function pointer to `make_attr_schema_fn` or just an enum between production/testing.\n\nAlso even if you used a trait with dynamic dispatch, I\u0027m pretty sure it would be inconsequential compared to all the other overhead of using starlark. The `attr` module is not used that frequently, it\u0027s O(module types), not O(modules).",
       "revId": "98f46431f334650b2852680e4f6d9bb2717cff99",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d86a7c97_ff51d873",
+        "filename": "src/gn/starlark/crates/attr/src/globals.rs",
+        "patchSetId": 11
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T23:49:08Z",
+      "side": 1,
+      "message": "Good idea, the code is looking much cleaner now.",
+      "parentUuid": "0b3d6185_ae99540f",
+      "revId": "98f46431f334650b2852680e4f6d9bb2717cff99",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

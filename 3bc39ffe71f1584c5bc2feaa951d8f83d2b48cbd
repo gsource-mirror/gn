@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ea645ae_3ee2bc55",
+        "filename": "src/gn/starlark/crates/testutils/src/assert.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T05:00:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7fcf5c4_ea3445a6",
+      "revId": "3bc39ffe71f1584c5bc2feaa951d8f83d2b48cbd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "83bd6a4d_e77619b4",
@@ -35,6 +53,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "539f0c1a_32f9fb9d",
+        "filename": "src/gn/starlark/crates/types/src/eval_context.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T05:00:26Z",
+      "side": 1,
+      "message": "I think I just realised it was unneccesary, and I later made some changes which made the real EvalContext object used in prod not Send + Sync.",
+      "parentUuid": "83bd6a4d_e77619b4",
+      "revId": "3bc39ffe71f1584c5bc2feaa951d8f83d2b48cbd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a5cad25_ad9a2df9",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-07-06T02:58:37Z",
       "side": 1,
       "message": "I think this wrapper can hand out dangling references. `\u0027v` is a free parameter (only in `PhantomData`), and `try_from` builds the value from `unchecked_frozen_value().to_value()` with an unconstrained `\u0027v`.\n\nFor a borrowing `T` like `\u0026str` or `Value\u003c\u0027v\u003e`, `deref` lets safe code copy the inner value out (`let s: \u0026str \u003d *assert.eval::\u003c\u0026str\u003e(...)`); the temporary then drops its `FrozenHeapRef` and `s` dangles. The safety comment assumes the heap outlives `T`, but the two lifetimes are not actually tied. \n\nShould we restrict this to owned `T`, or reuse starlark\u0027s `OwnedFrozenValueTyped` / `downcast_starlark`, which bundle the keep-alive safely?",
+      "revId": "3bc39ffe71f1584c5bc2feaa951d8f83d2b48cbd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9759ea4c_809c0c79",
+        "filename": "src/gn/starlark/crates/types/src/unpacked_owned_value.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-06T05:00:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a5cad25_ad9a2df9",
       "revId": "3bc39ffe71f1584c5bc2feaa951d8f83d2b48cbd",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f639cea4_baba5d54",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-07-06T02:13:47Z",
+      "side": 1,
+      "message": "Are there any other use cases that can benefit from public_inputs?",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 18
+      },
+      "revId": "e29ef232987d47990e57a71d9350b4297747750f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c5461772_3fca8469",
         "filename": "/COMMIT_MSG",
         "patchSetId": 11

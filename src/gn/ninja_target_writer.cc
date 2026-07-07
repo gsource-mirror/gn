@@ -581,6 +581,10 @@ NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep(
   InputDeps deps;
   // Inherited public_inputs target dependencies.
   std::vector<OutputFile> public_inputs_deps;
+  if (!target_->public_inputs().empty()) {
+    public_inputs_deps.push_back(
+        GetPublicInputsOutputFile(target_, settings_->build_settings()));
+  }
   for (const auto& pair : target_->public_deps()) {
     if (resolved().ExportsPublicInputs(pair.ptr)) {
       public_inputs_deps.push_back(

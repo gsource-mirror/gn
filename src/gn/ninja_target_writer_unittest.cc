@@ -696,4 +696,19 @@ TEST(NinjaTargetWriter, PublicInputs) {
         << out;
     EXPECT_TRUE(out.find("../../foo/a.in") == std::string::npos) << out;
   }
+
+  // 3. Verify A's own action build definition includes its public_inputs.
+  {
+    std::ostringstream stream;
+    // B's target needs output defined, let's configure A as well
+    a.action_values().outputs() =
+        SubstitutionList::MakeForTest("//out/Debug/a.out");
+    NinjaActionTargetWriter writer(&a, stream);
+    writer.Run();
+    std::string out = stream.str();
+    // out should contain "phony/foo/a.public_inputs" as an input dependency.
+    EXPECT_TRUE(out.find("phony/foo/a.public_inputs") != std::string::npos)
+        << out;
+    EXPECT_TRUE(out.find("../../foo/a.in") == std::string::npos) << out;
+  }
 }

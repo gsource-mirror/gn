@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a4bf5f1_c9c86e85",
+        "filename": "src/gn/ffi/ffi_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T02:41:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4c14cb2_46b98178",
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c6d4396_b4a7797b",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-07-06T05:06:00Z",
       "side": 1,
       "message": "Is it difficult to avoid using reinterpret_cast?",
+      "range": {
+        "startLine": 19,
+        "startChar": 17,
+        "endLine": 19,
+        "endChar": 33
+      },
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b521252_277b2210",
+        "filename": "src/gn/ffi/ffi_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T02:41:10Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "4c6d4396_b4a7797b",
       "range": {
         "startLine": 19,
         "startChar": 17,
@@ -82,6 +124,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "de83534b_add6edf0",
+        "filename": "src/gn/ffi/ffi_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T02:41:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "880502e8_5331b339",
+      "range": {
+        "startLine": 20,
+        "startChar": 24,
+        "endLine": 20,
+        "endChar": 26
+      },
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "619e1b93_bbce43a5",
@@ -95,6 +161,24 @@
       "writtenOn": "2026-07-06T05:06:00Z",
       "side": 1,
       "message": "Include STL header in separated block.",
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad585b79_471c7326",
+        "filename": "src/gn/ffi/test_with_scope.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T02:41:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "619e1b93_bbce43a5",
       "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -116,6 +200,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a67eef1_61f60015",
+        "filename": "src/gn/ffi/update_bridge.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T02:41:10Z",
+      "side": 1,
+      "message": "It would, but we have a rule of no rust in CI for now.",
+      "parentUuid": "c345ec18_d66ab3d2",
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9936be8_7612712a",
@@ -133,6 +235,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "250b6cf1_7e4aef8c",
+        "filename": "src/gn/starlark/crates/ffi/src/label.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T02:41:10Z",
+      "side": 1,
+      "message": "The intent of the FFI layer is precisely that - translating a GN concept (known to rust as `ffi::Label` into their equivalent bazel concept (`Label`).\n\nThe reason this was pushed into a seperate FFI layer wasn\u0027t to avoid unsafe, but rather to avoid the code having a dependency on GN.\n\nRe why we drop the toolchain, it\u0027s because the toolchain is never useful. We *never* pass `ffi::Label` from GN to starlark. Instead, we pass `ffi::Target` objects over, which we immediately wrap in a rust Target.\n\nThe rust target exposes:\n`.label()` -\u003e `self.ffi_target.label()\n`.toolchain()` -\u003e `self.ffi_target.settings().toolchain_label()`\n\nIf you\u0027d like, I can make a `to_rust` method which returns `(LabelRef, LabelRef)`, but I don\u0027t find it particularly useful.",
+      "parentUuid": "c9936be8_7612712a",
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "95300ba7_61318784",
@@ -146,6 +266,30 @@
       "writtenOn": "2026-07-06T06:38:23Z",
       "side": 1,
       "message": "https://source.chromium.org/gn/gn/+/main:src/gn/label.cc;l\u003d212;drc\u003dafcf992bb8805ba7e7157230bb929ee9416bf5d3",
+      "range": {
+        "startLine": 31,
+        "startChar": 33,
+        "endLine": 32,
+        "endChar": 26
+      },
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d07ec77c_d19381a1",
+        "filename": "src/gn/starlark/crates/ffi/src/label.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T02:41:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95300ba7_61318784",
       "range": {
         "startLine": 31,
         "startChar": 33,
@@ -179,6 +323,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b16909a9_32944a19",
+        "filename": "src/gn/starlark/crates/ffi/src/string_view.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T02:41:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a788894c_57d551a0",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 49
+      },
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dccd1312_dff32048",
@@ -192,6 +360,30 @@
       "writtenOn": "2026-07-06T06:38:23Z",
       "side": 1,
       "message": "Rust noob question: Is it possible to call `as_str\u003c\u0027static\u003e` here?",
+      "range": {
+        "startLine": 28,
+        "startChar": 11,
+        "endLine": 28,
+        "endChar": 39
+      },
+      "revId": "95322ed322bb367f42d354883f74c52f9adf51f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d8c61fe_59507466",
+        "filename": "src/gn/starlark/crates/ffi/src/string_view.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T02:41:10Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "dccd1312_dff32048",
       "range": {
         "startLine": 28,
         "startChar": 11,

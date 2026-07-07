@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f661bbd6_5e18dc84",
+        "filename": "build/gen.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T05:54:37Z",
+      "side": 1,
+      "message": "Ah sorry, that was from an old version of the code.",
+      "parentUuid": "e67edbcb_714d169c",
+      "range": {
+        "startLine": 1029,
+        "startChar": 9,
+        "endLine": 1029,
+        "endChar": 13
+      },
+      "revId": "d68aea29a8f2d1433f8f1348427920160edeb93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "75ba6574_c2330d4c",
@@ -41,6 +65,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "97c51213_87f96bb9",
+        "filename": "build/gen.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 1044,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T05:54:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75ba6574_c2330d4c",
+      "revId": "d68aea29a8f2d1433f8f1348427920160edeb93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f9ece72_e2203736",
@@ -54,6 +96,30 @@
       "writtenOn": "2026-07-07T04:42:52Z",
       "side": 1,
       "message": "This is not included in filename?",
+      "range": {
+        "startLine": 6,
+        "startChar": 37,
+        "endLine": 6,
+        "endChar": 40
+      },
+      "revId": "d68aea29a8f2d1433f8f1348427920160edeb93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94ab31eb_c64520e6",
+        "filename": "src/gn/ffi/test_with_scope.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T05:54:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f9ece72_e2203736",
       "range": {
         "startLine": 6,
         "startChar": 37,

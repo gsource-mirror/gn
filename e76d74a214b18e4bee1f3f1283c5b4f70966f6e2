@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0cfd967_572ecc62",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T03:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "674447f2_a1f90e7e",
+      "range": {
+        "startLine": 7,
+        "startChar": 21,
+        "endLine": 7,
+        "endChar": 30
+      },
+      "revId": "e76d74a214b18e4bee1f3f1283c5b4f70966f6e2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "119cba14_475fb055",
@@ -61,6 +85,30 @@
           ]
         }
       ],
+      "revId": "e76d74a214b18e4bee1f3f1283c5b4f70966f6e2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03dc56d3_9e0d6d70",
+        "filename": "src/gn/ffi/update_bridge.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-07T03:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "119cba14_475fb055",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 113
+      },
       "revId": "e76d74a214b18e4bee1f3f1283c5b4f70966f6e2",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

@@ -22,6 +22,8 @@ pub(crate) enum Error {
     /// The referenced file does not exist on disk.
     #[error("File {1} does not exist in {0}")]
     FileNotFound(Package, String),
+    #[error("Invalid package, must start with \"//\": \"{0}\"")]
+    NotAPackage(String),
 }
 
 impl From<Error> for starlark::Error {

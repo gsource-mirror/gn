@@ -198,7 +198,7 @@ mod tests {
 
     #[test]
     fn test_label_parsing() {
-        let current_pkg = PackageRef::new_for_testing("//foo/bar");
+        let current_pkg = PackageRef::new("//foo/bar").unwrap();
 
         let lbl = Label::parse("//foo/bar:baz", PackageRef::root()).unwrap();
         assert_eq!(lbl.to_string(), "//foo/bar:baz");
@@ -215,10 +215,7 @@ mod tests {
     #[test]
     fn test_label_attributes() {
         let lbl = Label::parse("//foo/bar:baz", PackageRef::root()).unwrap();
-        assert_eq!(
-            lbl.package.as_ref(),
-            PackageRef::new_for_testing("//foo/bar")
-        );
+        assert_eq!(lbl.package.as_ref(), PackageRef::new("//foo/bar").unwrap());
         assert_eq!(lbl.name, "baz");
         assert_eq!(format!("{lbl:?}"), "Label(\"//foo/bar:baz\")");
     }
@@ -230,7 +227,7 @@ mod tests {
             builder.set(
                 "my_label",
                 Label::new(
-                    PackageRef::new_for_testing("//foo/bar").to_owned(),
+                    PackageRef::new("//foo/bar").unwrap().to_owned(),
                     "baz".to_owned(),
                 ),
             );

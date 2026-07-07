@@ -16,12 +16,14 @@ impl PackageRef {
         unsafe { Self::new_unchecked("//") }
     }
 
-    /// Creates a new `PackageRef` for testing purposes.
-    /// Not #[cfg(test)] because we use it in tests for downstream crates.
-    pub fn new_for_testing(s: &str) -> &Self {
-        assert!(s.starts_with("//"), "Package name must start with //");
-        // Safety: checked above
-        unsafe { Self::new_unchecked(s) }
+    // Validates and creates a PackageRef for the given string.
+    pub fn new(s: &str) -> starlark::Result<&Self> {
+        if s.starts_with("//") {
+            // Safety: checked above
+            unsafe { Ok(Self::new_unchecked(s)) }
+        } else {
+            Err(crate::Error::NotAPackage(s.to_owned()).into())
+        }
     }
 
     /// Creates a new `PackageRef` from a string slice.

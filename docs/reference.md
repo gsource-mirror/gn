@@ -160,6 +160,7 @@
     *   [public: [file list] Declare public header files for a target.](#var_public)
     *   [public_configs: [label list] Configs applied to dependents.](#var_public_configs)
     *   [public_deps: [label list] Declare public dependencies.](#var_public_deps)
+    *   [public_inputs: [file list] Declare public inputs.](#var_public_inputs)
     *   [rebase: [boolean] Rebase collected metadata as files.](#var_rebase)
     *   [response_file_contents: [string list] Contents of .rsp file for actions.](#var_response_file_contents)
     *   [rustflags: [string list] Flags passed to the Rust compiler.](#var_rustflags)
@@ -6875,6 +6876,43 @@
     deps = [ ":super_secret_implementation_details" ]
     public_deps = [ ":c" ]
   }
+```
+### <a name="var_public_inputs"></a>**public_inputs**: Declare public inputs.&nbsp;[Back to Top](#gn-reference)
+
+```
+  Inputs to a target that should be treated as implicit inputs of any dependent
+  targets.
+
+  If target A declares public_inputs and target B depends on A (either via
+  deps or public_deps), B will inherit A's public_inputs.
+
+  If target B depends on A via public_deps, B's public_inputs will also
+  propagate to any targets depending on B.
+
+  This is particularly useful for actions that generate source code which
+  contain implicit imports/includes of the files declared in public_inputs.
+  Dependent targets will automatically inherit these dependencies and trigger
+  rebuilds when the public inputs change.
+
+  See also "inputs" and "public_deps".
+
+  Example
+
+    action("A") {
+      ...
+      public_inputs = [ "a.in" ]
+    }
+
+    action("B") {
+      ...
+      deps = [ ":A" ]  # B inherits "a.in" as an implicit input
+    }
+
+    action("C") {
+      ...
+      public_deps = [ ":A" ]  # C inherits "a.in", and propagates it to
+                              # C's dependents.
+    }
 ```
 ### <a name="var_rebase"></a>**rebase**: Rebase collected metadata as files.&nbsp;[Back to Top](#gn-reference)
 

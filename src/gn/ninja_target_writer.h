@@ -54,6 +54,13 @@ class NinjaTargetWriter {
       ResolvedTargetData* resolved = nullptr,
       std::vector<OutputFile>* ninja_outputs = nullptr);
 
+  // Writes a stamp or phony rule for the target's public inputs if it exports
+  // any. This does nothing if resolved->ExportsPublicInputs(target) returns
+  // false.
+  static void WritePublicInputsStampOrPhony(const Target* target,
+                                            ResolvedTargetData* resolved,
+                                            std::ostream& out);
+
   virtual void Run() = 0;
 
  protected:

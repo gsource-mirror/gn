@@ -152,7 +152,27 @@ class ResolvedTargetData {
     return GetTargetOrderOnlyDeps(target)->order_only_deps;
   }
 
+  // Returns true if this target exports public inputs, either directly or from
+  // public dependencies which do.
+  bool ExportsPublicInputs(const Target* target) const {
+    TargetInfo* info = GetTargetInfo(target);
+    LazyBool value =
+        info->does_export_public_inputs.load(std::memory_order_acquire);
+    if (value == LazyBool::kUnknown) {
+      value =
+          ComputeExportsPublicInputs(info) ? LazyBool::kTrue : LazyBool::kFalse;
+      info->does_export_public_inputs.store(value, std::memory_order_release);
+    }
+    return value == LazyBool::kTrue;
+  }
+
  private:
+  enum class LazyBool : uint8_t {
+    kUnknown,
+    kTrue,
+    kFalse,
+  };
+
   // The information associated with a given Target pointer.
   struct TargetInfo {
     TargetInfo() = default;
@@ -175,6 +195,7 @@ class ResolvedTargetData {
     std::atomic<bool> has_rust_libs = false;
     std::atomic<bool> has_swift_values = false;
     std::atomic<bool> has_order_only_deps = false;
+    std::atomic<LazyBool> does_export_public_inputs = LazyBool::kUnknown;
 
     // Only valid if |has_lib_info| is true.
     std::vector<SourceDir> lib_dirs;
@@ -330,6 +351,7 @@ class ResolvedTargetData {
   void ComputeRustLibs(TargetInfo* info) const;
   void ComputeSwiftValues(TargetInfo* info) const;
   void ComputeOrderOnlyDeps(TargetInfo* info) const;
+  bool ComputeExportsPublicInputs(const TargetInfo* info) const;
 
   // Helper function used by ComputeInheritedLibs().
   void ComputeInheritedLibsFor(

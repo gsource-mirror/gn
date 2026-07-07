@@ -166,6 +166,9 @@ class Target : public Item {
   const FileList& sources() const { return sources_; }
   FileList& sources() { return sources_; }
 
+  const FileList& public_inputs() const { return public_inputs_; }
+  FileList& public_inputs() { return public_inputs_; }
+
   const SourceFileTypeSet& source_types_used() const {
     return source_types_used_;
   }
@@ -558,6 +561,7 @@ class Target : public Item {
 
   FileList sources_;
   SourceFileTypeSet source_types_used_;
+  FileList public_inputs_;
   bool all_headers_public_ = true;
   FileList public_headers_;
   bool check_includes_ = true;

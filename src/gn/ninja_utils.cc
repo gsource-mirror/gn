@@ -4,7 +4,9 @@
 
 #include "gn/ninja_utils.h"
 
+#include "gn/build_settings.h"
 #include "gn/filesystem_utils.h"
+#include "gn/output_file.h"
 #include "gn/settings.h"
 #include "gn/target.h"
 
@@ -27,4 +29,19 @@ std::string GetNinjaRulePrefixForToolchain(const Settings* settings) {
   if (settings->is_default())
     return std::string();  // Default toolchain has no prefix.
   return settings->toolchain_label().name() + "_";
+}
+
+OutputFile GetPublicInputsOutputFile(const Target* target,
+                                     const BuildSettings* build_settings) {
+  OutputFile result;
+  if (build_settings->no_stamp_files()) {
+    result = GetBuildDirForTargetAsOutputFile(target, BuildDirType::PHONY);
+    result.append(target->label().name());
+    result.append(".public_inputs");
+  } else {
+    result = GetBuildDirForTargetAsOutputFile(target, BuildDirType::OBJ);
+    result.append(target->label().name());
+    result.append(".public_inputs.stamp");
+  }
+  return result;
 }

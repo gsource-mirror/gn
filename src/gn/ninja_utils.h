@@ -7,6 +7,8 @@
 
 #include <string>
 
+class BuildSettings;
+class OutputFile;
 class Settings;
 class SourceFile;
 class Target;
@@ -21,5 +23,10 @@ SourceFile GetNinjaFileForToolchain(const Settings* settings);
 // Returns the prefix applied to the Ninja rules in a given toolchain so they
 // don't collide with rules from other toolchains.
 std::string GetNinjaRulePrefixForToolchain(const Settings* settings);
+
+// Returns the output file path for the target's public inputs stamp or phony
+// target.
+OutputFile GetPublicInputsOutputFile(const Target* target,
+                                     const BuildSettings* build_settings);
 
 #endif  // TOOLS_GN_NINJA_UTILS_H_

@@ -457,6 +457,15 @@ BundleData& Target::bundle_data() {
   return *bundle_data_;
 }
 
+const std::optional<OutputFile> Target::add_phony(
+    std::vector<OutputFile> direct,
+    std::vector<std::optional<OutputFile>> transitive,
+    std::string_view suffix) {
+  phonies_.push_back(
+      Phony(std::move(direct), std::move(transitive), this, suffix));
+  return phonies_.back().phony();
+}
+
 static ConfigValues kEmptyConfigValues;
 
 const ConfigValues& Target::config_values() const {

@@ -346,16 +346,18 @@ NinjaCreateBundleTargetWriter::WriteCompileAssetsCatalogInputDepsStampOrPhony(
   OutputFile xcassets_input_stamp_or_phony;
   std::string tool;
   if (settings_->build_settings()->no_stamp_files()) {
-    xcassets_input_stamp_or_phony =
-        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::PHONY);
-    xcassets_input_stamp_or_phony.append(target_->label().name());
-    xcassets_input_stamp_or_phony.append(".xcassets.inputdeps");
+    std::string path(
+        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::PHONY).value());
+    path.append(target_->label().name());
+    path.append(".xcassets.inputdeps");
+    xcassets_input_stamp_or_phony = OutputFile(path);
     tool = BuiltinTool::kBuiltinToolPhony;
   } else {
-    xcassets_input_stamp_or_phony =
-        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::OBJ);
-    xcassets_input_stamp_or_phony.append(target_->label().name());
-    xcassets_input_stamp_or_phony.append(".xcassets.inputdeps.stamp");
+    std::string path(
+        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::OBJ).value());
+    path.append(target_->label().name());
+    path.append(".xcassets.inputdeps.stamp");
+    xcassets_input_stamp_or_phony = OutputFile(path);
     tool = GetNinjaRulePrefixForToolchain(settings_) +
            GeneralTool::kGeneralToolStamp;
   }
@@ -433,17 +435,19 @@ NinjaCreateBundleTargetWriter::WritePostProcessingInputDepsStampOrPhony(
   if (settings_->build_settings()->no_stamp_files()) {
     // Make a phony target. We don't need to worry about an empty phony target,
     // as those would have been peeled off already.
-    stamp_or_phony =
-        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::PHONY);
-    stamp_or_phony.append(target_->label().name());
-    stamp_or_phony.append(".postprocessing.inputdeps");
+    std::string path(
+        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::PHONY).value());
+    path.append(target_->label().name());
+    path.append(".postprocessing.inputdeps");
+    stamp_or_phony = OutputFile(path);
     tool = BuiltinTool::kBuiltinToolPhony;
   } else {
     // Make a stamp target.
-    stamp_or_phony =
-        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::OBJ);
-    stamp_or_phony.append(target_->label().name());
-    stamp_or_phony.append(".postprocessing.inputdeps.stamp");
+    std::string path(
+        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::OBJ).value());
+    path.append(target_->label().name());
+    path.append(".postprocessing.inputdeps.stamp");
+    stamp_or_phony = OutputFile(path);
     tool = GetNinjaRulePrefixForToolchain(settings_) +
            GeneralTool::kGeneralToolStamp;
   }

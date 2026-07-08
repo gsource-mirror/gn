@@ -978,9 +978,11 @@ bool Target::FillOutputFiles(Err* err) {
     case SOURCE_SET: {
       if (settings()->build_settings()->no_stamp_files()) {
         if (HasRealInputs()) {
-          dependency_output_alias_ =
-              GetBuildDirForTargetAsOutputFile(this, BuildDirType::PHONY);
-          dependency_output_alias_.append(label().name());
+          std::string alias(
+              GetBuildDirForTargetAsOutputFile(this, BuildDirType::PHONY)
+                  .value());
+          alias.append(label().name());
+          dependency_output_alias_ = OutputFile(alias);
         }
       } else {
         // These don't get linked to and use stamps which should be the first
@@ -988,10 +990,11 @@ bool Target::FillOutputFiles(Err* err) {
         // "<target_out_dir>/<targetname>.stamp". Setting "output_name" does not
         // affect the stamp file name: it is always based on the original target
         // name.
-        dependency_output_file_ =
-            GetBuildDirForTargetAsOutputFile(this, BuildDirType::OBJ);
-        dependency_output_file_.append(label().name());
-        dependency_output_file_.append(".stamp");
+        std::string stamp(
+            GetBuildDirForTargetAsOutputFile(this, BuildDirType::OBJ).value());
+        stamp.append(label().name());
+        stamp.append(".stamp");
+        dependency_output_file_ = OutputFile(stamp);
       }
       break;
     }

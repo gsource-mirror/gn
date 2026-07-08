@@ -196,17 +196,19 @@ NinjaBinaryTargetWriter::WriteInputsStampOrPhonyAndGetDep(
     // Make a phony target. We don't need to worry about an empty phony target,
     // as those would have been peeled off already.
     CHECK(!inputs.empty());
-    stamp_or_phony =
-        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::PHONY);
-    stamp_or_phony.append(target_->label().name());
-    stamp_or_phony.append(".inputs");
+    std::string path(
+        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::PHONY).value());
+    path.append(target_->label().name());
+    path.append(".inputs");
+    stamp_or_phony = OutputFile(path);
     tool = BuiltinTool::kBuiltinToolPhony;
   } else {
     // Make a stamp target.
-    stamp_or_phony =
-        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::OBJ);
-    stamp_or_phony.append(target_->label().name());
-    stamp_or_phony.append(".inputs.stamp");
+    std::string path(
+        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::OBJ).value());
+    path.append(target_->label().name());
+    path.append(".inputs.stamp");
+    stamp_or_phony = OutputFile(path);
     tool = GetNinjaRulePrefixForToolchain(settings_) +
            GeneralTool::kGeneralToolStamp;
   }

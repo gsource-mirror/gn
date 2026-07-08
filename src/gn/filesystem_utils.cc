@@ -177,7 +177,7 @@ bool FilesystemStringsEqual(const base::FilePath::StringType& a,
 // other generated sources and outputs.
 void AppendFixedAbsolutePathSuffix(const BuildSettings* build_settings,
                                    const SourceDir& source_dir,
-                                   OutputFile* result) {
+                                   std::string* result) {
   const std::string& build_dir = build_settings->build_dir().value();
 
   if (source_dir.value().starts_with(build_dir)) {
@@ -1040,9 +1040,9 @@ SourceDir GetBuildDirAsSourceDir(const BuildDirContext& context,
 
 OutputFile GetBuildDirAsOutputFile(const BuildDirContext& context,
                                    BuildDirType type) {
-  OutputFile result(GetOutputSubdirName(context.toolchain_label,
-                                        context.is_default_toolchain));
-  DCHECK(result.value().empty() || result.value().back() == '/');
+  std::string result(GetOutputSubdirName(context.toolchain_label,
+                                         context.is_default_toolchain));
+  DCHECK(result.empty() || result.back() == '/');
 
   if (type == BuildDirType::GEN)
     result.append("gen/");
@@ -1050,7 +1050,7 @@ OutputFile GetBuildDirAsOutputFile(const BuildDirContext& context,
     result.append("obj/");
   else if (type == BuildDirType::PHONY)
     result.append("phony/");
-  return result;
+  return OutputFile(result);
 }
 
 SourceDir GetSubBuildDirAsSourceDir(const BuildDirContext& context,
@@ -1064,7 +1064,7 @@ OutputFile GetSubBuildDirAsOutputFile(const BuildDirContext& context,
                                       const SourceDir& source_dir,
                                       BuildDirType type) {
   DCHECK(type != BuildDirType::TOOLCHAIN_ROOT);
-  OutputFile result = GetBuildDirAsOutputFile(context, type);
+  std::string result_path(GetBuildDirAsOutputFile(context, type).value());
 
   if (source_dir.is_source_absolute()) {
     std::string_view build_dir = context.build_settings->build_dir().value();
@@ -1077,20 +1077,21 @@ OutputFile GetSubBuildDirAsOutputFile(const BuildDirContext& context,
       // it with `BUILD_DIR`. This will create results like `obj/BUILD_DIR/gen`
       // or `toolchain2/obj/BUILD_DIR/toolchain1/gen` which look surprising,
       // but guarantee unicity.
-      result.append("BUILD_DIR/");
-      result.append(source_dir_path.substr(build_dir.size()));
+      result_path.append("BUILD_DIR/");
+      result_path.append(source_dir_path.substr(build_dir.size()));
 
     } else {
       // The source dir is source-absolute, so we trim off the two leading
       // slashes to append to the toolchain object directory.
-      result.append(std::string_view(&source_dir.value()[2],
-                                     source_dir.value().size() - 2));
+      result_path.append(std::string_view(&source_dir.value()[2],
+                                          source_dir.value().size() - 2));
     }
   } else {
     // System-absolute.
-    AppendFixedAbsolutePathSuffix(context.build_settings, source_dir, &result);
+    AppendFixedAbsolutePathSuffix(context.build_settings, source_dir,
+                                  &result_path);
   }
-  return result;
+  return OutputFile(result_path);
 }
 
 SourceDir GetBuildDirForTargetAsSourceDir(const Target* target,

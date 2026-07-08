@@ -183,19 +183,23 @@ bool CollectRuntimeDepsFromFlag(const BuildSettings* build_settings,
       // Force the first output for shared-library-type linker outputs since
       // the dependency output files might not be the main output.
       CHECK(!target->computed_outputs().empty());
-      output_file.emplace(target->computed_outputs()[0]);
-      output_file->append(extension);
+      std::string path(target->computed_outputs()[0].value());
+      path.append(extension);
+      output_file = OutputFile(path);
     } else if (target->has_dependency_output_file()) {
-      output_file.emplace(target->dependency_output_file());
-      output_file->append(extension);
+      std::string path(target->dependency_output_file().value());
+      path.append(extension);
+      output_file = OutputFile(path);
     } else {
       // If there is no dependency_output_file, this target's dependency output
       // is either a phony alias or was elided entirely (due to lack of real
       // inputs). In either case, there is no file to add an additional
       // extension to, so we should compute our own name in the OBJ BuildDir.
-      output_file = GetBuildDirForTargetAsOutputFile(target, BuildDirType::OBJ);
-      output_file->append(target->GetComputedOutputName());
-      output_file->append(extension);
+      std::string path(
+          GetBuildDirForTargetAsOutputFile(target, BuildDirType::OBJ).value());
+      path.append(target->GetComputedOutputName());
+      path.append(extension);
+      output_file = OutputFile(path);
     }
     if (output_file)
       files_to_write->emplace_back(*output_file, target);

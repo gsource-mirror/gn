@@ -26,6 +26,7 @@
 #include "gn/ninja_target_command_util.h"
 #include "gn/ninja_utils.h"
 #include "gn/output_file.h"
+#include "gn/phony.h"
 #include "gn/rust_substitution_type.h"
 #include "gn/scheduler.h"
 #include "gn/string_output_buffer.h"
@@ -190,6 +191,15 @@ std::string NinjaTargetWriter::RunAndWriteFile(
     writer.Run();
   } else {
     CHECK(0) << "Output type of target not handled.";
+  }
+
+  if (!target->phonies().empty()) {
+    PathOutput path_output(settings->build_settings()->build_dir(),
+                           settings->build_settings()->root_path_utf8(),
+                           ESCAPE_NINJA);
+    for (const auto& phony : target->phonies()) {
+      phony.Write(rules, path_output);
+    }
   }
 
   WritePublicInputsStampOrPhony(target, resolved, rules);

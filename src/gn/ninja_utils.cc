@@ -35,13 +35,17 @@ OutputFile GetPublicInputsOutputFile(const Target* target,
                                      const BuildSettings* build_settings) {
   OutputFile result;
   if (build_settings->no_stamp_files()) {
-    result = GetBuildDirForTargetAsOutputFile(target, BuildDirType::PHONY);
-    result.append(target->label().name());
-    result.append(".public_inputs");
+    std::string path(
+        GetBuildDirForTargetAsOutputFile(target, BuildDirType::PHONY).value());
+    path.append(target->label().name());
+    path.append(".public_inputs");
+    result = OutputFile(path);
   } else {
-    result = GetBuildDirForTargetAsOutputFile(target, BuildDirType::OBJ);
-    result.append(target->label().name());
-    result.append(".public_inputs.stamp");
+    std::string path(
+        GetBuildDirForTargetAsOutputFile(target, BuildDirType::OBJ).value());
+    path.append(target->label().name());
+    path.append(".public_inputs.stamp");
+    result = OutputFile(path);
   }
   return result;
 }

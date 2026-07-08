@@ -457,6 +457,31 @@ BundleData& Target::bundle_data() {
   return *bundle_data_;
 }
 
+const std::optional<OutputFile> Target::add_phony(
+    std::vector<OutputFile> children,
+    std::vector<std::optional<OutputFile>> transitive,
+    std::string_view suffix) {
+  // Will always be big enough, but may be bigger than needed.
+  children.reserve(children.size() + transitive.size());
+  for (const std::optional<OutputFile>& dep : transitive) {
+    if (dep) {
+      children.push_back(*dep);
+    }
+  }
+
+  if (children.empty()) {
+    return std::nullopt;
+  }
+  if (children.size() == 1) {
+    return children[0];
+  }
+
+  OutputFile phony =
+      GetOutputFile(*this, BuildDirType::PHONY, label().name(), suffix);
+  phonies_.push_back(Phony(phony, std::move(children)));
+  return phony;
+}
+
 static ConfigValues kEmptyConfigValues;
 
 const ConfigValues& Target::config_values() const {

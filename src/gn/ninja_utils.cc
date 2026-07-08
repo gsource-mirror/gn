@@ -32,7 +32,6 @@ std::string GetNinjaRulePrefixForToolchain(const Settings* settings) {
 
 OutputFile GetPublicInputsOutputFile(const Target* target,
                                      const BuildSettings* build_settings) {
-  OutputFile result;
   if (build_settings->no_stamp_files()) {
     return GetOutputFile(*target, BuildDirType::PHONY, target->label().name(),
                          ".public_inputs");

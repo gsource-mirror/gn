@@ -472,15 +472,16 @@ OutputFile SubstitutionWriter::ApplyPatternToCompilerAsOutputFile(
     const Target* target,
     const SourceFile& source,
     const SubstitutionPattern& pattern) {
-  OutputFile result;
+  std::string result_path;
   for (const auto& subrange : pattern.ranges()) {
     if (subrange.type == &SubstitutionLiteral) {
-      result.append(subrange.literal);
+      result_path.append(subrange.literal);
     } else {
-      result.append(GetCompilerSubstitution(target, source, subrange.type));
+      result_path.append(
+          GetCompilerSubstitution(target, source, subrange.type));
     }
   }
-  return result;
+  return OutputFile(result_path);
 }
 
 // static
@@ -514,15 +515,15 @@ OutputFile SubstitutionWriter::ApplyPatternToLinkerAsOutputFile(
     const Target* target,
     const Tool* tool,
     const SubstitutionPattern& pattern) {
-  OutputFile result;
+  std::string result_path;
   for (const auto& subrange : pattern.ranges()) {
     if (subrange.type == &SubstitutionLiteral) {
-      result.append(subrange.literal);
+      result_path.append(subrange.literal);
     } else {
-      result.append(GetLinkerSubstitution(target, tool, subrange.type));
+      result_path.append(GetLinkerSubstitution(target, tool, subrange.type));
     }
   }
-  return result;
+  return OutputFile(result_path);
 }
 
 // static

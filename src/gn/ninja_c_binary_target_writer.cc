@@ -565,7 +565,9 @@ void NinjaCBinaryTargetWriter::WriteSourceSetStamp(
   }
 
   OutputFile link_phony = target_->dependency_output();
-  link_phony.append(".linkdeps");
+  std::string path(link_phony.value());
+  path.append(".linkdeps");
+  link_phony = OutputFile(std::move(path));
 
   out_ << "build ";
   path_output_.WriteFile(out_, link_phony);

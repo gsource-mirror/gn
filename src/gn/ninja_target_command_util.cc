@@ -146,8 +146,9 @@ void GetPCHOutputFiles(const Target* target,
       NOTREACHED() << "No outputs for no PCH type.";
       break;
   }
-  output_value.resize(extension_offset);
-  output_value.append(output_extension);
+  std::string path(output_value.value().substr(0, extension_offset));
+  path.append(output_extension);
+  output_value = OutputFile(std::move(path));
 }
 
 std::string GetGCCPCHOutputExtension(const char* tool_name) {

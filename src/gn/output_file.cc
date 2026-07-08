@@ -9,12 +9,9 @@
 
 OutputFile::OutputFile(const BuildSettings* build_settings,
                        const SourceFile& source_file) {
-  std::string rebased =
-      RebasePath(source_file.value(), build_settings->build_dir(),
-                 build_settings->root_path_utf8());
-  if (!rebased.empty()) {
-    value_.assign(rebased.begin(), rebased.end());
-  }
+  value_ =
+      StringAtom(RebasePath(source_file.value(), build_settings->build_dir(),
+                            build_settings->root_path_utf8()));
 }
 
 SourceFile OutputFile::AsSourceFile(const BuildSettings* build_settings) const {

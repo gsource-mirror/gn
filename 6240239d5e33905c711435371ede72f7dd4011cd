@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e667c3ce_d621a393",
+        "filename": "src/gn/ffi/scope.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-08T05:18:31Z",
+      "side": 1,
+      "message": "Include STL headers in separated block?",
+      "revId": "6240239d5e33905c711435371ede72f7dd4011cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e29a873_02e5f999",
+        "filename": "src/gn/ffi/scope.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-08T05:18:31Z",
+      "side": 1,
+      "message": "Could you add explanation comment about added functions here and other files?",
+      "fixSuggestions": [
+        {
+          "fixId": "493c6c92_b7674a39",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ffi/scope.h",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "// Creates a new Scope object.\n// `parent_scope`: The parent scope for the new scope.\n// `keys`: A slice of keys (strings) to be copied into the new scope.\n// `out_scope`: An output parameter to hold the newly created unique_ptr\u003cScope\u003e.\n// Returns a SliceAny, likely containing error information if creation fails.\n"
+            },
+            {
+              "path": "src/gn/ffi/scope.h",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "\n// Retrieves items from a given Scope.\n// `scope`: The Scope object from which to get items.\n// Returns a SliceAny, which contains the serialized items from the scope.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "6240239d5e33905c711435371ede72f7dd4011cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8d2768b_e233909f",
+        "filename": "src/gn/ffi/slice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-08T05:18:31Z",
+      "side": 1,
+      "message": "Include STL headers in separated block?",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 17
+      },
+      "revId": "6240239d5e33905c711435371ede72f7dd4011cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36ec3c53_94ff362b",
+        "filename": "src/gn/ffi/value.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-08T05:18:31Z",
+      "side": 1,
+      "message": "Include STL headers in separated block?",
+      "revId": "6240239d5e33905c711435371ede72f7dd4011cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

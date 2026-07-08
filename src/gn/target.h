@@ -21,6 +21,7 @@
 #include "gn/label_ptr.h"
 #include "gn/metadata.h"
 #include "gn/output_file.h"
+#include "gn/phony.h"
 #include "gn/pointer_set.h"
 #include "gn/rust_values.h"
 #include "gn/settings.h"
@@ -368,6 +369,18 @@ class Target : public Item {
   const SourceFile* modulemap_file() const;
   const SourceFile* private_modulemap_file() const;
 
+  // Adds a phony to this target, representing a set of files.
+  // * If the phony would expand to no files, returns nullopt.
+  // * If the phony would expand to a single file, does nothing and returns
+  //   the file.
+  // * If the phony would expand to multiple files, creates a new phony and
+  //   returns it.
+  const std::optional<OutputFile> add_phony(
+      std::vector<OutputFile> direct,
+      std::vector<std::optional<OutputFile>> transitive,
+      std::string_view suffix);
+  const std::vector<Phony>& phonies() const { return phonies_; }
+
   // The toolchain is only known once this target is resolved (all if its
   // dependencies are known). They will be null until then. Generally, this can
   // only be used during target writing.
@@ -601,6 +614,8 @@ class Target : public Item {
 
   // User for Swift targets.
   std::unique_ptr<SwiftValues> swift_values_;
+
+  std::vector<Phony> phonies_;
 
   // Toolchain used by this target. Null until target is resolved.
   const Toolchain* toolchain_ = nullptr;

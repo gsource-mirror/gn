@@ -14,6 +14,7 @@
 #include "base/strings/string_util.h"
 #include "gn/builtin_tool.h"
 #include "gn/c_substitution_type.h"
+#include "gn/c_tool.h"
 #include "gn/config_values_extractors.h"
 #include "gn/deps_iterator.h"
 #include "gn/err.h"
@@ -419,6 +420,20 @@ void NinjaCBinaryTargetWriter::WriteSources(
     }
 
     std::copy(input_deps.begin(), input_deps.end(), std::back_inserter(deps));
+
+    if (tool_name == CTool::kCToolCc || tool_name == CTool::kCToolCxx ||
+        tool_name == CTool::kCToolObjC || tool_name == CTool::kCToolObjCxx) {
+      if (target_->private_modulemap_phony()) {
+        deps.push_back(*target_->private_modulemap_phony());
+      }
+    } else if (tool_name == CTool::kCToolCxxModule) {
+      if (target_->public_modulemap_phony()) {
+        if (*target_->public_modulemap_phony() !=
+            OutputFile(settings_->build_settings(), source)) {
+          deps.push_back(*target_->public_modulemap_phony());
+        }
+      }
+    }
 
     if (tool_name != Tool::kToolNone) {
       // Only include PCH deps that correspond to the tool type, for instance,

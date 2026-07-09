@@ -628,6 +628,8 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
   if (!FillOutputFiles(err))
     return false;
 
+  ResolveModulePhonies();
+
   if (!SwiftValues::OnTargetResolved(this, err))
     return false;
 
@@ -1455,6 +1457,38 @@ const SourceFile* Target::private_modulemap_file() const {
         Value(nullptr, private_name), nullptr);
   }
   return &private_modulemap_file_;
+}
+
+void Target::ResolveModulePhonies() {
+  std::vector<OutputFile> public_direct;
+  if (modulemap_file() && !modulemap_file()->is_null()) {
+    public_direct.push_back(
+        OutputFile(settings()->build_settings(), *modulemap_file()));
+  }
+
+  std::vector<std::optional<OutputFile>> public_transitive;
+  for (const auto& dep : public_deps()) {
+    public_transitive.push_back(dep.ptr->public_modulemap_phony());
+  }
+
+  public_modulemap_phony_ =
+      add_phony(std::move(public_direct), std::move(public_transitive),
+                ".public_modulemaps");
+
+  std::vector<OutputFile> private_direct;
+  if (private_modulemap_file() && !private_modulemap_file()->is_null()) {
+    private_direct.push_back(
+        OutputFile(settings()->build_settings(), *private_modulemap_file()));
+  }
+
+  std::vector<std::optional<OutputFile>> private_transitive;
+  private_transitive.push_back(public_modulemap_phony_);
+  for (const auto& dep : private_deps()) {
+    private_transitive.push_back(dep.ptr->public_modulemap_phony());
+  }
+
+  private_modulemap_phony_ = add_phony(
+      std::move(private_direct), std::move(private_transitive), ".modulemaps");
 }
 
 std::string Pretty(const Target& target) {

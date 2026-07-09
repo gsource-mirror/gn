@@ -104,8 +104,8 @@ class NinjaFile:
         command=self.chain(
             # For golden tests it's very important that if a ninja file is no
             # longer generated, it is actually deleted.
-            python('tools/clean.py', '$out.actual'),
-            f'{build_prefix}{self._gn_exe} gen $out.actual --quiet'
+            python('tools/clean.py', '$path/out'),
+            f'{build_prefix}{self._gn_exe} gen $path/out --quiet'
             ' --root=$path',
             python('tools/touch.py', '$out'),
         ),
@@ -160,7 +160,7 @@ class NinjaFile:
     return self._compare_goldens(
         name + '_integration_test',
         inputs=[stamp] + self.directory(golden_path, []),
-        path=f'{name}.actual',
+        path=path / 'out',
         goldens=golden_path,
     )
 

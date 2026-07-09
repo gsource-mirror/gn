@@ -4,7 +4,7 @@ cflags = -fPIC -pthread
 target_out_dir = obj
 target_output_name = hello
 
-build obj/hello.hello.o: cxx ../../integration_tests/simple/hello.cc
+build obj/hello.hello.o: cxx ../hello.cc
   source_file_part = hello.cc
   source_name_part = hello
 

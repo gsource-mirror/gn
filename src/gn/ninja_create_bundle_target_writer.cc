@@ -347,15 +347,13 @@ NinjaCreateBundleTargetWriter::WriteCompileAssetsCatalogInputDepsStampOrPhony(
   std::string tool;
   if (settings_->build_settings()->no_stamp_files()) {
     xcassets_input_stamp_or_phony =
-        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::PHONY);
-    xcassets_input_stamp_or_phony.append(target_->label().name());
-    xcassets_input_stamp_or_phony.append(".xcassets.inputdeps");
+        GetOutputFile(*target_, BuildDirType::PHONY, target_->label().name(),
+                      ".xcassets.inputdeps");
     tool = BuiltinTool::kBuiltinToolPhony;
   } else {
     xcassets_input_stamp_or_phony =
-        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::OBJ);
-    xcassets_input_stamp_or_phony.append(target_->label().name());
-    xcassets_input_stamp_or_phony.append(".xcassets.inputdeps.stamp");
+        GetOutputFile(*target_, BuildDirType::OBJ, target_->label().name(),
+                      ".xcassets.inputdeps.stamp");
     tool = GetNinjaRulePrefixForToolchain(settings_) +
            GeneralTool::kGeneralToolStamp;
   }
@@ -434,16 +432,14 @@ NinjaCreateBundleTargetWriter::WritePostProcessingInputDepsStampOrPhony(
     // Make a phony target. We don't need to worry about an empty phony target,
     // as those would have been peeled off already.
     stamp_or_phony =
-        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::PHONY);
-    stamp_or_phony.append(target_->label().name());
-    stamp_or_phony.append(".postprocessing.inputdeps");
+        GetOutputFile(*target_, BuildDirType::PHONY, target_->label().name(),
+                      ".postprocessing.inputdeps");
     tool = BuiltinTool::kBuiltinToolPhony;
   } else {
     // Make a stamp target.
     stamp_or_phony =
-        GetBuildDirForTargetAsOutputFile(target_, BuildDirType::OBJ);
-    stamp_or_phony.append(target_->label().name());
-    stamp_or_phony.append(".postprocessing.inputdeps.stamp");
+        GetOutputFile(*target_, BuildDirType::OBJ, target_->label().name(),
+                      ".postprocessing.inputdeps.stamp");
     tool = GetNinjaRulePrefixForToolchain(settings_) +
            GeneralTool::kGeneralToolStamp;
   }

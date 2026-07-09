@@ -271,31 +271,54 @@ class BuildDirContext {
 // root_obj_dir variable) so BuildDirType::OBJ would normally never be passed
 // to this function except when it's called by one of the variants below that
 // append paths to it.
-SourceDir GetBuildDirAsSourceDir(const BuildDirContext& context,
-                                 BuildDirType type);
-OutputFile GetBuildDirAsOutputFile(const BuildDirContext& context,
-                                   BuildDirType type);
+SourceDir GetSourceDir(const BuildDirContext& context, BuildDirType type);
+std::string GetBuildDir(const BuildDirContext& context, BuildDirType type);
 
 // Returns the output or generated file directory corresponding to the given
 // source directory.
-SourceDir GetSubBuildDirAsSourceDir(const BuildDirContext& context,
-                                    const SourceDir& source_dir,
-                                    BuildDirType type);
-OutputFile GetSubBuildDirAsOutputFile(const BuildDirContext& context,
-                                      const SourceDir& source_dir,
-                                      BuildDirType type);
+SourceDir GetSourceDir(const BuildDirContext& context,
+                       const SourceDir& source_dir,
+                       BuildDirType type);
+std::string GetBuildDir(const BuildDirContext& context,
+                        const SourceDir& source_dir,
+                        BuildDirType type);
 
 // Returns the output or generated file directory corresponding to the given
 // target.
-SourceDir GetBuildDirForTargetAsSourceDir(const Target* target,
-                                          BuildDirType type);
-OutputFile GetBuildDirForTargetAsOutputFile(const Target* target,
-                                            BuildDirType type);
+SourceDir GetSourceDir(const Target& target, BuildDirType type);
+std::string GetBuildDir(const Target& target, BuildDirType type);
 
 // Returns the scope's current directory.
-SourceDir GetScopeCurrentBuildDirAsSourceDir(const Scope* scope,
-                                             BuildDirType type);
-// Lack of OutputDir version is due only to it not currently being needed,
+SourceDir GetSourceDir(const Scope& scope, BuildDirType type);
+// Lack of GetBuildDir version is due only to it not currently being needed,
 // please add one if you need it.
+
+template <typename... Args>
+OutputFile GetOutputFile(const BuildDirContext& context,
+                         BuildDirType type,
+                         Args&&... args) {
+  std::string path = GetBuildDir(context, type);
+  (path.append(std::forward<Args>(args)), ...);
+  return OutputFile(path);
+}
+
+template <typename... Args>
+OutputFile GetOutputFile(const BuildDirContext& context,
+                         const SourceDir& source_dir,
+                         BuildDirType type,
+                         Args&&... args) {
+  std::string path = GetBuildDir(context, source_dir, type);
+  (path.append(std::forward<Args>(args)), ...);
+  return OutputFile(path);
+}
+
+template <typename... Args>
+OutputFile GetOutputFile(const Target& target,
+                         BuildDirType type,
+                         Args&&... args) {
+  std::string path = GetBuildDir(target, type);
+  (path.append(std::forward<Args>(args)), ...);
+  return OutputFile(path);
+}
 
 #endif  // TOOLS_GN_FILESYSTEM_UTILS_H_

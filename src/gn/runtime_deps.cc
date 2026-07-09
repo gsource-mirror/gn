@@ -193,9 +193,8 @@ bool CollectRuntimeDepsFromFlag(const BuildSettings* build_settings,
       // is either a phony alias or was elided entirely (due to lack of real
       // inputs). In either case, there is no file to add an additional
       // extension to, so we should compute our own name in the OBJ BuildDir.
-      output_file = GetBuildDirForTargetAsOutputFile(target, BuildDirType::OBJ);
-      output_file->append(target->GetComputedOutputName());
-      output_file->append(extension);
+      output_file = GetOutputFile(*target, BuildDirType::OBJ,
+                                  target->GetComputedOutputName(), extension);
     }
     if (output_file)
       files_to_write->emplace_back(*output_file, target);

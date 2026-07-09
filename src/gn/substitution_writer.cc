@@ -368,10 +368,10 @@ std::string SubstitutionWriter::GetSourceSubstitution(
                       SourceDir("//"),
                       settings->build_settings()->root_path_utf8());
   } else if (type == &SubstitutionSourceGenDir) {
-    to_rebase = DirectoryWithNoLastSlash(GetSubBuildDirAsSourceDir(
+    to_rebase = DirectoryWithNoLastSlash(GetSourceDir(
         BuildDirContext(settings), source.GetDir(), BuildDirType::GEN));
   } else if (type == &SubstitutionSourceOutDir) {
-    to_rebase = DirectoryWithNoLastSlash(GetSubBuildDirAsSourceDir(
+    to_rebase = DirectoryWithNoLastSlash(GetSourceDir(
         BuildDirContext(settings), source.GetDir(), BuildDirType::OBJ));
   } else if (type == &SubstitutionSourceTargetRelative) {
     if (target) {
@@ -442,20 +442,14 @@ bool SubstitutionWriter::GetTargetSubstitution(const Target* target,
     *result = target->label().GetUserVisibleName(false);
   } else if (type == &SubstitutionRootGenDir) {
     SetDirOrDotWithNoSlash(
-        GetBuildDirAsOutputFile(BuildDirContext(target), BuildDirType::GEN)
-            .value(),
-        result);
+        GetBuildDir(BuildDirContext(target), BuildDirType::GEN), result);
   } else if (type == &SubstitutionRootOutDir) {
     SetDirOrDotWithNoSlash(
         target->settings()->toolchain_output_subdir().value(), result);
   } else if (type == &SubstitutionTargetGenDir) {
-    SetDirOrDotWithNoSlash(
-        GetBuildDirForTargetAsOutputFile(target, BuildDirType::GEN).value(),
-        result);
+    SetDirOrDotWithNoSlash(GetBuildDir(*target, BuildDirType::GEN), result);
   } else if (type == &SubstitutionTargetOutDir) {
-    SetDirOrDotWithNoSlash(
-        GetBuildDirForTargetAsOutputFile(target, BuildDirType::OBJ).value(),
-        result);
+    SetDirOrDotWithNoSlash(GetBuildDir(*target, BuildDirType::OBJ), result);
   } else if (type == &SubstitutionTargetOutputName) {
     *result = target->GetComputedOutputName();
   } else {

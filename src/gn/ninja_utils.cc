@@ -11,16 +11,15 @@
 #include "gn/target.h"
 
 SourceFile GetNinjaFileForTarget(const Target* target) {
-  return SourceFile(
-      GetBuildDirForTargetAsSourceDir(target, BuildDirType::OBJ).value() +
-      target->label().name() + ".ninja");
+  return SourceFile(GetSourceDir(*target, BuildDirType::OBJ).value() +
+                    target->label().name() + ".ninja");
 }
 
 SourceFile GetNinjaFileForToolchain(const Settings* settings) {
-  return SourceFile(GetBuildDirAsSourceDir(BuildDirContext(settings),
-                                           BuildDirType::TOOLCHAIN_ROOT)
-                        .value() +
-                    "toolchain.ninja");
+  return SourceFile(
+      GetSourceDir(BuildDirContext(settings), BuildDirType::TOOLCHAIN_ROOT)
+          .value() +
+      "toolchain.ninja");
 }
 
 std::string GetNinjaRulePrefixForToolchain(const Settings* settings) {
@@ -35,13 +34,10 @@ OutputFile GetPublicInputsOutputFile(const Target* target,
                                      const BuildSettings* build_settings) {
   OutputFile result;
   if (build_settings->no_stamp_files()) {
-    result = GetBuildDirForTargetAsOutputFile(target, BuildDirType::PHONY);
-    result.append(target->label().name());
-    result.append(".public_inputs");
+    return GetOutputFile(*target, BuildDirType::PHONY, target->label().name(),
+                         ".public_inputs");
   } else {
-    result = GetBuildDirForTargetAsOutputFile(target, BuildDirType::OBJ);
-    result.append(target->label().name());
-    result.append(".public_inputs.stamp");
+    return GetOutputFile(*target, BuildDirType::OBJ, target->label().name(),
+                         ".public_inputs.stamp");
   }
-  return result;
 }

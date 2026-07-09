@@ -223,8 +223,7 @@ void AddTarget(const BuildSettings* build_settings,
   // Unfortunately this doesn't help if the buildfile author places unrelated
   // generated sources for multiple crates in the same directory, but that's
   // impossible to solve anyway.
-  auto gen_dir = GetBuildDirForTargetAsSourceDir(target, BuildDirType::GEN)
-                     .Resolve(source_root);
+  auto gen_dir = GetSourceDir(*target, BuildDirType::GEN).Resolve(source_root);
   std::vector<SourceDir> include_dirs;
   for (const SourceFile& source : target->sources()) {
     if (gen_dir.IsParent(source.Resolve(source_root))) {

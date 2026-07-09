@@ -32,13 +32,8 @@ const char* GetPCHLangSuffixForToolType(const char* name) {
 OutputFile GetWindowsPCHFile(const Target* target, const char* tool_name) {
   // Use "obj/{dir}/{target_name}_{lang}.pch" which ends up
   // looking like "obj/chrome/browser/browser_cc.pch"
-  OutputFile ret = GetBuildDirForTargetAsOutputFile(target, BuildDirType::OBJ);
-  ret.append(target->label().name());
-  ret.append("_");
-  ret.append(GetPCHLangSuffixForToolType(tool_name));
-  ret.append(".pch");
-
-  return ret;
+  return GetOutputFile(*target, BuildDirType::OBJ, target->label().name(), "_",
+                       GetPCHLangSuffixForToolType(tool_name), ".pch");
 }
 
 void WriteOneFlag(RecursiveWriterConfig config,

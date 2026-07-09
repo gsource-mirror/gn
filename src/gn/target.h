@@ -375,6 +375,13 @@ class Target : public Item {
       std::string_view suffix);
   const std::vector<Phony>& phonies() const { return phonies_; }
 
+  const std::optional<OutputFile>& public_modulemap_phony() const {
+    return public_modulemap_phony_;
+  }
+  const std::optional<OutputFile>& private_modulemap_phony() const {
+    return private_modulemap_phony_;
+  }
+
   // The toolchain is only known once this target is resolved (all if its
   // dependencies are known). They will be null until then. Generally, this can
   // only be used during target writing.
@@ -541,6 +548,10 @@ class Target : public Item {
   // values are in config_values_.
   bool ResolvePrecompiledHeaders(Err* err);
 
+  // Resolves the module phony targets to ensure that all module-related info
+  // is specified in the implicit inputs.
+  void ResolveModulePhonies();
+
   // Validates the given thing when a target is resolved.
   bool CheckVisibility(Err* err) const;
   bool CheckConfigVisibility(Err* err) const;
@@ -610,6 +621,9 @@ class Target : public Item {
   std::unique_ptr<SwiftValues> swift_values_;
 
   std::vector<Phony> phonies_;
+
+  std::optional<OutputFile> public_modulemap_phony_;
+  std::optional<OutputFile> private_modulemap_phony_;
 
   // Toolchain used by this target. Null until target is resolved.
   const Toolchain* toolchain_ = nullptr;

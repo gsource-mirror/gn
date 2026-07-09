@@ -5,12 +5,20 @@
 #include "gn/command_format.h"
 
 #include "base/files/file_util.h"
-#include "base/strings/string_util.h"
 #include "gn/commands.h"
+#include "gn/filesystem_utils.h"
 #include "gn/setup.h"
 #include "gn/test_with_scheduler.h"
 #include "util/exe_path.h"
 #include "util/test/test.h"
+
+base::FilePath GetFormatTestDataDir() {
+  base::FilePath source_root_path =
+      GetExePath().DirName().Append(FILE_PATH_LITERAL("source_root.txt"));
+  std::string source_root;
+  CHECK(base::ReadFileToString(source_root_path, &source_root));
+  return UTF8ToFilePath(source_root);
+}
 
 using FormatTest = TestWithScheduler;
 
@@ -22,8 +30,7 @@ using FormatTest = TestWithScheduler;
     std::string input;                                                         \
     std::string out;                                                           \
     std::string expected;                                                      \
-    base::FilePath src_dir =                                                   \
-        GetExePath().DirName().Append(FILE_PATH_LITERAL(".."));                \
+    base::FilePath src_dir = GetFormatTestDataDir();                           \
     base::SetCurrentDirectory(src_dir);                                        \
     ASSERT_TRUE(base::ReadFileToString(                                        \
         base::FilePath(FILE_PATH_LITERAL("src/gn/format_test_data/")           \

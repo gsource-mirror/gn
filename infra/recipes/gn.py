@@ -97,6 +97,9 @@ def _get_compilation_environment(api, target, cipd_dir):
 
 def RunSteps(api, repository):
   src_dir = api.path['start_dir'].join('gn')
+  # By running with a custom output directory, we can make tests that are
+  # reliant on relative paths fail.
+  out_dir = src_dir.join('out', 'Default')
 
   # TODO: Verify that building and linking jemalloc works on OS X and Windows as
   # well.
@@ -253,17 +256,15 @@ def RunSteps(api, repository):
           env = _get_compilation_environment(api, target, cipd_dir)
           with api.step.nest(target.platform), api.context(
               env=env, cwd=src_dir):
-            args = config['args']
+            args = config['args'] + ['--out-path', out_dir]
             if config.get('use_jemalloc', False):
-              args = args[:] + [
-                  '--link-lib=%s' % jemalloc_static_libs[target.platform]
-              ]
+              args.append('--link-lib=%s' % jemalloc_static_libs[target.platform])
 
             api.step('generate',
                      ['python3', '-u', src_dir.join('build', 'gen.py')] + args)
 
             # Windows requires the environment modifications when building too.
-            ninja_cmd = [cipd_dir.join('ninja'), '-C', src_dir.join('out')]
+            ninja_cmd = [cipd_dir.join('ninja'), '-C', out_dir]
             exe_suffix = '.exe' if target.is_win else ''
             api.step('build', ninja_cmd + [
               f'gn{exe_suffix}',
@@ -271,7 +272,7 @@ def RunSteps(api, repository):
             ])
 
             if target.is_host:
-              api.step('test', [src_dir.join('out', 'gn_unittests')])
+              api.step('test', [out_dir.join('gn_unittests')])
               api.step(
                   'integration tests', ninja_cmd + ['run_integration_tests']
               )
@@ -293,17 +294,17 @@ def RunSteps(api, repository):
 
               if build_input.gerrit_changes:
                 # Upload to CAS from CQ.
-                api.cas.archive('upload binary to CAS', src_dir.join('out'),
-                                src_dir.join('out', gn))
+                api.cas.archive('upload binary to CAS', out_dir,
+                                out_dir.join(gn))
                 continue
 
               cipd_pkg_name = 'gn/gn/%s' % target.platform
 
               pkg_def = api.cipd.PackageDefinition(
                   package_name=cipd_pkg_name,
-                  package_root=src_dir.join('out'),
+                  package_root=out_dir,
                   install_mode='copy')
-              pkg_def.add_file(src_dir.join('out', gn))
+              pkg_def.add_file(out_dir.join(gn))
               pkg_def.add_version_file('.versions/%s.cipd_version' % gn)
 
               cipd_pkg_file = api.path['cleanup'].join('gn.cipd')

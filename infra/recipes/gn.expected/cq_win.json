@@ -298,7 +298,9 @@
       "[START_DIR]\\gn\\build\\gen.py",
       "-d",
       "--use-asan",
-      "--use-ubsan"
+      "--use-ubsan",
+      "--out-path",
+      "[START_DIR]\\gn\\out\\Default"
     ],
     "cwd": "[START_DIR]\\gn",
     "env": {
@@ -330,7 +332,7 @@
     "cmd": [
       "[START_DIR]\\cipd\\ninja",
       "-C",
-      "[START_DIR]\\gn\\out",
+      "[START_DIR]\\gn\\out\\Default",
       "gn.exe",
       "gn_unittests.exe"
     ],
@@ -362,7 +364,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]\\gn\\out\\gn_unittests"
+      "[START_DIR]\\gn\\out\\Default\\gn_unittests"
     ],
     "cwd": "[START_DIR]\\gn",
     "env": {
@@ -394,7 +396,7 @@
     "cmd": [
       "[START_DIR]\\cipd\\ninja",
       "-C",
-      "[START_DIR]\\gn\\out",
+      "[START_DIR]\\gn\\out\\Default",
       "run_integration_tests"
     ],
     "cwd": "[START_DIR]\\gn",
@@ -440,7 +442,9 @@
       "-u",
       "[START_DIR]\\gn\\build\\gen.py",
       "--use-lto",
-      "--use-icf"
+      "--use-icf",
+      "--out-path",
+      "[START_DIR]\\gn\\out\\Default"
     ],
     "cwd": "[START_DIR]\\gn",
     "env": {
@@ -472,7 +476,7 @@
     "cmd": [
       "[START_DIR]\\cipd\\ninja",
       "-C",
-      "[START_DIR]\\gn\\out",
+      "[START_DIR]\\gn\\out\\Default",
       "gn.exe",
       "gn_unittests.exe"
     ],
@@ -504,7 +508,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]\\gn\\out\\gn_unittests"
+      "[START_DIR]\\gn\\out\\Default\\gn_unittests"
     ],
     "cwd": "[START_DIR]\\gn",
     "env": {
@@ -536,7 +540,7 @@
     "cmd": [
       "[START_DIR]\\cipd\\ninja",
       "-C",
-      "[START_DIR]\\gn\\out",
+      "[START_DIR]\\gn\\out\\Default",
       "run_integration_tests"
     ],
     "cwd": "[START_DIR]\\gn",
@@ -720,7 +724,7 @@
       "-dump-digest",
       "/path/to/tmp/",
       "-paths-json",
-      "[[\"[START_DIR]\\\\gn\\\\out\", \"gn.exe\"]]"
+      "[[\"[START_DIR]\\\\gn\\\\out\\\\Default\", \"gn.exe\"]]"
     ],
     "cwd": "[START_DIR]\\gn",
     "env": {

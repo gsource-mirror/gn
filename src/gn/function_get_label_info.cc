@@ -105,23 +105,23 @@ Value RunGetLabelInfo(Scope* scope,
     result.string_value() = DirectoryWithNoLastSlash(label.dir());
 
   } else if (what == "target_gen_dir") {
-    result.string_value() = DirectoryWithNoLastSlash(GetSubBuildDirAsSourceDir(
-        BuildDirContext(scope, label.GetToolchainLabel()), label.dir(),
-        BuildDirType::GEN));
+    result.string_value() = DirectoryWithNoLastSlash(
+        GetSourceDir(BuildDirContext(scope, label.GetToolchainLabel()),
+                     label.dir(), BuildDirType::GEN));
 
   } else if (what == "root_gen_dir") {
-    result.string_value() = DirectoryWithNoLastSlash(GetBuildDirAsSourceDir(
+    result.string_value() = DirectoryWithNoLastSlash(GetSourceDir(
         BuildDirContext(scope, label.GetToolchainLabel()), BuildDirType::GEN));
 
   } else if (what == "target_out_dir") {
-    result.string_value() = DirectoryWithNoLastSlash(GetSubBuildDirAsSourceDir(
-        BuildDirContext(scope, label.GetToolchainLabel()), label.dir(),
-        BuildDirType::OBJ));
+    result.string_value() = DirectoryWithNoLastSlash(
+        GetSourceDir(BuildDirContext(scope, label.GetToolchainLabel()),
+                     label.dir(), BuildDirType::OBJ));
 
   } else if (what == "root_out_dir") {
-    result.string_value() = DirectoryWithNoLastSlash(GetBuildDirAsSourceDir(
-        BuildDirContext(scope, label.GetToolchainLabel()),
-        BuildDirType::TOOLCHAIN_ROOT));
+    result.string_value() = DirectoryWithNoLastSlash(
+        GetSourceDir(BuildDirContext(scope, label.GetToolchainLabel()),
+                     BuildDirType::TOOLCHAIN_ROOT));
 
   } else if (what == "toolchain") {
     result.string_value() = label.GetToolchainLabel().GetUserVisibleName(false);

@@ -33,6 +33,8 @@ void AssertSchedulerHasOneUnknownFileMatching(const Target* target,
       << found->second->label().GetUserVisibleName(false);
 }
 
+constexpr Target::ModuleType kExplicitModulemap = 1 << Target::HAS_MODULEMAP;
+
 }  // namespace
 
 using TargetTest = TestWithScheduler;
@@ -1565,4 +1567,82 @@ TEST(TargetTest, CollectMetadataWithValidation) {
 
   std::vector<Value> expected = {Value(nullptr, "bar"), Value(nullptr, "foo")};
   EXPECT_EQ(result, expected);
+}
+
+TEST_F(TargetTest, ResolveModulemapPhonies) {
+  TestWithScope setup;
+  Err err;
+
+  // Empty Target
+  {
+    TestTarget target(setup, "//foo:empty", Target::SOURCE_SET);
+    ASSERT_TRUE(target.OnResolved(&err));
+    EXPECT_FALSE(target.public_modulemap_phony().has_value());
+    EXPECT_FALSE(target.private_modulemap_phony().has_value());
+  }
+
+  // Public Modulemap Only (resolves to the file itself, no phony target)
+  {
+    TestTarget target(setup, "//foo:public_only", Target::SOURCE_SET);
+    target.sources().push_back(SourceFile("//foo/public.modulemap"));
+    target.source_types_used().Set(SourceFile::SOURCE_MODULEMAP);
+    target.set_module_type(kExplicitModulemap);
+    ASSERT_TRUE(target.OnResolved(&err));
+
+    ASSERT_TRUE(target.public_modulemap_phony().has_value());
+    EXPECT_EQ("../../foo/public.modulemap",
+              target.public_modulemap_phony()->value());
+
+    ASSERT_TRUE(target.private_modulemap_phony().has_value());
+    EXPECT_EQ("../../foo/public.modulemap",
+              target.private_modulemap_phony()->value());
+  }
+
+  // Transitive Propagation via public_deps
+  {
+    TestTarget target_b(setup, "//foo:b", Target::SOURCE_SET);
+    target_b.sources().push_back(SourceFile("//foo/b.modulemap"));
+    target_b.source_types_used().Set(SourceFile::SOURCE_MODULEMAP);
+    target_b.set_module_type(kExplicitModulemap);
+    ASSERT_TRUE(target_b.OnResolved(&err));
+
+    TestTarget target_a(setup, "//foo:a", Target::SOURCE_SET);
+    target_a.sources().push_back(SourceFile("//foo/a.modulemap"));
+    target_a.source_types_used().Set(SourceFile::SOURCE_MODULEMAP);
+    target_a.set_module_type(kExplicitModulemap);
+    target_a.public_deps().push_back(LabelTargetPair(&target_b));
+    ASSERT_TRUE(target_a.OnResolved(&err));
+
+    // target_a.public_modulemaps should be a phony target containing
+    // a.modulemap and target_b.public_modulemaps (which is b.modulemap)
+    ASSERT_TRUE(target_a.public_modulemap_phony().has_value());
+    EXPECT_EQ("phony/foo/a.public_modulemaps",
+              target_a.public_modulemap_phony()->value());
+
+    ASSERT_TRUE(target_a.private_modulemap_phony().has_value());
+    EXPECT_EQ("phony/foo/a.public_modulemaps",
+              target_a.private_modulemap_phony()->value());
+  }
+
+  // Transitive Propagation via private_deps
+  {
+    TestTarget target_b(setup, "//foo:b2", Target::SOURCE_SET);
+    target_b.sources().push_back(SourceFile("//foo/b2.modulemap"));
+    target_b.source_types_used().Set(SourceFile::SOURCE_MODULEMAP);
+    target_b.set_module_type(kExplicitModulemap);
+    ASSERT_TRUE(target_b.OnResolved(&err));
+
+    TestTarget target_c(setup, "//foo:c", Target::SOURCE_SET);
+    target_c.private_deps().push_back(LabelTargetPair(&target_b));
+    ASSERT_TRUE(target_c.OnResolved(&err));
+
+    // target_c has no modulemaps of its own, so its public phony is empty
+    EXPECT_FALSE(target_c.public_modulemap_phony().has_value());
+
+    // target_c.modulemaps should be target_b.public_modulemaps (which is
+    // b2.modulemap)
+    ASSERT_TRUE(target_c.private_modulemap_phony().has_value());
+    EXPECT_EQ("../../foo/b2.modulemap",
+              target_c.private_modulemap_phony()->value());
+  }
 }

@@ -282,7 +282,7 @@ def RunSteps(api, repository):
                   api.step('Check tools/run_formatter.sh',
                            [src_dir.join('tools', 'run_formatter.sh'), '--diff'])
                 # We've already built gn, so tell update_reference not to rebuild it.
-                with api.context(env={'NOBUILD': '1'}):
+                with api.context(env={'NOBUILD': '1', 'NINJA_OUT_DIR': out_dir}):
                   api.step('Check tools/update_reference.sh',
                           [src_dir.join('tools', 'update_reference.sh'), '--diff'])
 

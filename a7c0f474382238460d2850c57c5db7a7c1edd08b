@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "648e7586_3ae21ac3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-09T06:20:44Z",
+      "side": 1,
+      "message": "I can understand why you made this change only for this point.\nCould you write motivation of this change for other points too?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 130
+      },
+      "revId": "a7c0f474382238460d2850c57c5db7a7c1edd08b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2e70341_4fcd1836",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-09T06:20:44Z",
+      "side": 1,
+      "message": "Fix CQ?",
+      "revId": "a7c0f474382238460d2850c57c5db7a7c1edd08b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

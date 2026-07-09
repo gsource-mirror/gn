@@ -2727,7 +2727,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapInStaticLibrary) {
       "target_output_name = libbar\n"
       "\n"
       "build obj/foo/libbar.bar.o: cxx ../../foo/bar.cc | "
-      "obj/foo/libbar.bar.pcm\n"
+      "../../foo/bar.modulemap obj/foo/libbar.bar.pcm\n"
       "  source_file_part = bar.cc\n"
       "  source_name_part = bar\n"
       "build obj/foo/libbar.bar.pcm: cxx_module ../../foo/bar.modulemap\n"
@@ -2772,7 +2772,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapInSourceSet) {
       "target_output_name = bar\n"
       "\n"
       "build obj/foo/bar.bar.o: cxx ../../foo/bar.cc | "
-      "obj/foo/bar.bar.pcm\n"
+      "../../foo/bar.modulemap obj/foo/bar.bar.pcm\n"
       "  source_file_part = bar.cc\n"
       "  source_name_part = bar\n"
       "build obj/foo/bar.bar.pcm: cxx_module ../../foo/bar.modulemap\n"
@@ -3042,7 +3042,7 @@ target_output_name = liba
 build obj/blah/liba.a.pcm: cxx_module ../../blah/a.modulemap
   source_file_part = a.modulemap
   source_name_part = a
-build obj/blah/liba.a.o: cxx ../../blah/a.cc | obj/blah/liba.a.pcm
+build obj/blah/liba.a.o: cxx ../../blah/a.cc | ../../blah/a.modulemap obj/blah/liba.a.pcm
   source_file_part = a.cc
   source_name_part = a
 
@@ -3088,10 +3088,10 @@ root_out_dir = withmodules
 target_out_dir = obj/stuff
 target_output_name = libb
 
-build obj/stuff/libb.b.pcm: cxx_module ../../stuff/b.modulemap | obj/blah/liba.a.pcm
+build obj/stuff/libb.b.pcm: cxx_module ../../stuff/b.modulemap | phony/stuff/b.public_modulemaps obj/blah/liba.a.pcm
   source_file_part = b.modulemap
   source_name_part = b
-build obj/stuff/libb.b.o: cxx ../../stuff/b.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
+build obj/stuff/libb.b.o: cxx ../../stuff/b.cc | phony/stuff/b.public_modulemaps obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
   source_file_part = b.cc
   source_name_part = b
 
@@ -3135,7 +3135,7 @@ root_out_dir = withmodules
 target_out_dir = obj/things
 target_output_name = libc
 
-build obj/stuff/libc.c.pcm: cxx_module ../../stuff/c.modulemap | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
+build obj/stuff/libc.c.pcm: cxx_module ../../stuff/c.modulemap | phony/things/c.public_modulemaps obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
   source_file_part = c.modulemap
   source_name_part = c
 
@@ -3177,10 +3177,10 @@ root_out_dir = withmodules
 target_out_dir = obj/zap
 target_output_name = c
 
-build obj/zap/c.x.o: cxx ../../zap/x.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
+build obj/zap/c.x.o: cxx ../../zap/x.cc | phony/stuff/b.public_modulemaps obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
   source_file_part = x.cc
   source_name_part = x
-build obj/zap/c.y.o: cxx ../../zap/y.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
+build obj/zap/c.y.o: cxx ../../zap/y.cc | phony/stuff/b.public_modulemaps obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
   source_file_part = y.cc
   source_name_part = y
 
@@ -3443,7 +3443,8 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapGeneration) {
       "target_out_dir = obj/foo\n"
       "target_output_name = bar\n"
       "\n"
-      "build obj/foo/bar.source1.o: cxx ../../foo/source1.cc\n"
+      "build obj/foo/bar.source1.o: cxx ../../foo/source1.cc | "
+      "phony/foo/bar.modulemaps\n"
       "  source_file_part = source1.cc\n"
       "  source_name_part = source1\n"
       "\n"
@@ -3590,7 +3591,8 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapGeneration) {
       "target_out_dir = obj/foo\n"
       "target_output_name = root\n"
       "\n"
-      "build obj/foo/root.root.o: cxx ../../foo/root.cc\n"
+      "build obj/foo/root.root.o: cxx ../../foo/root.cc | "
+      "phony/foo/root.modulemaps\n"
       "  source_file_part = root.cc\n"
       "  source_name_part = root\n"
       "\n"

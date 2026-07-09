@@ -979,8 +979,7 @@ bool Target::FillOutputFiles(Err* err) {
       if (settings()->build_settings()->no_stamp_files()) {
         if (HasRealInputs()) {
           dependency_output_alias_ =
-              GetBuildDirForTargetAsOutputFile(this, BuildDirType::PHONY);
-          dependency_output_alias_.append(label().name());
+              GetOutputFile(*this, BuildDirType::PHONY, label().name());
         }
       } else {
         // These don't get linked to and use stamps which should be the first
@@ -989,9 +988,7 @@ bool Target::FillOutputFiles(Err* err) {
         // affect the stamp file name: it is always based on the original target
         // name.
         dependency_output_file_ =
-            GetBuildDirForTargetAsOutputFile(this, BuildDirType::OBJ);
-        dependency_output_file_.append(label().name());
-        dependency_output_file_.append(".stamp");
+            GetOutputFile(*this, BuildDirType::OBJ, label().name(), ".stamp");
       }
       break;
     }
@@ -1409,8 +1406,7 @@ bool Target::GetMetadata(const std::vector<std::string>& keys_to_extract,
 void Target::set_module_type(ModuleType type) {
   module_type_ = type;
   if (module_type_.test(MODULEMAP_IS_GENERATED)) {
-    auto source_dir = GetBuildDirForTargetAsOutputFile(this, BuildDirType::GEN)
-                          .AsSourceDir(settings()->build_settings());
+    auto source_dir = GetSourceDir(*this, BuildDirType::GEN);
 
     generated_modulemap_file_ = SourceFile(base::StringPrintf(
         "%s%s.modulemap", source_dir.value().c_str(), label().name().c_str()));

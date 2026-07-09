@@ -90,12 +90,12 @@ std::string GetOnePathInfo(const Settings* settings,
       return std::string(dir_incl_slash.substr(0, dir_incl_slash.size() - 1));
     }
     case WHAT_GEN_DIR: {
-      return DirectoryWithNoLastSlash(GetSubBuildDirAsSourceDir(
+      return DirectoryWithNoLastSlash(GetSourceDir(
           BuildDirContext(settings),
           DirForInput(settings, current_dir, input, err), BuildDirType::GEN));
     }
     case WHAT_OUT_DIR: {
-      return DirectoryWithNoLastSlash(GetSubBuildDirAsSourceDir(
+      return DirectoryWithNoLastSlash(GetSourceDir(
           BuildDirContext(settings),
           DirForInput(settings, current_dir, input, err), BuildDirType::OBJ));
     }

@@ -310,7 +310,9 @@
       "[START_DIR]/gn/build/gen.py",
       "-d",
       "--use-asan",
-      "--use-ubsan"
+      "--use-ubsan",
+      "--out-path",
+      "[START_DIR]/gn/out/Default"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
@@ -341,7 +343,7 @@
     "cmd": [
       "[START_DIR]/cipd/ninja",
       "-C",
-      "[START_DIR]/gn/out",
+      "[START_DIR]/gn/out/Default",
       "gn",
       "gn_unittests"
     ],
@@ -372,7 +374,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/gn/out/gn_unittests"
+      "[START_DIR]/gn/out/Default/gn_unittests"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
@@ -403,7 +405,7 @@
     "cmd": [
       "[START_DIR]/cipd/ninja",
       "-C",
-      "[START_DIR]/gn/out",
+      "[START_DIR]/gn/out/Default",
       "run_integration_tests"
     ],
     "cwd": "[START_DIR]/gn",
@@ -502,7 +504,9 @@
       "-u",
       "[START_DIR]/gn/build/gen.py",
       "--use-lto",
-      "--use-icf"
+      "--use-icf",
+      "--out-path",
+      "[START_DIR]/gn/out/Default"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
@@ -533,7 +537,7 @@
     "cmd": [
       "[START_DIR]/cipd/ninja",
       "-C",
-      "[START_DIR]/gn/out",
+      "[START_DIR]/gn/out/Default",
       "gn",
       "gn_unittests"
     ],
@@ -564,7 +568,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/gn/out/gn_unittests"
+      "[START_DIR]/gn/out/Default/gn_unittests"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
@@ -595,7 +599,7 @@
     "cmd": [
       "[START_DIR]/cipd/ninja",
       "-C",
-      "[START_DIR]/gn/out",
+      "[START_DIR]/gn/out/Default",
       "run_integration_tests"
     ],
     "cwd": "[START_DIR]/gn",
@@ -635,7 +639,7 @@
       "cipd",
       "pkg-build",
       "-pkg-def",
-      "{\"data\": [{\"file\": \"gn\"}, {\"version_file\": \".versions/gn.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"gn/gn/mac-amd64\", \"root\": \"[START_DIR]/gn/out\"}",
+      "{\"data\": [{\"file\": \"gn\"}, {\"version_file\": \".versions/gn.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"gn/gn/mac-amd64\", \"root\": \"[START_DIR]/gn/out/Default\"}",
       "-out",
       "[CLEANUP]/gn.cipd",
       "-hash-algo",
@@ -742,7 +746,9 @@
       "-u",
       "[START_DIR]/gn/build/gen.py",
       "--use-lto",
-      "--use-icf"
+      "--use-icf",
+      "--out-path",
+      "[START_DIR]/gn/out/Default"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
@@ -773,7 +779,7 @@
     "cmd": [
       "[START_DIR]/cipd/ninja",
       "-C",
-      "[START_DIR]/gn/out",
+      "[START_DIR]/gn/out/Default",
       "gn",
       "gn_unittests"
     ],
@@ -814,7 +820,7 @@
       "cipd",
       "pkg-build",
       "-pkg-def",
-      "{\"data\": [{\"file\": \"gn\"}, {\"version_file\": \".versions/gn.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"gn/gn/mac-arm64\", \"root\": \"[START_DIR]/gn/out\"}",
+      "{\"data\": [{\"file\": \"gn\"}, {\"version_file\": \".versions/gn.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"gn/gn/mac-arm64\", \"root\": \"[START_DIR]/gn/out/Default\"}",
       "-out",
       "[CLEANUP]/gn.cipd",
       "-hash-algo",

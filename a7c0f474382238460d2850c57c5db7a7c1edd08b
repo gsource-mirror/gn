@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "55a3897e_c9722b70",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-10T00:14:50Z",
+      "side": 1,
+      "message": "The primary purpose of this change is in the commit chain.\n\nWith the introduction of `Phony` class in the above commits, `OutputFile` becomes frequently duplicated, so I wanted to intern it with `StringAtom`.\n\nTo do so, I need to remove any APIs that mutate `OutputFile`s, and ideally also remove any APIs that return directories as `OutputFile`s. That\u0027s what this commit is for.\n\nThe renaming the overloads is just because I was refactoring them, and I think it looks much cleaner now. The previous functions were rather confusing in name. What does `GetSubBuildDirAsOutputFile` do, for example? It turns out \"SubBuildDir\" refers to the subdirectory of the toolchain build dir for the target you passed in, so `GetBuildDir(target)` is unambiguous and less confusing.",
+      "parentUuid": "648e7586_3ae21ac3",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 130
+      },
+      "revId": "a7c0f474382238460d2850c57c5db7a7c1edd08b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c2e70341_4fcd1836",

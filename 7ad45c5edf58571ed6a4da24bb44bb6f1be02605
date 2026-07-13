@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c65cc483_a2637dc6",
+        "filename": "src/gn/starlark/crates/depset/src/depset.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-13T05:00:15Z",
+      "side": 1,
+      "message": "When `direct` is empty, `new_file_depset` still assigns `Kind::File`, so `is_empty()` is false, Starlark truthiness is true, and `UnpackFileDepset` rejects a depset containing no elements.\n\nWe should probably select `Kind::Empty` for the zero-length case.",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 9
+      },
+      "revId": "7ad45c5edf58571ed6a4da24bb44bb6f1be02605",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0831bcd6_a8d4cb9a",
+        "filename": "src/gn/starlark/crates/depset/src/depset.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-13T05:00:15Z",
+      "side": 1,
+      "message": "This seems reversed: Every populated depset is rendered as `depset([])`, while an actually empty depset is rendered as `depset(...)`?",
+      "range": {
+        "startLine": 184,
+        "startChar": 0,
+        "endLine": 188,
+        "endChar": 9
+      },
+      "revId": "7ad45c5edf58571ed6a4da24bb44bb6f1be02605",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36b00306_a7f482a3",
+        "filename": "src/gn/starlark/crates/depset/src/globals.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-13T05:00:15Z",
+      "side": 1,
+      "message": "When the sole child has default order and the wrapper specifies another order, returning the child directly discards the wrapper\u0027s order.\n\nFor example:\n\n`depset(transitive\u003d[depset([\u0027c\u0027], transitive\u003d[depset([\u0027a\u0027])])], order\u003d\u0027preorder\u0027).to_list()` returns `[\u0027a\u0027, \u0027c\u0027]` instead of `[\u0027c\u0027, \u0027a\u0027]`\n\nI guess the easiest fix would be to only reuse the child when doing so preserves the effective order. (This would also make for a good test case.)",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 29
+      },
+      "revId": "7ad45c5edf58571ed6a4da24bb44bb6f1be02605",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

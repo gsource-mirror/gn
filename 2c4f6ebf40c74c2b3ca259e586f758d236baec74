@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57796658_ba944d5d",
+        "filename": "src/gn/ffi/scope.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-13T06:59:43Z",
+      "side": 1,
+      "message": "Does `get_kv` need documentation to clarify it will only retrieve items in the current scope and will not attempt to check parent scopes (i.e. normal scoping rules won\u0027t apply)?",
+      "range": {
+        "startLine": 31,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 29
+      },
+      "revId": "2c4f6ebf40c74c2b3ca259e586f758d236baec74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae88cb44_71120481",
+        "filename": "src/gn/starlark/crates/ffi/src/bridge.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-13T06:59:43Z",
+      "side": 1,
+      "message": "Double-checking the semantics here https://source.chromium.org/gn/gn/+/main:src/gn/parse_tree.cc;l\u003d614-617;drc\u003ded2d2a787de8596e62673ddd1e7b07339a39c1c5 don\u0027t need to be worried about?",
+      "range": {
+        "startLine": 75,
+        "startChar": 11,
+        "endLine": 75,
+        "endChar": 39
+      },
+      "revId": "2c4f6ebf40c74c2b3ca259e586f758d236baec74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ef580f3_c9223ef5",
+        "filename": "src/gn/starlark/crates/ffi/src/value.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-13T06:59:43Z",
+      "side": 1,
+      "message": "We\u0027re quite removed from AsSlice at this point which describes that in Rust we\u0027re responsible to maintaining the const-ness of a Value.\n\nWhat\u0027s the actual concrete expectation for Rust-side consumers, since I don\u0027t see anything here considering whether the origin is const or not?",
+      "range": {
+        "startLine": 17,
+        "startChar": 23,
+        "endLine": 17,
+        "endChar": 37
+      },
+      "revId": "2c4f6ebf40c74c2b3ca259e586f758d236baec74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

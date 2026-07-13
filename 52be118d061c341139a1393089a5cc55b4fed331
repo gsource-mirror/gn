@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b7fc673_51a666c8",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-13T11:51:43Z",
+      "side": 1,
+      "message": "Can we use `std::move` here and other files?",
+      "range": {
+        "startLine": 570,
+        "startChar": 26,
+        "endLine": 570,
+        "endChar": 30
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "0371254e_0008f07b",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_c_binary_target_writer.cc",
+              "range": {
+                "startLine": 570,
+                "startChar": 0,
+                "endLine": 571,
+                "endChar": 0
+              },
+              "replacement": "  link_phony \u003d OutputFile(std::move(path));\n"
+            }
+          ]
+        }
+      ],
+      "revId": "52be118d061c341139a1393089a5cc55b4fed331",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

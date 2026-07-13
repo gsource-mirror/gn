@@ -16,6 +16,52 @@
       "message": "We will enhance all aspects to be ready and keep pace with the technology of the era.AI And it\u0027s a pleasure to meet everyone. That helps to enhance knowledge in the field of..Develop this chipset and In writing various types of code.",
       "revId": "d872931b6b69c0b0c8387f18d59bc021158bf6c6",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "360f4d41_238a5465",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-13T05:03:47Z",
+      "side": 1,
+      "message": "This check is not necessary if we compare `target_-\u003epublic_modulemap_phony() !\u003d OutputFile(settings_-\u003ebuild_settings(), source)` below?",
+      "range": {
+        "startLine": 430,
+        "startChar": 0,
+        "endLine": 430,
+        "endChar": 46
+      },
+      "revId": "d872931b6b69c0b0c8387f18d59bc021158bf6c6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61538094_43e9caa4",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1488,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-13T05:03:47Z",
+      "side": 1,
+      "message": "If OutputFile can be null, is it fine to use OutputFile for private_modulemap_file_ instead of optional\u003cOutputFile\u003e?",
+      "range": {
+        "startLine": 1488,
+        "startChar": 61,
+        "endLine": 1488,
+        "endChar": 68
+      },
+      "revId": "d872931b6b69c0b0c8387f18d59bc021158bf6c6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -44,6 +44,24 @@
       ],
       "revId": "8c28c1a52f75a276fc6a2a486578ca08b0c8848a",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c29323ef_ac988614",
+        "filename": "src/gn/starlark/src/testdata/load/root.bzl",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-13T23:47:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3969b5ad_e8c2f16f",
+      "revId": "8c28c1a52f75a276fc6a2a486578ca08b0c8848a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

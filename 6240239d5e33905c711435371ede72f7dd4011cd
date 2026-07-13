@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecaae0f2_acfdcbdb",
+        "filename": "src/gn/ffi/scope.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-13T02:43:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e667c3ce_d621a393",
+      "revId": "6240239d5e33905c711435371ede72f7dd4011cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e29a873_02e5f999",
@@ -63,6 +81,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "131bcf5c_ddb927a9",
+        "filename": "src/gn/ffi/scope.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-13T02:43:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e29a873_02e5f999",
+      "revId": "6240239d5e33905c711435371ede72f7dd4011cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d8d2768b_e233909f",
@@ -86,6 +122,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b409a189_0b636af0",
+        "filename": "src/gn/ffi/slice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-13T02:43:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8d2768b_e233909f",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 17
+      },
+      "revId": "6240239d5e33905c711435371ede72f7dd4011cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "36ec3c53_94ff362b",
@@ -99,6 +159,24 @@
       "writtenOn": "2026-07-08T05:18:31Z",
       "side": 1,
       "message": "Include STL headers in separated block?",
+      "revId": "6240239d5e33905c711435371ede72f7dd4011cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2133d09_2a05c089",
+        "filename": "src/gn/ffi/value.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-13T02:43:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36ec3c53_94ff362b",
       "revId": "6240239d5e33905c711435371ede72f7dd4011cd",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

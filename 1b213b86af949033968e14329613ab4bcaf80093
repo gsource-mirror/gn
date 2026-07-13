@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c20295ce_3c2750fe",
+        "filename": "src/gn/starlark/crates/depset/src/depset.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-13T07:23:54Z",
+      "side": 1,
+      "message": "I noticed one more interesting code path.\n\nLet\u0027s say we call this function with two files: `new_file_depset([a, b])`.\n\nThen:\n- `phony` is set to None here in line 117, because `direct_vals.len() \u003d\u003d 2`\n- `kind` is set to `Kind::File` in line 125, because `direct_vals.empty() \u003d\u003d false`\n\nNow pass that thing to depset_constructor as a transitive input:\n- direct is a single file \"c.txt\"\n- transitive input is the thing we created above\n\nThen let\u0027s think through what happens in globals.rs further:\n- line 74: direct_vec contains a child, so we take the \"else\" branch\n- line 93: kind is Kind::File, so code assumes we have a phony\n- line 94: direct_vec.len() is 1, but transitive_vec.is_empty() is false, so we take the \"else\" branch\n- line 107: start iterating through transitive_vec\n- line 113: child_dep is the child we created above with `new_file_depset[a, b]`\n- line 114: BOOM! Panic on child_dep.phony().as_ref().unwrap(). Checkmate. 😄",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 10
+      },
+      "revId": "1b213b86af949033968e14329613ab4bcaf80093",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

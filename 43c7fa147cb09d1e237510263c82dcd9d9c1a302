@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6953c45_8a7bd25f",
+        "filename": "src/gn/starlark/crates/depset/src/depset.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 4984856
+      },
+      "writtenOn": "2026-07-13T19:11:32Z",
+      "side": 1,
+      "message": "Why is this different from UnpackValue\u0027s \"default\"? Consider renaming the enum variant too.",
+      "revId": "43c7fa147cb09d1e237510263c82dcd9d9c1a302",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ecc45c4_d3faa1b9",
+        "filename": "src/gn/starlark/crates/depset/src/globals.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 4984856
+      },
+      "writtenOn": "2026-07-13T19:11:32Z",
+      "side": 1,
+      "message": "Should you check if k is empty and allow that?",
+      "revId": "43c7fa147cb09d1e237510263c82dcd9d9c1a302",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d184af1_fca1ab8c",
+        "filename": "src/gn/starlark/crates/depset/src/globals.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 4984856
+      },
+      "writtenOn": "2026-07-13T19:11:32Z",
+      "side": 1,
+      "message": "consider preallocating sizes",
+      "revId": "43c7fa147cb09d1e237510263c82dcd9d9c1a302",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "708911e0_a0dff5ff",
+        "filename": "src/gn/starlark/crates/depset/src/iter.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 4984856
+      },
+      "writtenOn": "2026-07-13T19:11:32Z",
+      "side": 1,
+      "message": "You should probably add some tests with deeper trees / multiple transitive depsets.",
+      "revId": "43c7fa147cb09d1e237510263c82dcd9d9c1a302",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

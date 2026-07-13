@@ -1,0 +1,49 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3969b5ad_e8c2f16f",
+        "filename": "src/gn/starlark/src/testdata/load/root.bzl",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 4984856
+      },
+      "writtenOn": "2026-07-13T19:27:58Z",
+      "side": 1,
+      "message": "Potentially add a test that a file can be loaded from two different but equivalent paths, like `:relative.bzl` and `//load:relative.bzl`?",
+      "fixSuggestions": [
+        {
+          "fixId": "f1a4d823_6c86b1b6",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/starlark/src/testdata/load/root.bzl",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "load(\"//load:relative.bzl\", \"relative_as_absolute\")\n"
+            },
+            {
+              "path": "src/gn/starlark/src/testdata/load/root.bzl",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "relative_as_absolute_value \u003d relative_as_absolute\n"
+            }
+          ]
+        }
+      ],
+      "revId": "8c28c1a52f75a276fc6a2a486578ca08b0c8848a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

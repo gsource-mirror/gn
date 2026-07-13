@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf77856a_8f6d7e30",
+        "filename": "src/gn/starlark/crates/loader/src/loader.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-13T04:42:20Z",
+      "side": 1,
+      "message": "When reading fails here, or parsing, label parsing, or a recursive dependency load later returns via `?`, the newly inserted cache entry remains in state \"Loading\".\n\nIf another package concurrently imports the same broken module, or the label is requested again, `wait_for_load` blocks forever because no thread transitions or notifies the entry.\n\nMaybe it would work to route every post-insertion result through `set_complete` or remove the entry before returning?",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 0
+      },
+      "revId": "066f41d3b48f78d1792234f304604f7a4c060d15",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

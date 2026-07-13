@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1011c292_3fc364bb",
+        "filename": "src/gn/starlark/crates/attr/src/value.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-13T07:02:55Z",
+      "side": 1,
+      "message": "I think we need to slightly update the comment after the changes, because we now separate validation from collection. Just as a suggestion, but feel free to reword it as you thing it\u0027s best:\n\n```suggestion\n    /// Resolves a label or file:\n    /// * Labels resolve to targets. If extensions are restricted, at least one\n    ///   target output must match; all target outputs are collected.\n    /// * Files are validated against the configured constraint and collected.\n```",
+      "range": {
+        "startLine": 190,
+        "startChar": 0,
+        "endLine": 194,
+        "endChar": 72
+      },
+      "revId": "726eeb1f1fb56bfd2b4a1826f717a3e4ab70c9ba",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

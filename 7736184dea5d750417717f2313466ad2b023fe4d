@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03b9a49a_e6e646f7",
+        "filename": "src/gn/starlark/crates/attr/src/value.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-13T05:01:27Z",
+      "side": 1,
+      "message": "When a specified `attr.label(allow_single_file\u003dTrue)` resolves to a target with zero outputs, `files_list` is empty and this returns Starlark `None`. But `None` is only correct for an absent optional label. A present target under `allow_single_file` *must* produce exactly one file, so resolving to zero outputs should IMHO raise the same `MustProduceSingleFile` error as multiple outputs.",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 47
+      },
+      "revId": "7736184dea5d750417717f2313466ad2b023fe4d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b0757f8_6ea09a85",
+        "filename": "src/gn/starlark/crates/attr/src/value.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-13T05:01:27Z",
+      "side": 1,
+      "message": "When a plain `attr.label` or `attr.label_list` references a rule without setting `allow_files`, `schema.file_matcher()` is None, so this omits the `files` value and `resolve_label_or_file` also skips collecting the target outputs.\n\n`ctx.files.\u003cname\u003e` is defined for dependency-valued attributes regardless of whether direct file labels are allowed; `allow_files` controls validation, not availability of default outputs.\n\nI think this accidentally makes the common case of consuming a rule dependency\u0027s outputs through `ctx.files` impossible.",
+      "range": {
+        "startLine": 67,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 14
+      },
+      "revId": "7736184dea5d750417717f2313466ad2b023fe4d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "785db93a_a3b025d5",
+        "filename": "src/gn/starlark/crates/attr/src/value.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-13T05:01:27Z",
+      "side": 1,
+      "message": "When `LabelKeyedStringDict` contains a label, `resolve_label_or_file` returns an `S::TargetRef`, and this immediately hashes it for the Starlark dictionary key. `TargetRef` does not require hashability, and the repository\u0027s existing `FakeTargetRef` uses the default non-hashable `StarlarkValue` behavior, so this advertised attribute kind cannot be converted with the existing session.\n\nI think target references need matching hash and equality semantics before they are used as dictionary keys.",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 143,
+        "endChar": 22
+      },
+      "revId": "7736184dea5d750417717f2313466ad2b023fe4d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f28e168d_1c8ad944",
+        "filename": "src/gn/starlark/crates/attr/src/value.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-13T05:01:27Z",
+      "side": 1,
+      "message": "When `allow_files` is an extension list and a rule target emits both a matching and nonmatching output, such as `.cc` and `.h`, this loop rejects the target on the nonmatching output; it also accepts a target with no outputs because the loop never runs.\n\nThe file-type constraint on a rule dependency is satisfied when at least one default output matches, while `ctx.files` still contains all default outputs. I think validation should probably check for the existence of a match rather than validate every output independently.",
+      "range": {
+        "startLine": 207,
+        "startChar": 0,
+        "endLine": 210,
+        "endChar": 21
+      },
+      "revId": "7736184dea5d750417717f2313466ad2b023fe4d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -372,6 +372,12 @@ TEST_F(TargetTest, Testonly) {
   product.set_testonly(false);
   product.private_deps().push_back(LabelTargetPair(&testlib));
   ASSERT_FALSE(product.OnResolved(&err));
+
+  // "package" is a non-test with a testonly validation, this is OK.
+  TestTarget package(setup, "//app:package", Target::EXECUTABLE);
+  package.set_testonly(false);
+  package.validations().push_back(LabelTargetPair(&test));
+  ASSERT_TRUE(package.OnResolved(&err));
 }
 
 // Configs can be testonly too.

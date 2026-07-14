@@ -1222,14 +1222,6 @@ bool Target::CheckTestonly(Err* err) const {
     }
   }
 
-  // Verify no validations have "testonly" set.
-  for (const auto& pair : validations_) {
-    if (pair.ptr->testonly()) {
-      *err = MakeTestOnlyError(this, pair.ptr);
-      return false;
-    }
-  }
-
   // Verify no configs have "testonly" set.
   for (ConfigValuesIterator iter(this); !iter.done(); iter.Next()) {
     if (const Config* config = iter.GetCurrentConfig()) {

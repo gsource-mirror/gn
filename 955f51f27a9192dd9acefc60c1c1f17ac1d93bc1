@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5aadfe5d_58989fdd",
+        "filename": "src/gn/phony.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-14T05:24:21Z",
+      "side": 1,
+      "message": "Add explanation of this class?",
+      "revId": "955f51f27a9192dd9acefc60c1c1f17ac1d93bc1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5a802c0_f3be9f14",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-14T05:24:21Z",
+      "side": 1,
+      "message": "Different arg name from header?",
+      "range": {
+        "startLine": 461,
+        "startChar": 28,
+        "endLine": 461,
+        "endChar": 36
+      },
+      "revId": "955f51f27a9192dd9acefc60c1c1f17ac1d93bc1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa90edfa_f9b09177",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-14T05:24:21Z",
+      "side": 1,
+      "message": "Better to use emplace_back?",
+      "range": {
+        "startLine": 481,
+        "startChar": 11,
+        "endLine": 481,
+        "endChar": 20
+      },
+      "revId": "955f51f27a9192dd9acefc60c1c1f17ac1d93bc1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f570b56e_f8825bbd",
+        "filename": "src/gn/target.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-14T05:24:21Z",
+      "side": 1,
+      "message": "Why do we need to use optional here?",
+      "range": {
+        "startLine": 380,
+        "startChar": 23,
+        "endLine": 380,
+        "endChar": 31
+      },
+      "revId": "955f51f27a9192dd9acefc60c1c1f17ac1d93bc1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

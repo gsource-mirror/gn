@@ -375,6 +375,30 @@
       },
       "revId": "aa5e17ede5ded1d09336345e313fea3e5fb790b4",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bfea1d7_6f792273",
+        "filename": "src/gn/starlark/crates/providers/src/provider_type.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-07-15T09:38:08Z",
+      "side": 1,
+      "message": "Mhm, OK, I see. I would usually say \"let\u0027s benchmark before (and after) optimizing\", but if you feel strongly about it, let\u0027s try to do it lock-free. Do you think there\u0027s a way we could achieve it without relying on module identity? Maybe by following Starlark\u0027s `RecordType` representation?\n\nI\u0027ll add a few ideas for this in the other comments, but we\u0027re way outside my Rust knowledge and comfort zone - if you really think this is the best way, then I\u0027m fine if Cole also thinks it\u0027s OK.",
+      "parentUuid": "ebed4d25_a3ab932f",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 9
+      },
+      "revId": "aa5e17ede5ded1d09336345e313fea3e5fb790b4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

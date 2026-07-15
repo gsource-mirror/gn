@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58dea751_97181439",
+        "filename": "src/gn/starlark/crates/providers/src/provider_instance.rs",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-07-15T09:38:08Z",
+      "side": 1,
+      "message": "Once `ProviderType` has mutable and frozen forms, this can use `ProviderType::from_value(...)`, which returns `Either\u003c\u0026ProviderType\u003c\u0027v\u003e, \u0026FrozenProviderType\u003e`, just like `RecordType`.\n\nA few small `ty_id()`, `configured()`, and `fields()` helpers can hide the dispatch from the rest of this file.",
+      "revId": "530087918c62b12600b751e9575d1498dc2dd75c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e0cb158_556da81d",
+        "filename": "src/gn/starlark/crates/providers/src/provider_type.rs",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-07-15T09:38:08Z",
+      "side": 1,
+      "message": "We could try to make this `ProviderTypeGen\u003cV\u003e`, with `std::cell::OnceCell\u003cProviderTypeData\u003e` for `Value\u003c\u0027v\u003e` and `Option\u003cProviderTypeData\u003e` for `FrozenValue`, then use `starlark_complex_values!(ProviderType)`.\n\nThe mutable cell is then only touched during single-threaded evaluation, while frozen instance construction reads a plain `Option`.\n\nWould that meet the performance goal?",
+      "revId": "530087918c62b12600b751e9575d1498dc2dd75c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4639a659_fa47ccbc",
+        "filename": "src/gn/starlark/crates/providers/src/provider_type.rs",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-07-15T09:38:08Z",
+      "side": 1,
+      "message": "With that representation split, `export_as` can delegate to a small `ProviderCell::get_or_init` helper: the mutable implementation initializes the unsynchronized `OnceCell` once, and the frozen implementation simply returns `Ok(())`.\n\nThat preserves the first name and makes aliases no-ops without `UnsafeCell`, module IDs, or manual `Send`/`Sync`.",
+      "revId": "530087918c62b12600b751e9575d1498dc2dd75c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff2d58fc_39cfe9d8",
+        "filename": "src/gn/starlark/crates/providers/src/provider_type.rs",
+        "patchSetId": 9
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-07-15T09:38:08Z",
+      "side": 1,
+      "message": "`Freeze` can consume `self.data.into_inner()` into the frozen `Option\u003cProviderTypeData\u003e`. An unexported provider freezes as `None` and remains unusable; an exported one becomes immutable metadata.\n\nThis makes the concurrency invariant structural rather than inferred from module identity.",
+      "revId": "530087918c62b12600b751e9575d1498dc2dd75c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

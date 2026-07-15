@@ -22,6 +22,30 @@
       },
       "revId": "3ab8890dbea1435c84687c1f2152bbb24d729d86",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b442c92_8eb111e6",
+        "filename": "src/gn/starlark/crates/args/src/args.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-15T23:24:05Z",
+      "side": 1,
+      "message": "Good point. Switched to a no-unsafe version (refcell based).",
+      "parentUuid": "4bf44a6f_f0175f14",
+      "range": {
+        "startLine": 169,
+        "startChar": 19,
+        "endLine": 169,
+        "endChar": 29
+      },
+      "revId": "3ab8890dbea1435c84687c1f2152bbb24d729d86",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

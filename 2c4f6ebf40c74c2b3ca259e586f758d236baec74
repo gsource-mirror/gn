@@ -97,6 +97,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "40670e6e_73ce6b28",
+        "filename": "src/gn/starlark/crates/ffi/src/bridge.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-15T07:30:19Z",
+      "side": 1,
+      "message": "That\u0027s a no action needed?",
+      "parentUuid": "bb2c6a29_e84b970b",
+      "range": {
+        "startLine": 75,
+        "startChar": 11,
+        "endLine": 75,
+        "endChar": 39
+      },
+      "revId": "2c4f6ebf40c74c2b3ca259e586f758d236baec74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6ef580f3_c9223ef5",
         "filename": "src/gn/starlark/crates/ffi/src/value.rs",
         "patchSetId": 4

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "804ae5a1_52cb18a7",
+        "filename": "src/gn/starlark/crates/args/src/formatter.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-15T07:19:40Z",
+      "side": 1,
+      "message": "For templates containing literal percents, such as `format\u003d\"rate\u003d%s%%\"`, this parser preserves `%%` and produces `rate\u003d10%%` instead of `rate\u003d10%`.\n\nIt\u0027s correct that Bazel\u0027s \"Args\" formatting only allows a single `%s`, but it also says: \"When using string formatting (format, format_each, and format_joined params of the add*() methods), the format template is interpreted in the same way as %-substitution on strings, except that the template must have exactly one substitution placeholder and it must be %s. **Literal percents may be escaped as %%.** Formatting is applied after the value is converted to a string as per the above.\" (https://bazel.build/rules/lib/builtins/Args.html)\n\nHope that helps :)",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 1
+      },
+      "revId": "393a4d6bf4838f3a9732e613413eafac1395210d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

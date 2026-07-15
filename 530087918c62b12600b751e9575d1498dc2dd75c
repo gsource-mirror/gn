@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e53b1c30_54794e52",
+        "filename": "src/gn/starlark/crates/providers/src/provider_instance.rs",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-15T11:31:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58dea751_97181439",
+      "revId": "530087918c62b12600b751e9575d1498dc2dd75c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e0cb158_556da81d",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-07-15T09:38:08Z",
       "side": 1,
       "message": "We could try to make this `ProviderTypeGen\u003cV\u003e`, with `std::cell::OnceCell\u003cProviderTypeData\u003e` for `Value\u003c\u0027v\u003e` and `Option\u003cProviderTypeData\u003e` for `FrozenValue`, then use `starlark_complex_values!(ProviderType)`.\n\nThe mutable cell is then only touched during single-threaded evaluation, while frozen instance construction reads a plain `Option`.\n\nWould that meet the performance goal?",
+      "revId": "530087918c62b12600b751e9575d1498dc2dd75c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a1eb7a7_963678b0",
+        "filename": "src/gn/starlark/crates/providers/src/provider_type.rs",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-15T11:31:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e0cb158_556da81d",
       "revId": "530087918c62b12600b751e9575d1498dc2dd75c",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -52,6 +88,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "49359aa7_35f49e48",
+        "filename": "src/gn/starlark/crates/providers/src/provider_type.rs",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-15T11:31:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4639a659_fa47ccbc",
+      "revId": "530087918c62b12600b751e9575d1498dc2dd75c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ff2d58fc_39cfe9d8",
@@ -65,6 +119,24 @@
       "writtenOn": "2026-07-15T09:38:08Z",
       "side": 1,
       "message": "`Freeze` can consume `self.data.into_inner()` into the frozen `Option\u003cProviderTypeData\u003e`. An unexported provider freezes as `None` and remains unusable; an exported one becomes immutable metadata.\n\nThis makes the concurrency invariant structural rather than inferred from module identity.",
+      "revId": "530087918c62b12600b751e9575d1498dc2dd75c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "547a4e26_38d0fa15",
+        "filename": "src/gn/starlark/crates/providers/src/provider_type.rs",
+        "patchSetId": 9
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-15T11:31:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff2d58fc_39cfe9d8",
       "revId": "530087918c62b12600b751e9575d1498dc2dd75c",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

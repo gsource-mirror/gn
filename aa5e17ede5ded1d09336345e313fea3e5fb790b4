@@ -399,6 +399,30 @@
       },
       "revId": "aa5e17ede5ded1d09336345e313fea3e5fb790b4",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d4ff5f5_04c9ed12",
+        "filename": "src/gn/starlark/crates/providers/src/provider_type.rs",
+        "patchSetId": 8
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-15T11:31:30Z",
+      "side": 1,
+      "message": "I\u0027ve done it as you suggested, with the one minor caveat that instead of doing the `Either\u003cNonFrozen, Frozen\u003e` dance I just didn\u0027t allow constructing non-frozen providers. It makes the code much simpler and I can add the feature later if we really want.\n\nYou should never really need to construct non-frozen providers, since you usually write code like:\n```\nMyInfo \u003d provider(fields \u003d ...)\ndef rule_impl(ctx):\n  return [MyInfo(...)]\n```\n\nThe provider type is created during bzl file evaluation, frozen, and then MyInfo is only constructed during the rule implementation evaluatior.",
+      "parentUuid": "4bfea1d7_6f792273",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 9
+      },
+      "revId": "aa5e17ede5ded1d09336345e313fea3e5fb790b4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

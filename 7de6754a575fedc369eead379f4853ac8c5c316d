@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d29d1642_dba85281",
+        "filename": "src/gn/ffi/scope.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-15T11:48:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f9e977f_10863086",
+      "range": {
+        "startLine": 32,
+        "startChar": 3,
+        "endLine": 32,
+        "endChar": 30
+      },
+      "revId": "7de6754a575fedc369eead379f4853ac8c5c316d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fdfd8d15_2a850be7",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-07-15T07:30:19Z",
       "side": 1,
       "message": "Nit: \"(does not check parent scopes)\"?",
+      "range": {
+        "startLine": 27,
+        "startChar": 20,
+        "endLine": 27,
+        "endChar": 48
+      },
+      "revId": "7de6754a575fedc369eead379f4853ac8c5c316d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee05e54e_fe0ab2d9",
+        "filename": "src/gn/starlark/crates/ffi/src/scope.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-15T11:48:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fdfd8d15_2a850be7",
       "range": {
         "startLine": 27,
         "startChar": 20,

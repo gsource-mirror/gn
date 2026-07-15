@@ -119,6 +119,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6045ff90_32196ec4",
+        "filename": "src/gn/starlark/crates/ffi/src/bridge.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-15T11:48:30Z",
+      "side": 1,
+      "message": "There was action needed - apparently the concern was valid, so I detached it from the parent scope.",
+      "parentUuid": "40670e6e_73ce6b28",
+      "range": {
+        "startLine": 75,
+        "startChar": 11,
+        "endLine": 75,
+        "endChar": 39
+      },
+      "revId": "2c4f6ebf40c74c2b3ca259e586f758d236baec74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6ef580f3_c9223ef5",

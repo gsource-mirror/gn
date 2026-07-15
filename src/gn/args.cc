@@ -373,6 +373,7 @@ void Args::SetSystemVarsLocked(Scope* dest) const {
   static const char kMips64[] = "mips64el";
   static const char kS390X[] = "s390x";
   static const char kPPC64[] = "ppc64";
+  static const char kSPARC64[] = "sparc64";
   static const char kRISCV32[] = "riscv32";
   static const char kRISCV64[] = "riscv64";
   static const char kE2K[] = "e2k";
@@ -401,6 +402,8 @@ void Args::SetSystemVarsLocked(Scope* dest) const {
     // This allows us to use the same toolchain as ppc64 BE
     // and specific flags are included using the host_byteorder logic.
     arch = kPPC64;
+  else if (os_arch == "sparc64")
+    arch = kSPARC64;
   else if (os_arch == "riscv32")
     arch = kRISCV32;
   else if (os_arch == "riscv64")

@@ -173,6 +173,11 @@
 #elif defined(__riscv) && (__riscv_xlen == 64)
 #define ARCH_CPU_64_BITS 1
 #define ARCH_CPU_LITTLE_ENDIAN 1
+#elif defined(__sparc__) && defined(__LP64__)
+#define ARCH_CPU_SPARC_FAMILY 1
+#define ARCH_CPU_SPARC64 1
+#define ARCH_CPU_64_BITS 1
+#define ARCH_CPU_BIG_ENDIAN 1
 #elif defined(__loongarch__)
 #if defined(__LP64__)
 #define ARCH_CPU_LOONG_FAMILY 1

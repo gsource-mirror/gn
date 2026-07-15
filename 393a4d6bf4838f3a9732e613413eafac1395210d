@@ -22,6 +22,30 @@
       },
       "revId": "393a4d6bf4838f3a9732e613413eafac1395210d",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4325f0c1_37a819f7",
+        "filename": "src/gn/starlark/crates/args/src/formatter.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-15T07:28:17Z",
+      "side": 1,
+      "message": "Ah, maybe this is also interesting for comparison: https://github.com/bazelbuild/bazel/blob/master/src/test/java/com/google/devtools/build/lib/actions/SingleStringArgFormatterTest.java",
+      "parentUuid": "804ae5a1_52cb18a7",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 1
+      },
+      "revId": "393a4d6bf4838f3a9732e613413eafac1395210d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

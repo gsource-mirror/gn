@@ -16,6 +16,23 @@
       "message": "I tested it on my Sun Blade 2500",
       "revId": "f8e33f5769ae1bd8ca3cdfba6d5651f904045280",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02da521e_5a165809",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-07-15T08:24:36Z",
+      "side": 1,
+      "message": "Thanks, LGTM, need another reviewer to approve.",
+      "revId": "f8e33f5769ae1bd8ca3cdfba6d5651f904045280",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

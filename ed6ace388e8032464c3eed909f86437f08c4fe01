@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4b303a3_e1172742",
+        "filename": "src/gn/starlark/crates/attr/src/ctx.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-16T06:57:22Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Consider adding an explicit check that `self.attrs.len() \u003d\u003d fields.len()`. If they differ, `zip` will truncate the iteration, and the resulting vectors will have fewer elements than expected by the `FrozenRecordType`, likely causing a panic or error in `Record::new`.",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 0
+      },
+      "revId": "ed6ace388e8032464c3eed909f86437f08c4fe01",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

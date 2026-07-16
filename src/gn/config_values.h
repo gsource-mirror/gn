@@ -23,12 +23,20 @@ class ConfigValues {
   // Appends the values from the given config to this one.
   void AppendValues(const ConfigValues& append);
 
-#define STRING_VALUES_ACCESSOR(name)                               \
-  const std::vector<std::string>& name() const { return name##_; } \
-  std::vector<std::string>& name() { return name##_; }
-#define DIR_VALUES_ACCESSOR(name)                                \
-  const std::vector<SourceDir>& name() const { return name##_; } \
-  std::vector<SourceDir>& name() { return name##_; }
+#define STRING_VALUES_ACCESSOR(name)             \
+  const std::vector<std::string>& name() const { \
+    return name##_;                              \
+  }                                              \
+  std::vector<std::string>& name() {             \
+    return name##_;                              \
+  }
+#define DIR_VALUES_ACCESSOR(name)              \
+  const std::vector<SourceDir>& name() const { \
+    return name##_;                            \
+  }                                            \
+  std::vector<SourceDir>& name() {             \
+    return name##_;                            \
+  }
 
   // =================================================================
   // IMPORTANT: If you add a new one, be sure to update AppendValues()

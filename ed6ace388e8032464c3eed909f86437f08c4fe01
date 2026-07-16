@@ -22,6 +22,30 @@
       },
       "revId": "ed6ace388e8032464c3eed909f86437f08c4fe01",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e614fc5f_52858a87",
+        "filename": "src/gn/starlark/crates/attr/src/ctx.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-16T07:06:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4b303a3_e1172742",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 0
+      },
+      "revId": "ed6ace388e8032464c3eed909f86437f08c4fe01",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

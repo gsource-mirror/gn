@@ -24,7 +24,7 @@ generated_file targets
   "gn help generated_file" for more detail.
 
   When written at target resolution time, generated_file enables GN to
-  collect and write aggregated metadata from dependents.
+  collect and write aggregated metadata from dependencies.
 
   A generated_file target can declare either 'contents' to write statically
   known contents to a file or 'data_keys' to aggregate metadata and write the
@@ -39,19 +39,19 @@ Collection and Aggregation
   generated_file aggregation targets. The 'metadata' scope must contain
   only list values since the aggregation step collects a list of these values.
 
-  During the target resolution, generated_file targets will walk their
+  During target resolution, generated_file targets will walk their
   dependencies recursively, collecting metadata based on the specified
   'data_keys'. 'data_keys' is specified as a list of strings, used by the walk
   to identify which variables in dependencies' 'metadata' scopes to collect.
 
   The walk begins with the listed dependencies of the 'generated_file' target.
   The 'metadata' scope for each dependency is inspected for matching elements
-  of the 'generated_file' target's 'data_keys' list.  If a match is found, the
+  of the 'generated_file' target's 'data_keys' list. If a match is found, the
   data from the dependent's matching key list is appended to the aggregate walk
-  list. Note that this means that if more than one walk key is specified, the
+  list. Note that this means that if more than one data key is specified, the
   data in all of them will be aggregated into one list. From there, the walk
   will then recurse into the dependencies of each target it encounters,
-  collecting the specified metadata for each.
+  collecting the specified metadata for each in postorder (leaves first).
 
   For example:
 
@@ -78,17 +78,17 @@ Collection and Aggregation
       deps = [ ":a" ]
     }
 
-  The above will produce the following file data:
+  The above will produce the following file data (in postorder traversal):
 
+    baz.cpp
     foo.cpp
     bar.cpp
-    baz.cpp
 
-  The dependency walk can be limited by using the 'walk_keys'. This is a list of
-  labels that should be included in the walk. All labels specified here should
-  also be in one of the deps lists. These keys act as barriers, where the walk
-  will only recurse into the targets listed. An empty list in all specified
-  barriers will end that portion of the walk.
+  The dependency walk can be limited by using 'walk_keys'. This specifies a
+  list of key names. If a target's 'metadata' scope contains a key matching one
+  of the 'walk_keys', traversal through that target will only recurse into the
+  target labels listed in that metadata variable, acting as a barrier. An empty
+  list in a matching barrier will stop that portion of the walk.
 
     group("a") {
       metadata = {
@@ -122,8 +122,8 @@ Collection and Aggregation
   The above will produce the following file data (note that `doom_melon.cpp` is
   not included):
 
-    foo.cpp
     bar.cpp
+    foo.cpp
 
   A common example of this sort of barrier is in builds that have host tools
   built as part of the tree, but do not want the metadata from those host tools

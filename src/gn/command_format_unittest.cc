@@ -16,7 +16,8 @@ base::FilePath GetFormatTestDataDir() {
   base::FilePath source_root_path =
       GetExePath().DirName().Append(FILE_PATH_LITERAL("source_root.txt"));
   std::string source_root;
-  CHECK(base::ReadFileToString(source_root_path, &source_root));
+  CHECK(base::ReadFileToString(source_root_path, &source_root))
+      << "Failed to read " << FilePathToUTF8(source_root_path);
   return UTF8ToFilePath(source_root);
 }
 
@@ -31,36 +32,52 @@ using FormatTest = TestWithScheduler;
     std::string out;                                                           \
     std::string expected;                                                      \
     base::FilePath src_dir = GetFormatTestDataDir();                           \
-    base::SetCurrentDirectory(src_dir);                                        \
-    ASSERT_TRUE(base::ReadFileToString(                                        \
+    ASSERT_TRUE(base::SetCurrentDirectory(src_dir))                            \
+        << "Failed to set current directory to: " << FilePathToUTF8(src_dir);  \
+    base::FilePath current_dir;                                                \
+    base::GetCurrentDirectory(&current_dir);                                   \
+    base::FilePath input_file =                                                \
         base::FilePath(FILE_PATH_LITERAL("src/gn/format_test_data/")           \
-                           FILE_PATH_LITERAL(#n) FILE_PATH_LITERAL(".gn")),    \
-        &input));                                                              \
-    ASSERT_TRUE(base::ReadFileToString(                                        \
-        base::FilePath(FILE_PATH_LITERAL("src/gn/format_test_data/")           \
-                           FILE_PATH_LITERAL(#n)                               \
-                               FILE_PATH_LITERAL(".golden")),                  \
-        &expected));                                                           \
+                           FILE_PATH_LITERAL(#n) FILE_PATH_LITERAL(".gn"));    \
+    ASSERT_TRUE(base::ReadFileToString(input_file, &input))                    \
+        << "Failed to read input file: " << FilePathToUTF8(input_file)         \
+        << " (src_dir: " << FilePathToUTF8(src_dir)                            \
+        << ", current_dir: " << FilePathToUTF8(current_dir) << ")";            \
+    base::FilePath golden_file = base::FilePath(                               \
+        FILE_PATH_LITERAL("src/gn/format_test_data/") FILE_PATH_LITERAL(#n)    \
+            FILE_PATH_LITERAL(".golden"));                                     \
+    ASSERT_TRUE(base::ReadFileToString(golden_file, &expected))                \
+        << "Failed to read golden file: " << FilePathToUTF8(golden_file)       \
+        << " (src_dir: " << FilePathToUTF8(src_dir)                            \
+        << ", current_dir: " << FilePathToUTF8(current_dir) << ")";            \
     EXPECT_TRUE(commands::FormatStringToString(                                \
         input, commands::TreeDumpMode::kInactive, format_width, &out,          \
-        nullptr));                                                             \
-    EXPECT_EQ(expected, out);                                                  \
+        nullptr))                                                              \
+        << "FormatStringToString failed for " << FilePathToUTF8(input_file);   \
+    EXPECT_EQ(expected, out)                                                   \
+        << "Formatted output mismatch for " << FilePathToUTF8(input_file);     \
     /* Make sure formatting the output doesn't cause further changes. */       \
     std::string out_again;                                                     \
     EXPECT_TRUE(                                                               \
         commands::FormatStringToString(out, commands::TreeDumpMode::kInactive, \
-                                       format_width, &out_again, nullptr));    \
-    ASSERT_EQ(out, out_again);                                                 \
+                                       format_width, &out_again, nullptr))     \
+        << "Re-formatting failed for " << FilePathToUTF8(input_file);          \
+    ASSERT_EQ(out, out_again)                                                  \
+        << "Re-formatted output mismatch for " << FilePathToUTF8(input_file);  \
     /* Make sure we can roundtrip to json without any changes. */              \
     std::string as_json;                                                       \
     std::string unused;                                                        \
     EXPECT_TRUE(commands::FormatStringToString(                                \
         out_again, commands::TreeDumpMode::kJSON, format_width, &unused,       \
-        &as_json));                                                            \
+        &as_json))                                                             \
+        << "FormatStringToString (JSON) failed for "                           \
+        << FilePathToUTF8(input_file);                                         \
     std::string rewritten;                                                     \
     EXPECT_TRUE(                                                               \
-        commands::FormatJsonToString(as_json, format_width, &rewritten));      \
-    ASSERT_EQ(out, rewritten);                                                 \
+        commands::FormatJsonToString(as_json, format_width, &rewritten))       \
+        << "FormatJsonToString failed for " << FilePathToUTF8(input_file);     \
+    ASSERT_EQ(out, rewritten) << "JSON roundtrip output mismatch for "         \
+                              << FilePathToUTF8(input_file);                   \
   }
 
 // These are expanded out this way rather than a runtime loop so that

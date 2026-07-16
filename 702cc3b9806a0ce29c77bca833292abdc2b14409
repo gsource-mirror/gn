@@ -1,0 +1,108 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e00dd367_547fbaa1",
+        "filename": "src/gn/starlark/crates/providers/src/builtins.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-16T06:44:09Z",
+      "side": 1,
+      "message": "Write comment about what is builtin providers and how can we use this?",
+      "fixSuggestions": [
+        {
+          "fixId": "7e467207_4e26df9e",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/starlark/crates/providers/src/builtins.rs",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "// BuiltinProviders contains Starlark providers that are always available in the\n// execution environment. These include fundamental providers like `DefaultInfo`,\n// and `GnInputsInfo`, which are essential for the gn build system\u0027s\n// Starlark evaluation. They are registered in the global Starlark environment\n// and also exposed via a dedicated module.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "702cc3b9806a0ce29c77bca833292abdc2b14409",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c1e7332_ef29d87e",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-16T06:44:09Z",
+      "side": 1,
+      "message": "What is DefaultInfo?",
+      "range": {
+        "startLine": 22,
+        "startChar": 17,
+        "endLine": 22,
+        "endChar": 28
+      },
+      "revId": "702cc3b9806a0ce29c77bca833292abdc2b14409",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbe1dd01_7e9ba544",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-16T06:44:09Z",
+      "side": 1,
+      "message": "What is GnInputsInfo?",
+      "range": {
+        "startLine": 24,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 29
+      },
+      "revId": "702cc3b9806a0ce29c77bca833292abdc2b14409",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67f336bc_f2f01a5e",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-16T06:44:09Z",
+      "side": 1,
+      "message": "What is GnSubstitutionInfo?",
+      "range": {
+        "startLine": 26,
+        "startChar": 17,
+        "endLine": 26,
+        "endChar": 35
+      },
+      "revId": "702cc3b9806a0ce29c77bca833292abdc2b14409",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

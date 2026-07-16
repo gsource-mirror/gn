@@ -46,6 +46,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9490ac3_2c975ec2",
+        "filename": "src/gn/starlark/crates/attr/src/ctx.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-16T06:40:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e24e9aca_4e1b0e3d",
+      "revId": "c64923c1da416c07ca98d3d74039fe22113e0b69",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "755ac763_17164978",
@@ -59,6 +77,24 @@
       "writtenOn": "2026-07-16T06:37:18Z",
       "side": 1,
       "message": "Ditto",
+      "revId": "c64923c1da416c07ca98d3d74039fe22113e0b69",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb0e93ea_3a01cf5e",
+        "filename": "src/gn/starlark/crates/attr/src/ctx.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-16T06:40:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "755ac763_17164978",
       "revId": "c64923c1da416c07ca98d3d74039fe22113e0b69",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

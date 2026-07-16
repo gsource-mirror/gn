@@ -1,0 +1,66 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e24e9aca_4e1b0e3d",
+        "filename": "src/gn/starlark/crates/attr/src/ctx.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-16T06:37:18Z",
+      "side": 1,
+      "message": "Could you write more explanation about how will these be used?\n\nAnd leave link to https://bazel.build/rules/lib/builtins/ctx if those are relevant to your implementation.",
+      "fixSuggestions": [
+        {
+          "fixId": "a5506ad8_08c8f205",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/starlark/crates/attr/src/ctx.rs",
+              "range": {
+                "startLine": 21,
+                "startChar": 0,
+                "endLine": 22,
+                "endChar": 0
+              },
+              "replacement": "/// Contains the Starlark values for `ctx.attr`, `ctx.files`, and `ctx.file`\n/// which are made available to the implementation function of a Starlark rule.\n/// These fields provide access to the attributes declared on a rule.\n///\n/// See also the Bazel documentation on `ctx`: https://bazel.build/rules/lib/builtins/ctx\n"
+            },
+            {
+              "path": "src/gn/starlark/crates/attr/src/ctx.rs",
+              "range": {
+                "startLine": 28,
+                "startChar": 0,
+                "endLine": 29,
+                "endChar": 0
+              },
+              "replacement": "/// Precomputed schema for `ctx.attr`, `ctx.files`, and `ctx.file`.\n///\n/// This struct is created once per rule *definition* and holds the necessary\n/// information to construct the `ctx.attr`, `ctx.files`, and `ctx.file`\n/// records for each instance of the rule. It precomputes which fields will\n/// be present in each of these records based on the rule\u0027s attribute\n/// definitions.\n///\n/// -   `attr`: Contains all attributes defined on the rule.\n/// -   `files`: Contains attributes of type `label` or `label_list`. Each\n///     value is a list of `File`s.\n/// -   `file`: Contains attributes of type `label` with `allow_single_file \u003d True`.\n///     Each value is a single `File`.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c64923c1da416c07ca98d3d74039fe22113e0b69",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "755ac763_17164978",
+        "filename": "src/gn/starlark/crates/attr/src/ctx.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-16T06:37:18Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "c64923c1da416c07ca98d3d74039fe22113e0b69",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

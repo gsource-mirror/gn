@@ -16,6 +16,23 @@
       "message": "PTAL",
       "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0533f1d_57be7021",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4077957
+      },
+      "writtenOn": "2026-07-17T07:39:50Z",
+      "side": 1,
+      "message": "Friendly ping for a second approval (I thought mine would count but I suppose chromium committer status doesn\u0027t transfer here)",
+      "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

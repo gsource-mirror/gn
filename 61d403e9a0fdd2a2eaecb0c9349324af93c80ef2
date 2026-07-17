@@ -33,6 +33,23 @@
       "message": "Friendly ping for a second approval (I thought mine would count but I suppose chromium committer status doesn\u0027t transfer here)",
       "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "532609ae_f0043136",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-17T08:00:57Z",
+      "side": 1,
+      "message": "digit is on vacation, so let me ask second approval from agrieve.",
+      "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

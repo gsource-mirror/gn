@@ -120,6 +120,24 @@
       "parentUuid": "446c9f52_5485bf02",
       "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a4efcee_aad36c85",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4077957
+      },
+      "writtenOn": "2026-07-17T14:25:51Z",
+      "side": 1,
+      "message": "clang-format version mixup? the errors reproduced on me on gn main with a fresh clone that had to download the formatter",
+      "parentUuid": "7a8d0474_e56455cb",
+      "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ],
   "submitRequirementResults": [

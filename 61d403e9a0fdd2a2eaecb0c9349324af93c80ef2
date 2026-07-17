@@ -102,6 +102,24 @@
       "parentUuid": "8c89e143_e1dd0fce",
       "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a8d0474_e56455cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-07-17T14:19:59Z",
+      "side": 1,
+      "message": "hmm, not sure what\u0027s up... I can\u0027t repro the formatting errors locally.",
+      "parentUuid": "446c9f52_5485bf02",
+      "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ],
   "submitRequirementResults": [

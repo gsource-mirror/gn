@@ -67,6 +67,23 @@
       "message": "Thanks!",
       "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c89e143_e1dd0fce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4077957
+      },
+      "writtenOn": "2026-07-17T14:09:12Z",
+      "side": 1,
+      "message": "The formatter error appears to complain about files I didn\u0027t touch (src/gn/config_values.h and src/base/). Should I push a separate format CL first to clear that?",
+      "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

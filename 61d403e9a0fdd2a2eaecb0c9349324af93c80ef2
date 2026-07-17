@@ -138,6 +138,24 @@
       "parentUuid": "7a8d0474_e56455cb",
       "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d531f91f_c08d2d3f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4077957
+      },
+      "writtenOn": "2026-07-17T14:36:02Z",
+      "side": 1,
+      "message": "or maybe it didn\u0027t. I think https://gn-review.googlesource.com/c/gn/+/24060 had the fixes",
+      "parentUuid": "2a4efcee_aad36c85",
+      "revId": "61d403e9a0fdd2a2eaecb0c9349324af93c80ef2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ],
   "submitRequirementResults": [

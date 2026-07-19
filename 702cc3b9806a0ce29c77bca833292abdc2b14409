@@ -36,6 +36,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "75f30d0e_be0e5980",
+        "filename": "src/gn/starlark/crates/providers/src/builtins.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-19T23:26:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e00dd367_547fbaa1",
+      "revId": "702cc3b9806a0ce29c77bca833292abdc2b14409",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6c1e7332_ef29d87e",
@@ -49,6 +67,30 @@
       "writtenOn": "2026-07-16T06:44:09Z",
       "side": 1,
       "message": "What is DefaultInfo?",
+      "range": {
+        "startLine": 22,
+        "startChar": 17,
+        "endLine": 22,
+        "endChar": 28
+      },
+      "revId": "702cc3b9806a0ce29c77bca833292abdc2b14409",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c837b69_28754b6e",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-19T23:26:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c1e7332_ef29d87e",
       "range": {
         "startLine": 22,
         "startChar": 17,
@@ -82,6 +124,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e560f431_2d6b0f7c",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-19T23:26:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbe1dd01_7e9ba544",
+      "range": {
+        "startLine": 24,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 29
+      },
+      "revId": "702cc3b9806a0ce29c77bca833292abdc2b14409",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "67f336bc_f2f01a5e",
@@ -95,6 +161,30 @@
       "writtenOn": "2026-07-16T06:44:09Z",
       "side": 1,
       "message": "What is GnSubstitutionInfo?",
+      "range": {
+        "startLine": 26,
+        "startChar": 17,
+        "endLine": 26,
+        "endChar": 35
+      },
+      "revId": "702cc3b9806a0ce29c77bca833292abdc2b14409",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "df15b86e_d1b1a4bc",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-19T23:26:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67f336bc_f2f01a5e",
       "range": {
         "startLine": 26,
         "startChar": 17,

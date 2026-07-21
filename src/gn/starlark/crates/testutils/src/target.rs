@@ -41,7 +41,7 @@ impl PartialEq for FakeTarget {
             && self.rule == other.rule
             && self.cxx_attrs.len() == other.cxx_attrs.len()
             && self.cxx_attrs.iter().all(|(k, v)| {
-                other.cxx_attrs.get(k).map_or(false, |ov| {
+                other.cxx_attrs.get(k).is_some_and(|ov| {
                     v.equals(*ov).unwrap_or(false)
                 })
             })

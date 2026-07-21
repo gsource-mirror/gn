@@ -1702,6 +1702,8 @@ version = "0.1.0"
 dependencies = [
  "allocative",
  "attr",
+ "providers",
+ "rule",
  "starlark",
  "starlark_derive",
  "types",

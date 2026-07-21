@@ -6,7 +6,7 @@ use starlark::{
     environment::{FrozenModule, GlobalsBuilder},
     values::UnpackValue,
 };
-use types::{EvaluatorContextExt, Label, PathResolver, UnpackedOwnedValue};
+use types::{EvalContext, EvaluatorContextExt, Label, PathResolver, UnpackedOwnedValue};
 
 use crate::{register_globals, FakeEvalContext};
 
@@ -55,6 +55,35 @@ impl Assert {
         };
         s.modify_globals(register_globals);
         s
+    }
+
+    /// Creates a new `Assert` helper instance with rule evaluation globals and
+    /// builtins registered.
+    pub fn new_rule_assert() -> Self {
+        let mut assert = Self::default();
+        assert.modify_globals(|builder| {
+            rule::register_rule_globals!(builder, FakeEvalContext);
+            providers::register_providers(builder);
+
+            fn make_attr_schema<'v>(
+                kind: attr::AttrKind,
+                args: attr::AttrSpecArgs<'v>,
+                eval: &mut starlark::eval::Evaluator<'v, '_, '_>,
+            ) -> starlark::Result<starlark::values::Value<'v>> {
+                let context: &FakeEvalContext = eval.context();
+                attr::AttrSchema::create(
+                    kind,
+                    args,
+                    context.current_package(),
+                    &context.path_resolver,
+                    &eval.heap(),
+                )
+            }
+            builder.set("attr", attr::AttrModule { make_attr_schema });
+        });
+        let builtins = rule::register_builtin_rules::<FakeEvalContext>();
+        assert.module_add(builtins);
+        assert
     }
 
     /// Adds a modifier to globals.
@@ -130,7 +159,8 @@ impl Assert {
         self.assert.pass(code)
     }
 
-    /// Asserts that freezing the evaluated module fails with the expected error.
+    /// Asserts that freezing the evaluated module fails with the expected
+    /// error.
     #[track_caller]
     pub fn fail_to_freeze(&mut self, code: &str, expected_error: &str) -> starlark::Error {
         self.assert.fail_to_freeze(code, expected_error)

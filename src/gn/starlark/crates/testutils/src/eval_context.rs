@@ -141,3 +141,7 @@ impl EvalContextAttrExt for FakeEvalContext {
         Ok(target)
     }
 }
+
+rule::impl_ctx_methods!(FakeEvalContext);
+
+

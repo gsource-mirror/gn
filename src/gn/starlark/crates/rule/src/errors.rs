@@ -4,13 +4,17 @@
 
 /// Errors returned by the GN Starlark rule system.
 #[derive(thiserror::Error, Debug)]
-pub(crate) enum Error {
+pub enum Error {
     #[error("Rule must be assigned to a global variable to be used")]
     RuleMustBeNamed,
     #[error("Parent must be a rule")]
     ParentMustBeARule,
     #[error("Attribute '{0}' is reserved")]
     ReservedAttribute(String),
+    #[error("Rule does not have a parent rule")]
+    NoParentRule,
+    #[error("ctx object cannot be returned in providers")]
+    CtxUnfreezable,
 }
 
 impl From<Error> for starlark::Error {

@@ -12,10 +12,11 @@ use allocative::Allocative;
 use attr::Attr;
 use starlark::{
     starlark_simple_value,
-    values::{FrozenValue, ProvidesStaticType, StarlarkValue, Value, ValueLike},
+    values::{FrozenValue, FrozenValueTyped, Heap, ProvidesStaticType, StarlarkValue, Value, ValueLike},
 };
 use starlark_derive::{starlark_value, NoSerialize};
 use types::{File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, Session, TargetRef};
+use crate::FakeEvalContext;
 
 /// A fake target struct for testing.
 #[derive(Debug, Allocative, Default)]
@@ -32,6 +33,7 @@ pub struct FakeTarget {
     #[allocative(skip)]
     pub dependencies: Mutex<HashSet<(Label, Label)>>,
 }
+
 
 impl PartialEq for FakeTarget {
     fn eq(&self, other: &Self) -> bool {
@@ -122,6 +124,20 @@ impl<'v> StarlarkValue<'v> for FakeTargetRef {
 }
 
 impl TargetRef for FakeTargetRef {
+    type Rule = rule::FrozenRule<FakeEvalContext>;
+
+    fn rule(&self) -> Option<FrozenValueTyped<'static, Self::Rule>> {
+        let rule_val = self.get().rule;
+        println!("DEBUG: rule value = {:?}, type = {}", rule_val, rule_val.to_value().get_type());
+        let res = FrozenValueTyped::new(rule_val);
+        println!("DEBUG: typecast result = {:?}", res);
+        res
+    }
+
+    fn output_type(&self) -> Option<OutputType> {
+        self.get().output_type
+    }
+
     fn outputs(&self) -> Vec<File> {
         self.get().outputs.clone()
     }
@@ -129,7 +145,6 @@ impl TargetRef for FakeTargetRef {
     fn target_out_dir(&self, prefix: &str, suffix: &str, _separator: &str) -> String {
         format!("{prefix}$TOOLCHAIN/{suffix}$LABEL")
     }
-
     fn register_dependencies<S: Session<TargetRef = Self>>(
         &self,
         session: &S,
@@ -138,5 +153,20 @@ impl TargetRef for FakeTargetRef {
         for attr in &self.get().attrs {
             attr.register_dependencies(session, self.clone(), toolchain);
         }
+    }
+
+    fn builtin_attrs<'v>(&self, _heap: &Heap<'v>) -> Vec<Value<'v>> {
+        self.get().output_type
+            .map(|ot| {
+                let (file_fields, target_fields) = ot.attrs();
+                vec![Value::new_none(); file_fields.len() + target_fields.len()]
+            })
+            .unwrap_or_default()
+    }
+}
+
+impl attr::TargetAttrExt for FakeTargetRef {
+    fn attrs(&self) -> &[Attr] {
+        &self.get().attrs
     }
 }

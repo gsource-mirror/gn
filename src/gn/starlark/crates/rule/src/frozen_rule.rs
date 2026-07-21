@@ -27,7 +27,7 @@ use crate::rule::{build_signature, OutputType};
 pub struct FrozenRule<C: EvalContextAttrExt> {
     pub(crate) schema: CtxAttrSchema,
     pub(crate) builtin: Option<OutputType>,
-    pub(crate) implementation: FrozenValue,
+    pub implementation: FrozenValue,
     pub(crate) name: String,
     pub(crate) signature: ParametersSpec<FrozenValue>,
     pub(crate) parent: Option<&'static FrozenRule<C>>,

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use attr::traits::EvalContextAttrExt;
+use attr::{traits::EvalContextAttrExt, TargetAttrExt};
 use starlark::{
     environment::{FrozenModule, Module},
     values::FrozenHeapName,
@@ -20,7 +20,10 @@ use crate::{FrozenRule, OutputType};
 ///   sources = [...],
 ///   ...
 /// )
-pub fn register_builtin_rules<C: EvalContextAttrExt>() -> FrozenModule {
+pub fn register_builtin_rules<C: EvalContextAttrExt>() -> FrozenModule
+where
+    <C::Session as types::Session>::TargetRef: TargetAttrExt,
+{
     Module::with_temp_heap(|module| {
         for output_type in OutputType::iter() {
             let name = output_type.to_string();
@@ -98,6 +101,7 @@ pub(crate) mod tests {
         let mut assert = testutils::Assert::default();
         assert.modify_globals(|builder| {
             crate::register_rule_globals!(builder, FakeEvalContext);
+            providers::register_providers(builder);
             builder.set("attr", attr::AttrModule { make_attr_schema });
         });
         let builtins = crate::register_builtin_rules::<FakeEvalContext>();

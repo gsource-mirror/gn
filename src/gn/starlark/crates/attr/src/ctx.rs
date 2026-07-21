@@ -19,9 +19,7 @@ use crate::{
     Attr, Session,
 };
 
-/// Contains ctx.attr, ctx.files, and ctx.file.
-///
-/// See https://bazel.build/rules/lib/builtins/ctx for more info on what they are.
+#[derive(Debug, Clone, Copy, Allocative)]
 pub struct CtxAttr<'v> {
     pub attr: Value<'v>,
     pub files: Value<'v>,

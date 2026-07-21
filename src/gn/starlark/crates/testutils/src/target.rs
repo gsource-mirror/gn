@@ -12,10 +12,14 @@ use allocative::Allocative;
 use attr::Attr;
 use starlark::{
     starlark_simple_value,
-    values::{FrozenValue, ProvidesStaticType, StarlarkValue, Value, ValueLike},
+    values::{Heap, ProvidesStaticType, StarlarkValue, Value, ValueLike},
 };
 use starlark_derive::{starlark_value, NoSerialize};
-use types::{File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, Session, TargetRef};
+use types::{
+    File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, Session, TargetRef,
+};
+
+use crate::FakeEvalContext;
 
 /// A fake target struct for testing.
 #[derive(Debug, Allocative, Default)]
@@ -25,7 +29,7 @@ pub struct FakeTarget {
     /// A list of attributes.
     pub attrs: Vec<Attr>,
     pub output_type: Option<OutputType>,
-    pub rule: FrozenValue,
+    pub rule: Option<&'static rule::FrozenRule<FakeEvalContext>>,
     #[allocative(skip)]
     pub cxx_attrs: HashMap<String, Value<'static>>,
     /// Registered target dependencies.
@@ -38,7 +42,7 @@ impl PartialEq for FakeTarget {
         self.outputs == other.outputs
             && self.attrs == other.attrs
             && self.output_type == other.output_type
-            && self.rule == other.rule
+            && self.rule.map(|r| r as *const _) == other.rule.map(|r| r as *const _)
             && self.cxx_attrs.len() == other.cxx_attrs.len()
             && self.cxx_attrs.iter().all(|(k, v)| {
                 other
@@ -122,6 +126,16 @@ impl<'v> StarlarkValue<'v> for FakeTargetRef {
 }
 
 impl TargetRef for FakeTargetRef {
+    type Rule = rule::FrozenRule<FakeEvalContext>;
+
+    fn rule(&self) -> Option<&'static Self::Rule> {
+        self.get().rule
+    }
+
+    fn output_type(&self) -> Option<OutputType> {
+        self.get().output_type
+    }
+
     fn outputs(&self) -> Vec<File> {
         self.get().outputs.clone()
     }
@@ -138,5 +152,21 @@ impl TargetRef for FakeTargetRef {
         for attr in &self.get().attrs {
             attr.register_dependencies(session, self.clone(), toolchain);
         }
+    }
+
+    fn builtin_attrs<'v>(&self, _heap: &Heap<'v>) -> Vec<Value<'v>> {
+        self.get()
+            .output_type
+            .map(|ot| {
+                let (file_fields, target_fields) = ot.attrs();
+                vec![Value::new_none(); file_fields.len() + target_fields.len()]
+            })
+            .unwrap_or_default()
+    }
+}
+
+impl attr::TargetAttrExt for FakeTargetRef {
+    fn attrs(&self) -> &[Attr] {
+        &self.get().attrs
     }
 }

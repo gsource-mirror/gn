@@ -22,6 +22,7 @@ use crate::{
 /// Contains ctx.attr, ctx.files, and ctx.file.
 ///
 /// See https://bazel.build/rules/lib/builtins/ctx for more info on what they are.
+#[derive(Debug, Clone, Copy, Allocative)]
 pub struct CtxAttr<'v> {
     pub attr: Value<'v>,
     pub files: Value<'v>,
@@ -50,11 +51,9 @@ impl CtxAttrSchema {
         builtin: Option<OutputType>,
         heap: &FrozenHeap,
     ) -> Self {
-        let (builtin_files, builtin_attrs) =
-            builtin.map(|b| b.attrs()).unwrap_or_default();
-        let mut attrs_fields = SmallMap::with_capacity(
-            attrs.len() + builtin_files.len() + builtin_attrs.len(),
-        );
+        let (builtin_files, builtin_attrs) = builtin.map(|b| b.attrs()).unwrap_or_default();
+        let mut attrs_fields =
+            SmallMap::with_capacity(attrs.len() + builtin_files.len() + builtin_attrs.len());
         let mut file_fields = SmallMap::new();
         let mut files_fields = SmallMap::new();
 
@@ -115,8 +114,7 @@ impl CtxAttrSchema {
         mut ctx_attr: Vec<Value<'v>>,
         heap: &Heap<'v>,
     ) -> starlark::Result<CtxAttr<'v>> {
-        let (builtin_files, builtin_attrs) =
-            builtin.map(|b| b.attrs()).unwrap_or_default();
+        let (builtin_files, builtin_attrs) = builtin.map(|b| b.attrs()).unwrap_or_default();
         debug_assert!(builtin_files.len() + builtin_attrs.len() == ctx_attr.len());
         ctx_attr.reserve_exact(self.attr.len() - ctx_attr.len());
         let mut ctx_files = Vec::with_capacity(self.files.len());

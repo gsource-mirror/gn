@@ -5,7 +5,7 @@ use std::{cell::UnsafeCell, collections::HashMap};
 
 use attr::{Attr, EvalContext as AttrEvalContext, EvalContextAttrExt, Session as AttrSession};
 use starlark::{
-    values::{FrozenValue, Heap, ProvidesStaticType, Value},
+    values::{FrozenValue, FrozenValueTyped, Heap, ProvidesStaticType, Value},
     Result,
 };
 use types::{
@@ -131,7 +131,12 @@ impl EvalContextAttrExt for FakeEvalContext {
         let label = Label::new(self.package.clone(), target_name.to_owned());
         let target = FakeTargetRef::new(FakeTarget {
             output_type: target_type,
-            rule,
+            rule: if rule.is_none() {
+                None
+            } else {
+                let typed = FrozenValueTyped::<rule::FrozenRule<FakeEvalContext>>::new(rule).unwrap();
+                Some(typed.as_ref())
+            },
             cxx_attrs: scope.0.clone(),
             outputs: vec![],
             attrs,
@@ -141,3 +146,7 @@ impl EvalContextAttrExt for FakeEvalContext {
         Ok(target)
     }
 }
+
+rule::impl_ctx_methods!(FakeEvalContext);
+
+

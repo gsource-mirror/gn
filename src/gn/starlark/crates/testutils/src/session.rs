@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::{collections::HashMap, sync::Mutex};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 use attr::Session;
 use types::{Label, LabelRef, PackageRef};
@@ -10,12 +10,13 @@ use types::{Label, LabelRef, PackageRef};
 use crate::FakeTargetRef;
 
 /// A fake implementation of the `Session` trait for testing.
+#[derive(Clone)]
 pub struct FakeSession {
     /// The preconfigured default toolchain label.
     pub default_toolchain: Label,
     /// A map of fake targets populated for testing, indexed by (label,
     /// toolchain).
-    pub targets: Mutex<HashMap<(Label, Label), FakeTargetRef>>,
+    pub targets: Arc<Mutex<HashMap<(Label, Label), FakeTargetRef>>>,
 }
 
 impl Default for FakeSession {
@@ -33,7 +34,7 @@ impl FakeSession {
                 PackageRef::root().to_owned(),
                 "default_toolchain".to_owned(),
             ),
-            targets: Mutex::new(HashMap::new()),
+            targets: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 

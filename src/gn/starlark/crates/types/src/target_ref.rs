@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use starlark::values::{AllocValue, StarlarkValue};
+use starlark::values::{AllocValue, Heap, StarlarkValue, Value};
 
-use crate::{File, LabelRef, Session};
+use crate::{File, LabelRef, Session, OutputType};
 
 /// Unfortunately while we could specify that Eq and Hash are implemented, there
 /// is no way to delegate starlark's equality and hash function to it
@@ -16,8 +16,14 @@ pub trait IPromiseToImplementStarlarkEqAndHash {}
 /// Since the real Target involves a lot of C++ interop, this allows us to
 /// decouple the target from C++
 pub trait TargetRef:
-    for<'v> StarlarkValue<'v> + for<'v> AllocValue<'v> + Clone + IPromiseToImplementStarlarkEqAndHash
+    for<'v> StarlarkValue<'v> + for<'v> AllocValue<'v> + Clone + IPromiseToImplementStarlarkEqAndHash + Send + Sync
 {
+    type Rule: for<'v> StarlarkValue<'v>;
+
+    /// Returns the rule that this target was built from.
+    /// May return None if the target is a pure GN target.
+    fn rule(&self) -> Option<&'static Self::Rule>;
+
     /// Returns the output files produced by this target.
     fn outputs(&self) -> Vec<File>;
 
@@ -32,11 +38,16 @@ pub trait TargetRef:
         label_prefix: &str,
         package_name_separator: &str,
     ) -> String;
-
     /// Registers target dependencies contained within this target's attributes.
     fn register_dependencies<S: Session<TargetRef = Self>>(
         &self,
         session: &S,
         toolchain: LabelRef<'_>,
     );
+
+    /// Returns the target's output type.
+    fn output_type(&self) -> Option<OutputType>;
+
+    /// Returns the resolved built-in attributes as Starlark values.
+    fn builtin_attrs<'v>(&self, heap: &Heap<'v>) -> Vec<Value<'v>>;
 }

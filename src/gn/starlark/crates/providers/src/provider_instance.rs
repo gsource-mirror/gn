@@ -11,7 +11,8 @@ use starlark::{
     collections::{Hashed, StarlarkHasher},
     starlark_complex_value,
     values::{
-        Freeze, FrozenValueTyped, Heap, StarlarkValue, Trace, Value, ValueLifetimeless, ValueLike,
+        Freeze, FreezeResult, Freezer, Heap, StarlarkValue, Trace, Value, ValueLifetimeless,
+        ValueLike,
     },
 };
 use starlark_derive::{starlark_value, NoSerialize};
@@ -19,11 +20,31 @@ use starlark_derive::{starlark_value, NoSerialize};
 use crate::provider_type::FrozenProviderType;
 
 /// Represents an instance of a provider.
-#[derive(Clone, Trace, Coerce, Freeze, ProvidesStaticType, Allocative, NoSerialize)]
+#[derive(Clone, Trace, Coerce, ProvidesStaticType, Allocative, NoSerialize)]
 #[repr(C)]
 pub struct ProviderInstanceGen<V: ValueLifetimeless> {
-    pub(crate) provider_type: FrozenValueTyped<'static, FrozenProviderType>,
+    pub(crate) provider_type: &'static FrozenProviderType,
     pub(crate) values: Box<[Option<V>]>,
+}
+
+impl<V: ValueLifetimeless + Freeze> Freeze for ProviderInstanceGen<V>
+where
+    V::Frozen: ValueLifetimeless,
+{
+    type Frozen = ProviderInstanceGen<V::Frozen>;
+
+    fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen> {
+        Ok(ProviderInstanceGen {
+            provider_type: self.provider_type,
+            values: self
+                .values
+                .into_vec()
+                .into_iter()
+                .map(|v| v.freeze(freezer))
+                .collect::<Result<Vec<_>, _>>()?
+                .into_boxed_slice(),
+        })
+    }
 }
 
 starlark_complex_value!(pub ProviderInstance);
@@ -33,7 +54,7 @@ where
     Self: ProvidesStaticType<'v>,
 {
     pub(crate) fn ty(&self) -> &'v FrozenProviderType {
-        self.provider_type.as_ref()
+        self.provider_type
     }
 
     pub(crate) fn ty_name(&self) -> &'static str {
@@ -93,8 +114,7 @@ where
     type Canonical = FrozenProviderInstance;
 
     fn get_type_value_dyn(&self) -> starlark::values::FrozenStringValue {
-        // Safety: ProviderInstance is only constructed when the provider is exported.
-        unsafe { self.ty().data.as_ref().unwrap_unchecked().name }
+        self.ty().data.name
     }
 
     fn equals(&self, other: Value<'v>) -> starlark::Result<bool> {

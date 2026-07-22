@@ -140,7 +140,7 @@ impl CtxAttrSchema {
 mod tests {
     use starlark::{environment::GlobalsBuilder, eval::Evaluator, values::list::UnpackList};
     use starlark_derive::starlark_module;
-    use testutils::{FakeEvalContext, FakeTarget, FakeTargetRef};
+    use testutils::{FakeEvalContext, FakeTarget};
     use types::{EvaluatorContextExt as _, File, Label, PackageRef};
 
     use super::*;
@@ -187,7 +187,7 @@ mod tests {
             )
             .create_ctx_fields(
                 &fields,
-                &context.session,
+                context.session.as_ref(),
                 &context.current_toolchain.as_ref(),
                 &eval.heap(),
             )?;
@@ -202,11 +202,10 @@ mod tests {
 
         let target_label = Label::new(PackageRef::root().to_owned(), "bar".to_owned());
         let file1 = File::intern("out.cc");
-        let target_bar = FakeTargetRef::new(FakeTarget {
+        let _target_bar = a.session().insert_target(FakeTarget {
             outputs: vec![file1.clone()],
-            ..Default::default()
+            ..a.session().empty_target(target_label.package(), target_label.name())
         });
-        a.context().session.insert_target(target_label, target_bar);
 
         a.modify_globals(|builder| {
             builder.set("attr", AttrModule { make_attr_schema });

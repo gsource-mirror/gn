@@ -245,7 +245,7 @@ mod tests {
     use super::*;
 
     fn make_eval_context(pkg: &PackageRef) -> Box<FakeEvalContext> {
-        Box::new(FakeEvalContext::new(pkg.as_str()))
+        Box::new(FakeEvalContext::new(pkg, "dummy"))
     }
 
     fn load(loader: &FileLoader, label_str: &str) -> starlark::Result<FrozenModule> {

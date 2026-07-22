@@ -4,7 +4,7 @@
 
 use starlark::values::{AllocValue, StarlarkValue};
 
-use crate::File;
+use crate::{File, LabelRef};
 
 /// Unfortunately while we could specify that Eq and Hash are implemented, there
 /// is no way to delegate starlark's equality and hash function to it
@@ -18,6 +18,11 @@ pub trait IPromiseToImplementStarlarkEqAndHash {}
 pub trait TargetRef:
     for<'v> StarlarkValue<'v> + for<'v> AllocValue<'v> + Clone + IPromiseToImplementStarlarkEqAndHash
 {
+    /// Returns the label of the target.
+    fn label(&self) -> LabelRef<'_>;
+    /// Returns the toolchain the label was defined in.
+    fn toolchain(&self) -> LabelRef<'_>;
+
     /// Returns the output files produced by this target.
     fn outputs(&self) -> Vec<File>;
 

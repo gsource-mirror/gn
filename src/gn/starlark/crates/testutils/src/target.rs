@@ -3,9 +3,10 @@
 // found in the LICENSE file.
 
 use std::{
+    cell::RefCell,
     collections::{HashMap, HashSet},
-    hash::Hasher,
-    sync::{Arc, Mutex},
+    ops::Deref,
+    rc::Rc,
 };
 
 use allocative::Allocative;
@@ -15,11 +16,15 @@ use starlark::{
     values::{FrozenValue, ProvidesStaticType, StarlarkValue, Value, ValueLike},
 };
 use starlark_derive::{starlark_value, NoSerialize};
-use types::{File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, Session, TargetRef};
+use types::{
+    File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, Session, TargetRef,
+};
 
 /// A fake target struct for testing.
-#[derive(Debug, Allocative, Default)]
+#[derive(Allocative, Debug)]
 pub struct FakeTarget {
+    pub label: Label,
+    pub toolchain: Label,
     /// A list of fake files returned as outputs of the target.
     pub outputs: Vec<File>,
     /// A list of attributes.
@@ -30,12 +35,14 @@ pub struct FakeTarget {
     pub cxx_attrs: HashMap<String, Value<'static>>,
     /// Registered target dependencies.
     #[allocative(skip)]
-    pub dependencies: Mutex<HashSet<(Label, Label)>>,
+    pub dependencies: RefCell<HashSet<(Label, Label)>>,
 }
 
 impl PartialEq for FakeTarget {
     fn eq(&self, other: &Self) -> bool {
-        self.outputs == other.outputs
+        self.label == other.label
+            && self.toolchain == other.toolchain
+            && self.outputs == other.outputs
             && self.attrs == other.attrs
             && self.output_type == other.output_type
             && self.rule == other.rule
@@ -46,25 +53,27 @@ impl PartialEq for FakeTarget {
                     .get(k)
                     .is_some_and(|ov| v.equals(*ov).unwrap_or(false))
             })
-            && *self.dependencies.lock().unwrap() == *other.dependencies.lock().unwrap()
+            && *self.dependencies.borrow() == *other.dependencies.borrow()
     }
 }
+
 impl Eq for FakeTarget {}
 
 /// A reference to a fake target.
 #[derive(Debug, ProvidesStaticType, NoSerialize, Allocative, Clone)]
-pub struct FakeTargetRef(#[allocative(skip)] Arc<FakeTarget>);
+pub struct FakeTargetRef(#[allocative(skip)] Rc<FakeTarget>);
 
-impl Default for FakeTargetRef {
-    fn default() -> Self {
-        Self::new(FakeTarget::default())
-    }
-}
+// Safety: FakeTargetRef is only used in single-threaded contexts inside unit
+// tests.
+unsafe impl Send for FakeTargetRef {}
+// Safety: FakeTargetRef is only used in single-threaded contexts inside unit
+// tests.
+unsafe impl Sync for FakeTargetRef {}
 
 impl FakeTargetRef {
     /// Creates a new `FakeTargetRef` containing the given `FakeTarget`.
     pub fn new(target: FakeTarget) -> Self {
-        Self(Arc::new(target))
+        Self(Rc::new(target))
     }
 
     /// Returns a shared reference to the underlying target.
@@ -74,20 +83,20 @@ impl FakeTargetRef {
 
     /// Returns the registered dependencies of this target.
     pub fn registered_deps(&self) -> HashSet<(Label, Label)> {
-        self.get().dependencies.lock().unwrap().clone()
+        self.dependencies.borrow().clone()
     }
 }
 
 impl PartialEq for FakeTargetRef {
     fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.0, &other.0)
+        Rc::ptr_eq(&self.0, &other.0)
     }
 }
 impl Eq for FakeTargetRef {}
 
 impl std::hash::Hash for FakeTargetRef {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        Arc::as_ptr(&self.0).hash(state);
+        Rc::as_ptr(&self.0).hash(state);
     }
 }
 
@@ -105,7 +114,7 @@ impl IPromiseToImplementStarlarkEqAndHash for FakeTargetRef {}
 impl<'v> StarlarkValue<'v> for FakeTargetRef {
     fn equals(&self, other: Value<'v>) -> starlark::Result<bool> {
         if let Some(other) = other.downcast_ref::<Self>() {
-            Ok(Arc::ptr_eq(&self.0, &other.0))
+            Ok(self == other)
         } else {
             Ok(false)
         }
@@ -115,13 +124,29 @@ impl<'v> StarlarkValue<'v> for FakeTargetRef {
         &self,
         hasher: &mut starlark::collections::StarlarkHasher,
     ) -> starlark::Result<()> {
-        let ptr = Arc::as_ptr(&self.0) as usize;
-        hasher.write_usize(ptr);
+        use std::hash::Hash as _;
+        self.hash(hasher);
         Ok(())
     }
 }
 
+impl Deref for FakeTargetRef {
+    type Target = FakeTarget;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 impl TargetRef for FakeTargetRef {
+    fn label(&self) -> LabelRef<'_> {
+        self.get().label.as_ref()
+    }
+
+    fn toolchain(&self) -> LabelRef<'_> {
+        self.get().toolchain.as_ref()
+    }
+
     fn outputs(&self) -> Vec<File> {
         self.get().outputs.clone()
     }

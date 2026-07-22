@@ -17,7 +17,6 @@ use types::{EvaluatorContextExt, Scope, TargetRef};
 
 use crate::rule::{build_signature, OutputType};
 
-
 /// A frozen representation of a Starlark rule object.
 ///
 /// Once a rule has been exported from a loaded Starlark module (e.g., from
@@ -35,7 +34,8 @@ pub struct FrozenRule<C: EvalContextAttrExt> {
 }
 
 // Safety: FrozenRule does not automatically derive Send and Sync because of C.
-// But it only contains C inside PhantomData, so Send and Sync are actually safe.
+// But it only contains C inside PhantomData, so Send and Sync are actually
+// safe.
 unsafe impl<C: EvalContextAttrExt> Send for FrozenRule<C> {}
 unsafe impl<C: EvalContextAttrExt> Sync for FrozenRule<C> {}
 
@@ -148,14 +148,14 @@ impl<C: EvalContextAttrExt> fmt::Display for FrozenRule<C> {
 #[cfg(test)]
 mod tests {
     use std::{
+        cell::RefCell,
         collections::{HashMap, HashSet},
-        sync::Mutex,
     };
 
     use attr::{Attr, LabelOrFile};
     use starlark::environment::FrozenModule;
     use testutils::FakeTarget;
-    use types::{Label, OutputType, PackageRef};
+    use types::{Label, OutputType, PackageRef, Session};
 
     use crate::globals::tests::new_assert;
 
@@ -215,18 +215,18 @@ child_rule(
         );
 
         let context = assert.context();
-        let targets_lock = context.session.targets.lock().unwrap();
         let load = |name: &str| {
             let label = Label::new(PackageRef::root().to_owned(), name.to_owned());
-            targets_lock
-                .get(&(label, context.session.default_toolchain.clone()))
-                .unwrap()
-                .get()
+            context
+                .session
+                .get_target(label.as_ref(), context.session.default_toolchain.as_ref())
         };
 
         assert_eq!(
             *load("shared_library"),
             FakeTarget {
+                label: Label::new(PackageRef::root().to_owned(), "shared_library".to_owned()),
+                toolchain: context.session.default_toolchain.clone(),
                 outputs: vec![],
                 attrs: vec![
                     Attr::String("optional_val".to_owned()),
@@ -235,19 +235,21 @@ child_rule(
                 output_type: Some(OutputType::SharedLibrary),
                 rule: rule(&native, "custom_shared_library"),
                 cxx_attrs: unknown_attrs.clone(),
-                dependencies: Mutex::new(HashSet::new()),
+                dependencies: RefCell::new(HashSet::new()),
             }
         );
 
         assert_eq!(
             *load("static_library"),
             FakeTarget {
+                label: Label::new(PackageRef::root().to_owned(), "static_library".to_owned()),
+                toolchain: context.session.default_toolchain.clone(),
                 outputs: vec![],
                 attrs: vec![Attr::String("optional_val".to_owned())],
                 output_type: Some(OutputType::StaticLibrary),
                 rule: rule(&native, "static_library"),
                 cxx_attrs: unknown_attrs.clone(),
-                dependencies: Mutex::new(HashSet::new()),
+                dependencies: RefCell::new(HashSet::new()),
             }
         );
 
@@ -259,6 +261,8 @@ child_rule(
         assert_eq!(
             *load("parent_defaulted"),
             FakeTarget {
+                label: Label::new(PackageRef::root().to_owned(), "parent_defaulted".to_owned()),
+                toolchain: toolchain.clone(),
                 outputs: vec![],
                 attrs: vec![
                     Attr::String("p".to_owned()),
@@ -270,7 +274,7 @@ child_rule(
                 output_type: None,
                 rule: rule(&pure, "parent_rule"),
                 cxx_attrs: HashMap::new(),
-                dependencies: Mutex::new(HashSet::from([(
+                dependencies: RefCell::new(HashSet::from([(
                     Label::new(PackageRef::root().to_owned(), "parent".to_owned()),
                     toolchain.clone(),
                 )])),
@@ -280,6 +284,8 @@ child_rule(
         assert_eq!(
             *load("child_defaulted"),
             FakeTarget {
+                label: Label::new(PackageRef::root().to_owned(), "child_defaulted".to_owned()),
+                toolchain: toolchain.clone(),
                 outputs: vec![],
                 attrs: vec![
                     Attr::String("p".to_owned()),
@@ -292,7 +298,7 @@ child_rule(
                 output_type: None,
                 rule: rule(&pure, "child_rule"),
                 cxx_attrs: HashMap::new(),
-                dependencies: Mutex::new(HashSet::from([(
+                dependencies: RefCell::new(HashSet::from([(
                     Label::new(PackageRef::root().to_owned(), "child".to_owned()),
                     toolchain.clone(),
                 )])),
@@ -302,6 +308,8 @@ child_rule(
         assert_eq!(
             *load("child_override"),
             FakeTarget {
+                label: Label::new(PackageRef::root().to_owned(), "child_override".to_owned()),
+                toolchain: toolchain.clone(),
                 outputs: vec![],
                 attrs: vec![
                     Attr::String("parent_val".to_owned()),
@@ -314,7 +322,7 @@ child_rule(
                 output_type: None,
                 rule: rule(&pure, "child_rule"),
                 cxx_attrs: HashMap::new(),
-                dependencies: Mutex::new(HashSet::from([(
+                dependencies: RefCell::new(HashSet::from([(
                     Label::new(PackageRef::root().to_owned(), "custom_val".to_owned()),
                     toolchain.clone(),
                 )])),

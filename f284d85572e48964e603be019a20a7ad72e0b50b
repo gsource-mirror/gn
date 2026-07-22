@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43567b8e_01d359d0",
+        "filename": "src/gn/starlark/crates/attr/src/ctx.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-22T01:35:55Z",
+      "side": 1,
+      "message": "When a rule derived from a binary built-in declares `sources`, `public`, `deps`, or `public_deps`, this insert replaces the existing record field while `self.attrs` still retains the custom schema.\n\n`create_ctx_fields` later prepends the built-in values and appends every custom value, which shifts subsequent fields and can return the wrong values from `ctx.attr`; invocation also consumes the argument instead of forwarding it to the native scope.\n\nShould we reject these collisions or merge them explicitly?",
+      "range": {
+        "startLine": 74,
+        "startChar": 12,
+        "endLine": 74,
+        "endChar": 53
+      },
+      "revId": "f284d85572e48964e603be019a20a7ad72e0b50b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "170baf33_192566ac",
+        "filename": "src/gn/starlark/crates/rule/src/frozen_rule.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-22T01:35:55Z",
+      "side": 1,
+      "message": "Maybe I\u0027m misunderstand this, but.. when a rule has label-like attributes, both branches discard the returned target and no code calls `Attr::register_dependencies`, right? So labels stored in these attributes therefore add no edges to the session, so their targets may not be resolved or built.\n\nDo we need to keep the returned target and register each attribute with the current toolchain?",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 13
+      },
+      "revId": "f284d85572e48964e603be019a20a7ad72e0b50b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4bb501d_391e6961",
+        "filename": "src/gn/starlark/crates/rule/src/globals.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-22T01:35:55Z",
+      "side": 1,
+      "message": "`OutputType::ActionForEach` is serialized by Strum as `action_for_each`, so this loop exports that spelling instead of GN\u0027s existing `action_foreach` rule. A load of the standard GN name therefore fails.\n\nIs that intentional? If not, maybe we need to add an explicit serialization or name mapping for this variant.",
+      "range": {
+        "startLine": 27,
+        "startChar": 12,
+        "endLine": 27,
+        "endChar": 47
+      },
+      "revId": "f284d85572e48964e603be019a20a7ad72e0b50b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

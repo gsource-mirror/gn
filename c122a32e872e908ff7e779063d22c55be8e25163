@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1afc5390_5996bd06",
+        "filename": "src/gn/starlark/crates/providers/src/builtins.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-22T01:31:04Z",
+      "side": 1,
+      "message": "Here `default_defaultinfo` and the two module exports are allocated on `GlobalsBuilder`\u0027s heap, but `BuiltinProviders` retains neither that heap nor a module dependency on it. If the caller drops the built `Globals` while keeping `BuiltinProviders` or its preloaded module, which these independent public return values allow, `module.get(\"GnInputsInfo\")` and the default instance dereference freed storage.\n\nCould we allocate the values on a heap owned by the builtin module or retain the source `FrozenHeapRef`?",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 5
+      },
+      "revId": "c122a32e872e908ff7e779063d22c55be8e25163",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9a73dea_8ceaa16b",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-22T01:31:04Z",
+      "side": 1,
+      "message": "When a caller unpacks through `OwnedFrozenValue::value()` and then drops that owner or its module, the returned `Providers` remains usable but these fields contain `\u0027static` references and raw `FrozenValue`s into the freed heap. Later iterating `value` or expanding a substitution can read freed memory.\n\nCan we make the conversion retain the source `FrozenHeapRef`, require an owned wrapper, or parameterize `Providers` by the input lifetime?",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 53
+      },
+      "revId": "c122a32e872e908ff7e779063d22c55be8e25163",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffa867e9_3a814ba7",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-07-22T01:31:04Z",
+      "side": 1,
+      "message": "When safe `UnpackValue` callers pass a mutable evaluation result such as `[DefaultInfo()]`, the frozen check only panics in debug builds; release builds continue to this `unwrap_unchecked()` even though `item.unpack_frozen()` is `None`, causing undefined behavior.\n\nI\u0027m a bit worried about that \"safety by comment\" approach... could we return an error for mutable input or use a frozen-list API that makes this cast unnecessary?",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 74
+      },
+      "revId": "c122a32e872e908ff7e779063d22c55be8e25163",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

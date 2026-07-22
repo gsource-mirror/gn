@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use std::rc::Rc;
+
 use starlark::{environment::GlobalsBuilder, values::UnpackValue};
 use types::{EvaluatorContextExt, UnpackedOwnedValue};
 
-use crate::{register_globals, FakeEvalContext};
+use crate::{register_globals, FakeEvalContext, FakeSession};
 
 type GlobalsConfig = Box<dyn Fn(&mut GlobalsBuilder)>;
 
@@ -19,7 +21,7 @@ pub struct Assert {
 
 impl Default for Assert {
     fn default() -> Self {
-        Self::new(FakeEvalContext::default())
+        Self::new(FakeEvalContext::default(Rc::new(FakeSession::default())))
     }
 }
 
@@ -69,6 +71,11 @@ impl Assert {
     /// Returns a read-only reference to the fake evaluation context.
     pub fn context(&self) -> &FakeEvalContext {
         &self.context
+    }
+
+    /// Returns the current session.
+    pub fn session(&self) -> Rc<FakeSession> {
+        self.context.session.clone()
     }
 
     /// Asserts that the result of evaluating code is equal to expected.

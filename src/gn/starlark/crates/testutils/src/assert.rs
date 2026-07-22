@@ -2,13 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use std::rc::Rc;
+
 use starlark::{
     environment::{FrozenModule, GlobalsBuilder},
     values::UnpackValue,
 };
 use types::{EvaluatorContextExt, Label, PathResolver, UnpackedOwnedValue};
 
-use crate::{register_globals, FakeEvalContext};
+use crate::{register_globals, FakeEvalContext, FakeSession};
 
 type GlobalsConfig = Box<dyn Fn(&mut GlobalsBuilder)>;
 
@@ -22,7 +24,7 @@ pub struct Assert {
 
 impl Default for Assert {
     fn default() -> Self {
-        Self::new(FakeEvalContext::default())
+        Self::new(FakeEvalContext::default(Rc::new(FakeSession::default())))
     }
 }
 
@@ -91,6 +93,11 @@ impl Assert {
         &self.context
     }
 
+    /// Returns the current session.
+    pub fn session(&self) -> Rc<FakeSession> {
+        self.context.session.clone()
+    }
+
     /// Asserts that the result of evaluating code is equal to expected.
     #[track_caller]
     pub fn eq<T>(&mut self, code: &str, expected: T)
@@ -130,7 +137,8 @@ impl Assert {
         self.assert.pass(code)
     }
 
-    /// Asserts that freezing the evaluated module fails with the expected error.
+    /// Asserts that freezing the evaluated module fails with the expected
+    /// error.
     #[track_caller]
     pub fn fail_to_freeze(&mut self, code: &str, expected_error: &str) -> starlark::Error {
         self.assert.fail_to_freeze(code, expected_error)

@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "373727d8_dde29a1d",
+        "filename": "src/gn/starlark/crates/attr/src/ctx.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-22T03:02:58Z",
+      "side": 1,
+      "message": "Added them to RESERVED_ATTRS.",
+      "parentUuid": "43567b8e_01d359d0",
+      "range": {
+        "startLine": 74,
+        "startChar": 12,
+        "endLine": 74,
+        "endChar": 53
+      },
+      "revId": "f284d85572e48964e603be019a20a7ad72e0b50b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "170baf33_192566ac",
@@ -47,6 +71,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c18366b_0d71a958",
+        "filename": "src/gn/starlark/crates/rule/src/frozen_rule.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-22T03:02:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "170baf33_192566ac",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 13
+      },
+      "revId": "f284d85572e48964e603be019a20a7ad72e0b50b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4bb501d_391e6961",
@@ -60,6 +108,30 @@
       "writtenOn": "2026-07-22T01:35:55Z",
       "side": 1,
       "message": "`OutputType::ActionForEach` is serialized by Strum as `action_for_each`, so this loop exports that spelling instead of GN\u0027s existing `action_foreach` rule. A load of the standard GN name therefore fails.\n\nIs that intentional? If not, maybe we need to add an explicit serialization or name mapping for this variant.",
+      "range": {
+        "startLine": 27,
+        "startChar": 12,
+        "endLine": 27,
+        "endChar": 47
+      },
+      "revId": "f284d85572e48964e603be019a20a7ad72e0b50b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b42f1243_fd06b314",
+        "filename": "src/gn/starlark/crates/rule/src/globals.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-22T03:02:58Z",
+      "side": 1,
+      "message": "I\u0027ll just rename it, it was supposed to match exactly.",
+      "parentUuid": "d4bb501d_391e6961",
       "range": {
         "startLine": 27,
         "startChar": 12,

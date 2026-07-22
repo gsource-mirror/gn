@@ -69,6 +69,9 @@ void TargetGenerator::Run() {
   if (!FillAssertNoDeps())
     return;
 
+  if (!FillAllowIncludesFromPublicDeps())
+    return;
+
   if (!Visibility::FillItemVisibility(target_, scope_, err_))
     return;
 
@@ -377,6 +380,17 @@ bool TargetGenerator::FillCheckIncludes() {
   if (!value->VerifyTypeIs(Value::BOOLEAN, err_))
     return false;
   target_->set_check_includes(value->boolean_value());
+  return true;
+}
+
+bool TargetGenerator::FillAllowIncludesFromPublicDeps() {
+  const Value* value =
+      scope_->GetValue(variables::kAllowIncludesFromPublicDeps, true);
+  if (!value)
+    return true;
+  if (!value->VerifyTypeIs(Value::BOOLEAN, err_))
+    return false;
+  target_->set_allow_includes_from_public_deps(value->boolean_value());
   return true;
 }
 

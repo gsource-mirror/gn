@@ -379,6 +379,10 @@ class TargetDescBuilder : public BaseDescBuilder {
     if (what(variables::kTestonly))
       res->SetKey(variables::kTestonly, base::Value(target_->testonly()));
 
+    if (what(variables::kAllowIncludesFromPublicDeps))
+      res->SetKey(variables::kAllowIncludesFromPublicDeps,
+                  base::Value(target_->allow_includes_from_public_deps()));
+
     if (is_binary_output) {
       if (what(variables::kCheckIncludes))
         res->SetKey(variables::kCheckIncludes,

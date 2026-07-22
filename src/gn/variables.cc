@@ -905,6 +905,28 @@ Example
   }
 )";
 
+const char kAllowIncludesFromPublicDeps[] = "allow_includes_from_public_deps";
+const char kAllowIncludesFromPublicDeps_HelpShort[] =
+    "allow_includes_from_public_deps: [boolean] Controls whether this target "
+    "exposes headers of its public_deps.";
+const char kAllowIncludesFromPublicDeps_Help[] =
+    R"(allow_includes_from_public_deps: [boolean] Allow transitive includes from public_deps.
+
+  When true (the default), the "gn check" command (as well as "gn gen" with the
+  --check flag) will allow targets depending on this target to include public headers of targets in its public_deps.
+
+  When false, targets depending on this target may only include this target's public headers.
+
+  It is recommended to set this to false by default if you can, but it is set to true by default for backwards compatibility.
+
+Example
+
+  source_set("strict_target") {
+    allow_includes_from_public_deps = false
+    ...
+  }
+)";
+
 const char kCompleteStaticLib[] = "complete_static_lib";
 const char kCompleteStaticLib_HelpShort[] =
     "complete_static_lib: [boolean] Links all deps into a static library.";
@@ -2534,6 +2556,7 @@ const VariableInfoMap& GetTargetVariables() {
   if (info_map.empty()) {
     INSERT_VARIABLE(AllDependentConfigs)
     INSERT_VARIABLE(AllowCircularIncludesFrom)
+    INSERT_VARIABLE(AllowIncludesFromPublicDeps)
     INSERT_VARIABLE(GenDeps)
     INSERT_VARIABLE(Arflags)
     INSERT_VARIABLE(Args)

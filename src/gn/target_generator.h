@@ -71,6 +71,7 @@ class TargetGenerator {
   bool FillMetadata();
   bool FillTestonly();
   bool FillAssertNoDeps();
+  bool FillAllowIncludesFromPublicDeps();
   bool FillWriteRuntimeDeps();
 
   // Reads configs/deps from the given var name, and uses the given setting on

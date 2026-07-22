@@ -110,10 +110,16 @@ std::string GetDependencyChainPublicError(const HeaderChecker::Chain& chain) {
         // dependency chain things went bad. Don't list this for the first link
         // in the chain since direct dependencies are OK, and listing that as
         // "private" may make people feel like they need to fix it.
-        if (i == static_cast<int>(chain.size()) - 1 || chain[i - 1].is_public)
-          ret.append(" -->");
-        else
+        if (i == static_cast<int>(chain.size()) - 1 || chain[i - 1].is_public) {
+          if (i != static_cast<int>(chain.size()) - 1 &&
+              !chain[i].target->allow_includes_from_public_deps()) {
+            ret.append(" --[allow_includes_from_public_deps disabled]-->");
+          } else {
+            ret.append(" -->");
+          }
+        } else {
           ret.append(" --[private]-->");
+        }
       }
       ret.append("\n");
     }
@@ -391,6 +397,11 @@ void HeaderChecker::ReachabilityCache::PerformDependencyWalk(bool permitted) {
   while (!work_queue.empty()) {
     const Target* target = work_queue.front();
     work_queue.pop();
+
+    if (permitted && target != source_target_ &&
+        !target->allow_includes_from_public_deps()) {
+      continue;
+    }
 
     for (const auto& dep : target->public_deps()) {
       if (breadcrumbs.Insert(dep.ptr, target, true))

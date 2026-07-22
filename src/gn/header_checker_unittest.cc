@@ -463,3 +463,32 @@ TEST_F(HeaderCheckerTest, Friend) {
   checker->CheckInclude(a_cache, input_file, c_private, range, &errors);
   EXPECT_EQ(errors.size(), 0);
 }
+
+TEST_F(HeaderCheckerTest, AllowIncludesFromPublicDeps) {
+  InputFile input_file(SourceFile("//some_file.cc"));
+  input_file.SetContents(std::string());
+  LocationRange range;  // Dummy value.
+
+  SourceFile c_public("//c_public.h");
+  c_.sources().push_back(c_public);
+
+  // Set allow_includes_from_public_deps on B to false.
+  // This means A (which depends on B) can no longer transitively include C's
+  // headers.
+  b_.set_allow_includes_from_public_deps(false);
+
+  auto checker = CreateChecker();
+  auto& a_cache = checker->GetReachabilityCacheForTarget(&a_);
+
+  // A cannot include C's header.
+  std::vector<Err> errors;
+  checker->CheckInclude(a_cache, input_file, c_public, range, &errors);
+  ASSERT_EQ(errors.size(), 1u);
+  EXPECT_TRUE(errors[0].message().find(
+                  "Can't include this header from here.") != std::string::npos);
+  EXPECT_TRUE(
+      errors[0].help_text().find("allow_includes_from_public_deps disabled") !=
+      std::string::npos)
+      << "Actual help text:\n"
+      << errors[0].help_text();
+}

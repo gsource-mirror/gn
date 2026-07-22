@@ -86,8 +86,8 @@ impl FakeEvalContext {
 }
 
 impl AttrEvalContext for FakeEvalContext {
-    type Session = FakeSession;
     type Scope = FakeScope;
+    type Session = FakeSession;
 
     fn session(&self) -> &Self::Session {
         &self.session

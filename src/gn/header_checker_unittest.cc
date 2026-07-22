@@ -5,7 +5,6 @@
 #include <ostream>
 #include <vector>
 
-#include "gn/config.h"
 #include "gn/header_checker.h"
 #include "gn/scheduler.h"
 #include "gn/target.h"
@@ -462,4 +461,72 @@ TEST_F(HeaderCheckerTest, Friend) {
   errors.clear();
   checker->CheckInclude(a_cache, input_file, c_private, range, &errors);
   EXPECT_EQ(errors.size(), 0);
+}
+
+TEST_F(HeaderCheckerTest, CheckIncludesStrictTransitive) {
+  InputFile input_file(SourceFile("//some_file.cc"));
+  input_file.SetContents(std::string());
+  LocationRange range;  // Dummy value.
+
+  SourceFile c_public("//c_public.h");
+  c_.sources().push_back(c_public);
+
+  // Enable strict check on B.
+  // This means A (which depends on B) can no longer transitively include C's
+  // headers.
+  b_.set_check_includes_strict(true);
+
+  auto checker = CreateChecker();
+  auto& a_cache = checker->GetReachabilityCacheForTarget(&a_);
+
+  // A cannot include C's header because B blocks transitively forwarding it.
+  std::vector<Err> errors;
+  checker->CheckInclude(a_cache, input_file, c_public, range, &errors);
+  ASSERT_EQ(errors.size(), 1u);
+  EXPECT_TRUE(errors[0].message().find(
+                  "Can't include this header from here.") != std::string::npos);
+  EXPECT_TRUE(errors[0].help_text().find("check_includes_strict enabled") !=
+              std::string::npos)
+      << "Actual help text:\n"
+      << errors[0].help_text();
+}
+
+TEST_F(HeaderCheckerTest, CheckIncludesStrictPrivateInPublicHeader) {
+  InputFile input_file(SourceFile("//a_public.h"));
+  input_file.SetContents(std::string());
+  LocationRange range;  // Dummy value.
+
+  // B is a private dependency of A.
+  a_.public_deps().clear();
+  a_.private_deps().push_back(LabelTargetPair(&b_));
+  Err err;
+  a_.OnResolved(&err);
+  ASSERT_SUCCESS(err);
+
+  SourceFile b_public("//b_public.h");
+  b_.sources().push_back(b_public);
+
+  // Set strict headers on A.
+  a_.set_check_includes_strict(true);
+
+  // We are checking a public header file of A.
+  // Since A depends on B privately, this include should be blocked under strict
+  // check.
+  auto checker = CreateChecker();
+  auto& a_cache = checker->GetReachabilityCacheForTarget(&a_);
+
+  std::vector<Err> errors;
+  // pass is_public_header = true
+  checker->CheckInclude(a_cache, true, input_file, b_public, range, &errors);
+  ASSERT_EQ(errors.size(), 1u);
+  EXPECT_TRUE(errors[0].message().find(
+                  "Public headers cannot include private dependencies.") !=
+              std::string::npos)
+      << "Actual message:\n"
+      << errors[0].message();
+
+  // If we check a private file (is_public_header = false), it should pass.
+  errors.clear();
+  checker->CheckInclude(a_cache, false, input_file, b_public, range, &errors);
+  EXPECT_TRUE(errors.empty());
 }

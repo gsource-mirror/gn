@@ -93,8 +93,11 @@ where
     type Canonical = FrozenProviderInstance;
 
     fn get_type_value_dyn(&self) -> starlark::values::FrozenStringValue {
-        // Safety: ProviderInstance is only constructed when the provider is exported.
-        unsafe { self.ty().data.as_ref().unwrap_unchecked().name }
+        self.ty()
+            .data
+            .as_ref()
+            .expect("ProviderInstance is only constructed when the provider is exported.")
+            .name
     }
 
     fn equals(&self, other: Value<'v>) -> starlark::Result<bool> {

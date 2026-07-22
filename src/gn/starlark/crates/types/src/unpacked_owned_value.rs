@@ -29,14 +29,9 @@ where
     type Error = starlark::Error;
 
     fn try_from(val: OwnedFrozenValue) -> Result<Self, Self::Error> {
-        let heap = val.owner().clone();
-        // Safety: We extract the raw FrozenValue from OwnedFrozenValue. This is safe
-        // because we clone the heap ref and store it in UnpackedOwnedValue,
-        // ensuring the heap outlives T.
-        let value = unsafe { val.unchecked_frozen_value() }.to_value();
         Ok(Self {
-            value: T::unpack_value_err(value)?,
-            heap,
+            value: T::unpack_value_err(val.value())?,
+            heap: val.owner().clone(),
         })
     }
 }

@@ -66,11 +66,10 @@ pub trait EvaluatorContextExt<'v, 'a, 'e> {
 impl<'v, 'a, 'e> EvaluatorContextExt<'v, 'a, 'e> for starlark::eval::Evaluator<'v, 'a, 'e> {
     #[inline]
     fn context<C: EvalContext>(&self) -> &C {
-        let extra = self.extra.as_ref();
-        debug_assert!(extra.is_some(), "evaluator context not set");
-        let dyn_any = unsafe { extra.unwrap_unchecked() };
-        debug_assert!(dyn_any.is::<C>(), "failed to downcast evaluator context");
-        unsafe { dyn_any.downcast_ref::<C>().unwrap_unchecked() }
+        let extra = self.extra.as_ref().expect("evaluator context not set");
+        extra
+            .downcast_ref::<C>()
+            .expect("failed to downcast evaluator context")
     }
 
     #[inline]

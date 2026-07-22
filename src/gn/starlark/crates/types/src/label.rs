@@ -62,8 +62,9 @@ impl Label {
         // Verify that there is exactly one colon.
         match (iter.next(), iter.next(), iter.next()) {
             (Some(package), Some(name), None) if !name.is_empty() => Ok(Self {
-                // Safety: already checked.
-                package: unsafe { PackageRef::new_unchecked(package) }.to_owned(),
+                package: PackageRef::new(package)
+                    .expect("already checked")
+                    .to_owned(),
                 name: name.to_owned(),
             }),
             // In GN, this refers to the file foo in the // directory in file

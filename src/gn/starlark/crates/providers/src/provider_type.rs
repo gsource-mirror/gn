@@ -120,10 +120,9 @@ impl<'v> StarlarkValue<'v> for FrozenProviderType {
         args: &Arguments<'v, '_>,
         eval: &mut Evaluator<'v, '_, '_>,
     ) -> starlark::Result<Value<'v>> {
-        // Safety: `me` is the receiver of type `FrozenProviderType`, which is
-        // guaranteed to be frozen.
-        let provider_type =
-            unsafe { FrozenValueTyped::new_unchecked(me.unpack_frozen().unwrap_unchecked()) };
+        let provider_type = me.unpack_frozen().and_then(FrozenValueTyped::new).expect(
+            "me is the receiver of type FrozenProviderType, which is guaranteed to be frozen.",
+        );
 
         let data = self.data.as_ref().ok_or(Error::ProviderNotExported)?;
         data.parameter_spec

@@ -94,8 +94,11 @@ where
         }
 
         if self.order == Order::Topological {
-            // Safety: Topo order should always have topo buffer set
-            return unsafe { self.topo_buffer.as_mut().unwrap_unchecked() }.pop();
+            return self
+                .topo_buffer
+                .as_mut()
+                .expect("Topo order should always have topo buffer set")
+                .pop();
         }
 
         None

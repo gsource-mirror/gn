@@ -1,0 +1,160 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa9f5947_b55d4b25",
+        "filename": "docs/reference.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 5584,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-23T07:40:13Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Does this rule also apply to `allow_circular_includes_from`? The implementation in `CheckInclude` (line 663) seems to bypass strict checks if a circular include is allowed. This is probably correct as circular includes are already an \u0027escape hatch\u0027.",
+      "range": {
+        "startLine": 5584,
+        "startChar": 0,
+        "endLine": 5584,
+        "endChar": 0
+      },
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d56e9cf_b2ee170f",
+        "filename": "docs/reference.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 5584,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-23T07:40:13Z",
+      "side": 1,
+      "message": "I feel it is bit inconsistent if this doesn\u0027t allow including header from private desp, but allows including header from private sources.\nIntroducing such rule is too strict?",
+      "range": {
+        "startLine": 5584,
+        "startChar": 0,
+        "endLine": 5584,
+        "endChar": 74
+      },
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d811451a_fc7b2544",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-23T07:40:13Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This standard advice might be misleading if the intermediate target ALREADY depends publicly on the destination, but the forwarding is blocked because the intermediate target has `check_includes_strict` enabled. Consider customizing this advice if strict mode is the cause of the traversal block.",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 0
+      },
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8f07532_348f4108",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-23T07:40:13Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This message is very explicit. To be even more consistent with the variable name, you might use `check_includes_strict \u003d true`, but the current wording is perfectly understandable.",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 0
+      },
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58ca9099_89704639",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-23T07:40:13Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `from_target_info.is_public` is used directly as `is_public_header`, then public implementation files (like `.cc`, `.c`, `.mm`) will also be treated as public headers. \n\nIn standard GN, all sources in a target (including implementation files) get `is_public \u003d true` by default if `all_headers_public` is true (which is the default). As a result, strict GN will block `.cc` files from including private dependencies and emit \u0027Public headers cannot include private dependencies\u0027 for them, even though private dependencies are valid in implementations.\n\nYou should probably check if the file is actually a header file here (e.g., by checking `file.GetType() \u003d\u003d SourceFile::SOURCE_H`).",
+      "range": {
+        "startLine": 539,
+        "startChar": 0,
+        "endLine": 539,
+        "endChar": 0
+      },
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc4a20e7_84cce278",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 632,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-23T07:40:13Z",
+      "side": 1,
+      "message": "Merge this conditional check?",
+      "range": {
+        "startLine": 631,
+        "startChar": 0,
+        "endLine": 632,
+        "endChar": 51
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "b32858b9_e4fac4a1",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 631,
+                "startChar": 0,
+                "endLine": 643,
+                "endChar": 0
+              },
+              "replacement": "        if (from_target-\u003echeck_includes_strict() \u0026\u0026 is_public_header \u0026\u0026\n            !chain[chain.size() - 2].is_public) {\n          last_error \u003d Err(\n              CreatePersistentRange(source_file, range),\n              \"Public headers cannot include private dependencies.\",\n              \"The public header:\\n  \" + source_file.name().value() +\n                  \"\\nis including a header from private dependency:\\n  \" +\n                  to_target-\u003elabel().GetUserVisibleName(false) +\n                  \"\\nEither move the dependency to public_deps, or make this \"\n                  \"header private.\");\n          continue;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

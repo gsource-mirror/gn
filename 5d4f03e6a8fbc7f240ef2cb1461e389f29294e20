@@ -47,6 +47,54 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0257e709_9ef70ce5",
+        "filename": "docs/reference.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 5584,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-23T23:53:37Z",
+      "side": 1,
+      "message": "You\u0027re correct, but that actually means we aren\u0027t strict enough, not too strict.\n\nFor build graph correctness, what you just mentioned should be disallowed.",
+      "parentUuid": "9d56e9cf_b2ee170f",
+      "range": {
+        "startLine": 5584,
+        "startChar": 0,
+        "endLine": 5584,
+        "endChar": 74
+      },
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d473a228_201c3bc9",
+        "filename": "docs/reference.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 5584,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-23T23:53:37Z",
+      "side": 1,
+      "message": "Mentioned allow_circular_includes_from here",
+      "parentUuid": "fa9f5947_b55d4b25",
+      "range": {
+        "startLine": 5584,
+        "startChar": 0,
+        "endLine": 5584,
+        "endChar": 0
+      },
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d811451a_fc7b2544",
@@ -60,6 +108,30 @@
       "writtenOn": "2026-07-23T07:40:13Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: This standard advice might be misleading if the intermediate target ALREADY depends publicly on the destination, but the forwarding is blocked because the intermediate target has `check_includes_strict` enabled. Consider customizing this advice if strict mode is the cause of the traversal block.",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 0
+      },
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd1f7882_4b2204bc",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-23T23:53:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d811451a_fc7b2544",
       "range": {
         "startLine": 98,
         "startChar": 0,
@@ -93,6 +165,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "90358fd0_d5632369",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-23T23:53:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8f07532_348f4108",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 0
+      },
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "58ca9099_89704639",
@@ -106,6 +202,30 @@
       "writtenOn": "2026-07-23T07:40:13Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If `from_target_info.is_public` is used directly as `is_public_header`, then public implementation files (like `.cc`, `.c`, `.mm`) will also be treated as public headers. \n\nIn standard GN, all sources in a target (including implementation files) get `is_public \u003d true` by default if `all_headers_public` is true (which is the default). As a result, strict GN will block `.cc` files from including private dependencies and emit \u0027Public headers cannot include private dependencies\u0027 for them, even though private dependencies are valid in implementations.\n\nYou should probably check if the file is actually a header file here (e.g., by checking `file.GetType() \u003d\u003d SourceFile::SOURCE_H`).",
+      "range": {
+        "startLine": 539,
+        "startChar": 0,
+        "endLine": 539,
+        "endChar": 0
+      },
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc74ed8c_10a4e065",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-23T23:53:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58ca9099_89704639",
       "range": {
         "startLine": 539,
         "startChar": 0,
@@ -153,6 +273,30 @@
           ]
         }
       ],
+      "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9db87eb5_93a43e5d",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 632,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-23T23:53:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc4a20e7_84cce278",
+      "range": {
+        "startLine": 631,
+        "startChar": 0,
+        "endLine": 632,
+        "endChar": 51
+      },
       "revId": "5d4f03e6a8fbc7f240ef2cb1461e389f29294e20",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

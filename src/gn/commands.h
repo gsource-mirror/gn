@@ -198,7 +198,9 @@ class CommandSwitches {
   TargetPrintMode target_print_mode() const { return target_print_mode_; }
 
   // For --type=TARGET_TYPE
-  Target::OutputType target_type() const { return target_type_; }
+  const std::vector<Target::OutputType>& target_types() const {
+    return target_types_;
+  }
 
   enum TestonlyMode {
     TESTONLY_NONE,   // no --testonly used.
@@ -245,7 +247,7 @@ class CommandSwitches {
   bool has_with_data_ = false;
 
   TargetPrintMode target_print_mode_ = TARGET_PRINT_LABEL;
-  Target::OutputType target_type_ = Target::UNKNOWN;
+  std::vector<Target::OutputType> target_types_;
   TestonlyMode testonly_mode_ = TESTONLY_NONE;
 
   std::string meta_rebase_dir_;

@@ -46,7 +46,7 @@ impl<'v, C: EvalContextAttrExt> Ctx<'v, C> {
             let current = rule_stack.last().expect("rule_stack is never empty");
             current
                 .parent
-                .ok_or_else(|| crate::errors::Error::NoParentRule)?
+                .ok_or(crate::errors::Error::NoParentRule)?
         };
         self.rule_stack.borrow_mut().push(parent);
         let res = eval.eval_function(parent.implementation.to_value(), &[this], &[]);

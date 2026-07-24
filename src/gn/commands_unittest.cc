@@ -77,7 +77,7 @@ TEST(Commands, ApplyTypeFilter) {
     std::vector<const Target*> targets_to_filter = all_targets;
 
     base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
-    cmdline.AppendSwitch("type", test_case.first);
+    cmdline.AppendSwitch("type", std::string(test_case.first));
 
     commands::CommandSwitches::Init(cmdline);
 
@@ -87,6 +87,32 @@ TEST(Commands, ApplyTypeFilter) {
     EXPECT_EQ(1u, targets_to_filter.size());
     EXPECT_EQ(test_case.second, targets_to_filter[0]->output_type())
         << "Failed for type: " << test_case.first;
+
+    commands::CommandSwitches empty_switches;
+    commands::CommandSwitches::Set(empty_switches);
+  }
+
+  // Test multiple types separated by a comma.
+  {
+    std::vector<const Target*> targets_to_filter = all_targets;
+
+    base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
+    cmdline.AppendSwitch("type", "executable,rust_library");
+
+    commands::CommandSwitches::Init(cmdline);
+
+    base::ListValue out;
+    commands::FilterAndPrintTargets(&targets_to_filter, &out);
+
+    EXPECT_EQ(2u, targets_to_filter.size());
+    EXPECT_TRUE(
+        std::ranges::any_of(targets_to_filter, [](const Target* target) {
+          return target->output_type() == Target::EXECUTABLE;
+        }));
+    EXPECT_TRUE(
+        std::ranges::any_of(targets_to_filter, [](const Target* target) {
+          return target->output_type() == Target::RUST_LIBRARY;
+        }));
 
     commands::CommandSwitches empty_switches;
     commands::CommandSwitches::Set(empty_switches);

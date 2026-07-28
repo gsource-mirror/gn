@@ -33,6 +33,168 @@
       "message": "@tikuta@google.com can You PTAL?",
       "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec8a0a08_0fe2ded5",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T05:22:29Z",
+      "side": 1,
+      "message": "Remove this empty line.",
+      "fixSuggestions": [
+        {
+          "fixId": "3ce2f3cb_6e4ca0e8",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/commands_unittest.cc",
+              "range": {
+                "startLine": 9,
+                "startChar": 0,
+                "endLine": 10,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a040af30_aa4e4ad2",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T05:22:29Z",
+      "side": 1,
+      "message": "This is not used?",
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92077d9e_62f62b05",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T05:22:29Z",
+      "side": 1,
+      "message": "sort alphabetically?",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 47
+      },
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "045fab31_408a1f7f",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T05:22:29Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Using `std::ranges::transform` here introduces a dependency on C++20 and makes the code slightly more complex. Replacing this with a standard range-based `for` loop would be more readable, portable, and straightforward.\n\nFor example:\n```cpp\nfor (const auto\u0026 test_case : cases) {\n  auto target \u003d std::make_unique\u003cTarget\u003e(\n      setup.settings(),\n      Label(SourceDir(\"//a/\"), test_case.first));\n  target-\u003eset_output_type(test_case.second);\n  created_targets.push_back(std::move(target));\n}\n```",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 0
+      },
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1352a9d_c6f3a5c6",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T05:22:29Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Same here, a simple range-based `for` loop would avoid `\u003calgorithm\u003e` and the iterator clutter completely, making the logic much easier to read:\n\n```cpp\nfor (const auto\u0026 target : created_targets) {\n  all_targets.push_back(target.get());\n}\n```",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 0
+      },
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b8f2af1_869c5951",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T05:22:29Z",
+      "side": 1,
+      "message": "Use `ASSERT_EQ` here",
+      "range": {
+        "startLine": 87,
+        "startChar": 4,
+        "endLine": 87,
+        "endChar": 13
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "ca3aca0a_3b95bc13",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/commands_unittest.cc",
+              "range": {
+                "startLine": 87,
+                "startChar": 0,
+                "endLine": 88,
+                "endChar": 0
+              },
+              "replacement": "    ASSERT_EQ(1u, targets_to_filter.size());\n"
+            }
+          ]
+        }
+      ],
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

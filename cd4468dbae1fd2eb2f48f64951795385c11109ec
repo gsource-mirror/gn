@@ -70,6 +70,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdb05cde_efe29b15",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 4974721
+      },
+      "writtenOn": "2026-07-28T12:56:22Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "ec8a0a08_0fe2ded5",
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a040af30_aa4e4ad2",
@@ -87,6 +105,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89501ffe_dc9eb6d6",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 4974721
+      },
+      "writtenOn": "2026-07-28T12:56:22Z",
+      "side": 1,
+      "message": "Indeed, removed.",
+      "parentUuid": "a040af30_aa4e4ad2",
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92077d9e_62f62b05",
@@ -100,6 +136,30 @@
       "writtenOn": "2026-07-28T05:22:29Z",
       "side": 1,
       "message": "sort alphabetically?",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 47
+      },
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65096642_a67b6ec8",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 4974721
+      },
+      "writtenOn": "2026-07-28T12:56:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92077d9e_62f62b05",
       "range": {
         "startLine": 45,
         "startChar": 0,
@@ -133,6 +193,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e69b0c6_131d90ed",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 4974721
+      },
+      "writtenOn": "2026-07-28T12:56:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "045fab31_408a1f7f",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 0
+      },
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a1352a9d_c6f3a5c6",
@@ -146,6 +230,30 @@
       "writtenOn": "2026-07-28T05:22:29Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Same here, a simple range-based `for` loop would avoid `\u003calgorithm\u003e` and the iterator clutter completely, making the logic much easier to read:\n\n```cpp\nfor (const auto\u0026 target : created_targets) {\n  all_targets.push_back(target.get());\n}\n```",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 0
+      },
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdc15a2e_776549a4",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 4974721
+      },
+      "writtenOn": "2026-07-28T12:56:22Z",
+      "side": 1,
+      "message": "Done, merged with the above",
+      "parentUuid": "a1352a9d_c6f3a5c6",
       "range": {
         "startLine": 73,
         "startChar": 0,
@@ -193,6 +301,30 @@
           ]
         }
       ],
+      "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca7278ef_501c355e",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 4974721
+      },
+      "writtenOn": "2026-07-28T12:56:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b8f2af1_869c5951",
+      "range": {
+        "startLine": 87,
+        "startChar": 4,
+        "endLine": 87,
+        "endChar": 13
+      },
       "revId": "cd4468dbae1fd2eb2f48f64951795385c11109ec",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

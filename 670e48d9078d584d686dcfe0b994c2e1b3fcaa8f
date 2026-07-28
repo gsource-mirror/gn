@@ -76,6 +76,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cf2de34_ab69b638",
+        "filename": "src/gn/commands.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 4974721
+      },
+      "writtenOn": "2026-07-28T12:56:13Z",
+      "side": 1,
+      "message": "Right, forgot to update this.",
+      "parentUuid": "735b96de_1f80bef0",
+      "range": {
+        "startLine": 148,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 54
+      },
+      "revId": "670e48d9078d584d686dcfe0b994c2e1b3fcaa8f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "508f8ca9_7197a51b",
@@ -99,6 +123,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9da4592_a32d3633",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 4974721
+      },
+      "writtenOn": "2026-07-28T12:56:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "508f8ca9_7197a51b",
+      "range": {
+        "startLine": 80,
+        "startChar": 33,
+        "endLine": 80,
+        "endChar": 44
+      },
+      "revId": "670e48d9078d584d686dcfe0b994c2e1b3fcaa8f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0bb6105b_6d08cc00",
@@ -112,6 +160,30 @@
       "writtenOn": "2026-07-28T05:28:14Z",
       "side": 1,
       "message": "Use `ASSERT_EQ` for size check.",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 10
+      },
+      "revId": "670e48d9078d584d686dcfe0b994c2e1b3fcaa8f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3671afe_7e734059",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 4974721
+      },
+      "writtenOn": "2026-07-28T12:56:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0bb6105b_6d08cc00",
       "range": {
         "startLine": 107,
         "startChar": 4,

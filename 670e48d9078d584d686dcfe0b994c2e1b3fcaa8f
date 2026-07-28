@@ -33,6 +33,93 @@
       "message": "@tikuta@google.com can You PTAL?",
       "revId": "670e48d9078d584d686dcfe0b994c2e1b3fcaa8f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "735b96de_1f80bef0",
+        "filename": "src/gn/commands.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T05:28:14Z",
+      "side": 1,
+      "message": "We set empty value for this case now?",
+      "range": {
+        "startLine": 148,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 54
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "c1abb792_abff57fe",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/commands.cc",
+              "range": {
+                "startLine": 148,
+                "startChar": 0,
+                "endLine": 149,
+                "endChar": 0
+              },
+              "replacement": "// The vector will be empty if there is no filter. Target::ACTION_FOREACH\n"
+            }
+          ]
+        }
+      ],
+      "revId": "670e48d9078d584d686dcfe0b994c2e1b3fcaa8f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "508f8ca9_7197a51b",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T05:28:14Z",
+      "side": 1,
+      "message": "This is unnecessary cast?",
+      "range": {
+        "startLine": 80,
+        "startChar": 33,
+        "endLine": 80,
+        "endChar": 44
+      },
+      "revId": "670e48d9078d584d686dcfe0b994c2e1b3fcaa8f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0bb6105b_6d08cc00",
+        "filename": "src/gn/commands_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T05:28:14Z",
+      "side": 1,
+      "message": "Use `ASSERT_EQ` for size check.",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 10
+      },
+      "revId": "670e48d9078d584d686dcfe0b994c2e1b3fcaa8f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

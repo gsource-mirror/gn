@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e9d7bc6_b4cfb951",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T07:11:16Z",
+      "side": 1,
+      "message": "Update description for including private header from public header too?",
+      "revId": "0f52215a81f44c88266d36185cb390af300ad210",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b18950c4_450b4ef1",
+        "filename": "src/gn/header_checker_unittest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-28T07:11:16Z",
+      "side": 1,
+      "message": "Can we use contains?",
+      "range": {
+        "startLine": 490,
+        "startChar": 36,
+        "endLine": 490,
+        "endChar": 40
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "42dea6db_5bd79e03",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker_unittest.cc",
+              "range": {
+                "startLine": 488,
+                "startChar": 0,
+                "endLine": 492,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_TRUE(\n      errors[0].message().contains(\"Can\u0027t include this header from here.\"));\n  EXPECT_TRUE(errors[0].help_text().contains(\"check_includes_strict \u003d true\"))\n"
+            },
+            {
+              "path": "src/gn/header_checker_unittest.cc",
+              "range": {
+                "startLine": 494,
+                "startChar": 0,
+                "endLine": 498,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_TRUE(errors[0].help_text().contains(\n      \"Including headers from the public_deps of //b:b \"\n      \"is blocked because check_includes_strict \u003d true is enabled \"\n      \"on it.\"))\n"
+            },
+            {
+              "path": "src/gn/header_checker_unittest.cc",
+              "range": {
+                "startLine": 500,
+                "startChar": 0,
+                "endLine": 504,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_TRUE(errors[0].help_text().contains(\n      \"check_includes_strict \u003d true is highly recommended for all \"\n      \"new code to ensure a correct build graph.\"))\n"
+            },
+            {
+              "path": "src/gn/header_checker_unittest.cc",
+              "range": {
+                "startLine": 536,
+                "startChar": 0,
+                "endLine": 539,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_TRUE(errors[0].message().contains(\n      \"Public headers cannot include private dependencies.\"))\n"
+            },
+            {
+              "path": "src/gn/header_checker_unittest.cc",
+              "range": {
+                "startLine": 580,
+                "startChar": 0,
+                "endLine": 583,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_TRUE(errors[0].message().contains(\n      \"Public headers cannot include private \"\n      \"headers of the same target.\"))\n"
+            },
+            {
+              "path": "src/gn/header_checker_unittest.cc",
+              "range": {
+                "startLine": 585,
+                "startChar": 0,
+                "endLine": 588,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_TRUE(errors[0].help_text().contains(\n      \"make a source_set containing public \u003d [private_headers] and \"\n      \"add it to public_deps\"))\n"
+            }
+          ]
+        }
+      ],
+      "revId": "0f52215a81f44c88266d36185cb390af300ad210",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

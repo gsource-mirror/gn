@@ -42,7 +42,7 @@ impl Value {
     pub fn assign<'v>(
         mut self: Pin<&mut Self>,
         val: starlark::values::Value<'v>,
-        scope: &mut Scope,
+        scope: *mut Scope,
         origin: *const ParseNode,
     ) {
         if val.is_none() {
@@ -76,8 +76,13 @@ impl Value {
                 el_pin.assign(src, scope, origin);
             }
         } else if let Some(s) = StructRef::from_value(val) {
+            assert!(
+                !scope.is_null(),
+                "Scope must not be null when converting Starlark struct to C++ Scope"
+            );
+            let scope_ref = unsafe { &mut *scope };
             let keys: Vec<&str> = s.iter().map(|(k, _)| k.as_str()).collect();
-            let (nested_scope, mut values) = Scope::new(scope, &keys);
+            let (nested_scope, mut values) = Scope::new(scope_ref, &keys);
 
             for (v_starlark, v_cxx) in s.iter().map(|(_, v)| v).zip(values.as_slice_mut()) {
                 v_cxx.as_mut().assign(v_starlark, scope, origin);

@@ -6,7 +6,7 @@ use std::pin::Pin;
 
 use starlark::values::{Heap, Value as StarlarkValue};
 
-use crate::{Immutable, OwnedSlice, Scope, bridge::{ParseNodePtr, Value}};
+use crate::{bridge::Value, Immutable, OwnedSlice, Scope};
 
 impl Scope {
     pub(crate) fn new<'b>(
@@ -15,6 +15,15 @@ impl Scope {
     ) -> (cxx::UniquePtr<Self>, OwnedSlice<Pin<&'b mut Value>>) {
         let mut nested_scope = cxx::UniquePtr::<Self>::null();
         let values = crate::bridge::NewScope(parent, keys, &mut nested_scope);
+        (nested_scope, values.into())
+    }
+
+    pub(crate) fn new_struct<'b>(
+        settings: &crate::Settings,
+        keys: &[&str],
+    ) -> (cxx::UniquePtr<Self>, OwnedSlice<Pin<&'b mut Value>>) {
+        let mut nested_scope = cxx::UniquePtr::<Self>::null();
+        let values = crate::bridge::NewStruct(settings, keys, &mut nested_scope);
         (nested_scope, values.into())
     }
 
@@ -49,12 +58,15 @@ impl types::Scope for OwnedScope {
         let (keys, vals): (Vec<&str>, Vec<StarlarkValue<'v>>) = kv.unzip();
         let (mut child_scope, mut placeholders) = Scope::new(parent, &keys);
 
-        // Safety: The child scope will always be non-null.
-        let child_ref = unsafe { child_scope.as_mut().unwrap().get_unchecked_mut() };
+        let child_pin = child_scope.as_mut().unwrap();
         for (placeholder, val) in placeholders.as_slice_mut().iter_mut().zip(vals) {
-            placeholder
-                .as_mut()
-                .assign(val, child_ref, ParseNodePtr{ptr: std::ptr::null()});
+            placeholder.as_mut().assign(
+                val,
+                child_pin.settings(),
+                crate::bridge::ParseNodePtr {
+                    ptr: std::ptr::null(),
+                },
+            );
         }
 
         Self(child_scope)
@@ -81,7 +93,7 @@ mod tests {
         let mut setup = TestWithScope::new();
         let parent_scope = setup.scope();
 
-        let (child_ptr, _) = Scope::new(parent_scope, &[]);
+        let (child_ptr, _) = Scope::new(&*parent_scope, &[]);
         let owned_scope = OwnedScope(child_ptr);
 
         starlark::environment::Module::with_temp_heap(|module| {

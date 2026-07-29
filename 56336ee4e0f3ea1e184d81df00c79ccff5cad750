@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98e2ddca_9d39d92d",
+        "filename": "build/gen.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-29T05:53:22Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Assigning this to `rust_lib_a` here is unnecessary because the variable is never used (unlike `rust_tests` which is added to `run_tests`). The action is still registered in Ninja file because of `self.Cargo` invocation.\n\nIf keeping this for manual explicit builds, consider leaving a comment, otherwise the assignment can be dropped.",
+      "range": {
+        "startLine": 403,
+        "startChar": 0,
+        "endLine": 403,
+        "endChar": 0
+      },
+      "revId": "56336ee4e0f3ea1e184d81df00c79ccff5cad750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90776218_e09a8830",
+        "filename": "build/ninja_file.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-29T05:53:22Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This command uses Posix-style environment variable setting and relies on the `env` command, which will fail on standard Windows environments (`cmd.exe`) unless a POSIX emulation layer (like Git for Windows or Cygwin) is present in PATH.\n\nA more portable approach is to move the `cargo build` invocation entirely into the `symlink_cargo_output.py` script and use Python\u0027s `subprocess.run` with the `env` argument. That avoids all shell portability issues and Ninja variable escaping headaches.",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 0
+      },
+      "revId": "56336ee4e0f3ea1e184d81df00c79ccff5cad750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1882b586_8be48f0c",
+        "filename": "build/symlink_cargo_output.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-29T05:53:22Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: The module docstring mentions that this script \"Symlinks or copies\" artifacts, but only `symlink_to` is implemented here. On Windows, creating symlinks requires Administrator privileges or Developer Mode to be enabled. Without this, this will raise an `OSError`.\n\nConsider adding a fallback to `shutil.copy` if symlinking fails.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 0
+      },
+      "revId": "56336ee4e0f3ea1e184d81df00c79ccff5cad750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bab08fe0_60707bcf",
+        "filename": "build/symlink_cargo_output.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-29T05:53:22Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Using `os.access(c, os.X_OK)` on Windows can be inconsistent. On some older Python versions or setups, it simply checks if the file exists rather than if it\u0027s executable. Since `.rlib` is not in the exclusion list, this might inadvertently pick up static library artifacts as test binaries on Windows.\n\nConsider explicitly checking for `.exe` suffix on Windows (or checking `PATHEXT`) to be safer.",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 0
+      },
+      "revId": "56336ee4e0f3ea1e184d81df00c79ccff5cad750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4559c67f_d5eb6677",
+        "filename": "build/symlink_cargo_output.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-29T05:53:22Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: On Windows, if `b.name` is `binary.exe`, Cargo might emit the depfile as `binary.d` rather than `binary.exe.d`. If this occurs, `.exists()` will be false on line 66 and dependencies won\u0027t be recorded in the Ninja depfile.\n\nIt might be safer to check for both `binary.exe.d` and `binary.d` on Windows.",
+      "range": {
+        "startLine": 142,
+        "startChar": 0,
+        "endLine": 142,
+        "endChar": 0
+      },
+      "revId": "56336ee4e0f3ea1e184d81df00c79ccff5cad750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -12,7 +12,10 @@
 ///   * This allows for C++ code to #include rust types
 /// * The `cxxbridge` command generates shims to allow us to use C++ types in
 ///   rust.
+use crate::session::Session;
+
 #[cxx::bridge]
+#[allow(let_underscore_drop)]
 // CxxBridge requires a module, but we don't want one. So we make a private one
 // and re-export all fields.
 mod dummy {
@@ -30,6 +33,11 @@ mod dummy {
     struct KeyValue<'a> {
         key: &'a str,
         value: &'a Value,
+    }
+
+    struct KeyValueMut<'a> {
+        key: &'a str,
+        value: Pin<&'a mut Value>,
     }
 
     #[derive(Clone, Copy)]
@@ -168,6 +176,19 @@ mod dummy {
             origin: *const ParseNode,
             scope: UniquePtr<Scope>,
         );
+    }
+
+    extern "Rust" {
+        type Session;
+
+        #[Self = "Session"]
+        #[cxx_name = "new_cxx"]
+        fn new(source_root: &str, source_root_rel: &str) -> Box<Session>;
+
+        #[Self = "Session"]
+        fn new_for_testing() -> Box<Session>;
+
+        fn load_values(self: &'static Session, label: &str, values: &mut [KeyValueMut], err: Pin<&mut Err>);
     }
 }
 

@@ -9,10 +9,11 @@
 
 #include "cxx.h"
 
+struct ParseNodePtr;
 class Scope;
-class Value;
 class Settings;
 struct SliceAny;
+class Value;
 
 // Constructs a new child Scope, populates placeholder Values for the given
 // keys, and returns a "std::vector<Value&>" where vec[i] is the value for
@@ -43,5 +44,8 @@ SliceAny GetScopeItems(const Scope& scope);
 
 // Returns a pointer to the value in the scope or nullptr if not found.
 const Value* GetValue(const Scope& scope, rust::Str ident);
+
+// Adds a value slot to the scope under `ident` and returns a reference to it.
+Value& SetValue(Scope& scope, rust::Str ident, ParseNodePtr origin);
 
 #endif  // TOOLS_GN_FFI_SCOPE_H_

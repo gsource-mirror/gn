@@ -382,6 +382,9 @@ class Scope {
   // Walk up the containing scopes to find a TemplateInvocationEntry.
   const TemplateInvocationEntry* FindTemplateInvocationEntry() const;
 
+ 
+
+ private:
   // Scopes can have no containing scope (both null), a mutable containing
   // scope, or a const containing scope. The reason is that when we're doing
   // a new target, we want to refer to the base_config scope which will be read

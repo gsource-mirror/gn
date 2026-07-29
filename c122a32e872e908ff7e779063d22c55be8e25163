@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "32e80936_a5ec1195",
+        "filename": "src/gn/starlark/crates/providers/src/builtins.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T01:08:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1afc5390_5996bd06",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 5
+      },
+      "revId": "c122a32e872e908ff7e779063d22c55be8e25163",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a9a73dea_8ceaa16b",
@@ -47,6 +71,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f07d019f_611c6a21",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T01:08:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9a73dea_8ceaa16b",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 53
+      },
+      "revId": "c122a32e872e908ff7e779063d22c55be8e25163",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ffa867e9_3a814ba7",
@@ -60,6 +108,30 @@
       "writtenOn": "2026-07-22T01:31:04Z",
       "side": 1,
       "message": "When safe `UnpackValue` callers pass a mutable evaluation result such as `[DefaultInfo()]`, the frozen check only panics in debug builds; release builds continue to this `unwrap_unchecked()` even though `item.unpack_frozen()` is `None`, causing undefined behavior.\n\nI\u0027m a bit worried about that \"safety by comment\" approach... could we return an error for mutable input or use a frozen-list API that makes this cast unnecessary?",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 74
+      },
+      "revId": "c122a32e872e908ff7e779063d22c55be8e25163",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a8802c9_54ccc18e",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T01:08:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ffa867e9_3a814ba7",
       "range": {
         "startLine": 67,
         "startChar": 0,

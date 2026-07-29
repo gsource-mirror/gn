@@ -14,6 +14,6 @@
 // By isolating `intern_string` in its own object file (`intern_string.o`), the
 // linker only pulls in this file and does not pull in `cxx_api.o`.
 extern "C" rust::Str intern_string(rust::Str s) {
-  StringAtom atom(std::string_view{s});
+  StringAtom atom(std::string_view(s.data(), s.size()));
   return rust::Str(atom.str());
 }

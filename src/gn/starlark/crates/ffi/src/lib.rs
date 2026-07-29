@@ -17,6 +17,7 @@
 //! Safe APIs for C++ types are then exposed in the impl functions for each of
 //! these types in their own files.
 mod bridge;
+mod err;
 mod label;
 mod mutability;
 mod opaque;

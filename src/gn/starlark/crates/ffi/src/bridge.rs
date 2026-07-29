@@ -32,6 +32,13 @@ mod dummy {
         value: &'a Value,
     }
 
+    // cxxbridge marks any function that takes a raw pointer unsafe.
+    // By providing a thin wrapper around the pointer, we can remove the unsafe.
+    #[derive(Clone, Copy)]
+    struct ParseNodePtr {
+        ptr: *const ParseNode,
+    }
+
     #[derive(Clone, Copy)]
     enum ValueType {
         None = 0,
@@ -44,6 +51,8 @@ mod dummy {
     unsafe extern "C++" {
         // include! simply tells cxxbridge to put the #include in the generated C++
         // source code. It does not do anything on the rust side.
+        include!("gn/err.h");
+        include!("gn/ffi/err.h");
         include!("gn/ffi/scope.h");
         include!("gn/ffi/test_with_scope.h");
         include!("gn/ffi/value.h");
@@ -54,6 +63,40 @@ mod dummy {
         include!("gn/source_dir.h");
         include!("gn/test_with_scope.h");
         include!("gn/value.h");
+
+        type Err;
+        pub fn has_error(self: &Err) -> bool;
+        // Dead code for production, used in tests only
+        #[allow(dead_code)]
+        pub fn NewErr() -> UniquePtr<Err>;
+        // Dead code for production, used in tests only
+        #[allow(dead_code)]
+        pub(in crate::err) fn ErrToString(err: &Err) -> String;
+
+        #[allow(clippy::too_many_arguments)]
+        pub(in crate::err) fn PopulateErrWithLocation(
+            err: Pin<&mut Err>,
+            message: &str,
+            help: &str,
+            file: &InputFile,
+            start_line: i32,
+            start_column: i32,
+            end_line: i32,
+            end_column: i32,
+        );
+        pub(in crate::err) fn PopulateErrWithMessage(err: Pin<&mut Err>, message: &str, help: &str);
+        pub(in crate::err) fn AppendSubErr(
+            err: Pin<&mut Err>,
+            message: &str,
+            file: &InputFile,
+            start_line: i32,
+            start_column: i32,
+            end_line: i32,
+            end_column: i32,
+        );
+
+        type InputFile;
+        pub(in crate::err) fn NewInputFile<'a, 'b>(name: &'a str, code: &'a str) -> &'b InputFile;
 
         type OutputFile;
         #[cxx_return_type = "std::string_view"]
@@ -82,6 +125,11 @@ mod dummy {
             keys: &[&str],
             out_scope: &mut UniquePtr<Scope>,
         ) -> SliceAny;
+        pub(in crate::scope) fn NewStruct(
+            settings: &Settings,
+            keys: &[&str],
+            out_scope: &mut UniquePtr<Scope>,
+        ) -> SliceAny;
         // Returns an OwnedSlice<KeyValue> corresponding to references to each element.
         pub(in crate::scope) fn GetScopeItems(scope: &Scope) -> SliceAny;
         pub(in crate::scope) fn GetValue(scope: &Scope, ident: &str) -> *const Value;
@@ -91,7 +139,8 @@ mod dummy {
         type TestWithScope;
         pub(in crate::test_with_scope) fn NewTestWithScope() -> UniquePtr<TestWithScope>;
         #[rust_name = "scope_cxx"]
-        pub(in crate::test_with_scope) fn scope(self: Pin<&mut TestWithScope>) -> *mut Scope;
+        #[cxx_name = "scope_ref"]
+        pub(in crate::test_with_scope) fn scope(self: Pin<&mut TestWithScope>) -> Pin<&mut Scope>;
 
         type Value;
         type ParseNode;
@@ -111,32 +160,20 @@ mod dummy {
         #[cxx_name = "GetValueList"]
         pub(in crate::value) fn list_value_cxx(val: &Value) -> SliceAny;
         pub(in crate::value) fn scope_value(self: &Value) -> *const Scope;
-        pub(in crate::value) unsafe fn SetValueNone(val: Pin<&mut Value>, origin: *const ParseNode);
-        pub(in crate::value) unsafe fn SetValueBool(
-            val: Pin<&mut Value>,
-            origin: *const ParseNode,
-            b: bool,
-        );
-        pub(in crate::value) unsafe fn SetValueInt(
-            val: Pin<&mut Value>,
-            origin: *const ParseNode,
-            i: i64,
-        );
-        pub(in crate::value) unsafe fn SetValueString(
-            val: Pin<&mut Value>,
-            origin: *const ParseNode,
-            s: &str,
-        );
+        pub(in crate::value) fn SetValueNone(val: Pin<&mut Value>, origin: ParseNodePtr);
+        pub(in crate::value) fn SetValueBool(val: Pin<&mut Value>, origin: ParseNodePtr, b: bool);
+        pub(in crate::value) fn SetValueInt(val: Pin<&mut Value>, origin: ParseNodePtr, i: i64);
+        pub(in crate::value) fn SetValueString(val: Pin<&mut Value>, origin: ParseNodePtr, s: &str);
         // Initialises self as a list of `size` elements and returns a pointer to the
         // start.
-        pub(in crate::value) unsafe fn SetValueList(
+        pub(in crate::value) fn SetValueList(
             val: Pin<&mut Value>,
-            origin: *const ParseNode,
+            origin: ParseNodePtr,
             size: usize,
         ) -> *mut Any;
-        pub(in crate::value) unsafe fn SetValueScope(
+        pub(in crate::value) fn SetValueScope(
             val: Pin<&mut Value>,
-            origin: *const ParseNode,
+            origin: ParseNodePtr,
             scope: UniquePtr<Scope>,
         );
     }

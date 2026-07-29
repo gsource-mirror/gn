@@ -15,3 +15,10 @@ starlark_derive = { workspace = true }
 cxx = { workspace = true }
 types = { path = "../types" }
 thiserror = { workspace = true }
+allocative = { workspace = true }
+loader = { path = "../loader" }
+depset = { path = "../depset" }
+rule = { path = "../rule" }
+providers = { path = "../providers" }
+anyhow = { workspace = true }
+attr = { path = "../attr" }

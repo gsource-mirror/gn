@@ -214,6 +214,8 @@ def main(argv):
                     action='store_true',
                     help=('Generate compile_commands.json with ' +
                           '`ninja -t compdb`.'))
+  args_list.add('--starlark', action='store_true', default=False,
+                    help='Enable (experimental) starlark integration')
 
   args_list.add_to_parser(parser)
   options = parser.parse_args(argv)
@@ -289,7 +291,7 @@ def WriteGenericNinja(path, static_libraries, executables,
                       libflags=[], include_dirs=[], solibs=[]):
   # Generate integration tests using NinjaFile
   build_dir = os.path.dirname(path)
-  ninja = NinjaFile(platform, REPO_ROOT, build_dir)
+  ninja = NinjaFile(platform, REPO_ROOT, build_dir, debug=options.debug)
   args = args_list.gen_command_line_args(options)
 
   if args:
@@ -299,6 +301,8 @@ def WriteGenericNinja(path, static_libraries, executables,
     'cxx = ' + cxx,
     'ar = ' + ar,
     'ld = ' + ld,
+    'pool cargo_pool',
+    '  depth = 1',
     '',
     'rule regen',
     '  command = %s ../build/gen.py%s' % (sys.executable, args),
@@ -390,6 +394,27 @@ def WriteGenericNinja(path, static_libraries, executables,
 
   ninja_lines.append('')  # Make sure the file ends with a newline.
 
+  if options.starlark:
+    starlark_common_args = {
+        'crate_dir': ninja.source_file('src/gn/starlark'),
+        'target_dir': 'starlark',
+        'cxxflags': ' '.join(cflags),
+    }
+    ninja.CargoLibTarget(
+        library_to_a('gn_starlark'),
+        **starlark_common_args,
+    )
+    rust_tests = ninja.CargoTestTarget(
+        'rust_unittests',
+        cargo_flags='--workspace',
+        implicit_inputs=[
+            library_to_a('base'),
+            library_to_a('gn_lib'),
+            library_to_a('string_atom'),
+        ],
+        **starlark_common_args,
+    )
+
   ninja.Phony(
       'run_tests',
       inputs=[
@@ -401,7 +426,13 @@ def WriteGenericNinja(path, static_libraries, executables,
           ninja.Phony(
               'run_integration_tests', inputs=[ninja.IntegrationTest('simple')]
           ),
-      ],
+      ] + ([
+          ninja.RunBinary(
+              'run_rust_unittests',
+              inputs=[rust_tests],
+              args='--quiet',
+          )
+      ] if options.starlark else []),
   )
 
   with open(path, 'w') as f:
@@ -732,6 +763,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/gn/exec_process.cc',
               'src/gn/ffi/bridge.cc',
               'src/gn/ffi/scope.cc',
+              'src/gn/ffi/session.cc',
               'src/gn/ffi/value.cc',
               'src/gn/filesystem_utils.cc',
               'src/gn/file_writer.cc',
@@ -1027,6 +1059,12 @@ def WriteGNNinja(path, platform, host, options, args_list):
   # we just build static libraries that GN needs
   executables['gn']['libs'].extend(static_libraries.keys())
   executables['gn_unittests']['libs'].extend(static_libraries.keys())
+
+  if options.starlark:
+    executables['gn_unittests']['sources'].extend([
+        'src/gn/ffi/session_unittest.cc',
+    ])
+    executables['gn_unittests']['libs'].append('gn_starlark')
 
   # Write the absolute path of the source root to a file in the output directory
   # so that tests can locate the source tree robustly.

@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "82afdcc7_cfe71bba",
+        "filename": "build/gen.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T06:23:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98e2ddca_9d39d92d",
+      "range": {
+        "startLine": 403,
+        "startChar": 0,
+        "endLine": 403,
+        "endChar": 0
+      },
+      "revId": "56336ee4e0f3ea1e184d81df00c79ccff5cad750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90776218_e09a8830",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-07-29T05:53:22Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: This command uses Posix-style environment variable setting and relies on the `env` command, which will fail on standard Windows environments (`cmd.exe`) unless a POSIX emulation layer (like Git for Windows or Cygwin) is present in PATH.\n\nA more portable approach is to move the `cargo build` invocation entirely into the `symlink_cargo_output.py` script and use Python\u0027s `subprocess.run` with the `env` argument. That avoids all shell portability issues and Ninja variable escaping headaches.",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 0
+      },
+      "revId": "56336ee4e0f3ea1e184d81df00c79ccff5cad750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81be3d5b_d7a67e50",
+        "filename": "build/ninja_file.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T06:23:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90776218_e09a8830",
       "range": {
         "startLine": 150,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e8ba24e_59f9956a",
+        "filename": "build/symlink_cargo_output.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T06:23:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1882b586_8be48f0c",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 0
+      },
+      "revId": "56336ee4e0f3ea1e184d81df00c79ccff5cad750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bab08fe0_60707bcf",
@@ -93,6 +165,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "04bbdee2_e77c70c2",
+        "filename": "build/symlink_cargo_output.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T06:23:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bab08fe0_60707bcf",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 0
+      },
+      "revId": "56336ee4e0f3ea1e184d81df00c79ccff5cad750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4559c67f_d5eb6677",
@@ -106,6 +202,30 @@
       "writtenOn": "2026-07-29T05:53:22Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: On Windows, if `b.name` is `binary.exe`, Cargo might emit the depfile as `binary.d` rather than `binary.exe.d`. If this occurs, `.exists()` will be false on line 66 and dependencies won\u0027t be recorded in the Ninja depfile.\n\nIt might be safer to check for both `binary.exe.d` and `binary.d` on Windows.",
+      "range": {
+        "startLine": 142,
+        "startChar": 0,
+        "endLine": 142,
+        "endChar": 0
+      },
+      "revId": "56336ee4e0f3ea1e184d81df00c79ccff5cad750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f524709d_023b43b5",
+        "filename": "build/symlink_cargo_output.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T06:23:53Z",
+      "side": 1,
+      "message": "On windows, it *always* goes to binary.d, so I\u0027ve just replaced it with `b.with_suffix(\u0027.d\u0027)` so that foo.exe -\u003e foo.d",
+      "parentUuid": "4559c67f_d5eb6677",
       "range": {
         "startLine": 142,
         "startChar": 0,

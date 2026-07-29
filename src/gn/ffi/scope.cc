@@ -21,7 +21,7 @@ SliceAny NewScope(const Scope& parent_scope,
   placeholders.reserve(keys.size());
   for (const auto& key : keys) {
     placeholders.push_back(
-        new_scope->SetValue(std::string_view(key), Value(), nullptr));
+        new_scope->SetValue(std::string_view(key.data(), key.size()), Value(), nullptr));
   }
 
   out_scope = std::move(new_scope);
@@ -37,7 +37,7 @@ SliceAny NewStruct(const Settings& settings,
   placeholders.reserve(keys.size());
   for (const auto& key : keys) {
     placeholders.push_back(
-        out->SetValue(std::string_view(key), Value(), nullptr));
+        out->SetValue(std::string_view(key.data(), key.size()), Value(), nullptr));
   }
   // Not all fields in a struct need to be used.
   out->MarkAllUsed();
@@ -80,4 +80,9 @@ SliceAny GetScopeItems(const Scope& scope) {
 const Value* GetValue(const Scope& scope, rust::Str ident) {
   std::string_view ident_sv(ident.data(), ident.size());
   return scope.GetValue(ident_sv);
+}
+
+Value& SetValue(Scope& scope, rust::Str ident, ParseNodePtr origin) {
+  std::string_view ident_sv(ident.data(), ident.size());
+  return *scope.SetValue(ident_sv, Value(), origin.ptr);
 }

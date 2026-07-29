@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "253a6ee7_45e847db",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T02:31:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2c8d432_ad2c4125",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 0
+      },
+      "revId": "a50330655066c2bb6ae36bafad05a311c2b8738b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3471be2c_27b9c9a2",
@@ -61,6 +85,30 @@
           ]
         }
       ],
+      "revId": "a50330655066c2bb6ae36bafad05a311c2b8738b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d64e796b_f83fcb0b",
+        "filename": "src/gn/starlark/crates/testutils/src/session.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T02:31:30Z",
+      "side": 1,
+      "message": "No, because FakeTarget doesn\u0027t implement default - only the individual fields do.",
+      "parentUuid": "3471be2c_27b9c9a2",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 9
+      },
       "revId": "a50330655066c2bb6ae36bafad05a311c2b8738b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

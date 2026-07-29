@@ -119,6 +119,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2161dc1e_f96b8386",
+        "filename": "src/gn/starlark/crates/testutils/src/session.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T02:31:30Z",
+      "side": 1,
+      "message": "I just fixed it using a different method.\nEq and hash are now based on the (label, toolchain) pair.",
+      "parentUuid": "6fef41f1_bf053094",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 0
+      },
+      "revId": "d69a754541fb64d641cd8507c1eaa9be7cc3dd4f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07c0d0f5_05ceac17",

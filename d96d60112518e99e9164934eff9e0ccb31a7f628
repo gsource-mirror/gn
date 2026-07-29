@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f214335_865a3d0a",
+        "filename": "src/gn/ffi/err.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T04:10:46Z",
+      "side": 1,
+      "message": "No. Returning Err requires rust to know the size of Err, which it cannot, because it\u0027s an opaque type.\n\nRegardless though, it\u0027s a pretty standard pattern in GN to pass \u0026Err to functions instead of  having them return ar err.",
+      "parentUuid": "61d966af_291d7608",
+      "revId": "d96d60112518e99e9164934eff9e0ccb31a7f628",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "65645769_d540732b",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-07-29T04:08:54Z",
       "side": 1,
       "message": "ditto",
+      "revId": "d96d60112518e99e9164934eff9e0ccb31a7f628",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03100367_2de2b0aa",
+        "filename": "src/gn/ffi/err.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T04:10:46Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "65645769_d540732b",
       "revId": "d96d60112518e99e9164934eff9e0ccb31a7f628",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

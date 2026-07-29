@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8661b434_60bb1f95",
+        "filename": "src/gn/starlark/crates/testutils/src/eval_context.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T01:40:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71f54cbb_8cb8fc45",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 0
+      },
+      "revId": "d69a754541fb64d641cd8507c1eaa9be7cc3dd4f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b7ebf4a7_e955556f",
@@ -47,6 +71,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b58fb28_70b5618b",
+        "filename": "src/gn/starlark/crates/testutils/src/session.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T01:40:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7ebf4a7_e955556f",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 0
+      },
+      "revId": "d69a754541fb64d641cd8507c1eaa9be7cc3dd4f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07c0d0f5_05ceac17",
@@ -60,6 +108,30 @@
       "writtenOn": "2026-07-29T01:15:39Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Adding `unsafe impl Send` and `unsafe impl Sync` to a type that relies on `Rc` and `RefCell` is very risky. \n\nIf this type is ever sent across threads (for instance, by parallel test runners), it will lead to race conditions (e.g., data races on the `Rc` reference count) and Undefined Behavior. \n\nIf the compiler does not demand `Send` / `Sync` because `FakeTargetRef` never crosses threads, these implementations are redundant and misleading. If the compiler does demand them, then `Arc` and `Mutex` are required and replacing them with `Rc`/`RefCell` is a bug.",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 0
+      },
+      "revId": "d69a754541fb64d641cd8507c1eaa9be7cc3dd4f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdfe8410_ade2f49b",
+        "filename": "src/gn/starlark/crates/testutils/src/target.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T01:40:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07c0d0f5_05ceac17",
       "range": {
         "startLine": 66,
         "startChar": 0,

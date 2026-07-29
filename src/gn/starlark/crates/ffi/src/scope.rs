@@ -6,7 +6,7 @@ use std::pin::Pin;
 
 use starlark::values::{Heap, Value as StarlarkValue};
 
-use crate::{bridge::Value, Immutable, OwnedSlice, Scope};
+use crate::{Immutable, OwnedSlice, Scope, bridge::{ParseNodePtr, Value}};
 
 impl Scope {
     pub(crate) fn new<'b>(
@@ -54,7 +54,7 @@ impl types::Scope for OwnedScope {
         for (placeholder, val) in placeholders.as_slice_mut().iter_mut().zip(vals) {
             placeholder
                 .as_mut()
-                .assign(val, child_ref, std::ptr::null());
+                .assign(val, child_ref, ParseNodePtr{ptr: std::ptr::null()});
         }
 
         Self(child_scope)

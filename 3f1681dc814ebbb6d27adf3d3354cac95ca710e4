@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c69b9acb_685ea50e",
+        "filename": "src/gn/starlark/crates/rule/src/ctx.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T10:34:06Z",
+      "side": 1,
+      "message": "This isn\u0027t unsafe code, this is an unsafe trait. The code itself is not marked as unsafe. It just semantically means \"this trait is normally defined via derive, and if you do it yourself the compiler doesn\u0027t guarantee correctness\".\n\nIn this case, we need it because the compiler can\u0027t derive trace on RefCell fields.",
+      "parentUuid": "9fdf5135_e1c88f0e",
+      "revId": "3f1681dc814ebbb6d27adf3d3354cac95ca710e4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "af20e302_2f2dcd5d",
@@ -41,6 +59,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6af2eb3_0119cebb",
+        "filename": "src/gn/starlark/crates/rule/src/ctx.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T10:34:06Z",
+      "side": 1,
+      "message": "This is also wrong. Because it\u0027s a method on the ctx type, we can guaruntee that this is of the correct type.",
+      "parentUuid": "af20e302_2f2dcd5d",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 0
+      },
+      "revId": "3f1681dc814ebbb6d27adf3d3354cac95ca710e4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a88a2919_c0f8e15b",
@@ -54,6 +96,30 @@
       "writtenOn": "2026-07-29T08:41:41Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: The `target.rule()` method returns `Option`, and as noted in its documentation, it can return `None` for pure GN targets. Using `unwrap()` here could cause a panic if this function is ever invoked on a pure GN target. Consider returning a proper error instead of unwrapping.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 0
+      },
+      "revId": "3f1681dc814ebbb6d27adf3d3354cac95ca710e4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95945eb8_487d1e42",
+        "filename": "src/gn/starlark/crates/rule/src/implementation.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-29T10:34:06Z",
+      "side": 1,
+      "message": "Non-custom rules don\u0027t have rule implementations to run, so unwrapping is correct.",
+      "parentUuid": "a88a2919_c0f8e15b",
       "range": {
         "startLine": 22,
         "startChar": 0,

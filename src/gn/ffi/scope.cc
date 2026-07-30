@@ -2,8 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "gn/ffi/scope.h"
+#include <ranges>
+#include <vector>
+
 #include "gn/ffi/bridge.h"
+#include "gn/ffi/scope.h"
 #include "gn/ffi/slice.h"
 #include "gn/scope.h"
 #include "gn/value.h"
@@ -54,15 +57,12 @@ SliceAny NewScope(const Scope& parent_scope,
 // * my_macro would complain that it got an unexpected parameter "foo"
 // * my_struct.srcs would also be accessible.
 SliceAny GetScopeItems(const Scope& scope) {
-  Scope::KeyValueMap scope_values;
-  scope.GetCurrentScopeValues(&scope_values);
-
-  std::vector<KeyValue> vec;
-  vec.reserve(scope_values.size());
-  for (const auto& pair : scope_values) {
-    vec.push_back(
-        KeyValue{rust::Str(pair.first.data(), pair.first.size()), pair.second});
-  }
+  auto vec = scope.GetCurrentScopeValues() |
+             std::views::transform([](auto pair) {
+               return KeyValue{rust::Str(pair.first.data(), pair.first.size()),
+                               *pair.second};
+             }) |
+             std::ranges::to<std::vector<KeyValue>>();
   return IntoSlice(std::move(vec));
 }
 

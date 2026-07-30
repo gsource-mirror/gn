@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83948c90_dbf8d566",
+        "filename": "src/gn/commands.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-07-30T14:07:28Z",
+      "side": 1,
+      "message": "if using ranges anyways, might as well use `std::ranges::contains`?",
+      "range": {
+        "startLine": 213,
+        "startChar": 21,
+        "endLine": 213,
+        "endChar": 25
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "7ee6281a_6f52a898",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/commands.cc",
+              "range": {
+                "startLine": 212,
+                "startChar": 0,
+                "endLine": 214,
+                "endChar": 0
+              },
+              "replacement": "    if (!types.empty() \u0026\u0026 !std::ranges::contains(types, target_type)) {\n"
+            },
+            {
+              "path": "src/gn/commands.cc",
+              "range": {
+                "startLine": 217,
+                "startChar": 0,
+                "endLine": 218,
+                "endChar": 0
+              },
+              "replacement": "        std::ranges::contains(exclude_types, target_type)) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "ba7a7e171337a9b171607f54e80ff6a6c83f7950",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

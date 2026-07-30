@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "abc6ad92_4d3ecb70",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-30T04:58:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a0f8ba5_3490af56",
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a22b25b4_c3aae123",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-07-30T03:16:07Z",
       "side": 1,
       "message": "Should we take into account https://docs.rs/starlark/latest/starlark/enum.ErrorKind.html ?\n\ne.g. if it\u0027s Internal would it better to render \"Internal error in Starlark\" as the error text rather than just passing it directly over to the user?",
+      "range": {
+        "startLine": 35,
+        "startChar": 12,
+        "endLine": 35,
+        "endChar": 19
+      },
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71b13b4e_47a399e1",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-30T04:58:05Z",
+      "side": 1,
+      "message": "I added a test to verify exactly what\u0027s printed to the end-user.\n\nIt does something pretty reasonable here for a simple test case. We can add more complex test cases once we actually start doing interaction between GN and starlark-rs.",
+      "parentUuid": "a22b25b4_c3aae123",
       "range": {
         "startLine": 35,
         "startChar": 12,
@@ -64,6 +106,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17e57fea_f0a4564d",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-30T04:58:05Z",
+      "side": 1,
+      "message": "I added a test to verify exactly what\u0027s printed to the end-user.\n\nIt does something pretty reasonable here for a simple test case. We can add more complex test cases once we actually start doing interaction between GN and starlark-rs.",
+      "parentUuid": "17eb1215_2c0df245",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 33
+      },
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6eb38a80_82c5c249",
@@ -77,6 +143,30 @@
       "writtenOn": "2026-07-30T03:16:07Z",
       "side": 1,
       "message": "Comment why the + 1s?",
+      "range": {
+        "startLine": 53,
+        "startChar": 42,
+        "endLine": 53,
+        "endChar": 46
+      },
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2fde504_c7fbfcfa",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-30T04:58:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6eb38a80_82c5c249",
       "range": {
         "startLine": 53,
         "startChar": 42,
@@ -110,6 +200,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "79833837_eda44fb2",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-30T04:58:05Z",
+      "side": 1,
+      "message": "It might give you the wrong character number. I\u0027m not too fussed if this isn\u0027t quite perfect though, seems rather niche.",
+      "parentUuid": "8382fe54_cedd592d",
+      "range": {
+        "startLine": 54,
+        "startChar": 31,
+        "endLine": 54,
+        "endChar": 37
+      },
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ea7b3b52_5a82f843",
@@ -123,6 +237,30 @@
       "writtenOn": "2026-07-30T03:16:07Z",
       "side": 1,
       "message": "This seems justifiable, but introduces two different error hints coexisting in GN.\n\nDo you know how hard it would be for the C++ side to gain this same behavior, since that seems like a net positive?",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 26
+      },
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbf38652_5eb8801e",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-30T04:58:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea7b3b52_5a82f843",
       "range": {
         "startLine": 85,
         "startChar": 0,

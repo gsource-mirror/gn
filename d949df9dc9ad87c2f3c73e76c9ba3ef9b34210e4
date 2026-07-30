@@ -16,6 +16,24 @@
       "message": "Isn\u0027t DefaultInfo just available by default without having to load anything in Bazel?\n\nI don\u0027t think this is a huge deal, but maybe add a comment if it\u0027a a change in behavior.",
       "revId": "d949df9dc9ad87c2f3c73e76c9ba3ef9b34210e4",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e913f80e_9db60a16",
+        "filename": "src/gn/starlark/crates/providers/src/builtins.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-30T00:05:11Z",
+      "side": 1,
+      "message": "You\u0027re correct - due to Phil\u0027s concerns about lifetimes, it\u0027s *stored* on the Frozen module\u0027s heap. But if you look at the code carefully, you\u0027ll see that it\u0027s actually put in the globals. That module is for all the other custom providers that we\u0027ve added.",
+      "parentUuid": "3753037c_02aee71e",
+      "revId": "d949df9dc9ad87c2f3c73e76c9ba3ef9b34210e4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

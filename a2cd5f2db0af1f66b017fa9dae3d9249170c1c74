@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a0f8ba5_3490af56",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-30T03:16:07Z",
+      "side": 1,
+      "message": "No tests to show what output we expect given various Starlark errors?\n\nThis sort of stuff seems like it can be prone to subtle mistakes because it has to account for all sorts of things like `load`s, does the call stack look right, getting 1 vs 0 indexed columns working right, the UX improvement of showing `whence \u0027foo\u0027 was called` instead of `whence it was called` etc",
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a22b25b4_c3aae123",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-30T03:16:07Z",
+      "side": 1,
+      "message": "Should we take into account https://docs.rs/starlark/latest/starlark/enum.ErrorKind.html ?\n\ne.g. if it\u0027s Internal would it better to render \"Internal error in Starlark\" as the error text rather than just passing it directly over to the user?",
+      "range": {
+        "startLine": 35,
+        "startChar": 12,
+        "endLine": 35,
+        "endChar": 19
+      },
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17eb1215_2c0df245",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-30T03:16:07Z",
+      "side": 1,
+      "message": "I understand Starlark errors do not have a concept of error help text, but GN prints help text raw to the user under the assumption this is advice that can be directly presented.\n\nSo we\u0027d be printing root causes where users normally see help text.\n\nIf we want to present the root cause as \"help text\", would it help to at the very least present a \"Caused by\" prefix?",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 33
+      },
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6eb38a80_82c5c249",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-30T03:16:07Z",
+      "side": 1,
+      "message": "Comment why the + 1s?",
+      "range": {
+        "startLine": 53,
+        "startChar": 42,
+        "endLine": 53,
+        "endChar": 46
+      },
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8382fe54_cedd592d",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-30T03:16:07Z",
+      "side": 1,
+      "message": "Nit: GN chars is byte based IIRC unlike Go/Rust\u0027s representation of characters so will this break if I stick an emoji in a string?\n\nI would be fine with this being a followup",
+      "range": {
+        "startLine": 54,
+        "startChar": 31,
+        "endLine": 54,
+        "endChar": 37
+      },
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea7b3b52_5a82f843",
+        "filename": "src/gn/starlark/crates/ffi/src/err.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-07-30T03:16:07Z",
+      "side": 1,
+      "message": "This seems justifiable, but introduces two different error hints coexisting in GN.\n\nDo you know how hard it would be for the C++ side to gain this same behavior, since that seems like a net positive?",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 26
+      },
+      "revId": "a2cd5f2db0af1f66b017fa9dae3d9249170c1c74",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

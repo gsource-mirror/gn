@@ -50,6 +50,30 @@
       ],
       "revId": "ba7a7e171337a9b171607f54e80ff6a6c83f7950",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c11fe1d_2cc84ad7",
+        "filename": "src/gn/commands.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 4974721
+      },
+      "writtenOn": "2026-07-30T14:32:56Z",
+      "side": 1,
+      "message": "Ah yes, sorry for this!",
+      "parentUuid": "83948c90_dbf8d566",
+      "range": {
+        "startLine": 213,
+        "startChar": 21,
+        "endLine": 213,
+        "endChar": 25
+      },
+      "revId": "ba7a7e171337a9b171607f54e80ff6a6c83f7950",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -54,14 +54,9 @@ SliceAny NewScope(const Scope& parent_scope,
 // * my_macro would complain that it got an unexpected parameter "foo"
 // * my_struct.srcs would also be accessible.
 SliceAny GetScopeItems(const Scope& scope) {
-  Scope::KeyValueMap scope_values;
-  scope.GetCurrentScopeValues(&scope_values);
-
   std::vector<KeyValue> vec;
-  vec.reserve(scope_values.size());
-  for (const auto& pair : scope_values) {
-    vec.push_back(
-        KeyValue{rust::Str(pair.first.data(), pair.first.size()), pair.second});
+  for (auto [key, val] : scope.GetCurrentScopeValues()) {
+    vec.push_back(KeyValue{rust::Str(key.data(), key.size()), *val});
   }
   return IntoSlice(std::move(vec));
 }

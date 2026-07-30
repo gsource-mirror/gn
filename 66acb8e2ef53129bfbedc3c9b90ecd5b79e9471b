@@ -16,6 +16,29 @@
       "message": "@tikuta@google.com can You PTAL?",
       "revId": "66acb8e2ef53129bfbedc3c9b90ecd5b79e9471b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "691fb733_c676af3d",
+        "filename": "src/gn/commands.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-30T14:47:52Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This condition inverts the logic of `--type`. If `types` is not empty, the loop should skip targets that do **not** match the type, instead of skipping targets that **do** match.\n\nIt should be:\n```cpp\nif (!types.empty() \u0026\u0026 !std::ranges::contains(types, target_type)) {\n  continue;\n}\n```",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 0
+      },
+      "revId": "66acb8e2ef53129bfbedc3c9b90ecd5b79e9471b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31fccfbf_7d5b3ec8",
+        "filename": "src/gn/ffi/session.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-31T04:48:19Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `keys` yields temporary strings (e.g., if `keys` is a generator or a view adaptor that returns values rather than lvalue references), `rust::Str(key)` will bind to a temporary `std::string` or `std::string_view` that is destroyed at the end of each iteration step. This results in `keys_slice` containing dangling pointers. Consider perfectly forwarding the keys or transferring them to a `std::vector\u003cstd::string\u003e` first to own their underlying data.",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 0
+      },
+      "revId": "2398243e4e53f5f028a0849f56f9881452c35b3e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb3ef164_74497bef",
+        "filename": "src/gn/starlark/crates/ffi/src/bridge.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-31T04:48:19Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: When this function is exposed to C++, the C++ compiler doesn\u0027t understand Rust lifetimes and will allow calling this on any `Session` instance, including stack or heap-allocated ones. This violates Rust\u0027s lifetime guarantees (since the compiler assumes the Session lives forever) and could potentially lead to UB or memory safety issues. Consider removing `\u0027static` from the signature here to keep the interface honest, and containing the `\u0027static` hack internally using `extend_lifetime` where it is strictly necessary for Starlark.",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 0
+      },
+      "revId": "2398243e4e53f5f028a0849f56f9881452c35b3e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5252648e_6760e5b2",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-07-31T04:48:19Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: The `\u0026\u0027static self` constraint on this method is a lifetime lie when called from C++, as C++ can call this on non-static instances (e.g. stack-allocated `rust::Box\u003cSession\u003e`). This violates Rust\u0027s lifetime guarantees and could lead to UB. Consider keeping the signature safe by dropping `\u0027static` from the parameter and containment-leaking the pointer locally via `extend_lifetime` just before putting it into the Starlark context.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 0
+      },
+      "revId": "2398243e4e53f5f028a0849f56f9881452c35b3e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

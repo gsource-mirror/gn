@@ -644,8 +644,12 @@ const char kImport_HelpShort[] =
 const char kImport_Help[] =
     R"(import: Import a file into the current scope.
 
+  import(file_name, [var_name, ...])
+
   The import command loads the rules and variables resulting from executing the
-  given file into the current scope.
+  given file into the current scope. If optional variable names are specified,
+  only those specific variables (or templates, or target defaults) are imported
+  from the file.
 
   By convention, imported files are named with a .gni extension.
 
@@ -673,22 +677,39 @@ Examples
 
   # Looks in the current directory.
   import("my_vars.gni")
+
+  # Import specific variables only.
+  import("my_vars.gni", "some_var", "some_other_var")
 )";
 
 Value RunImport(Scope* scope,
                 const FunctionCallNode* function,
                 const std::vector<Value>& args,
                 Err* err) {
-  if (!EnsureSingleStringArg(function, args, err))
+  if (args.empty()) {
+    *err = Err(function->function(), "Incorrect arguments.",
+               "This function requires at least one argument.");
     return Value();
+  }
+
+  if (!args[0].VerifyTypeIs(Value::STRING, err))
+    return Value();
+
+  std::vector<std::string> to_import;
+  for (size_t i = 1; i < args.size(); ++i) {
+    if (!args[i].VerifyTypeIs(Value::STRING, err))
+      return Value();
+    to_import.push_back(args[i].string_value());
+  }
 
   const SourceDir& input_dir = scope->GetSourceDir();
   SourceFile import_file = input_dir.ResolveRelativeFile(
       args[0], err, scope->settings()->build_settings()->root_path_utf8());
   scope->AddBuildDependencyFile(import_file);
   if (!err->has_error()) {
-    scope->settings()->import_manager().DoImport(import_file, function, scope,
-                                                 err);
+    scope->settings()->import_manager().DoImport(
+        import_file, function, scope, to_import.empty() ? nullptr : &to_import,
+        err);
   }
   return Value();
 }

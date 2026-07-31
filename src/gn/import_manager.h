@@ -29,6 +29,7 @@ class ImportManager {
   bool DoImport(const SourceFile& file,
                 const ParseNode* node_for_err,
                 Scope* scope,
+                const std::vector<std::string>* to_import,
                 Err* err);
 
   std::vector<SourceFile> GetImportedFiles() const;

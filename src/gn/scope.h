@@ -95,6 +95,9 @@ class Scope {
 
     // When set, those variables are not merged.
     std::set<std::string> excluded_values;
+
+    // When set, only those variables are merged.
+    std::set<std::string> included_values;
   };
 
   // Details about a Scope's creation as a template invocation

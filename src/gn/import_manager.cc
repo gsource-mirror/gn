@@ -76,6 +76,7 @@ ImportManager::~ImportManager() = default;
 bool ImportManager::DoImport(const SourceFile& file,
                              const ParseNode* node_for_err,
                              Scope* scope,
+                             const std::vector<std::string>* to_import,
                              Err* err) {
   // Key for the current import on the current thread in imports_in_progress_.
   std::stringstream ss;
@@ -144,6 +145,9 @@ bool ImportManager::DoImport(const SourceFile& file,
   Scope::MergeOptions options;
   options.skip_private_vars = true;
   options.mark_dest_used = true;  // Don't require all imported values be used.
+  if (to_import) {
+    options.included_values.insert(to_import->begin(), to_import->end());
+  }
 
   {
     std::lock_guard<std::mutex> lock(imports_lock_);

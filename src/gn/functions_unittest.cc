@@ -8,8 +8,10 @@
 #include <utility>
 
 #include "gn/parse_tree.h"
+#include "gn/scheduler.h"
 #include "gn/test_with_scope.h"
 #include "gn/value.h"
+#include "util/msg_loop.h"
 #include "util/test/test.h"
 
 TEST(Functions, Assert) {
@@ -708,4 +710,76 @@ TEST(Template, PrintStackTraceWithTemplateDefinedWithinATemplate) {
       "  foo_internal(\"lala.foo.internal\")  //test:8\n"
       "  print_stack_trace()  //test:6\n",
       setup.print_output());
+}
+
+TEST(Functions, ImportSelective) {
+  MsgLoop run_loop;
+  Scheduler scheduler;
+  TestWithScope setup;
+
+  // Mock input file content for //test.gni.
+  g_scheduler->input_file_manager()->set_load_file_callback(
+      [](const SourceFile& file_name, InputFile* file) {
+        if (file_name.value() == "//test.gni") {
+          file->SetContents(
+              "a = 1\n"
+              "b = 2\n"
+              "c = 3\n"
+              "_d = 4\n"
+              "template(\"tmpl\") {\n"
+              "  print(target_name)\n"
+              "}\n");
+          return true;
+        }
+        return false;
+      });
+
+  // Import only specific variables and templates.
+  {
+    Err err;
+    setup.ExecuteSnippet("import(\"//test.gni\", \"a\", \"c\", \"tmpl\")",
+                         &err);
+    EXPECT_FALSE(err.has_error()) << err.message();
+
+    // Verify imported variables are in scope.
+    const Value* val_a = setup.scope()->GetValue("a");
+    ASSERT_TRUE(val_a);
+    EXPECT_EQ(Value::INTEGER, val_a->type());
+    EXPECT_EQ(1, val_a->int_value());
+
+    const Value* val_c = setup.scope()->GetValue("c");
+    ASSERT_TRUE(val_c);
+    EXPECT_EQ(3, val_c->int_value());
+
+    // Verify b was NOT imported.
+    const Value* val_b = setup.scope()->GetValue("b");
+    EXPECT_FALSE(val_b);
+
+    // Verify private _d was NOT imported.
+    const Value* val_d = setup.scope()->GetValue("_d");
+    EXPECT_FALSE(val_d);
+
+    // Verify template tmpl was imported.
+    const Template* tmpl = setup.scope()->GetTemplate("tmpl");
+    EXPECT_TRUE(tmpl);
+  }
+
+  // Attempting to import non-existent variable should fail.
+  {
+    Err err;
+    setup.ExecuteSnippet("import(\"//test.gni\", \"non_existent\")", &err);
+    EXPECT_TRUE(err.has_error());
+    EXPECT_EQ("Imported values not found.", err.message());
+  }
+
+  // Attempting to import private variable should fail.
+  {
+    Err err;
+    setup.ExecuteSnippet("import(\"//test.gni\", \"_d\")", &err);
+    EXPECT_TRUE(err.has_error());
+    EXPECT_EQ("Imported values not found.", err.message());
+  }
+
+  // Clean up callback.
+  g_scheduler->input_file_manager()->set_load_file_callback(nullptr);
 }

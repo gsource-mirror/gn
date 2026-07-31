@@ -333,6 +333,8 @@ bool Scope::NonRecursiveMergeTo(Scope* dest,
                                 const ParseNode* node_for_err,
                                 const char* desc_for_err,
                                 Err* err) const {
+  std::set<std::string> found_included;
+
   // Values.
   for (const auto& pair : values_) {
     const std::string_view current_name = pair.first;
@@ -342,6 +344,13 @@ bool Scope::NonRecursiveMergeTo(Scope* dest,
         options.excluded_values.find(std::string(current_name)) !=
             options.excluded_values.end()) {
       continue;  // Skip this excluded value.
+    }
+    if (!options.included_values.empty()) {
+      if (options.included_values.find(std::string(current_name)) ==
+          options.included_values.end()) {
+        continue;  // Skip if not in included list.
+      }
+      found_included.insert(std::string(current_name));
     }
 
     const Value& new_value = pair.second.value;
@@ -377,6 +386,13 @@ bool Scope::NonRecursiveMergeTo(Scope* dest,
         options.excluded_values.find(current_name) !=
             options.excluded_values.end()) {
       continue;  // Skip the excluded value.
+    }
+    if (!options.included_values.empty()) {
+      if (options.included_values.find(current_name) ==
+          options.included_values.end()) {
+        continue;
+      }
+      found_included.insert(current_name);
     }
 
     if (!options.clobber_existing) {
@@ -426,6 +442,13 @@ bool Scope::NonRecursiveMergeTo(Scope* dest,
             options.excluded_values.end()) {
       continue;  // Skip the excluded value.
     }
+    if (!options.included_values.empty()) {
+      if (options.included_values.find(current_name) ==
+          options.included_values.end()) {
+        continue;
+      }
+      found_included.insert(current_name);
+    }
 
     if (!options.clobber_existing) {
       const Template* existing_template = dest->GetTemplate(current_name);
@@ -452,6 +475,22 @@ bool Scope::NonRecursiveMergeTo(Scope* dest,
 
     // Be careful to delete any pointer we're about to clobber.
     dest->templates_[current_name] = pair.second;
+  }
+
+  if (!options.included_values.empty() &&
+      found_included.size() != options.included_values.size()) {
+    std::string missing;
+    for (const auto& name : options.included_values) {
+      if (found_included.find(name) == found_included.end()) {
+        if (!missing.empty())
+          missing += ", ";
+        missing += "\"" + name + "\"";
+      }
+    }
+    *err = Err(
+        node_for_err, "Imported values not found.",
+        "The following values were not found in the imported file: " + missing);
+    return false;
   }
 
   // Propagate build dependency files,

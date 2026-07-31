@@ -22,6 +22,30 @@
       },
       "revId": "788fcfa1f2739bf63e3c53ccf93d0acdbc9751b6",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d72124f_3c9f5d95",
+        "filename": "src/gn/ffi/scope.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-07-31T04:44:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fb6e9ff_fff918be",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 15
+      },
+      "revId": "788fcfa1f2739bf63e3c53ccf93d0acdbc9751b6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

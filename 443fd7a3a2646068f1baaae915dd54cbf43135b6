@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de95e44f_d13f0879",
+        "filename": "src/gn/ffi/scope.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-08-02T16:02:54Z",
+      "side": 0,
+      "message": "Detaching means consequences like no longer being able to walk up to parent scopes, right? That affects variable scoping behavior, right; I don\u0027t see detach moved to somewhere else, is that intended?",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 36
+      },
+      "revId": "443fd7a3a2646068f1baaae915dd54cbf43135b6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

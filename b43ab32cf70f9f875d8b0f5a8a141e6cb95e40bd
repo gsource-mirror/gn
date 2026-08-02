@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9222925d_409c4db9",
+        "filename": "src/gn/ffi/scope.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-08-02T16:02:54Z",
+      "side": 1,
+      "message": "source_dir IIRC was attached by GN to scopes for all sorts of semantics, is not attaching one here intended and safe?",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 43
+      },
+      "revId": "b43ab32cf70f9f875d8b0f5a8a141e6cb95e40bd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

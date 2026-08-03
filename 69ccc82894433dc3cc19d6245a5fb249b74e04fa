@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e58c7a9_45daaee9",
+        "filename": "src/gn/ffi/session.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1002172
+      },
+      "writtenOn": "2026-08-03T04:08:54Z",
+      "side": 1,
+      "message": "Comment?",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 29
+      },
+      "revId": "69ccc82894433dc3cc19d6245a5fb249b74e04fa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

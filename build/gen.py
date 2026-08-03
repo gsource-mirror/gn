@@ -486,6 +486,9 @@ def WriteGNNinja(path, platform, host, options, args_list):
 
   libs = []
 
+  if options.starlark:
+    cflags.append('/DSTARLARK_ENABLED' if platform.is_msvc() else '-DSTARLARK_ENABLED')
+
   if not platform.is_msvc():
     if options.debug:
       cflags.extend(['-O0', '-g'])

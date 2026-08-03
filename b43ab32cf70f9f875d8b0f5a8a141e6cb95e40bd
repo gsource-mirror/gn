@@ -22,6 +22,30 @@
       },
       "revId": "b43ab32cf70f9f875d8b0f5a8a141e6cb95e40bd",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "534cc9b5_14892a1e",
+        "filename": "src/gn/ffi/scope.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-03T02:44:41Z",
+      "side": 1,
+      "message": "Yes, it was both intended and safe. GetSourceDir should never be called on it, but even if it was, GetSourceDir falls back to `//`.",
+      "parentUuid": "9222925d_409c4db9",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 43
+      },
+      "revId": "b43ab32cf70f9f875d8b0f5a8a141e6cb95e40bd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

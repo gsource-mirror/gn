@@ -22,6 +22,30 @@
       },
       "revId": "443fd7a3a2646068f1baaae915dd54cbf43135b6",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebdb544b_bbea1662",
+        "filename": "src/gn/ffi/scope.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-03T02:44:41Z",
+      "side": 0,
+      "message": "Yeah, this is intended. We previously detached because it made more sense for \"struct\" scopes, but we do need to create regular scopes sometimes, and they shouldn\u0027t detach.",
+      "parentUuid": "de95e44f_d13f0879",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 36
+      },
+      "revId": "443fd7a3a2646068f1baaae915dd54cbf43135b6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

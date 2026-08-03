@@ -73,3 +73,7 @@ modifying Rust code in this repository:
 # C++ Style guidelines and best practices
 
 * Never use `#pragma once` - use header guards instead.
+
+# Building and running code
+
+* **NEVER** delete the build output directory without permission to fix build errors. If you feel the need to do so, there is likely a *far* more fundamental issue.

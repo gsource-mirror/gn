@@ -446,15 +446,14 @@ mod tests {
             )
             .unwrap();
 
-            let source_target = session.insert_empty_target(PackageRef::root(), "source");
-            attr.register_dependencies(
-                &session,
-                source_target.clone(),
-                session.default_toolchain.as_ref(),
-            );
-
+            let mut deps = SmallSet::new();
+            attr.add_dependencies(session.default_toolchain.as_ref(), &mut deps);
+            let deps: HashSet<_> = deps
+                .into_iter()
+                .map(|(l, tc)| (l.to_owned(), tc.to_owned()))
+                .collect();
             assert_eq!(
-                source_target.registered_deps(),
+                deps,
                 HashSet::from([(
                     target_single.label().to_owned(),
                     session.default_toolchain.clone()

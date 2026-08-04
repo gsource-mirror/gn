@@ -140,6 +140,14 @@ impl EvalContextAttrExt for FakeEvalContext {
     ) -> Result<<Self::Session as AttrSession>::TargetRef> {
         let label = Label::new(self.package.clone(), target_name.to_owned());
         let toolchain = self.current_toolchain().to_owned();
+        let mut deps = starlark::collections::SmallSet::new();
+        for attr in &attrs {
+            attr.add_dependencies(toolchain.as_ref(), &mut deps);
+        }
+        let dependencies = deps
+            .into_iter()
+            .map(|(l, tc)| (l.to_owned(), tc.to_owned()))
+            .collect();
         Ok(self.session.insert_target(FakeTarget {
             label,
             toolchain,
@@ -154,7 +162,7 @@ impl EvalContextAttrExt for FakeEvalContext {
             cxx_attrs: scope.0.clone(),
             outputs: vec![],
             attrs,
-            dependencies: Default::default(),
+            dependencies,
         }))
     }
 }

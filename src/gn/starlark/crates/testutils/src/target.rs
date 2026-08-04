@@ -134,6 +134,7 @@ impl Deref for FakeTargetRef {
 }
 
 impl TargetRef for FakeTargetRef {
+    type Cxx = FakeTarget;
     type Rule = rule::FrozenRule<FakeEvalContext>;
 
     fn label(&self) -> LabelRef<'_> {
@@ -159,15 +160,16 @@ impl TargetRef for FakeTargetRef {
     fn target_out_dir(&self, prefix: &str, suffix: &str, _separator: &str) -> String {
         format!("{prefix}$TOOLCHAIN/{suffix}$LABEL")
     }
+}
 
-    fn register_dependencies<S: Session<TargetRef = Self>>(
-        &self,
-        session: &S,
+impl types::TargetMut for FakeTarget {
+    fn register_dependency(
+        self: std::pin::Pin<&mut Self>,
+        label: LabelRef<'_>,
         toolchain: LabelRef<'_>,
     ) {
-        for attr in &self.get().attrs {
-            attr.register_dependencies(session, self.clone(), toolchain);
-        }
+        let mut deps = self.dependencies.lock().unwrap();
+        deps.insert((label.to_owned(), toolchain.to_owned()));
     }
 
     fn builtin_attrs<'v>(&self, _heap: &Heap<'v>) -> Vec<Value<'v>> {

@@ -18,6 +18,8 @@ pub trait IPromiseToImplementStarlarkEqAndHash {}
 pub trait TargetRef:
     for<'v> StarlarkValue<'v> + for<'v> AllocValue<'v> + Clone + IPromiseToImplementStarlarkEqAndHash
 {
+    type Cxx: crate::target_mut::TargetMut;
+
     /// Returns the label of the target.
     fn label(&self) -> LabelRef<'_>;
     /// Returns the toolchain the label was defined in.
@@ -42,6 +44,7 @@ pub trait TargetRef:
         label_prefix: &str,
         package_name_separator: &str,
     ) -> String;
+
     /// Registers target dependencies contained within this target's attributes.
     fn register_dependencies<S: Session<TargetRef = Self>>(
         &self,

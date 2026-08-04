@@ -262,34 +262,33 @@ impl Attr {
     }
 
     /// Registers target dependencies contained within this attribute value.
-    pub fn register_dependencies<S: crate::Session>(
+    pub fn register_dependencies<Cxx: types::TargetMut>(
         &self,
-        session: &S,
-        source: S::TargetRef,
+        mut source: std::pin::Pin<&mut Cxx>,
         toolchain: LabelRef<'_>,
     ) {
         match self {
             Self::Label(Some(LabelOrFile::Label(lbl))) => {
-                session.register_dependency(source, lbl.as_ref(), toolchain);
+                source.as_mut().register_dependency(lbl.as_ref(), toolchain);
             },
             Self::LabelList(list) => {
                 for lf in list {
                     if let LabelOrFile::Label(lbl) = lf {
-                        session.register_dependency(source.clone(), lbl.as_ref(), toolchain);
+                        source.as_mut().register_dependency(lbl.as_ref(), toolchain);
                     }
                 }
             },
             Self::LabelKeyedStringDict(dict) => {
                 for (lf, _) in dict {
                     if let LabelOrFile::Label(lbl) = lf {
-                        session.register_dependency(source.clone(), lbl.as_ref(), toolchain);
+                        source.as_mut().register_dependency(lbl.as_ref(), toolchain);
                     }
                 }
             },
             Self::StringKeyedLabelDict(dict) => {
                 for (_, lf) in dict {
                     if let LabelOrFile::Label(lbl) = lf {
-                        session.register_dependency(source.clone(), lbl.as_ref(), toolchain);
+                        source.as_mut().register_dependency(lbl.as_ref(), toolchain);
                     }
                 }
             },
@@ -297,7 +296,7 @@ impl Attr {
                 for (_, list) in dict {
                     for lf in list {
                         if let LabelOrFile::Label(lbl) = lf {
-                            session.register_dependency(source.clone(), lbl.as_ref(), toolchain);
+                            source.as_mut().register_dependency(lbl.as_ref(), toolchain);
                         }
                     }
                 }

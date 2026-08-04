@@ -39,6 +39,7 @@ impl<'v> AllocValue<'v> for TargetRef {
 }
 
 impl types::TargetRef for TargetRef {
+    type Cxx = ();
     type Rule = rule::FrozenRule<crate::eval_context::EvalContext>;
 
     fn label(&self) -> LabelRef<'_> {

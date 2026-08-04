@@ -4,7 +4,7 @@
 
 use starlark::values::{AllocValue, Heap, StarlarkValue, Value};
 
-use crate::{File, LabelRef, OutputType, Session};
+use crate::{File, LabelRef, OutputType};
 
 /// Unfortunately while we could specify that Eq and Hash are implemented, there
 /// is no way to delegate starlark's equality and hash function to it
@@ -18,6 +18,8 @@ pub trait IPromiseToImplementStarlarkEqAndHash {}
 pub trait TargetRef:
     for<'v> StarlarkValue<'v> + for<'v> AllocValue<'v> + Clone + IPromiseToImplementStarlarkEqAndHash
 {
+    type Cxx: crate::target_mut::TargetMut;
+
     /// Returns the label of the target.
     fn label(&self) -> LabelRef<'_>;
     /// Returns the toolchain the label was defined in.
@@ -42,15 +44,16 @@ pub trait TargetRef:
         label_prefix: &str,
         package_name_separator: &str,
     ) -> String;
+
+    /// Returns the target's output type.
+    fn output_type(&self) -> Option<OutputType>;
+
     /// Registers target dependencies contained within this target's attributes.
-    fn register_dependencies<S: Session<TargetRef = Self>>(
+    fn register_dependencies<S: crate::Session<TargetRef = Self>>(
         &self,
         session: &S,
         toolchain: LabelRef<'_>,
     );
-
-    /// Returns the target's output type.
-    fn output_type(&self) -> Option<OutputType>;
 
     /// Returns the resolved built-in attributes as Starlark values.
     fn builtin_attrs<'v>(&self, heap: &Heap<'v>) -> Vec<Value<'v>>;

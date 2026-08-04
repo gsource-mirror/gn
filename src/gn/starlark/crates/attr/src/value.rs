@@ -446,13 +446,13 @@ mod tests {
             )
             .unwrap();
 
-            let source_target = session.insert_empty_target(PackageRef::root(), "source");
+            let mut source_target = session.empty_target(PackageRef::root(), "source");
             attr.register_dependencies(
-                &session,
-                source_target.clone(),
+                std::pin::Pin::new(&mut source_target),
                 session.default_toolchain.as_ref(),
             );
 
+            let source_target = session.insert_target(source_target);
             assert_eq!(
                 source_target.registered_deps(),
                 HashSet::from([(

@@ -11,8 +11,10 @@
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "gn/parse_tree.h"
+#include "gn/scheduler.h"
 #include "gn/test_with_scope.h"
 #include "gn/value.h"
+#include "util/msg_loop.h"
 #include "util/test/test.h"
 
 TEST(Functions, Assert) {
@@ -714,6 +716,8 @@ TEST(Template, PrintStackTraceWithTemplateDefinedWithinATemplate) {
 }
 
 TEST(Functions, Load) {
+  MsgLoop run_loop;
+  Scheduler scheduler;
   TestWithScope setup;
   setup.build_settings()->SetRootPath(base::FilePath("."));
   setup.scope()->set_source_dir(SourceDir("//"));
@@ -752,7 +756,15 @@ def my_rule_impl(ctx):
 my_rule = rule(
   implementation = my_rule_impl
 )
+
 hello = "hello"
+
+def sum(a, b, c):
+  return a + b + c
+
+def sum_wrapper(*args, **kwargs):
+  return sum(*args, **kwargs)
+
 )scl";
     base::FilePath scl_path = temp_dir.GetPath().AppendASCII("rules.scl");
     ASSERT_EQ(
@@ -760,13 +772,23 @@ hello = "hello"
         base::WriteFile(scl_path, scl_content.c_str(), scl_content.size()));
 
     TestParseInput input(R"gn(
-load("//:rules.scl", "hello", "my_rule", "my_rule_impl")
+load("//:rules.scl", "hello", "my_rule", "my_rule_impl", "sum")
 
 assert(my_rule == my_rule)
 assert(my_rule != my_rule_impl)
 assert("${my_rule}" == "<rule: my_rule>")
 copy_of_rule = my_rule
 assert(copy_of_rule == my_rule)
+assert(sum(1, 2, 3) == 6)
+assert(sum(1, 2, 3) {} == 6)
+assert(sum(1, 2) {
+  c = 3
+} == 6)
+assert(sum() {
+  a = "a"
+  b = "b"
+  c = "c"
+} == "abc")
 )gn");
     ASSERT_SUCCESS(input);
     Err err;
@@ -781,5 +803,85 @@ assert(copy_of_rule == my_rule)
     const Value* val_my_rule = setup.scope()->GetValue("my_rule");
     ASSERT_TRUE(val_my_rule);
     EXPECT_EQ(Value::STARLARK_VALUE, val_my_rule->type());
+
+    // Verify failure when loading a nonexistent variable.
+    {
+      TestParseInput fail_input(R"gn(
+load("//:rules.scl", "nonexistent")
+)gn");
+      ASSERT_SUCCESS(fail_input);
+      Err err;
+      fail_input.parsed()->Execute(setup.scope(), &err);
+      ASSERT_TRUE(err.has_error());
+      EXPECT_EQ(
+          "ERROR Key 'nonexistent' not found in module '//:rules.scl'\n"
+          "See //test:2:1: whence 'load' was called.\n"
+          "load(\"//:rules.scl\", \"nonexistent\")\n"
+          "^---------------------------------\n",
+          err.to_string());
+    }
+
+    // Verify failure when calling Starlark function with insufficient
+    // arguments.
+    {
+      TestParseInput fail_input(R"gn(
+load("//:rules.scl", "sum")
+sum(1, 2)
+)gn");
+      ASSERT_SUCCESS(fail_input);
+      Err err;
+      fail_input.parsed()->Execute(setup.scope(), &err);
+      ASSERT_TRUE(err.has_error());
+      EXPECT_EQ(
+          "ERROR Missing parameter `c` for call to `//:rules.scl.sum`\n"
+          "See //test:3:1: whence 'sum' was called.\n"
+          "sum(1, 2)\n"
+          "^-------\n",
+          err.to_string());
+    }
+
+    // Verify failure when calling starlark function with too many arguments.
+    {
+      TestParseInput fail_input(R"gn(
+load("//:rules.scl", "sum")
+sum(1, 2, 3) {
+  d = 4
+}
+)gn");
+      ASSERT_SUCCESS(fail_input);
+      Err err;
+      fail_input.parsed()->Execute(setup.scope(), &err);
+      ASSERT_TRUE(err.has_error());
+      EXPECT_EQ(
+          "ERROR Found `d` extra named parameter(s) for call to "
+          "//:rules.scl.sum\n"
+          "See //test:3:1: whence 'sum' was called.\n"
+          "sum(1, 2, 3) {\n"
+          "^-------------\n",
+          err.to_string());
+    }
+
+    // Verify failure when the starlark function itself returns an error.
+    {
+      TestParseInput fail_input(R"gn(
+load("//:rules.scl", "sum_wrapper")
+sum_wrapper(1, 2, 3) {
+  d = 4
+}
+)gn");
+      ASSERT_SUCCESS(fail_input);
+      Err err;
+      fail_input.parsed()->Execute(setup.scope(), &err);
+      ASSERT_TRUE(err.has_error());
+      EXPECT_EQ(
+          "ERROR at //:rules.scl:15:10: Found `d` extra named parameter(s) for "
+          "call to //:rules.scl.sum\n"
+          "  return sum(*args, **kwargs)\n"
+          "         ^-------------------\n"
+          "See //test:3:1: whence 'sum_wrapper' was called.\n"
+          "sum_wrapper(1, 2, 3) {\n"
+          "^---------------------\n",
+          err.to_string());
+    }
   }
 }

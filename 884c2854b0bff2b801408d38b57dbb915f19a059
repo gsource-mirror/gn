@@ -1,0 +1,68 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d166e5da_685efbc5",
+        "filename": ".agents/AGENTS.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-04T03:38:49Z",
+      "side": 1,
+      "message": "drop this?",
+      "range": {
+        "startLine": 3,
+        "startChar": 30,
+        "endLine": 3,
+        "endChar": 34
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "fe13ab88_db6dbc22",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": ".agents/AGENTS.md",
+              "range": {
+                "startLine": 3,
+                "startChar": 0,
+                "endLine": 4,
+                "endChar": 0
+              },
+              "replacement": "* Prefer to run `build/gen.py --debug` unless you need a release build.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "884c2854b0bff2b801408d38b57dbb915f19a059",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab9fd9a4_43397777",
+        "filename": ".agents/AGENTS.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-04T03:38:49Z",
+      "side": 1,
+      "message": "Running this target become so slow now? I still prefer to keep running these tests for development iteration.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 15
+      },
+      "revId": "884c2854b0bff2b801408d38b57dbb915f19a059",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

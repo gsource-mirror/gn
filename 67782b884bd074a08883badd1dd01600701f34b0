@@ -36,6 +36,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b34b0c2e_f1ae3414",
+        "filename": "src/gn/ffi/session.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-04T05:27:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56172eb2_5707ea9d",
+      "revId": "67782b884bd074a08883badd1dd01600701f34b0",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8b43b5ac_0a16b480",
@@ -49,6 +67,24 @@
       "writtenOn": "2026-08-04T05:08:56Z",
       "side": 1,
       "message": "Can we have test for this?",
+      "revId": "67782b884bd074a08883badd1dd01600701f34b0",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58ddd731_72dc9ba7",
+        "filename": "src/gn/range_utils.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-04T05:27:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b43b5ac_0a16b480",
       "revId": "67782b884bd074a08883badd1dd01600701f34b0",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

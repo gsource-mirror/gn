@@ -9,7 +9,7 @@ pub struct Target {
     // We maintain a 0-1 relationship between starlark Targets and rust targets.
     // starlark targets store a reference to C++ targets, and C++ targets store an optional
     // reference to starlark targets.
-    cxx: NonNull<crate::bridge::CxxTarget>,
+    pub(crate) cxx: NonNull<crate::bridge::CxxTarget>,
     // Note: This is not a lightweight reference type.
     // Fields such as rules, attr, and providers will be added in the future.
 }

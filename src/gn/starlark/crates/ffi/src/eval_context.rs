@@ -92,9 +92,26 @@ impl attr::traits::EvalContextAttrExt for EvalContext {
         _target_type: Option<types::OutputType>,
         _target_name: &str,
         _scope: &Scope,
+    ) -> starlark::Result<
+        std::pin::Pin<
+            &'static mut <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,
+        >,
+    > {
+        todo!()
+    }
+
+    fn register_target(
+        &self,
+        cxx_target: std::pin::Pin<
+            &'static mut <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,
+        >,
         _rule: starlark::values::FrozenValue,
         _attrs: Vec<attr::Attr>,
     ) -> starlark::Result<<Self::Session as types::Session>::TargetRef> {
-        todo!()
+        let ffi_target: &'static crate::bridge::Target =
+            std::pin::Pin::into_ref(cxx_target).get_ref();
+        Ok(self
+            .session
+            .register_target(crate::target::Target { ffi: ffi_target }))
     }
 }

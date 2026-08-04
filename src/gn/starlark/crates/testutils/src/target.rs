@@ -168,30 +168,6 @@ impl TargetRef for FakeTargetRef {
             })
             .unwrap_or_default()
     }
-
-    fn register_dependencies<S: types::Session<TargetRef = Self>>(
-        &self,
-        _session: &S,
-        toolchain: LabelRef<'_>,
-    ) {
-        let mut mut_target = FakeTargetMut(self.get());
-        for attr in &self.get().attrs {
-            attr.register_dependencies(std::pin::Pin::new(&mut mut_target), toolchain);
-        }
-    }
-}
-
-struct FakeTargetMut<'a>(&'a FakeTarget);
-
-impl<'a> types::TargetMut for FakeTargetMut<'a> {
-    fn register_dependency(
-        self: std::pin::Pin<&mut Self>,
-        label: LabelRef<'_>,
-        toolchain: LabelRef<'_>,
-    ) {
-        let mut deps = self.0.dependencies.lock().unwrap();
-        deps.insert((label.to_owned(), toolchain.to_owned()));
-    }
 }
 
 impl types::TargetMut for FakeTarget {

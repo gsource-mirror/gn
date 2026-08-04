@@ -97,14 +97,6 @@ impl types::TargetRef for TargetRef {
     fn builtin_attrs<'v>(&self, _heap: &Heap<'v>) -> Vec<Value<'v>> {
         todo!()
     }
-
-    fn register_dependencies<S: types::Session<TargetRef = Self>>(
-        &self,
-        _session: &S,
-        _toolchain: LabelRef<'_>,
-    ) {
-        todo!()
-    }
 }
 
 impl types::TargetMut for crate::bridge::Target {

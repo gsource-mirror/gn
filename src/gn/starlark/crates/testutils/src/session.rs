@@ -10,12 +10,13 @@ use types::{Label, LabelRef, PackageRef, TargetRef};
 use crate::{FakeTarget, FakeTargetRef};
 
 /// A fake implementation of the `Session` trait for testing.
-#[derive(Clone)]
 pub struct FakeSession {
     /// The preconfigured default toolchain label.
     pub default_toolchain: Label,
     /// A set of fake targets populated for testing.
     pub targets: RefCell<HashSet<FakeTargetRef>>,
+    /// Temporary storage for targets being constructed.
+    pub targets_under_construction: RefCell<Vec<Box<FakeTarget>>>,
 }
 
 impl Default for FakeSession {
@@ -34,6 +35,7 @@ impl FakeSession {
                 "default_toolchain".to_owned(),
             ),
             targets: RefCell::new(HashSet::new()),
+            targets_under_construction: RefCell::new(Vec::new()),
         };
         this.insert_empty_target(PackageRef::root(), "default");
         this
@@ -93,18 +95,5 @@ impl Session for FakeSession {
                 label, current_toolchain, targets
             );
         }
-    }
-
-    fn register_dependency<'a>(
-        &self,
-        source: Self::TargetRef,
-        target: LabelRef<'a>,
-        toolchain: LabelRef<'a>,
-    ) {
-        source
-            .dependencies
-            .lock()
-            .unwrap()
-            .insert((target.to_owned(), toolchain.to_owned()));
     }
 }

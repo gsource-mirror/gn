@@ -63,6 +63,30 @@
       },
       "revId": "884c2854b0bff2b801408d38b57dbb915f19a059",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "488bcd74_49d4c468",
+        "filename": ".agents/AGENTS.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-04T03:42:27Z",
+      "side": 1,
+      "message": "It takes around 5 seconds to run all the tests. I much prefer to just run only relevant tests in the hot path, then run the full test suite once I\u0027m done with the code and want to make sure I didn\u0027t break anything. WDYT?",
+      "parentUuid": "ab9fd9a4_43397777",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 15
+      },
+      "revId": "884c2854b0bff2b801408d38b57dbb915f19a059",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

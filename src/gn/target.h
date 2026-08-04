@@ -13,6 +13,7 @@
 
 #include "base/gtest_prod_util.h"
 #include "base/logging.h"
+#include "cxx.h"
 #include "gn/action_values.h"
 #include "gn/bundle_data.h"
 #include "gn/config_values.h"
@@ -303,6 +304,9 @@ class Target : public Item {
   const LabelTargetVector& gen_deps() const { return gen_deps_; }
   LabelTargetVector& gen_deps() { return gen_deps_; }
 
+  const LabelTargetVector& starlark_deps() const { return starlark_deps_; }
+  LabelTargetVector& starlark_deps() { return starlark_deps_; }
+
   // List of configs that this class inherits settings from. Once a target is
   // resolved, this will also list all-dependent and public configs.
   const UniqueVector<LabelConfigPair>& configs() const { return configs_; }
@@ -580,6 +584,7 @@ class Target : public Item {
   LabelTargetVector data_deps_;
   LabelTargetVector validations_;
   LabelTargetVector gen_deps_;
+  LabelTargetVector starlark_deps_;
 
   // See getters for more info.
   UniqueVector<LabelConfigPair> configs_;

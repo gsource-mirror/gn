@@ -81,19 +81,30 @@ impl types::EvalContext for EvalContext {
             .ok_or_else(|| Error::RequiresBzlFile.into())
     }
 
-    fn require_rule_impl(
-        &self,
-    ) -> starlark::Result<&mut types::CtxState<crate::target_ref::TargetRef>> {
+    fn require_rule_impl(&self) -> starlark::Result<&mut types::CtxState<crate::TargetRef>> {
         todo!()
     }
 }
 
 impl attr::traits::EvalContextAttrExt for EvalContext {
-    fn create_target(
-        &self,
+    fn create_target<'a>(
+        &'a self,
         _target_type: Option<types::OutputType>,
         _target_name: &str,
         _scope: &Scope,
+    ) -> starlark::Result<
+        std::pin::Pin<
+            &'a mut <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,
+        >,
+    > {
+        todo!()
+    }
+
+    fn register_target<'a>(
+        &'a self,
+        _cxx_target: std::pin::Pin<
+            &'a mut <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,
+        >,
         _rule: starlark::values::FrozenValue,
         _attrs: Vec<attr::Attr>,
     ) -> starlark::Result<<Self::Session as types::Session>::TargetRef> {

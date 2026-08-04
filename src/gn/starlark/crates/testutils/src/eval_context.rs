@@ -64,6 +64,9 @@ pub struct FakeEvalContext {
     /// The fake scope.
     #[allocative(skip)]
     pub scope: FakeScope,
+    /// Temporary storage for targets being constructed.
+    #[allocative(skip)]
+    pub targets_under_construction: std::cell::RefCell<Vec<Box<FakeTarget>>>,
 }
 
 unsafe impl<'v> ProvidesStaticType<'v> for FakeEvalContext {
@@ -91,6 +94,7 @@ impl FakeEvalContext {
             path_resolver: PathResolver::new_for_testing(),
             rule_state: CtxState::new(target).into(),
             scope: FakeScope::default(),
+            targets_under_construction: Default::default(),
         }
     }
 }
@@ -130,32 +134,48 @@ impl AttrEvalContext for FakeEvalContext {
 }
 
 impl EvalContextAttrExt for FakeEvalContext {
-    fn create_target(
-        &self,
+    fn create_target<'a>(
+        &'a self,
         target_type: Option<OutputType>,
         target_name: &str,
         scope: &FakeScope,
-        rule: FrozenValue,
-        attrs: Vec<Attr>,
-    ) -> Result<<Self::Session as AttrSession>::TargetRef> {
+    ) -> Result<std::pin::Pin<&'a mut FakeTarget>> {
         let label = Label::new(self.package.clone(), target_name.to_owned());
         let toolchain = self.current_toolchain().to_owned();
-        Ok(self.session.insert_target(FakeTarget {
+        let target = FakeTarget {
             label,
             toolchain,
             output_type: target_type,
-            rule: if rule.is_none() {
-                None
-            } else {
-                let typed =
-                    FrozenValueTyped::<rule::FrozenRule<FakeEvalContext>>::new(rule).unwrap();
-                Some(typed.as_ref())
-            },
+            rule: None,
             cxx_attrs: scope.0.clone(),
             outputs: vec![],
-            attrs,
+            attrs: vec![],
             dependencies: Default::default(),
-        }))
+        };
+        let mut targets = self.targets_under_construction.borrow_mut();
+        targets.push(Box::new(target));
+        // Safety: The Box inside the RefCell's vector is stable in memory. We can cast
+        // it.
+        let target_ref = unsafe { &mut *(targets.last_mut().unwrap().as_mut() as *mut FakeTarget) };
+        Ok(unsafe { std::pin::Pin::new_unchecked(target_ref) })
+    }
+
+    fn register_target<'a>(
+        &'a self,
+        cxx_target: std::pin::Pin<&'a mut FakeTarget>,
+        rule: FrozenValue,
+        attrs: Vec<Attr>,
+    ) -> Result<Self::TargetRef> {
+        let target_ptr = &*cxx_target as *const FakeTarget;
+        let mut targets = self.targets_under_construction.borrow_mut();
+        let idx = targets
+            .iter()
+            .position(|t| &**t as *const FakeTarget == target_ptr)
+            .expect("Registering target that was not created in this context");
+        let mut target = targets.remove(idx);
+        target.rule = rule;
+        target.attrs = attrs;
+        Ok(self.session.insert_target(*target))
     }
 }
 

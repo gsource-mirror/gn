@@ -52,6 +52,24 @@
       "parentUuid": "2e97edb2_55a915ce",
       "revId": "71989ee1234c634104d7d69b2596f3fce2b2df34",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70268b7c_5c100e46",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-05T04:17:43Z",
+      "side": 1,
+      "message": "\u003e goal is hermeticity and correctness.\n\nI prefer to avoid increasing repository size if possible. Can we rely on Cargo.lock for that then?",
+      "parentUuid": "821b6b4c_194f60aa",
+      "revId": "71989ee1234c634104d7d69b2596f3fce2b2df34",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

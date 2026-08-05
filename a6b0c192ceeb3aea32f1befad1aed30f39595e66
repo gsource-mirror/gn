@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8dce632_113ecc9e",
+        "filename": "tools/verify_recipe.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-05T04:35:58Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If a user passes duplicate platforms (e.g., `-p linux -p linux`), this will result in duplicated runs. Consider deduplicating the list, e.g., using `list(dict.fromkeys(args.platform))` if order matters or `list(set(args.platform))`.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 0
+      },
+      "revId": "a6b0c192ceeb3aea32f1befad1aed30f39595e66",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "756edbe0_78bdf6f6",
+        "filename": "tools/verify_recipe.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-05T04:35:58Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Checking only `p4.returncode` can miss intermediate failures in the pipeline (e.g., if `led get-builder` fails). It\u0027s safer to verify that all processes completed successfully:\n\n```python\nif any(p.returncode !\u003d 0 for p in (p1, p2, p3, p4)):\n```",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 0
+      },
+      "revId": "a6b0c192ceeb3aea32f1befad1aed30f39595e66",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

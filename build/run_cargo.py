@@ -148,14 +148,14 @@ def process_test_target(out_path: Path, cargo_out_dir: Path) -> list[Path]:
 
 
 def main():
-  if len(sys.argv) < 7:
+  if len(sys.argv) < 9:
     print(
-        'Usage: run_cargo.py <test|lib> <out> <cargo_out_dir> <cxx> <cxxflags> <command...>',
+        'Usage: run_cargo.py <test|lib> <out> <cargo_out_dir> <cxx> <cxxflags> <ldflags> <target_triple> <command...>',
         file=sys.stderr,
     )
     sys.exit(1)
 
-  target_type, out_path_str, cargo_out_dir_str, cxx, cxxflags, *cmd_args = sys.argv[1:]
+  target_type, out_path_str, cargo_out_dir_str, cxx, cxxflags, ldflags, target_triple, *cmd_args = sys.argv[1:]
   out_path = Path(out_path_str)
   cargo_out_dir = Path(cargo_out_dir_str)
 
@@ -164,7 +164,18 @@ def main():
   # Since Ninja runs commands from the build output directory, CWD is the ninja out dir.
   ninja_out_dir = os.getcwd()
   os.environ['NINJA_OUT_DIR'] = ninja_out_dir
-  os.environ['RUSTFLAGS'] = f"-L {ninja_out_dir}"
+  os.environ['RUSTFLAGS'] = f'-C linker={cxx} -L {ninja_out_dir}'
+  target_rustflags = [f"-C linker={cxx}", f"-L {ninja_out_dir}"] + [
+      f"-C link-arg={flag}" for flag in ldflags.split()
+  ]
+  # When linking C++ objects instrumented with ASan/UBSan, we must allow the
+  # linker to link its default libraries so it pulls in the sanitizer runtimes.
+  if '-fsanitize=' in ldflags:
+    target_rustflags.append("-C default-linker-libraries=yes")
+
+  env_var = f"CARGO_TARGET_{target_triple.upper().replace('-', '_')}_RUSTFLAGS"
+  os.environ[env_var] = ' '.join(target_rustflags)
+  os.environ['CARGO_TARGET_APPLIES_TO_HOST'] = 'false'
 
   # Now we run the `cargo build` command
   res = subprocess.run(cmd_args)

@@ -69,6 +69,41 @@
       "parentUuid": "5dca81d9_42068dbf",
       "revId": "155691753ddb3c5a9a2219ff4608298ea990ee4d",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd4edf59_31394e19",
+        "filename": "infra/recipes/gn.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-05T06:02:38Z",
+      "side": 1,
+      "message": "Remove this trailing space?",
+      "fixSuggestions": [
+        {
+          "fixId": "87a951fb_62769f36",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "infra/recipes/gn.py",
+              "range": {
+                "startLine": 296,
+                "startChar": 0,
+                "endLine": 297,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "155691753ddb3c5a9a2219ff4608298ea990ee4d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

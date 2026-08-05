@@ -148,14 +148,14 @@ def process_test_target(out_path: Path, cargo_out_dir: Path) -> list[Path]:
 
 
 def main():
-  if len(sys.argv) < 7:
+  if len(sys.argv) < 8:
     print(
-        'Usage: run_cargo.py <test|lib> <out> <cargo_out_dir> <cxx> <cxxflags> <command...>',
+        'Usage: run_cargo.py <test|lib> <out> <cargo_out_dir> <cxx> <cxxflags> <ldflags> <command...>',
         file=sys.stderr,
     )
     sys.exit(1)
 
-  target_type, out_path_str, cargo_out_dir_str, cxx, cxxflags, *cmd_args = sys.argv[1:]
+  target_type, out_path_str, cargo_out_dir_str, cxx, cxxflags, ldflags, *cmd_args = sys.argv[1:]
   out_path = Path(out_path_str)
   cargo_out_dir = Path(cargo_out_dir_str)
 
@@ -164,7 +164,10 @@ def main():
   # Since Ninja runs commands from the build output directory, CWD is the ninja out dir.
   ninja_out_dir = os.getcwd()
   os.environ['NINJA_OUT_DIR'] = ninja_out_dir
-  os.environ['RUSTFLAGS'] = f"-L {ninja_out_dir}"
+  rustflags = [f"-L {ninja_out_dir}", f"-C linker={cxx}"]
+  for flag in ldflags.split():
+    rustflags.append(f"-C link-arg={flag}")
+  os.environ['RUSTFLAGS'] = ' '.join(rustflags)
 
   # Now we run the `cargo build` command
   res = subprocess.run(cmd_args)

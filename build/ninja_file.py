@@ -148,7 +148,7 @@ class NinjaFile:
         ninja_file=self,
         command=python(
             run_cargo_rel_path,
-            '$target_type $out $cargo_out_dir $cxx "$cxxflags"'
+            '$target_type $out $cargo_out_dir $cxx "$cxxflags" "$ldflags"'
             ' cargo build --color=always'
             ' --manifest-path=$manifest_path $cargo_target_dir $cargo_flags' + ('' if self.debug else ' --release'),
         ),

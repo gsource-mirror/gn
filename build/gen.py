@@ -399,6 +399,7 @@ def WriteGenericNinja(path, static_libraries, executables,
         'crate_dir': ninja.source_file('src/gn/starlark'),
         'target_dir': 'starlark',
         'cxxflags': ' '.join(cflags),
+        'ldflags': ' '.join(ldflags),
     }
     ninja.CargoLibTarget(
         library_to_a('gn_starlark'),

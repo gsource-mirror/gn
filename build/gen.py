@@ -263,6 +263,7 @@ def main(argv):
 
   args_list.add_to_parser(parser)
   options = parser.parse_args(argv)
+  options.out_path = os.path.abspath(options.out_path)
 
   platform = Platform(options.platform)
   if options.host:
@@ -409,7 +410,7 @@ def WriteGenericNinja(path, static_libraries, executables,
                                       os.path.dirname(path)))),
         '  includes = %s' % ' '.join(
             ['-I' + escape_path_ninja(dirname) for dirname in include_dirs]),
-        '  cflags = %s' % ' '.join(cflags),
+        '  cflags = %s' % ' '.join(settings.get('cflags', cflags)),
     ])
 
   for library, settings in static_libraries.items():
@@ -478,6 +479,34 @@ def WriteGenericNinja(path, static_libraries, executables,
               args='--quiet',
           )
       ] if options.starlark else []),
+  )
+
+  ninja.Phony(
+      'check_all',
+      inputs=[
+          ninja.RunBinary(
+              'check_formatter',
+              inputs=[ninja.source_file('tools/run_formatter.sh')],
+              implicit_inputs=ninja.directory(ninja.source_file('src'), ['target']),
+              args='--diff',
+          ),
+          ninja.RunBinary(
+              'check_reference',
+              inputs=[ninja.source_file('tools/update_reference.sh')],
+              implicit_inputs=[
+                  'gn' + platform.exe_suffix,
+                  ninja.source_file('docs/reference.md'),
+              ],
+              args='--diff',
+              env=f'NOBUILD=1 NINJA_OUT_DIR={os.path.relpath(build_dir, REPO_ROOT)}',
+          ),
+          ninja.CargoClippyTarget(
+              'check_linter',
+              cargo_flags='--workspace --all-targets',
+              clippy_flags='-D warnings',
+              **starlark_common_args,
+          ),
+      ],
   )
 
   with open(path, 'w') as f:
@@ -757,7 +786,13 @@ def WriteGNNinja(path, platform, host, options, args_list):
           'sources': [
               'src/gn/string_atom.cc',
               'src/gn/ffi/intern_string.cc',
-          ]
+          ],
+          # Strip /GL from string_atom.
+          # The Rust types crate references intern_string via a raw extern "C"
+          # declaration. If compiled with /GL, the MSVC linker discards this
+          # symbol during the LTCG phase because it has no references from
+          # C++ /GL objects, causing LNK2001 link errors in Rust test binaries.
+          'cflags': [f for f in cflags if f != '/GL']
       },
       'gn_lib': {
           'sources': [

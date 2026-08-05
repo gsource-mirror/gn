@@ -88,6 +88,24 @@
       "parentUuid": "70268b7c_5c100e46",
       "revId": "71989ee1234c634104d7d69b2596f3fce2b2df34",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6f52ae3_4b6f4079",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-05T05:32:47Z",
+      "side": 1,
+      "message": "I generally don\u0027t want to have vendor directory.\n\n\u003e I ask because I remember we had endless nightmares with our CI builds failing back when I was working on chromeos because downloading from github was pretty unreliable and would frequently fail.\n\nCan we defer vendor until when we found that Rust package registry has the same level of unstability?",
+      "parentUuid": "fc4cd6ac_90184b94",
+      "revId": "71989ee1234c634104d7d69b2596f3fce2b2df34",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

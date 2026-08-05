@@ -106,6 +106,24 @@
       "parentUuid": "fc4cd6ac_90184b94",
       "revId": "71989ee1234c634104d7d69b2596f3fce2b2df34",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97e82f17_a286c52f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-05T05:34:18Z",
+      "side": 1,
+      "message": "Sure, we can defer for now",
+      "parentUuid": "c6f52ae3_4b6f4079",
+      "revId": "71989ee1234c634104d7d69b2596f3fce2b2df34",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

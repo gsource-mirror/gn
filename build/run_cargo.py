@@ -97,6 +97,14 @@ def process_test_target(out_path: Path, cargo_out_dir: Path) -> list[Path]:
   # When cargo builds tests, it builds one test binary per crate.
   # So we find all those test binaries, then make the generated "test binary"
   # just a script that invokes each of those binaries one by one.
+  print(f"DEBUG: 'deps' dir missing. cargo_out_dir is: {cargo_out_dir}", file=sys.stderr)
+  print(f"DEBUG: CWD is: {os.getcwd()}", file=sys.stderr)
+  # Find all files in CWD to see what was actually built
+  print(f"DEBUG: Listing all files under CWD ({os.getcwd()}):", file=sys.stderr)
+  for root, _, files in os.walk('.'):
+    for name in files:
+      print(os.path.join(root, name), file=sys.stderr)
+
   groups = {}
   for c in (cargo_out_dir / 'deps').iterdir():
     is_executable = c.suffix.lower() == '.exe' if sys.platform == 'win32' else os.access(c, os.X_OK)
@@ -148,14 +156,14 @@ def process_test_target(out_path: Path, cargo_out_dir: Path) -> list[Path]:
 
 
 def main():
-  if len(sys.argv) < 7:
+  if len(sys.argv) < 9:
     print(
-        'Usage: run_cargo.py <test|lib> <out> <cargo_out_dir> <cxx> <cxxflags> <command...>',
+        'Usage: run_cargo.py <test|lib> <out> <cargo_out_dir> <cxx> <cxxflags> <ldflags> <target_triple> <command...>',
         file=sys.stderr,
     )
     sys.exit(1)
 
-  target_type, out_path_str, cargo_out_dir_str, cxx, cxxflags, *cmd_args = sys.argv[1:]
+  target_type, out_path_str, cargo_out_dir_str, cxx, cxxflags, ldflags, target_triple, *cmd_args = sys.argv[1:]
   out_path = Path(out_path_str)
   cargo_out_dir = Path(cargo_out_dir_str)
 
@@ -164,7 +172,24 @@ def main():
   # Since Ninja runs commands from the build output directory, CWD is the ninja out dir.
   ninja_out_dir = os.getcwd()
   os.environ['NINJA_OUT_DIR'] = ninja_out_dir
-  os.environ['RUSTFLAGS'] = f"-L {ninja_out_dir}"
+  target_rustflags = [f"-C linker={cxx}", f"-L {ninja_out_dir}"] + [
+      f"-C link-arg={flag}" for flag in ldflags.split()
+  ]
+  # When linking C++ objects instrumented with ASan/UBSan, we must allow the
+  # linker to link its default libraries so it pulls in the sanitizer runtimes.
+  if '-fsanitize=' in ldflags:
+    target_rustflags.append("-C default-linker-libraries=yes")
+
+  env_var = f"CARGO_TARGET_{target_triple.upper().replace('-', '_')}_RUSTFLAGS"
+  os.environ[env_var] = ' '.join(target_rustflags)
+  # The link flags are specifically for the target. When cross-compiling, the
+  # target and host platforms are the same, but we don't want the link flags
+  # when building build tools.
+  os.environ['CARGO_TARGET_APPLIES_TO_HOST'] = 'false'
+
+  if sys.platform == 'win32':
+    # cxx complains that it requires `git clone -c core.symlinks=true ...`
+    os.environ['GIT_CONFIG_PARAMETERS'] = "'core.symlinks=true'"
 
   # Now we run the `cargo build` command
   res = subprocess.run(cmd_args)

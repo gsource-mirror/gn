@@ -70,6 +70,7 @@ mod dummy {
         include!("gn/value.h");
 
         type Err;
+        pub unsafe fn free_vector_buffer(ptr: *mut Any);
         pub fn has_error(self: &Err) -> bool;
         // Dead code for production, used in tests only
         #[allow(dead_code)]

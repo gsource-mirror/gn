@@ -111,7 +111,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "infra/ninja/${platform} version:1.8.2\nfuchsia/third_party/clang/${platform} integration",
+      "infra/ninja/${platform} version:1.8.2\nfuchsia/third_party/rust/host/${platform} git_revisions:1ed2df61a19042f231709eb05d032ae9e2cb2084,7980fa07f3c3633504c617e05b31673b50565957\nfuchsia/third_party/clang/${platform} integration",
       "-max-threads",
       "0",
       "-json-output",
@@ -138,6 +138,10 @@
       "@@@STEP_LOG_LINE@json.output@      {@@@",
       "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-integration-----\",@@@",
       "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/third_party/clang/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      },@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-git_revisions:1e\",@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/third_party/rust/host/resolved-platform\"@@@",
       "@@@STEP_LOG_LINE@json.output@      },@@@",
       "@@@STEP_LOG_LINE@json.output@      {@@@",
       "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\",@@@",
@@ -311,6 +315,7 @@
       "-d",
       "--use-asan",
       "--use-ubsan",
+      "--starlark",
       "--out-path",
       "[START_DIR]/gn/out/Default"
     ],
@@ -321,6 +326,11 @@
       "CFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path -nostdinc++ -cxx-isystem [CACHE]/macos_sdk/XCode.app/include/c++/v1",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -355,6 +365,11 @@
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
+    },
     "luci_context": {
       "realm": {
         "name": "gn:ci"
@@ -383,6 +398,11 @@
       "CFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path -nostdinc++ -cxx-isystem [CACHE]/macos_sdk/XCode.app/include/c++/v1",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -415,6 +435,11 @@
       "CFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path -nostdinc++ -cxx-isystem [CACHE]/macos_sdk/XCode.app/include/c++/v1",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -505,6 +530,7 @@
       "[START_DIR]/gn/build/gen.py",
       "--use-lto",
       "--use-icf",
+      "--starlark",
       "--out-path",
       "[START_DIR]/gn/out/Default"
     ],
@@ -515,6 +541,11 @@
       "CFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path -nostdinc++ -cxx-isystem [CACHE]/macos_sdk/XCode.app/include/c++/v1",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -549,6 +580,11 @@
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
+    },
     "luci_context": {
       "realm": {
         "name": "gn:ci"
@@ -577,6 +613,11 @@
       "CFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path -nostdinc++ -cxx-isystem [CACHE]/macos_sdk/XCode.app/include/c++/v1",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -609,6 +650,11 @@
       "CFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path -nostdinc++ -cxx-isystem [CACHE]/macos_sdk/XCode.app/include/c++/v1",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -654,6 +700,11 @@
       "CFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path -nostdinc++ -cxx-isystem [CACHE]/macos_sdk/XCode.app/include/c++/v1",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -747,6 +798,7 @@
       "[START_DIR]/gn/build/gen.py",
       "--use-lto",
       "--use-icf",
+      "--starlark",
       "--out-path",
       "[START_DIR]/gn/out/Default"
     ],
@@ -757,6 +809,11 @@
       "CFLAGS": "--target=arm64-apple-darwin --sysroot=/some/xcode/path -nostdinc++ -cxx-isystem [CACHE]/macos_sdk/XCode.app/include/c++/v1",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=arm64-apple-darwin --sysroot=/some/xcode/path"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -790,6 +847,11 @@
       "CFLAGS": "--target=arm64-apple-darwin --sysroot=/some/xcode/path -nostdinc++ -cxx-isystem [CACHE]/macos_sdk/XCode.app/include/c++/v1",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=arm64-apple-darwin --sysroot=/some/xcode/path"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -835,6 +897,11 @@
       "CFLAGS": "--target=arm64-apple-darwin --sysroot=/some/xcode/path -nostdinc++ -cxx-isystem [CACHE]/macos_sdk/XCode.app/include/c++/v1",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LDFLAGS": "--target=arm64-apple-darwin --sysroot=/some/xcode/path"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {

@@ -108,6 +108,9 @@ def RunSteps(api, repository):
 
     with api.context(cwd=src_dir):
       build_input = api.buildbucket.build_input
+      gitiles_ref = build_input.gitiles_commit.ref if build_input.gitiles_commit else ''
+      branch_name = gitiles_ref.removeprefix('refs/heads/') if gitiles_ref else None
+
       ref = (
           build_input.gitiles_commit.id
           if build_input.gitiles_commit else 'refs/heads/master')
@@ -130,6 +133,8 @@ def RunSteps(api, repository):
     cipd_dir = api.path['start_dir'].join('cipd')
     pkgs = api.cipd.EnsureFile()
     pkgs.add_package('infra/ninja/${platform}', 'version:1.8.2')
+    pkgs.add_package('fuchsia/third_party/rust/host/${platform}',
+                     'git_revisions:1ed2df61a19042f231709eb05d032ae9e2cb2084,7980fa07f3c3633504c617e05b31673b50565957')
     if api.platform.is_linux or api.platform.is_mac:
       pkgs.add_package('fuchsia/third_party/clang/${platform}', 'integration')
     if api.platform.is_linux:
@@ -158,12 +163,12 @@ def RunSteps(api, repository):
   configs = [
       {
           'name': 'debug',
-          'args': ['-d', '--use-asan', '--use-ubsan'],
+          'args': ['-d', '--use-asan', '--use-ubsan', '--starlark'],
           'targets': [api.target.host],
       },
       {
           'name': 'release',
-          'args': ['--use-lto', '--use-icf'],
+          'args': ['--use-lto', '--use-icf', '--starlark'],
           'targets': release_targets(),
           # TODO: Enable this for OS X and Windows.
           'use_jemalloc': api.platform.is_linux,
@@ -255,7 +260,7 @@ def RunSteps(api, repository):
         for target in config['targets']:
           env = _get_compilation_environment(api, target, cipd_dir)
           with api.step.nest(target.platform), api.context(
-              env=env, cwd=src_dir):
+              env=env, cwd=src_dir, env_prefixes={'PATH': [cipd_dir.join('bin')]}):
             args = config['args'] + ['--out-path', out_dir]
             if config.get('use_jemalloc', False):
               args.append('--link-lib=%s' % jemalloc_static_libs[target.platform])
@@ -285,8 +290,12 @@ def RunSteps(api, repository):
                 with api.context(env={'NOBUILD': '1', 'NINJA_OUT_DIR': out_dir}):
                   api.step('Check tools/update_reference.sh',
                           [src_dir.join('tools', 'update_reference.sh'), '--diff'])
+                api.step('Check tools/run_linter.sh',
+                          [src_dir.join('tools', 'run_linter.sh')])
+ 
 
-            if config['name'] != 'release':
+            # Don't allow CI builds from non-main branches to be uploaded to CIPD.
+            if config['name'] != 'release' or (not build_input.gerrit_changes and branch_name not in ('main', 'master')):
               continue
 
             with api.step.nest('upload'):
@@ -338,17 +347,20 @@ def GenTests(api):
            api.buildbucket.ci_build(
                project='gn',
                git_repo='gn.googlesource.com/gn',
+               git_ref='refs/heads/main',
            ))
 
     yield (api.test('cq_' + platform) + api.platform.name(platform) +
            api.buildbucket.try_build(
                project='gn',
                git_repo='gn.googlesource.com/gn',
+               git_ref='refs/heads/main',
            ))
 
   yield (api.test('cipd_exists') + api.buildbucket.ci_build(
       project='infra-internal',
       git_repo='gn.googlesource.com/gn',
+      git_ref='refs/heads/main',
       revision='a' * 40,
   ) + api.step_data(
       'git.rev-parse', api.raw_io.stream_output_text('a' * 40)
@@ -361,6 +373,7 @@ def GenTests(api):
   yield (api.test('cipd_register') + api.buildbucket.ci_build(
       project='infra-internal',
       git_repo='gn.googlesource.com/gn',
+      git_ref='refs/heads/main',
       revision='a' * 40,
   ) + api.step_data(
       'git.rev-parse', api.raw_io.stream_output_text('a' * 40)

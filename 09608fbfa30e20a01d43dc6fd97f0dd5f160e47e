@@ -16,6 +16,24 @@
       "message": "Better to wait for p1, p2 and p3?",
       "revId": "09608fbfa30e20a01d43dc6fd97f0dd5f160e47e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fb5c6af_707f0fa0",
+        "filename": "tools/verify_recipe.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-05T04:29:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91d6960d_dd985715",
+      "revId": "09608fbfa30e20a01d43dc6fd97f0dd5f160e47e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

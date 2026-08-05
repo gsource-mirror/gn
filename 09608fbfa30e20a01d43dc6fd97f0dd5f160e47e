@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91d6960d_dd985715",
+        "filename": "tools/verify_recipe.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-05T04:24:09Z",
+      "side": 1,
+      "message": "Better to wait for p1, p2 and p3?",
+      "revId": "09608fbfa30e20a01d43dc6fd97f0dd5f160e47e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

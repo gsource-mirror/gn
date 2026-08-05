@@ -221,3 +221,8 @@ setup_branch(
     ref = "refs/heads/main",
     suffix = "",
 )
+
+setup_branch(
+    ref = "refs/heads/starlark",
+    suffix = "-starlark",
+)

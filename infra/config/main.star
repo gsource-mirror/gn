@@ -217,3 +217,11 @@ setup_branch(
     cq_group_name = "gn",
     console_title = "gn",
 )
+
+setup_branch(
+    ref = "refs/heads/starlark",
+    suffix = "-starlark",
+    console_name = "gn-starlark",
+    cq_group_name = "gn-starlark",
+    console_title = "gn (starlark)",
+)

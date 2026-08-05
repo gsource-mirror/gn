@@ -70,6 +70,24 @@
       "parentUuid": "821b6b4c_194f60aa",
       "revId": "71989ee1234c634104d7d69b2596f3fce2b2df34",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc4cd6ac_90184b94",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-05T04:26:20Z",
+      "side": 1,
+      "message": "It appears I may have misunderstood your perspective when I brought up this CL on the main branch earlier, could you clarify your perspective?\n\nI was under the impression that you were saying that until we were confident this was going to land, we shouldn\u0027t vendor things because of the increase to repository size, which I completely agree with.\n\nFor that reason, I\u0027m landing this on the starlark branch, so people working on GN shouldn\u0027t need to download this, and it shouldn\u0027t increase their repository size unless they explicitly download this branch.\n\nAre you trying to say that in the long term, you don\u0027t want to vendor, or that you don\u0027t yet want to vendor (and if so, could you explain why, and when you\u0027d be ready to do so)? I ask because I remember we had endless nightmares with our CI builds failing back when I was working on chromeos because downloading from github was pretty unreliable and would frequently fail.",
+      "parentUuid": "70268b7c_5c100e46",
+      "revId": "71989ee1234c634104d7d69b2596f3fce2b2df34",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

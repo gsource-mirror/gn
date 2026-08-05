@@ -97,19 +97,42 @@ def process_test_target(out_path: Path, cargo_out_dir: Path) -> list[Path]:
   # When cargo builds tests, it builds one test binary per crate.
   # So we find all those test binaries, then make the generated "test binary"
   # just a script that invokes each of those binaries one by one.
+
+  # Note that the layout of the output directory of cargo has changed. Thus, we
+  # must match both:
+  # Old layout: deps/<crate>-<hash>(.exe)
+  # New layout: build/<crate>/<hash>/out/<crate>-<hash>(.exe)
+  layout_pattern = re.compile(
+      r'^(?:'
+      r'deps'
+      r'|'
+      r'build/[^/]+/[0-9a-f]{16}/out'
+      r')/(?P<crate_name>[a-zA-Z0-9_-]+)-[0-9a-f]{16}(?:\.exe)?$'
+  )
+
   groups = {}
-  for c in (cargo_out_dir / 'deps').iterdir():
-    is_executable = c.suffix.lower() == '.exe' if sys.platform == 'win32' else os.access(c, os.X_OK)
-    if c.is_file() and is_executable and c.suffix.lower() not in ('.so', '.dylib', '.dll'):
-      parts = c.name.split('-')
+  for root, _, files in os.walk(cargo_out_dir):
+    root_path = Path(root)
+    for name in files:
+      c = root_path / name
+      rel_path = c.relative_to(cargo_out_dir).as_posix()
+      m = layout_pattern.search(rel_path)
+      if not m:
+        continue
+
+      # Ensure it is actually an executable test binary
+      is_executable = c.suffix.lower() == '.exe' if sys.platform == 'win32' else os.access(c, os.X_OK)
+      if not is_executable:
+        continue
+
+      crate_name = m.group('crate_name')
       # Cargo can cache your test binary under different configurations.
       # Eg. The test binary might be called `mytest-hash1`, then after updating your lockfile,
       # it might keep that binary but future tests would be called `mytest-hash2`.
       # When this happens, we should use the newest one.
-      if len(parts) >= 2:
-        crate_name = '-'.join(parts[:-1])
-        if crate_name not in groups or c.stat().st_mtime > groups[crate_name].stat().st_mtime:
-          groups[crate_name] = c
+      if crate_name not in groups or c.stat().st_mtime > groups[crate_name].stat().st_mtime:
+        groups[crate_name] = c
+
   newest_binaries = list(groups.values())
 
   out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -148,14 +171,14 @@ def process_test_target(out_path: Path, cargo_out_dir: Path) -> list[Path]:
 
 
 def main():
-  if len(sys.argv) < 7:
+  if len(sys.argv) < 9:
     print(
-        'Usage: run_cargo.py <test|lib> <out> <cargo_out_dir> <cxx> <cxxflags> <command...>',
+        'Usage: run_cargo.py <test|lib> <out> <cargo_out_dir> <cxx> <cxxflags> <ldflags> <target_triple> <command...>',
         file=sys.stderr,
     )
     sys.exit(1)
 
-  target_type, out_path_str, cargo_out_dir_str, cxx, cxxflags, *cmd_args = sys.argv[1:]
+  target_type, out_path_str, cargo_out_dir_str, cxx, cxxflags, ldflags, target_triple, *cmd_args = sys.argv[1:]
   out_path = Path(out_path_str)
   cargo_out_dir = Path(cargo_out_dir_str)
 
@@ -164,7 +187,26 @@ def main():
   # Since Ninja runs commands from the build output directory, CWD is the ninja out dir.
   ninja_out_dir = os.getcwd()
   os.environ['NINJA_OUT_DIR'] = ninja_out_dir
-  os.environ['RUSTFLAGS'] = f"-L {ninja_out_dir}"
+  target_rustflags = [f"-C linker={cxx}", f"-L {ninja_out_dir}"] + [
+      f"-C link-arg={flag}" for flag in ldflags.split()
+  ]
+  # When linking C++ objects instrumented with ASan/UBSan, we must allow the
+  # linker to link its default libraries so it pulls in the sanitizer runtimes.
+  if '-fsanitize=' in ldflags:
+    target_rustflags.append("-C default-linker-libraries=yes")
+
+  env_var = f"CARGO_TARGET_{target_triple.upper().replace('-', '_')}_RUSTFLAGS"
+  os.environ[env_var] = ' '.join(target_rustflags)
+  # The link flags are specifically for the target. When cross-compiling, the
+  # target and host platforms are the same, but we don't want the link flags
+  # when building build tools.
+  os.environ['CARGO_TARGET_APPLIES_TO_HOST'] = 'false'
+
+  if sys.platform == 'win32':
+    # Force Git to enable symlinks for Cargo git dependencies on Windows.
+    os.environ['GIT_CONFIG_COUNT'] = '1'
+    os.environ['GIT_CONFIG_KEY_0'] = 'core.symlinks'
+    os.environ['GIT_CONFIG_VALUE_0'] = 'true'
 
   # Now we run the `cargo build` command
   res = subprocess.run(cmd_args)

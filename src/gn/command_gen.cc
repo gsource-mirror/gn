@@ -10,12 +10,14 @@
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
+#include "base/json/json_writer.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "base/timer/elapsed_timer.h"
 #include "gn/build_settings.h"
 #include "gn/commands.h"
 #include "gn/compile_commands_writer.h"
+#include "gn/desc_builder.h"
 #include "gn/eclipse_writer.h"
 #include "gn/filesystem_utils.h"
 #include "gn/json_project_writer.h"
@@ -77,6 +79,7 @@ const char kSwitchJsonIdeScriptArgs[] = "json-ide-script-args";
 const char kSwitchExportCompileCommands[] = "export-compile-commands";
 const char kSwitchExportRustProject[] = "export-rust-project";
 const char kSwitchFilterWithData[] = "filter-with-data";
+const char kSwitchDescJsonFileName[] = "desc-json-file-name";
 
 // A map type used to implement --ide=ninja_outputs
 using NinjaOutputsMap = NinjaOutputsWriter::MapType;
@@ -437,6 +440,42 @@ bool RunCompileCommandsWriter(Setup& setup, Err* err) {
       setup.export_compile_commands(), legacy_target_filters, output_path, err);
   if (ok && !quiet) {
     OutputString("Generating compile_commands took " +
+                 base::Int64ToString(timer.Elapsed().InMilliseconds()) +
+                 "ms\n");
+  }
+  return ok;
+}
+
+bool RunDescJsonWriter(const BuildSettings* build_settings,
+                       const Builder& builder,
+                       const std::string& file_name,
+                       Err* err) {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  bool quiet = command_line->HasSwitch(switches::kQuiet);
+  base::ElapsedTimer timer;
+
+  std::vector<const Target*> all_targets = builder.GetAllResolvedTargets();
+  auto res = std::make_unique<base::DictionaryValue>();
+  for (const auto* target : all_targets) {
+    res->SetWithoutPathExpansion(
+        target->label().GetUserVisibleName(
+            target->settings()->default_toolchain_label()),
+        DescBuilder::DescriptionForTarget(target, "", false, false, false));
+  }
+  std::string s;
+  base::JSONWriter::WriteWithOptions(
+      *res.get(), base::JSONWriter::OPTIONS_PRETTY_PRINT, &s);
+
+  SourceFile output_file = build_settings->build_dir().ResolveRelativeFile(
+      Value(nullptr, file_name), err);
+  if (output_file.is_null())
+    return false;
+
+  base::FilePath output_path = build_settings->GetFullPath(output_file);
+  bool ok = WriteFile(output_path, s, err);
+  if (ok && !quiet) {
+    OutputString("Generating " + file_name + " took " +
                  base::Int64ToString(timer.Elapsed().InMilliseconds()) +
                  "ms\n");
   }
@@ -908,6 +947,21 @@ int RunGen(const std::vector<std::string>& args) {
       !RunRustProjectWriter(&setup->build_settings(), setup->builder(), &err)) {
     err.PrintToStdout();
     return 1;
+  }
+
+  if (command_line->HasSwitch(kSwitchDescJsonFileName)) {
+    std::string desc_json_file_name =
+        command_line->GetSwitchValueString(kSwitchDescJsonFileName);
+    if (desc_json_file_name.empty()) {
+      Err(Location(), "The --desc-json-file-name argument cannot be empty!")
+          .PrintToStdout();
+      return 1;
+    }
+    if (!RunDescJsonWriter(&setup->build_settings(), setup->builder(),
+                           desc_json_file_name, &err)) {
+      err.PrintToStdout();
+      return 1;
+    }
   }
 
   if (!WriteIgnoreFile(*setup, &err)) {

@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a94f7b5a_3384842f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-05T03:14:58Z",
+      "side": 1,
+      "message": "I think recipe is used from main branch?",
+      "revId": "155691753ddb3c5a9a2219ff4608298ea990ee4d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5dca81d9_42068dbf",
+        "filename": "infra/recipes/gn.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-05T03:14:58Z",
+      "side": 1,
+      "message": "Can we specify this only in starlark branch?",
+      "revId": "155691753ddb3c5a9a2219ff4608298ea990ee4d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

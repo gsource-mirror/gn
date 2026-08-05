@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef580a5f_31e79dab",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-05T04:19:21Z",
+      "side": 1,
+      "message": "I believe I\u0027ve configured it to load the recipe from the correct branch.\n\nThe builders are currently failing (https://ci.chromium.org/ui/p/gn/builders/try/linux-starlark/b8674340907045081297?) because the recipe isn\u0027t bundled for the starlark branch, but I believe it should be fixed by crrev.com/i/9628474",
+      "parentUuid": "a94f7b5a_3384842f",
+      "revId": "155691753ddb3c5a9a2219ff4608298ea990ee4d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5dca81d9_42068dbf",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-08-05T03:14:58Z",
       "side": 1,
       "message": "Can we specify this only in starlark branch?",
+      "revId": "155691753ddb3c5a9a2219ff4608298ea990ee4d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af534fd1_769a07a8",
+        "filename": "infra/recipes/gn.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-05T04:19:21Z",
+      "side": 1,
+      "message": "Since the commit is being uploaded to the starlark branch, we don\u0027t need this flag.",
+      "parentUuid": "5dca81d9_42068dbf",
       "revId": "155691753ddb3c5a9a2219ff4608298ea990ee4d",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

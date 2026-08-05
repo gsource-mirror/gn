@@ -16,6 +16,24 @@
       "message": "Can we use swarming cache dir with\nhttps://doc.rust-lang.org/cargo/reference/build-cache.html\ninstead of comitting these files if reducing network access is main goal of this CL?",
       "revId": "71989ee1234c634104d7d69b2596f3fce2b2df34",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "148a0ce7_98ec8aa3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-05T04:14:19Z",
+      "side": 1,
+      "message": "The goal isn\u0027t to reduce network access, but to remove network access entirely.\n\nIf the goal was performance, that might be the right approach, but the goal is hermeticity and correctness.",
+      "parentUuid": "2e97edb2_55a915ce",
+      "revId": "71989ee1234c634104d7d69b2596f3fce2b2df34",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

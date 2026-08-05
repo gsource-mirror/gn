@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89fc1828_97010bd1",
+        "filename": "tools/verify_recipe.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-05T04:40:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8dce632_113ecc9e",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 0
+      },
+      "revId": "a6b0c192ceeb3aea32f1befad1aed30f39595e66",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "756edbe0_78bdf6f6",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-08-05T04:35:58Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Checking only `p4.returncode` can miss intermediate failures in the pipeline (e.g., if `led get-builder` fails). It\u0027s safer to verify that all processes completed successfully:\n\n```python\nif any(p.returncode !\u003d 0 for p in (p1, p2, p3, p4)):\n```",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 0
+      },
+      "revId": "a6b0c192ceeb3aea32f1befad1aed30f39595e66",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "575e45ac_1cfafdf0",
+        "filename": "tools/verify_recipe.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-05T04:40:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "756edbe0_78bdf6f6",
       "range": {
         "startLine": 59,
         "startChar": 0,

@@ -203,6 +203,12 @@ def main():
   out_path = Path(out_path_str)
   cargo_out_dir = Path(cargo_out_dir_str)
 
+  if sys.platform == 'win32':
+    # Strip /GL (Whole Program Optimization) from Cargo C++ dependencies.
+    # Otherwise, the MSVC linker fails to match standard COFF Rust references
+    # to these /GL C++ symbols, causing it to discard the FFI shims as unused.
+    cxxflags = cxxflags.replace('/GL', '')
+
   os.environ['CXX'] = cxx
   os.environ['CXXFLAGS'] = cxxflags
   # Since Ninja runs commands from the build output directory, CWD is the

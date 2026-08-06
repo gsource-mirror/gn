@@ -1,0 +1,39 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00944dae_0acb44ed",
+        "filename": "src/gn/command_gen.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-08-06T17:07:04Z",
+      "side": 1,
+      "message": "This actually seems very similar to the what json_project_writer.cc does already (see JsonProjectWriter::RunAndWriteFiles()), can you explain the difference between these two?\n\nAny way we could reuse the code from the former?",
+      "fixSuggestions": [
+        {
+          "fixId": "2205d919_b9274b15",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_gen.cc",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "// Note: This is similar to JSONProjectWriter::RunAndWriteFiles but has a key\n// difference: this outputs JSON using DescBuilder::DescriptionForTarget, which\n// perfectly matches the format of `gn desc \u003ctarget\u003e --format\u003djson`.\n//\n// In contrast, JSONProjectWriter (invoked via `--ide\u003djson`) is geared towards\n// IDE consumption and includes broader project settings and dependency graphs\n// specific to IDE generation, and supports running post-generation IDE scripts.\n// RunDescJsonWriter is simpler, outputting just the dictionary description\n// of every target in the build graph.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9ac6b4aaf40645a1fba47efa1edaca2e79b05934",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -15,5 +15,5 @@
 // linker only pulls in this file and does not pull in `cxx_api.o`.
 extern "C" rust::Str intern_string(rust::Str s) {
   StringAtom atom(std::string_view{s});
-  return rust::Str(atom.str());
+  return rust::Str(atom.str().data(), atom.str().size());
 }

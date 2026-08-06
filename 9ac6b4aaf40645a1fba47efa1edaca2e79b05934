@@ -34,6 +34,24 @@
       ],
       "revId": "9ac6b4aaf40645a1fba47efa1edaca2e79b05934",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c53881f1_1f52e622",
+        "filename": "src/gn/command_gen.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 1000397
+      },
+      "writtenOn": "2026-08-06T18:41:50Z",
+      "side": 1,
+      "message": "the `project.json` file appears to be a superset of this data (and generates much more quickly).  I\u0027m going to abandon this, and change our build to generate the project.json file, and then tweak the gn_desc tool to work with that.",
+      "parentUuid": "00944dae_0acb44ed",
+      "revId": "9ac6b4aaf40645a1fba47efa1edaca2e79b05934",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

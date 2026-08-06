@@ -500,6 +500,12 @@ def WriteGenericNinja(path, static_libraries, executables,
               args='--diff',
               env=f'NOBUILD=1 NINJA_OUT_DIR={os.path.relpath(build_dir, REPO_ROOT)}',
           ),
+          ninja.CargoClippyTarget(
+              'check_linter',
+              cargo_flags='--workspace --all-targets',
+              clippy_flags='-D warnings',
+              **starlark_common_args,
+          ),
       ],
   )
 

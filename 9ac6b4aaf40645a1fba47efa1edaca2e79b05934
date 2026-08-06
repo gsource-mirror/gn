@@ -52,6 +52,24 @@
       "parentUuid": "00944dae_0acb44ed",
       "revId": "9ac6b4aaf40645a1fba47efa1edaca2e79b05934",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4dde6a58_3579724f",
+        "filename": "src/gn/command_gen.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-08-06T19:53:20Z",
+      "side": 1,
+      "message": "Excellent!",
+      "parentUuid": "c53881f1_1f52e622",
+      "revId": "9ac6b4aaf40645a1fba47efa1edaca2e79b05934",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

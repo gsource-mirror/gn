@@ -52,6 +52,24 @@
       "parentUuid": "26cecc3d_71a747ce",
       "revId": "ba20907c03a73be56020ba10fac0f2d7cb353d7e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f80149a_3c3bcfe1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-10T02:50:46Z",
+      "side": 1,
+      "message": "gn-review.git.corp.google.com/c/gn/+/25100",
+      "parentUuid": "54eec0fc_2c875023",
+      "revId": "ba20907c03a73be56020ba10fac0f2d7cb353d7e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

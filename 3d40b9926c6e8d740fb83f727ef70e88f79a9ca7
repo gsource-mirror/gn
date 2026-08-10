@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ab44944_b8a52fb0",
+        "filename": "src/gn/err.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-10T23:21:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38856f79_db46eb2d",
+      "range": {
+        "startLine": 151,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 0
+      },
+      "revId": "3d40b9926c6e8d740fb83f727ef70e88f79a9ca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a3911788_30b7fb77",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-08-10T08:27:17Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: This implementation will fail to compile if `T` is `void` because `**this` is not valid for `std::expected\u003cvoid, E\u003e`. \n\nIf the intention is to strictly use `Err` for the `void` case, it might be worth adding a comment or a `static_assert(!std::is_void_v\u003cT\u003e)`. Otherwise, this would need a specialization or a check using `if constexpr`.",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 0
+      },
+      "revId": "3d40b9926c6e8d740fb83f727ef70e88f79a9ca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0160127d_78b57149",
+        "filename": "src/gn/err.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-10T23:21:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3911788_30b7fb77",
       "range": {
         "startLine": 160,
         "startChar": 0,

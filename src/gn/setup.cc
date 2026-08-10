@@ -469,6 +469,15 @@ bool Setup::DoSetup(const std::string& build_dir, bool force_create) {
                  *base::CommandLine::ForCurrentProcess());
 }
 
+bool Setup::DoSetupForFormat() {
+  Err err;
+  if (!FillSourceDir(*base::CommandLine::ForCurrentProcess(), &err)) {
+    err.PrintToStdout();
+    return false;
+  }
+  return true;
+}
+
 bool Setup::DoSetup(const std::string& build_dir,
                     bool force_create,
                     const base::CommandLine& cmdline) {

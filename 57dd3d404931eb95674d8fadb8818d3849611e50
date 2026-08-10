@@ -42,6 +42,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "35c37f52_7f0f83f5",
+        "filename": "infra/recipes/gn.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-10T03:00:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7812c37c_5f5e5e1d",
+      "range": {
+        "startLine": 305,
+        "startChar": 50,
+        "endLine": 305,
+        "endChar": 60
+      },
+      "revId": "57dd3d404931eb95674d8fadb8818d3849611e50",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d62b3105_99799489",
@@ -55,6 +79,30 @@
       "writtenOn": "2026-08-10T02:45:37Z",
       "side": 1,
       "message": "I think it is fine to upload to CAS and CIPD so that we can test binaries built from CQ/CI.",
+      "range": {
+        "startLine": 308,
+        "startChar": 0,
+        "endLine": 309,
+        "endChar": 121
+      },
+      "revId": "57dd3d404931eb95674d8fadb8818d3849611e50",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90771c5f_68e9f7e2",
+        "filename": "infra/recipes/gn.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-10T03:00:56Z",
+      "side": 1,
+      "message": "I didn\u0027t want it uploading to CIPD because I was under the impression that was where chromium pulled its GN from, and I didn\u0027t want any situation where we accidentally used gn from the starlark branch in prod. You might know more than me about this though?",
+      "parentUuid": "d62b3105_99799489",
       "range": {
         "startLine": 308,
         "startChar": 0,

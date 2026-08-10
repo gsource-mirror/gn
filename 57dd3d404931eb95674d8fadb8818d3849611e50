@@ -135,6 +135,30 @@
       },
       "revId": "57dd3d404931eb95674d8fadb8818d3849611e50",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c8e8307_abb107b9",
+        "filename": "infra/recipes/gn.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-10T03:22:13Z",
+      "side": 1,
+      "message": "Here\u0027s the logic for CAS upload.\n\n```\n              if build_input.gerrit_changes:\n                # Upload to CAS from CQ.\n                api.cas.archive(\u0027upload binary to CAS\u0027, out_dir,\n                                out_dir.join(gn))\n                continue\n```\n\nSince we check `not build_input.gerrit_changes`, this won\u0027t block it.",
+      "parentUuid": "2bb2653f_772db728",
+      "range": {
+        "startLine": 308,
+        "startChar": 0,
+        "endLine": 309,
+        "endChar": 121
+      },
+      "revId": "57dd3d404931eb95674d8fadb8818d3849611e50",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

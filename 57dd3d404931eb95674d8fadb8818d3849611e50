@@ -111,6 +111,30 @@
       },
       "revId": "57dd3d404931eb95674d8fadb8818d3849611e50",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2bb2653f_772db728",
+        "filename": "infra/recipes/gn.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-10T03:04:16Z",
+      "side": 1,
+      "message": "Ah, autoroller may update GN from starlark branch if we upload binaries to CIPD. I still think it is fine to upload the binary to CAS which is temporal storage and uploaded only from CQ.",
+      "parentUuid": "90771c5f_68e9f7e2",
+      "range": {
+        "startLine": 308,
+        "startChar": 0,
+        "endLine": 309,
+        "endChar": 121
+      },
+      "revId": "57dd3d404931eb95674d8fadb8818d3849611e50",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

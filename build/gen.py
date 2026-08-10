@@ -784,6 +784,9 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/gn/deps_iterator.cc',
               'src/gn/desc_builder.cc',
               'src/gn/eclipse_writer.cc',
+              'src/gn/build_file_editor.cc',
+              'src/gn/edit_subcommands.cc',
+              'src/gn/edit_command.cc',
               'src/gn/err.cc',
               'src/gn/escape.cc',
               'src/gn/exec_process.cc',
@@ -937,6 +940,8 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/config_unittest.cc',
         'src/gn/config_values_extractors_unittest.cc',
         'src/gn/desc_builder_unittest.cc',
+
+        'src/gn/edit_command_unittest.cc',
         'src/gn/escape_unittest.cc',
         'src/gn/exec_process_unittest.cc',
         'src/gn/filesystem_utils_unittest.cc',

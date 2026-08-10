@@ -11,6 +11,7 @@
     *   [clean: Cleans the output directory.](#cmd_clean)
     *   [clean_stale: Cleans the stale output files from the output directory.](#cmd_clean_stale)
     *   [desc: Show lots of insightful information about a target or config.](#cmd_desc)
+    *   [edit: Edit BUILD.gn files from the command line.](#cmd_edit)
     *   [format: Format .gn files.](#cmd_format)
     *   [gen: Generate ninja files.](#cmd_gen)
     *   [help: Does what you think.](#cmd_help)
@@ -712,6 +713,34 @@
   gn desc out/Debug //base defines --blame
       Shows defines set for the //base:base target, annotated by where
       each one was set from.
+```
+### <a name="cmd_edit"></a>**gn edit &lt;command&gt; &lt;labels/patterns...&gt;**&nbsp;[Back to Top](#gn-reference)
+
+```
+  Executes a command to modify a set of targets
+
+  Note: Because GN is an imperative language, it's not always entirely
+  clear what the "correct" thing is to do.
+
+  In cases of ambiguity (eg. conditionals, +=, -=), `gn edit` will make
+  a best effort attempt to do the right thing, but will leave notes
+  in your build files instructing you what to do.
+  eg. If gn edit suspects a line should be removed, it might add:
+      # TODO(gn edit): double check the following line is safe to remove
+```
+
+#### **Commands**:
+```
+  set <attribute> <value>
+      Sets/overwrites target's <attribute> to <value>.
+      E.g. set testonly true
+```
+
+#### **Examples**:
+```
+  gn edit "set testonly true" //src/tools:*
+      Sets 'testonly' to 'true' for all targets in
+      `//src/tools/BUILD.gn`.
 ```
 ### <a name="cmd_format"></a>**gn format [\--dump-tree] [\--format-width=WIDTH] (\--stdin | &lt;list of build_files...&gt;)**&nbsp;[Back to Top](#gn-reference)
 

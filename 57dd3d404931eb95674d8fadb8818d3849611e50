@@ -1,0 +1,68 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7812c37c_5f5e5e1d",
+        "filename": "infra/recipes/gn.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-10T02:45:37Z",
+      "side": 1,
+      "message": "You are removing this in parent CL?",
+      "range": {
+        "startLine": 305,
+        "startChar": 50,
+        "endLine": 305,
+        "endChar": 60
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "c20b8be8_d8571cdd",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "infra/recipes/gn.py",
+              "range": {
+                "startLine": 304,
+                "startChar": 0,
+                "endLine": 306,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "57dd3d404931eb95674d8fadb8818d3849611e50",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d62b3105_99799489",
+        "filename": "infra/recipes/gn.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-10T02:45:37Z",
+      "side": 1,
+      "message": "I think it is fine to upload to CAS and CIPD so that we can test binaries built from CQ/CI.",
+      "range": {
+        "startLine": 308,
+        "startChar": 0,
+        "endLine": 309,
+        "endChar": 121
+      },
+      "revId": "57dd3d404931eb95674d8fadb8818d3849611e50",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

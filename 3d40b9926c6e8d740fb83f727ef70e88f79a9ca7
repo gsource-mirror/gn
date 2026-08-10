@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38856f79_db46eb2d",
+        "filename": "src/gn/err.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-10T08:27:17Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This constructor should probably assert `err.has_error()`. \n\nIf `Ok()` is passed here, the `Result\u003cT\u003e` enters an unexpected state where `has_value()` is false but `error().has_error()` is also false. If a function mistakenly returns `Ok()` instead of a value, callers using `RETURN_IF_ERROR` will propagate the `Ok()` status, masking the missing value as a success. Since `Err` is used for `Result\u003cvoid\u003e`, `Result\u003cT\u003e` should always contain a value on success.",
+      "range": {
+        "startLine": 151,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 0
+      },
+      "revId": "3d40b9926c6e8d740fb83f727ef70e88f79a9ca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3911788_30b7fb77",
+        "filename": "src/gn/err.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-10T08:27:17Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This implementation will fail to compile if `T` is `void` because `**this` is not valid for `std::expected\u003cvoid, E\u003e`. \n\nIf the intention is to strictly use `Err` for the `void` case, it might be worth adding a comment or a `static_assert(!std::is_void_v\u003cT\u003e)`. Otherwise, this would need a specialization or a check using `if constexpr`.",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 0
+      },
+      "revId": "3d40b9926c6e8d740fb83f727ef70e88f79a9ca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee91c791_7fc7faff",
+        "filename": "src/gn/functions.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-10T03:41:42Z",
+      "side": 1,
+      "message": "Better to use push_back for moved arg?",
+      "range": {
+        "startLine": 748,
+        "startChar": 11,
+        "endLine": 748,
+        "endChar": 23
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "9b8c8bcd_e357bd3a",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/functions.cc",
+              "range": {
+                "startLine": 748,
+                "startChar": 0,
+                "endLine": 749,
+                "endChar": 0
+              },
+              "replacement": "    values.push_back(std::move(val));\n"
+            }
+          ]
+        }
+      ],
+      "revId": "73643d8a4f2f9af55c953ba545b360c5e5559972",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

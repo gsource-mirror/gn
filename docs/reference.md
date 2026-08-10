@@ -11,6 +11,7 @@
     *   [clean: Cleans the output directory.](#cmd_clean)
     *   [clean_stale: Cleans the stale output files from the output directory.](#cmd_clean_stale)
     *   [desc: Show lots of insightful information about a target or config.](#cmd_desc)
+    *   [edit: Edit BUILD.gn files from the command line.](#cmd_edit)
     *   [format: Format .gn files.](#cmd_format)
     *   [gen: Generate ninja files.](#cmd_gen)
     *   [help: Does what you think.](#cmd_help)
@@ -712,6 +713,24 @@
   gn desc out/Debug //base defines --blame
       Shows defines set for the //base:base target, annotated by where
       each one was set from.
+```
+### <a name="cmd_edit"></a>**gn edit &lt;command&gt; &lt;labels...&gt;**&nbsp;[Back to Top](#gn-reference)
+
+```
+  Edits GN files by applying a single action to targets matched by patterns.
+```
+
+#### **Commands**:
+```
+  set <attribute> <value>
+      Sets/overwrites target's <attribute> to <value>.
+      E.g. set testonly true
+```
+
+#### **Examples**:
+```
+  gn edit "set testonly true" //src/tools:*
+      Sets 'testonly' to 'true' for all targets in //src/tools/BUILD.gn.
 ```
 ### <a name="cmd_format"></a>**gn format [\--dump-tree] [\--format-width=WIDTH] (\--stdin | &lt;list of build_files...&gt;)**&nbsp;[Back to Top](#gn-reference)
 

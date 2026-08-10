@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20d21066_1a2fa8cb",
+        "filename": "build/gen.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-10T02:37:24Z",
+      "side": 1,
+      "message": "`argparse` (and thus `args_list.add`) allows you to pass a conversion function (callable) directly to the `type` argument.\n\nYou can use `type\u003dos.path.abspath` on line 183 instead of `type\u003dstr`, which eliminates the need to manually overwrite `options.out_path` here.\n\n```python\n  args_list.add(\u0027--out-path\u0027, type\u003dos.path.abspath,\n                    default\u003dos.path.join(REPO_ROOT, \u0027out\u0027),\n                    help\u003d\u0027The path to generate the build files in.\u0027)\n```",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 0
+      },
+      "revId": "a391e81d5d32a8614ee6eaa5fb2fece05bf3e338",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

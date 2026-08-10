@@ -444,10 +444,10 @@ TEST_F(HeaderCheckerTest, Friend) {
   c_.set_all_headers_public(false);
 
   // List A as a friend of C.
-  Err err;
-  c_.friends().push_back(LabelPattern::GetPattern(
-      SourceDir("//"), std::string_view(), Value(nullptr, "//a:*"), &err));
-  ASSERT_SUCCESS(err);
+  auto pat_res = LabelPattern::GetPattern(SourceDir("//"), std::string_view(),
+                                          Value(nullptr, "//a:*"));
+  ASSERT_TRUE(pat_res);
+  c_.friends().push_back(std::move(*pat_res));
 
   // Must be after setting everything up for it to find the files.
   auto checker = CreateChecker();

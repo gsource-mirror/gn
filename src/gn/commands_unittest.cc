@@ -20,14 +20,14 @@ TEST(Commands, FilterOutMatch) {
   Target target_cbar(setup.settings(), Label(SourceDir("//c/"), "bar"));
   std::vector<const Target*> targets{&target_afoo, &target_cbar};
 
-  Err err;
-  LabelPattern pattern_a = LabelPattern::GetPattern(
-      current_dir, std::string_view(), Value(nullptr, "//a:*"), &err);
-  EXPECT_SUCCESS(err);
-  LabelPattern pattern_ef = LabelPattern::GetPattern(
-      current_dir, std::string_view(), Value(nullptr, "//e:f"), &err);
-  EXPECT_SUCCESS(err);
-  std::vector<LabelPattern> label_patterns{pattern_a, pattern_ef};
+  auto pattern_a_res = LabelPattern::GetPattern(current_dir, std::string_view(),
+                                                Value(nullptr, "//a:*"));
+  ASSERT_TRUE(pattern_a_res);
+  auto pattern_ef_res = LabelPattern::GetPattern(
+      current_dir, std::string_view(), Value(nullptr, "//e:f"));
+  ASSERT_TRUE(pattern_ef_res);
+  std::vector<LabelPattern> label_patterns{std::move(*pattern_a_res),
+                                           std::move(*pattern_ef_res)};
 
   std::vector<const Target*> output;
   commands::FilterOutTargetsByPatterns(targets, label_patterns, &output);

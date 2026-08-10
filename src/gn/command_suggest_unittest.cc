@@ -298,9 +298,8 @@ TEST(Suggest, OutputSuggestions) {
     Value visibility_value(nullptr, Value::LIST);
     visibility_value.list_value().push_back(
         Value(nullptr, std::string(pattern)));
-    Err err;
-    EXPECT_TRUE(
-        target->visibility().Set(SourceDir("//"), "", visibility_value, &err));
+    EXPECT_SUCCESS(
+        target->visibility().Set(SourceDir("//"), "", visibility_value));
   };
 
   auto create_target = [&](std::string_view name, Target::OutputType type,

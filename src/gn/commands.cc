@@ -48,13 +48,14 @@ bool ResolveTargetsFromCommandLinePattern(Setup* setup,
   Value pattern_value(nullptr, label_pattern);
 
   Err err;
-  LabelPattern pattern = LabelPattern::GetPattern(
+  Result<LabelPattern> pattern_res = LabelPattern::GetPattern(
       SourceDirForCurrentDirectory(setup->build_settings().root_path()),
-      setup->build_settings().root_path_utf8(), pattern_value, &err);
-  if (err.has_error()) {
-    err.PrintToStdout();
+      setup->build_settings().root_path_utf8(), pattern_value);
+  if (!pattern_res) {
+    pattern_res.error().PrintToStdout();
     return false;
   }
+  LabelPattern pattern = std::move(*pattern_res);
 
   if (default_toolchain_only) {
     // By default a pattern with an empty toolchain will match all toolchains.
@@ -722,12 +723,11 @@ bool FilterPatternsFromString(const BuildSettings* build_settings,
 
   filters->reserve(tokens.size());
   for (const std::string& token : tokens) {
-    LabelPattern pattern = LabelPattern::GetPattern(
-        root_dir, build_settings->root_path_utf8(),
-        Value(nullptr, FixGitBashLabelEdit(token)), err);
-    if (err->has_error())
-      return false;
-    filters->push_back(pattern);
+    ASSIGN_OR_RETURN_PTR(
+        auto pattern, err,
+        LabelPattern::GetPattern(root_dir, build_settings->root_path_utf8(),
+                                 Value(nullptr, FixGitBashLabelEdit(token))));
+    filters->push_back(std::move(pattern));
   }
 
   return true;

@@ -1046,15 +1046,17 @@ bool Setup::FillOtherConfig(const base::CommandLine& cmdline, Err* err) {
     for (auto it = switches.find(switches::kRootPattern);
          it != switches.end() && it->first == switches::kRootPattern; ++it) {
       std::string pattern = base::CommandLine::StringTypeToUTF8(it->second);
-      LabelPattern pat = LabelPattern::GetPattern(
-          SourceDir("//"), build_settings_.root_path_utf8(),
-          Value(nullptr, pattern), err);
-      if (err->has_error()) {
-        err->AppendSubErr(
-            Err(Location(),
-                "for the command-line switch --root-pattern=" + pattern));
-        return false;
-      }
+      ASSIGN_OR_RETURN_PTR(
+          auto pat, err,
+          LabelPattern::GetPattern(SourceDir("//"),
+                                   build_settings_.root_path_utf8(),
+                                   Value(nullptr, pattern))
+              .transform_error([&pattern](Err e) {
+                e.AppendSubErr(Err(
+                    Location(),
+                    "for the command-line switch --root-pattern=" + pattern));
+                return e;
+              }));
       if (!pat.toolchain().is_null()) {
         *err = Err(Location(),
                    "Root pattern cannot have toolchain suffix: " + pattern);
@@ -1076,11 +1078,11 @@ bool Setup::FillOtherConfig(const base::CommandLine& cmdline, Err* err) {
         if (!pattern_value.VerifyTypeIs(Value::STRING, err))
           return false;
 
-        LabelPattern pat = LabelPattern::GetPattern(
-            SourceDir("//"), build_settings_.root_path_utf8(), pattern_value,
-            err);
-        if (err->has_error())
-          return false;
+        ASSIGN_OR_RETURN_PTR(
+            auto pat, err,
+            LabelPattern::GetPattern(SourceDir("//"),
+                                     build_settings_.root_path_utf8(),
+                                     pattern_value));
         if (!pat.toolchain().is_null()) {
           *err =
               Err(pattern_value, "Root pattern cannot have toolchain suffix: " +
@@ -1233,15 +1235,18 @@ bool Setup::FillOtherConfig(const base::CommandLine& cmdline, Err* err) {
   // Append any additional export compile command patterns from the cmdline.
   for (const std::string& cur :
        cmdline.GetSwitchValueStrings(switches::kAddExportCompileCommands)) {
-    LabelPattern pat = LabelPattern::GetPattern(
-        SourceDir("//"), build_settings_.root_path_utf8(), Value(nullptr, cur),
-        err);
-    if (err->has_error()) {
-      err->AppendSubErr(Err(
-          Location(),
-          "for the command-line switch --add-export-compile-commands=" + cur));
-      return false;
-    }
+    ASSIGN_OR_RETURN_PTR(
+        auto pat, err,
+        LabelPattern::GetPattern(SourceDir("//"),
+                                 build_settings_.root_path_utf8(),
+                                 Value(nullptr, cur))
+            .transform_error([&cur](Err e) {
+              e.AppendSubErr(Err(
+                  Location(),
+                  "for the command-line switch --add-export-compile-commands=" +
+                      cur));
+              return e;
+            }));
     export_compile_commands_.push_back(std::move(pat));
   }
 

@@ -153,16 +153,21 @@ class Result : public std::expected<T, Err> {
   // Implicit conversion from T (always creates success state)
   Result(const T& val) : std::expected<T, Err>(val) {}
   Result(T&& val) : std::expected<T, Err>(std::move(val)) {}
+
+  bool has_error() const { return !this->has_value(); }
+
+  std::string message() const {
+    if (has_error()) {
+      return this->error().message();
+    }
+    return "";
+  }
 };
 
-#define _STATUS_CONCAT_INNER(a, b) a ## b
+#define _STATUS_CONCAT_INNER(a, b) a##b
 #define _STATUS_CONCAT(a, b) _STATUS_CONCAT_INNER(a, b)
 
 namespace internal {
-
-inline bool HasError(const Err& err) {
-  return err.has_error();
-}
 
 inline Err GetError(const Err& err) {
   return err;
@@ -170,11 +175,6 @@ inline Err GetError(const Err& err) {
 
 inline Err GetError(Err&& err) {
   return std::move(err);
-}
-
-template <typename T, typename E>
-inline bool HasError(const std::expected<T, E>& exp) {
-  return !exp.has_value();
 }
 
 template <typename T, typename E>
@@ -191,8 +191,9 @@ inline E GetError(std::expected<T, E>&& exp) {
 
 // Unified ASSIGN_OR_RETURN macro. Works when the enclosing function
 // returns Result<U> or Err directly.
-#define ASSIGN_OR_RETURN(lhs, rexpr) \
-  _ASSIGN_OR_RETURN_IMPL(_STATUS_CONCAT(_expected_value, __COUNTER__), lhs, rexpr)
+#define ASSIGN_OR_RETURN(lhs, rexpr)                                        \
+  _ASSIGN_OR_RETURN_IMPL(_STATUS_CONCAT(_expected_value, __COUNTER__), lhs, \
+                         rexpr)
 
 #define _ASSIGN_OR_RETURN_IMPL(expected_val, lhs, rexpr) \
   auto expected_val = (rexpr);                           \
@@ -202,16 +203,77 @@ inline E GetError(std::expected<T, E>&& exp) {
   lhs = std::move(*expected_val)
 
 // Unified RETURN_IF_ERROR macro. Works when the expression returns
-// Result<U> or Err directly, and the enclosing function returns Result<U> or Err.
+// Result<U> or Err directly, and the enclosing function returns Result<U> or
+// Err.
 #define RETURN_IF_ERROR(expr) \
   _RETURN_IF_ERROR_IMPL(_STATUS_CONCAT(_status_value, __COUNTER__), expr)
 
-#define _RETURN_IF_ERROR_IMPL(status_val, expr) \
-  do {                                          \
-    auto status_val = (expr);                   \
-    if (internal::HasError(status_val)) {       \
+#define _RETURN_IF_ERROR_IMPL(status_val, expr)         \
+  do {                                                  \
+    auto status_val = (expr);                           \
+    if (status_val.has_error()) {                       \
       return internal::GetError(std::move(status_val)); \
-    }                                           \
+    }                                                   \
+  } while (0)
+
+// Legacy ASSIGN_OR_RETURN_VOID. Works when the enclosing function returns void,
+// writing the error to an Err* pointer.
+#define ASSIGN_OR_RETURN_VOID(lhs, err_ptr, rexpr)                          \
+  _ASSIGN_OR_RETURN_VOID_IMPL(_STATUS_CONCAT(_expected_value, __COUNTER__), \
+                              lhs, err_ptr, rexpr)
+
+#define _ASSIGN_OR_RETURN_VOID_IMPL(expected_val, lhs, err_ptr, rexpr) \
+  auto expected_val = (rexpr);                                         \
+  if (!expected_val) {                                                 \
+    *(err_ptr) = std::move(expected_val.error());                      \
+    return;                                                            \
+  }                                                                    \
+  lhs = std::move(*expected_val)
+
+// Legacy RETURN_IF_ERROR_VOID. Works when the enclosing function returns void,
+// writing the error to an Err* pointer.
+#define RETURN_IF_ERROR_VOID(err_ptr, expr)                              \
+  _RETURN_IF_ERROR_VOID_IMPL(_STATUS_CONCAT(_status_value, __COUNTER__), \
+                             err_ptr, expr)
+
+#define _RETURN_IF_ERROR_VOID_IMPL(status_val, err_ptr, expr) \
+  do {                                                        \
+    auto status_val = (expr);                                 \
+    if (status_val.has_error()) {                             \
+      *(err_ptr) = internal::GetError(std::move(status_val)); \
+      return;                                                 \
+    }                                                         \
+  } while (0)
+
+// Legacy ASSIGN_OR_RETURN_PTR. Works when the enclosing function returns
+// non-void (like bool, Value, ptr), writing the error to an Err* pointer and
+// returning {}.
+#define ASSIGN_OR_RETURN_PTR(lhs, err_ptr, rexpr)                          \
+  _ASSIGN_OR_RETURN_PTR_IMPL(_STATUS_CONCAT(_expected_value, __COUNTER__), \
+                             lhs, err_ptr, rexpr)
+
+#define _ASSIGN_OR_RETURN_PTR_IMPL(expected_val, lhs, err_ptr, rexpr) \
+  auto expected_val = (rexpr);                                        \
+  if (!expected_val) {                                                \
+    *(err_ptr) = std::move(expected_val.error());                     \
+    return {};                                                        \
+  }                                                                   \
+  lhs = std::move(*expected_val)
+
+// Legacy RETURN_IF_ERROR_PTR. Works when the enclosing function returns
+// non-void (like bool, Value, ptr), writing the error to an Err* pointer and
+// returning {}.
+#define RETURN_IF_ERROR_PTR(err_ptr, expr)                              \
+  _RETURN_IF_ERROR_PTR_IMPL(_STATUS_CONCAT(_status_value, __COUNTER__), \
+                            err_ptr, expr)
+
+#define _RETURN_IF_ERROR_PTR_IMPL(status_val, err_ptr, expr)  \
+  do {                                                        \
+    auto status_val = (expr);                                 \
+    if (status_val.has_error()) {                             \
+      *(err_ptr) = internal::GetError(std::move(status_val)); \
+      return {};                                              \
+    }                                                         \
   } while (0)
 
 #endif  // TOOLS_GN_ERR_H_

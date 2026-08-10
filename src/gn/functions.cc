@@ -374,7 +374,8 @@ Value RunConfig(const FunctionCallNode* function,
   std::unique_ptr<Config> config = std::make_unique<Config>(
       scope->settings(), label, scope->CollectBuildDependencyFiles());
   config->set_defined_from(function);
-  if (!Visibility::FillItemVisibility(config.get(), scope, err))
+  *err = Visibility::FillItemVisibility(config.get(), scope);
+  if (err->has_error())
     return Value();
 
   // Fill the flags and such.

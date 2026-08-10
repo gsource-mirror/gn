@@ -30,10 +30,9 @@ class Visibility {
 
   // Set the visibility to the thing specified by the given value. On failure,
   // returns false and sets the error.
-  bool Set(const SourceDir& current_dir,
-           std::string_view source_root,
-           const Value& value,
-           Err* err);
+  Err Set(const SourceDir& current_dir,
+          std::string_view source_root,
+          const Value& value);
 
   // Sets the visibility to be public.
   void SetPublic();
@@ -60,7 +59,7 @@ class Visibility {
 
   // Helper function to fill an item's visibility from the "visibility" value
   // in the current scope.
-  static bool FillItemVisibility(Item* item, Scope* scope, Err* err);
+  static Err FillItemVisibility(Item* item, Scope* scope);
 
  private:
   std::vector<LabelPattern> patterns_;

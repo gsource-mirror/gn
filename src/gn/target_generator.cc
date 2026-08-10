@@ -72,7 +72,8 @@ void TargetGenerator::Run() {
   if (!FillCheckIncludesStrict())
     return;
 
-  if (!Visibility::FillItemVisibility(target_, scope_, err_))
+  *err_ = Visibility::FillItemVisibility(target_, scope_);
+  if (err_->has_error())
     return;
 
   if (!FillWriteRuntimeDeps())

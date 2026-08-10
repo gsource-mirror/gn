@@ -62,26 +62,26 @@ LabelPattern::LabelPattern(const LabelPattern& other) = default;
 LabelPattern::~LabelPattern() = default;
 
 // static
-LabelPattern LabelPattern::GetPattern(const SourceDir& current_dir,
-                                      std::string_view source_root,
-                                      const Value& value,
-                                      Err* err) {
-  if (!value.VerifyTypeIs(Value::STRING, err))
-    return LabelPattern();
+Result<LabelPattern> LabelPattern::GetPattern(const SourceDir& current_dir,
+                                              std::string_view source_root,
+                                              const Value& value) {
+  Err err;
+  if (!value.VerifyTypeIs(Value::STRING, &err))
+    return err;
 
   std::string_view str(value.string_value());
   if (str.empty()) {
-    *err = Err(value, "Label pattern must not be empty.");
-    return LabelPattern();
+    return Err(value, "Label pattern must not be empty.");
   }
 
   // If there's no wildcard, this is specifying an exact label, use the
   // label resolution code to get all the implicit name stuff.
   size_t star = str.find('*');
   if (star == std::string::npos) {
-    Label label = Label::Resolve(current_dir, source_root, Label(), value, err);
-    if (err->has_error())
-      return LabelPattern();
+    Label label =
+        Label::Resolve(current_dir, source_root, Label(), value, &err);
+    if (err.has_error())
+      return err;
 
     // Toolchain.
     Label toolchain_label;
@@ -98,23 +98,21 @@ LabelPattern LabelPattern::GetPattern(const SourceDir& current_dir,
     // Has a toolchain definition, extract inside the parens.
     size_t close_paren = str.find(')', open_paren);
     if (close_paren == std::string::npos) {
-      *err = Err(value, "No close paren when looking for toolchain name.");
-      return LabelPattern();
+      return Err(value, "No close paren when looking for toolchain name.");
     }
 
     std::string toolchain_string(
         str.substr(open_paren + 1, close_paren - open_paren - 1));
     if (toolchain_string.find('*') != std::string::npos) {
-      *err = Err(value, "Can't have a wildcard in the toolchain.");
-      return LabelPattern();
+      return Err(value, "Can't have a wildcard in the toolchain.");
     }
 
     // Parse the inside of the parens as a label for a toolchain.
     Value value_for_toolchain(value.origin(), toolchain_string);
     toolchain_label = Label::Resolve(current_dir, source_root, Label(),
-                                     value_for_toolchain, err);
-    if (err->has_error())
-      return LabelPattern();
+                                     value_for_toolchain, &err);
+    if (err.has_error())
+      return err;
 
     // Trim off the toolchain for the processing below.
     str = str.substr(0, open_paren);
@@ -162,12 +160,11 @@ LabelPattern LabelPattern::GetPattern(const SourceDir& current_dir,
 
     if (!path.empty() && path[path.size() - 1] != '/') {
       // The input was "foo*" which is invalid.
-      *err =
-          Err(value, "'*' must match full directories in a label pattern.",
-              "You did \"foo*\" but this thing doesn't do general pattern\n"
-              "matching. Instead, you have to add a slash: \"foo/*\" to match\n"
-              "all targets in a directory hierarchy.");
-      return LabelPattern();
+      return Err(
+          value, "'*' must match full directories in a label pattern.",
+          "You did \"foo*\" but this thing doesn't do general pattern\n"
+          "matching. Instead, you have to add a slash: \"foo/*\" to match\n"
+          "all targets in a directory hierarchy.");
     }
   }
 
@@ -175,26 +172,24 @@ LabelPattern LabelPattern::GetPattern(const SourceDir& current_dir,
   if (!path.empty()) {
     // The non-wildcard stuff better not have a wildcard.
     if (path.find('*') != std::string_view::npos) {
-      *err = Err(value, "Label patterns only support wildcard suffixes.",
+      return Err(value, "Label patterns only support wildcard suffixes.",
                  "The pattern contained a '*' that wasn't at the end.");
-      return LabelPattern();
     }
 
     // Resolve the non-wildcard stuff.
-    dir = current_dir.ResolveRelativeDir(value, path, err, source_root);
-    if (err->has_error())
-      return LabelPattern();
+    dir = current_dir.ResolveRelativeDir(value, path, &err, source_root);
+    if (err.has_error())
+      return err;
   }
 
   // Resolve the name. At this point, we're doing wildcard matches so the
   // name should either be empty ("foo/*") or a wildcard ("foo:*");
   if (colon != std::string::npos && name != "*") {
-    *err = Err(
+    return Err(
         value, "Invalid label pattern.",
         "You seem to be using the wildcard more generally that is supported.\n"
         "Did you mean \"foo:*\" to match everything in the file, or\n"
         "\"./*\" to recursively match everything in the current subtree.");
-    return LabelPattern();
   }
 
   Type type;

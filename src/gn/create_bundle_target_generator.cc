@@ -326,11 +326,12 @@ bool CreateBundleTargetGenerator::FillBundleDepsFilter() {
   std::vector<LabelPattern>& bundle_deps_filter =
       target_->bundle_data().bundle_deps_filter();
   for (const auto& item : value->list_value()) {
-    bundle_deps_filter.push_back(LabelPattern::GetPattern(
-        current_dir, scope_->settings()->build_settings()->root_path_utf8(),
-        item, err_));
-    if (err_->has_error())
-      return false;
+    ASSIGN_OR_RETURN_PTR(
+        auto pattern, err_,
+        LabelPattern::GetPattern(
+            current_dir, scope_->settings()->build_settings()->root_path_utf8(),
+            item));
+    bundle_deps_filter.push_back(std::move(pattern));
   }
 
   return true;

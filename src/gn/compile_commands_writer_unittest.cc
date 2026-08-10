@@ -774,9 +774,10 @@ TEST_F(CompileCommandsTest, CollectTargets) {
 
   // Collect everything, the result should match the input.
   const std::string source_root("/home/me/build/");
-  LabelPattern wildcard_pattern = LabelPattern::GetPattern(
-      SourceDir(), source_root, Value(nullptr, "//*"), &err);
-  ASSERT_SUCCESS(err);
+  auto wildcard_pattern_res =
+      LabelPattern::GetPattern(SourceDir(), source_root, Value(nullptr, "//*"));
+  ASSERT_TRUE(wildcard_pattern_res);
+  LabelPattern wildcard_pattern = std::move(*wildcard_pattern_res);
   std::vector<const Target*> output = CompileCommandsWriter::CollectTargets(
       build_settings(), targets, std::vector<LabelPattern>{wildcard_pattern},
       std::nullopt, &err);
@@ -789,9 +790,10 @@ TEST_F(CompileCommandsTest, CollectTargets) {
   EXPECT_TRUE(output.empty());
 
   // Collect all deps of "//foo/*".
-  LabelPattern foo_wildcard = LabelPattern::GetPattern(
-      SourceDir(), source_root, Value(nullptr, "//foo/*"), &err);
-  ASSERT_SUCCESS(err);
+  auto foo_wildcard_res = LabelPattern::GetPattern(SourceDir(), source_root,
+                                                   Value(nullptr, "//foo/*"));
+  ASSERT_TRUE(foo_wildcard_res);
+  LabelPattern foo_wildcard = std::move(*foo_wildcard_res);
   output = CompileCommandsWriter::CollectTargets(
       build_settings(), targets, std::vector<LabelPattern>{foo_wildcard},
       std::nullopt, &err);
@@ -836,9 +838,10 @@ TEST_F(CompileCommandsTest, CollectTargets) {
 
   // Combine the legacy (bar1) and pattern (bar2) filters, we should get the
   // union.
-  LabelPattern foo_bar2 = LabelPattern::GetPattern(
-      SourceDir(), source_root, Value(nullptr, "//foo:bar2"), &err);
-  ASSERT_SUCCESS(err);
+  auto foo_bar2_res = LabelPattern::GetPattern(SourceDir(), source_root,
+                                               Value(nullptr, "//foo:bar2"));
+  ASSERT_TRUE(foo_bar2_res);
+  LabelPattern foo_bar2 = std::move(*foo_bar2_res);
   output = CompileCommandsWriter::CollectTargets(
       build_settings(), targets, std::vector<LabelPattern>{foo_bar2},
       std::string("bar1"), &err);

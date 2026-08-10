@@ -66,16 +66,17 @@ TEST(LabelPattern, PatternParse) {
   };
 
   for (const auto& test_case : test_cases) {
-    Err err;
-    LabelPattern result = LabelPattern::GetPattern(
-        current_dir, std::string_view(), Value(nullptr, test_case.input), &err);
+    auto result = LabelPattern::GetPattern(current_dir, std::string_view(),
+                                           Value(nullptr, test_case.input));
 
-    EXPECT_EQ(test_case.success, !err.has_error()) << test_case.input;
-    EXPECT_EQ(test_case.type, result.type()) << test_case.input;
-    EXPECT_EQ(test_case.dir, result.dir().value()) << test_case.input;
-    EXPECT_EQ(test_case.name, result.name()) << test_case.input;
-    EXPECT_EQ(test_case.toolchain, result.toolchain().GetUserVisibleName(false))
-        << test_case.input;
+    EXPECT_EQ(test_case.success, result.has_value()) << test_case.input;
+    if (result) {
+      EXPECT_EQ(test_case.type, result->type()) << test_case.input;
+      EXPECT_EQ(test_case.dir, result->dir().value()) << test_case.input;
+      EXPECT_EQ(test_case.name, result->name()) << test_case.input;
+      EXPECT_EQ(test_case.toolchain,
+                result->toolchain().GetUserVisibleName(false));
+    }
   }
 }
 
@@ -85,11 +86,10 @@ TEST(LabelPattern, PatternParseAboveSourceRoot) {
   SourceDir current_dir("//foo/");
   std::string source_root = "/foo/bar/baz/";
 
-  Err err;
-  LabelPattern result = LabelPattern::GetPattern(
-      current_dir, source_root, Value(nullptr, "../../../*"), &err);
-  ASSERT_SUCCESS(err);
+  auto result = LabelPattern::GetPattern(current_dir, source_root,
+                                         Value(nullptr, "../../../*"));
+  ASSERT_SUCCESS(result);
 
-  EXPECT_EQ(LabelPattern::RECURSIVE_DIRECTORY, result.type());
-  EXPECT_EQ("/foo/", result.dir().value()) << result.dir().value();
+  EXPECT_EQ(LabelPattern::RECURSIVE_DIRECTORY, result->type());
+  EXPECT_EQ("/foo/", result->dir().value()) << result->dir().value();
 }

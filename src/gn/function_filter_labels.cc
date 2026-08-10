@@ -49,12 +49,11 @@ Value RunFilterLabels(Scope* scope,
       *err = Err(args[1], "Second argument must be a list of label patterns.");
       return Value();
     }
-    LabelPattern pattern = LabelPattern::GetPattern(
-        scope->GetSourceDir(),
-        scope->settings()->build_settings()->root_path_utf8(), value, err);
-    if (err->has_error()) {
-      return Value();
-    }
+    ASSIGN_OR_RETURN_PTR(
+        auto pattern, err,
+        LabelPattern::GetPattern(
+            scope->GetSourceDir(),
+            scope->settings()->build_settings()->root_path_utf8(), value));
     patterns.push_back(std::move(pattern));
   }
 

@@ -68,13 +68,12 @@ Value RunLabelMatches(Scope* scope,
                  "Second argument must be a list of label patterns.");
       return Value();
     }
-    LabelPattern pattern = LabelPattern::GetPattern(
-        scope->GetSourceDir(),
-        scope->settings()->build_settings()->root_path_utf8(), pattern_string,
-        err);
-    if (err->has_error()) {
-      return Value();
-    }
+    ASSIGN_OR_RETURN_PTR(
+        auto pattern, err,
+        LabelPattern::GetPattern(
+            scope->GetSourceDir(),
+            scope->settings()->build_settings()->root_path_utf8(),
+            pattern_string));
     patterns.push_back(std::move(pattern));
   }
 

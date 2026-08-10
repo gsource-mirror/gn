@@ -21,24 +21,22 @@ Visibility::Visibility() = default;
 
 Visibility::~Visibility() = default;
 
-bool Visibility::Set(const SourceDir& current_dir,
-                     std::string_view source_root,
-                     const Value& value,
-                     Err* err) {
+Err Visibility::Set(const SourceDir& current_dir,
+                    std::string_view source_root,
+                    const Value& value) {
   patterns_.clear();
 
-  if (!value.VerifyTypeIs(Value::LIST, err)) {
-    CHECK(err->has_error());
-    return false;
+  Err type_err;
+  if (!value.VerifyTypeIs(Value::LIST, &type_err)) {
+    return type_err;
   }
 
   for (const auto& item : value.list_value()) {
-    patterns_.push_back(
-        LabelPattern::GetPattern(current_dir, source_root, item, err));
-    if (err->has_error())
-      return false;
+    ASSIGN_OR_RETURN(auto pattern,
+                     LabelPattern::GetPattern(current_dir, source_root, item));
+    patterns_.push_back(std::move(pattern));
   }
-  return true;
+  return Ok();
 }
 
 void Visibility::SetPublic() {
@@ -113,13 +111,14 @@ bool Visibility::CheckItemVisibility(const Item* from,
 }
 
 // static
-bool Visibility::FillItemVisibility(Item* item, Scope* scope, Err* err) {
+Err Visibility::FillItemVisibility(Item* item, Scope* scope) {
   const Value* vis_value = scope->GetValue(variables::kVisibility, true);
-  if (vis_value)
-    item->visibility().Set(
+  if (vis_value) {
+    RETURN_IF_ERROR(item->visibility().Set(
         scope->GetSourceDir(),
-        scope->settings()->build_settings()->root_path_utf8(), *vis_value, err);
-  else  // Default to public.
+        scope->settings()->build_settings()->root_path_utf8(), *vis_value));
+  } else {  // Default to public.
     item->visibility().SetPublic();
-  return !err->has_error();
+  }
+  return Ok();
 }

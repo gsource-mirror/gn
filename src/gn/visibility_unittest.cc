@@ -15,9 +15,8 @@ TEST(Visibility, CanSeeMe) {
   list.list_value().push_back(Value(nullptr, "//dir:*"));    // One dir.
   list.list_value().push_back(Value(nullptr, "//my:name"));  // Exact match.
 
-  Err err;
   Visibility vis;
-  ASSERT_TRUE(vis.Set(SourceDir("//"), std::string_view(), list, &err));
+  ASSERT_SUCCESS(vis.Set(SourceDir("//"), std::string_view(), list));
 
   EXPECT_FALSE(vis.CanSeeMe(Label(SourceDir("//random/"), "thing")));
   EXPECT_FALSE(vis.CanSeeMe(Label(SourceDir("//my/"), "notname")));
@@ -32,22 +31,20 @@ TEST(Visibility, CanSeeMe) {
 }
 
 TEST(Visibility, Public) {
-  Err err;
   Visibility vis;
 
   Value list(nullptr, Value::LIST);
   list.list_value().push_back(Value(nullptr, "*"));
-  ASSERT_TRUE(vis.Set(SourceDir("//"), std::string_view(), list, &err));
+  ASSERT_SUCCESS(vis.Set(SourceDir("//"), std::string_view(), list));
 
   EXPECT_TRUE(vis.CanSeeMe(Label(SourceDir("//random/"), "thing")));
   EXPECT_TRUE(vis.CanSeeMe(Label(SourceDir("//"), "")));
 }
 
 TEST(Visibility, Private) {
-  Err err;
   Visibility vis;
-  ASSERT_TRUE(vis.Set(SourceDir("//"), std::string_view(),
-                      Value(nullptr, Value::LIST), &err));
+  ASSERT_SUCCESS(vis.Set(SourceDir("//"), std::string_view(),
+                         Value(nullptr, Value::LIST)));
 
   EXPECT_FALSE(vis.CanSeeMe(Label(SourceDir("//random/"), "thing")));
   EXPECT_FALSE(vis.CanSeeMe(Label(SourceDir("//"), "")));
@@ -57,12 +54,11 @@ TEST(Visibility, AboveSourceDir) {
   std::string source_root = "/foo/bar/baz/";
   SourceDir cur_dir("//");
 
-  Err err;
   Visibility vis;
 
   Value list(nullptr, Value::LIST);
   list.list_value().push_back(Value(nullptr, "../../*"));
-  ASSERT_TRUE(vis.Set(cur_dir, source_root, list, &err));
+  ASSERT_SUCCESS(vis.Set(cur_dir, source_root, list));
 
   EXPECT_FALSE(vis.CanSeeMe(Label(SourceDir("//random/"), "thing")));
   EXPECT_TRUE(vis.CanSeeMe(Label(SourceDir("/foo/"), "foo")));

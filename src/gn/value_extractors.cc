@@ -198,9 +198,10 @@ struct LabelPatternResolver {
                        const SourceDir& current_dir_in)
       : build_settings(build_settings_in), current_dir(current_dir_in) {}
   bool operator()(const Value& v, LabelPattern* out, Err* err) const {
-    *out = LabelPattern::GetPattern(current_dir,
-                                    build_settings->root_path_utf8(), v, err);
-    return !err->has_error();
+    ASSIGN_OR_RETURN_PTR(*out, err,
+                         LabelPattern::GetPattern(
+                             current_dir, build_settings->root_path_utf8(), v));
+    return true;
   }
 
   const BuildSettings* build_settings;

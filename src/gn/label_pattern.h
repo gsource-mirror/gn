@@ -7,10 +7,10 @@
 
 #include <string_view>
 
+#include "gn/err.h"
 #include "gn/label.h"
 #include "gn/source_dir.h"
 
-class Err;
 class Value;
 
 extern const char kLabelPattern_Help[];
@@ -39,10 +39,9 @@ class LabelPattern {
 
   // Converts the given input string to a pattern. This does special stuff
   // to treat the pattern as a label. Sets the error on failure.
-  static LabelPattern GetPattern(const SourceDir& current_dir,
-                                 std::string_view source_root,
-                                 const Value& value,
-                                 Err* err);
+  static Result<LabelPattern> GetPattern(const SourceDir& current_dir,
+                                         std::string_view source_root,
+                                         const Value& value);
 
   // Returns true if the given input string might match more than one thing.
   static bool HasWildcard(const std::string& str);

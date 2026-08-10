@@ -5,8 +5,10 @@
 #ifndef TOOLS_GN_ERR_H_
 #define TOOLS_GN_ERR_H_
 
+#include <expected>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "gn/label.h"
@@ -130,5 +132,86 @@ class Err {
 
   std::unique_ptr<ErrInfo> info_;  // Non-null indicates error.
 };
+
+// Just looks prettier than writing Err()
+inline Err Ok() {
+  return Err();
+}
+
+// A wrapper around std::expected<T, Err>.
+// std::expected does not allow implicit conversions because you can have
+// std::expected<T, T>. Since that isn't a problem for us, we add the
+// implicit conversions.
+template <typename T>
+class Result : public std::expected<T, Err> {
+ public:
+  using std::expected<T, Err>::expected;
+
+  // Implicit conversion from Err (always creates an error state)
+  Result(Err err) : std::expected<T, Err>(std::unexpect, std::move(err)) {}
+
+  // Implicit conversion from T (always creates success state)
+  Result(const T& val) : std::expected<T, Err>(val) {}
+  Result(T&& val) : std::expected<T, Err>(std::move(val)) {}
+};
+
+#define _STATUS_CONCAT_INNER(a, b) a ## b
+#define _STATUS_CONCAT(a, b) _STATUS_CONCAT_INNER(a, b)
+
+namespace internal {
+
+inline bool HasError(const Err& err) {
+  return err.has_error();
+}
+
+inline Err GetError(const Err& err) {
+  return err;
+}
+
+inline Err GetError(Err&& err) {
+  return std::move(err);
+}
+
+template <typename T, typename E>
+inline bool HasError(const std::expected<T, E>& exp) {
+  return !exp.has_value();
+}
+
+template <typename T, typename E>
+inline E GetError(const std::expected<T, E>& exp) {
+  return exp.error();
+}
+
+template <typename T, typename E>
+inline E GetError(std::expected<T, E>&& exp) {
+  return std::move(exp.error());
+}
+
+}  // namespace internal
+
+// Unified ASSIGN_OR_RETURN macro. Works when the enclosing function
+// returns Result<U> or Err directly.
+#define ASSIGN_OR_RETURN(lhs, rexpr) \
+  _ASSIGN_OR_RETURN_IMPL(_STATUS_CONCAT(_expected_value, __COUNTER__), lhs, rexpr)
+
+#define _ASSIGN_OR_RETURN_IMPL(expected_val, lhs, rexpr) \
+  auto expected_val = (rexpr);                           \
+  if (!expected_val) {                                   \
+    return expected_val.error();                         \
+  }                                                      \
+  lhs = std::move(*expected_val)
+
+// Unified RETURN_IF_ERROR macro. Works when the expression returns
+// Result<U> or Err directly, and the enclosing function returns Result<U> or Err.
+#define RETURN_IF_ERROR(expr) \
+  _RETURN_IF_ERROR_IMPL(_STATUS_CONCAT(_status_value, __COUNTER__), expr)
+
+#define _RETURN_IF_ERROR_IMPL(status_val, expr) \
+  do {                                          \
+    auto status_val = (expr);                   \
+    if (internal::HasError(status_val)) {       \
+      return internal::GetError(std::move(status_val)); \
+    }                                           \
+  } while (0)
 
 #endif  // TOOLS_GN_ERR_H_

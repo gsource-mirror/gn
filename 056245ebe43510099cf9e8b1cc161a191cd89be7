@@ -1,0 +1,155 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ff76ded_66b5d117",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T02:38:09Z",
+      "side": 1,
+      "message": "Can we follow\nhttp://go/tott/733\n?",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 1
+      },
+      "revId": "056245ebe43510099cf9e8b1cc161a191cd89be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "024de32c_ac670123",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T02:38:09Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: In `Pretty(const Result\u003cT\u003e\u0026 result)` (line 184), you access the value using `result.value()`. Here you are using `*result`. \n\nConsider using one form consistently throughout the file, provided `Result\u003cT\u003e` supports both.",
+      "range": {
+        "startLine": 224,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 0
+      },
+      "revId": "056245ebe43510099cf9e8b1cc161a191cd89be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c721bb4_9563e36f",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T02:38:09Z",
+      "side": 1,
+      "message": "Why not use `!\u003d`?",
+      "range": {
+        "startLine": 224,
+        "startChar": 15,
+        "endLine": 224,
+        "endChar": 18
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "9812bac9_8eab3444",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/util/test/test.h",
+              "range": {
+                "startLine": 224,
+                "startChar": 0,
+                "endLine": 225,
+                "endChar": 0
+              },
+              "replacement": "  if (*result !\u003d expected) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "056245ebe43510099cf9e8b1cc161a191cd89be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab817bcc_b30ad7e4",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T02:38:09Z",
+      "side": 1,
+      "message": "Use contains?",
+      "range": {
+        "startLine": 237,
+        "startChar": 23,
+        "endLine": 237,
+        "endChar": 27
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "b67980f4_f0e913c1",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/util/test/test.h",
+              "range": {
+                "startLine": 237,
+                "startChar": 0,
+                "endLine": 238,
+                "endChar": 0
+              },
+              "replacement": "      !result.message().contains(expected_msg)) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "056245ebe43510099cf9e8b1cc161a191cd89be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "258442b8_6dc9316a",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T02:38:09Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: It is safer to wrap `__VA_ARGS__` in parentheses here, similar to how it\u0027s done in `EXPECT_EQ`: `(__VA_ARGS__)`.\n\nWhile braces (`{}`) protect commas from being treated as argument separators in C++ function calls (e.g., `std::vector\u003cint\u003e{1, 2}`), wrapping `__VA_ARGS__` prevents potential issues if the `expected` expression contains other types of commas (like the comma operator).\n\nIf you do this, you can adjust the expansion to: `__VA_OPT__(, (__VA_ARGS__))`.",
+      "range": {
+        "startLine": 387,
+        "startChar": 0,
+        "endLine": 387,
+        "endChar": 0
+      },
+      "revId": "056245ebe43510099cf9e8b1cc161a191cd89be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

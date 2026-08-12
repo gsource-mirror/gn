@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b70ca001_346f4879",
+        "filename": "src/gn/err.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T02:09:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4195f409_de0d7d24",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 0
+      },
+      "revId": "1c4b90482119b06d820c66a3203361ffe1aac440",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b1a4d581_c0a7ff84",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-08-12T02:02:23Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: The `Err` value is copied here. We can avoid this copy by moving it: `return std::move(expected_val.error());` or `return std::move(expected_val).error();`. This is consistent with other macros in this file (like `_ASSIGN_OR_RETURN_VOID_IMPL`).",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 229,
+        "endChar": 0
+      },
+      "revId": "1c4b90482119b06d820c66a3203361ffe1aac440",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcb82151_a03001a5",
+        "filename": "src/gn/err.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T02:09:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1a4d581_c0a7ff84",
       "range": {
         "startLine": 229,
         "startChar": 0,

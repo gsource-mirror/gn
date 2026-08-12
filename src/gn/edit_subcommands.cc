@@ -89,6 +89,33 @@ EditCommand RemoveAttributeCommand(std::string attribute) {
   });
 }
 
+EditCommand RemoveFromAttributeCommand(std::string attribute,
+                                       std::vector<Value> values) {
+  return EditTargetCommand([attribute = std::move(attribute),
+                            values = std::move(values)](
+                               BuildFile& build_file, const EditTarget& target,
+                               EditState& state) -> Err {
+    for (const auto& value : values) {
+      bool done = false;
+      for (auto& assignment : target.assignments(attribute)) {
+        auto matches = FindListElementInAssignment(target, assignment, value);
+
+        for (const auto& match : matches) {
+          match.RemoveSelf(state, target);
+        }
+        done |= !matches.empty();
+      }
+
+      if (!done && target.is_explicit) {
+        target.add_warning(state, "does not contain the value " +
+                                      value.ToString(true) +
+                                      " in attribute \"" + attribute + "\".");
+      }
+    }
+    return Ok();
+  });
+}
+
 // Sets an attribute to a value.
 EditCommand SetCommand(std::string attribute, Value value) {
   return EditTargetCommand([=](BuildFile& build_file, const EditTarget& target,
@@ -125,11 +152,16 @@ Result<EditCommand> ParseCommand(std::vector<std::string> args) {
     }
     return DeleteCommand();
   } else if (args[0] == "remove") {
-    if (args.size() != 2) {
+    if (args.size() < 2) {
       return Err(Location(), "Invalid remove command.",
-                 "Usage: remove <attribute>");
+                 "Usage: remove <attribute> [<value(s)>]");
     }
-    return RemoveAttributeCommand(args[1]);
+    if (args.size() == 2) {
+      return RemoveAttributeCommand(args[1]);
+    }
+    ASSIGN_OR_RETURN(std::vector<Value> values,
+                     ParseValues(base::make_span(args).subspan(2)));
+    return RemoveFromAttributeCommand(args[1], std::move(values));
   } else if (args[0] == "set") {
     if (args.size() < 3) {
       return Err(Location(),

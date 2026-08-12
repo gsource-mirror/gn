@@ -55,10 +55,10 @@ class TreeNode {
 
   ParseNode* operator->() const { return stack_.back(); }
 
- private:
   // Low-level deletion from parent block or list.
   void RemoveSelf() const;
 
+ private:
   std::vector<ParseNode*> stack_;
 };
 

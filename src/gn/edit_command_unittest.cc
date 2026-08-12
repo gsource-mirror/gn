@@ -231,4 +231,51 @@ executable("foo") {
                      EditState({Label(SourceDir("//"), "foo")})));
 }
 
+TEST_F(EditCommandTest, DeleteTarget) {
+  EXPECT_SUCCESS(DoEdit("delete", {"//:bar"},
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+executable("bar") {
+  sources = [ "bar.cc" ]
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"));
+}
+
+TEST_F(EditCommandTest, RemoveAttribute) {
+  EXPECT_SUCCESS(DoEdit("remove testonly",
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+  testonly = true
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"));
+
+  EXPECT_SUCCESS(
+      DoEdit("remove nonexistent_attribute", {"//:foo"},
+             R"(
+executable("foo") {
+}
+)"),
+      Edited(R"(
+executable("foo") {
+}
+)",
+             EditState{{},
+                       {Err(Location(),
+                            "Target \"//:foo\" does not contain the "
+                            "attribute \"nonexistent_attribute\".")}}));
+}
+
 }  // namespace commands

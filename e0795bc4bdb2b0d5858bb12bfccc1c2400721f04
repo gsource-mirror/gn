@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6297e370_f3552987",
+        "filename": "docs/reference.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T06:21:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2b4f99a_e7c33e64",
+      "revId": "e0795bc4bdb2b0d5858bb12bfccc1c2400721f04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5b544963_34d27e33",
@@ -41,6 +59,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "027a480e_f668600b",
+        "filename": "src/gn/edit/build_file_resolver.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T06:21:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b544963_34d27e33",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 0
+      },
+      "revId": "e0795bc4bdb2b0d5858bb12bfccc1c2400721f04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e514e0c6_9296bff7",
@@ -54,6 +96,30 @@
       "writtenOn": "2026-08-12T05:33:58Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: You can avoid this disk read by comparing `formatted` with the contents already stored in `build_file`. \n\nYou might need to add a getter like `const std::string\u0026 contents() const` to `InputFile` or `BuildFile` to access the buffer loaded during `BuildFile::Create`.",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 0
+      },
+      "revId": "e0795bc4bdb2b0d5858bb12bfccc1c2400721f04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3e8e496_4bccd411",
+        "filename": "src/gn/edit_command.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T06:21:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e514e0c6_9296bff7",
       "range": {
         "startLine": 101,
         "startChar": 0,
@@ -115,6 +181,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cadb223a_eca3ec0b",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T06:21:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a968220_d2b6c79e",
+      "range": {
+        "startLine": 24,
+        "startChar": 32,
+        "endLine": 24,
+        "endChar": 59
+      },
+      "revId": "e0795bc4bdb2b0d5858bb12bfccc1c2400721f04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d97fd46c_22484efe",
@@ -128,6 +218,30 @@
       "writtenOn": "2026-08-12T05:33:58Z",
       "side": 1,
       "message": "Use const reference for this?",
+      "range": {
+        "startLine": 25,
+        "startChar": 39,
+        "endLine": 25,
+        "endChar": 45
+      },
+      "revId": "e0795bc4bdb2b0d5858bb12bfccc1c2400721f04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9c54b26_30502961",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T06:21:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d97fd46c_22484efe",
       "range": {
         "startLine": 25,
         "startChar": 39,

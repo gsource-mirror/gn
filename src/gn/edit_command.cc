@@ -40,12 +40,25 @@ const char kEdit_Help[] =
     "      If multiple values are provided, or if the \":list\" suffix is\n"
     "      appended to the attribute, <value(s)> is interpreted as a list.\n"
     "\n"
+    "  delete\n"
+    "      Deletes the matched targets entirely.\n"
+    "\n"
+    "  remove <attribute>\n"
+    "      Removes <attribute> entirely.\n"
+    "\n"
     "Examples:\n"
     "  gn edit \"set testonly true\" //src/tools:*\n"
     "      Sets 'testonly' to 'true' for all targets in\n"
     "      `//src/tools/BUILD.gn`.\n"
     "  gn edit \"set srcs:list foo.cc foo.h\" //:foo\n"
-    "      Sets 'srcs' to '[ \"foo.cc\", \"foo.h\" ]' for //:foo.\n";
+    "      Sets 'srcs' to '[ \"foo.cc\", \"foo.h\" ]' for //:foo.\n"
+    "\n"
+    "  gn edit \"delete\" //src/tools:old_target\n"
+    "      Deletes target 'old_target' entirely.\n"
+    "\n"
+    "  gn edit \"remove testonly\" //src/tools:*\n"
+    "      Removes 'testonly' attribute for all targets in\n"
+    "      `//src/tools/BUILD.gn`.\n";
 
 Result<std::pair<std::vector<SourceFile>, EditState>> RunEditImpl(
     const std::vector<std::string>& args,

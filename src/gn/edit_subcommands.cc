@@ -88,6 +88,30 @@ EditCommand SetCommand(std::string attribute, Value value) {
   });
 }
 
+EditCommand DeleteCommand() {
+  return EditTargetCommand([](BuildFile& build_file, const EditTarget& target,
+                              EditState& state) -> Err {
+    target.node.RemoveSelf();
+    return Ok();
+  });
+}
+
+EditCommand RemoveAttributeCommand(std::string attribute) {
+  return EditTargetCommand([attribute = std::move(attribute)](
+                               BuildFile& build_file, const EditTarget& target,
+                               EditState& state) -> Err {
+    auto assignments = target.assignments(attribute);
+    for (auto& assignment : assignments) {
+      assignment.RemoveSelf();
+    }
+    if (assignments.empty() && target.is_explicit) {
+      target.add_warning(
+          state, "does not contain the attribute \"" + attribute + "\".");
+    }
+    return Ok();
+  });
+}
+
 }  // namespace
 
 Result<EditCommand> ParseCommand(std::vector<std::string> args) {
@@ -121,6 +145,21 @@ Result<EditCommand> ParseCommand(std::vector<std::string> args) {
     }
 
     return SetCommand(std::string(attribute), std::move(val));
+  }
+
+  if (args[0] == "delete") {
+    if (args.size() != 1) {
+      return Err(Location(), "Invalid delete command.", "Usage: delete");
+    }
+    return DeleteCommand();
+  }
+
+  if (args[0] == "remove") {
+    if (args.size() != 2) {
+      return Err(Location(), "Invalid remove command.",
+                 "Usage: remove <attribute>");
+    }
+    return RemoveAttributeCommand(args[1]);
   }
 
   return Err(Location(),

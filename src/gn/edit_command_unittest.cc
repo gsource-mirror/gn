@@ -231,4 +231,72 @@ executable("foo") {
                      EditState({Label(SourceDir("//"), "foo")})));
 }
 
+TEST_F(EditCommandTest, DeleteTarget) {
+  // Simple target deletion
+  EXPECT_SUCCESS(DoEdit("delete", {"//:bar"},
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+executable("bar") {
+  sources = [ "bar.cc" ]
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"));
+
+  // Deleting multiple targets with wildcards
+  EXPECT_SUCCESS(DoEdit("delete", {"//:*"},
+                        R"(
+executable("foo") {
+}
+executable("bar") {
+}
+)"),
+                 Edited(""));
+}
+
+TEST_F(EditCommandTest, RemoveAttribute) {
+  // Remove entire attribute assignment
+  EXPECT_SUCCESS(DoEdit("remove testonly",
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+  testonly = true
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"));
+
+  // Non-existent attribute removal on explicit target prints warning
+  EXPECT_SUCCESS(
+      DoEdit("remove nonexistent_attribute", {"//:foo"},
+             R"(
+executable("foo") {
+}
+)"),
+      Edited(R"(
+executable("foo") {
+}
+)",
+             EditState{{},
+                       {Err(Location(),
+                            "Target \"//:foo\" does not contain the "
+                            "attribute \"nonexistent_attribute\".")}}));
+
+  // Unmatched target pattern returns error
+  EXPECT_FAILURE(DoEdit("remove testonly", {"//:nonexistent"},
+                        R"(
+executable("foo") {
+}
+)"),
+                 "Target(s) not found: //:nonexistent");
+}
+
 }  // namespace commands

@@ -732,6 +732,12 @@
       Sets or overwrites the target's <attribute> to <value(s)>.
       If multiple values are provided, or if the ":list" suffix is
       appended to the attribute, <value(s)> is interpreted as a list.
+
+  delete
+      Deletes the matched targets entirely.
+
+  remove <attribute>
+      Removes <attribute> entirely.
 ```
 
 #### **Examples**:
@@ -741,6 +747,13 @@
       `//src/tools/BUILD.gn`.
   gn edit "set srcs:list foo.cc foo.h" //:foo
       Sets 'srcs' to '[ "foo.cc", "foo.h" ]' for //:foo.
+
+  gn edit "delete" //src/tools:old_target
+      Deletes target 'old_target' entirely.
+
+  gn edit "remove testonly" //src/tools:*
+      Removes 'testonly' attribute for all targets in
+      `//src/tools/BUILD.gn`.
 ```
 ### <a name="cmd_format"></a>**gn format [\--dump-tree] [\--format-width=WIDTH] (\--stdin | &lt;list of build_files...&gt;)**&nbsp;[Back to Top](#gn-reference)
 

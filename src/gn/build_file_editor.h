@@ -5,6 +5,7 @@
 #ifndef TOOLS_GN_BUILD_FILE_EDITOR_H_
 #define TOOLS_GN_BUILD_FILE_EDITOR_H_
 
+#include <concepts>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -33,7 +34,10 @@ class TreeNode {
     DCHECK(!stack_.empty());
   }
 
-  ParseNode* node() const { return stack_.back(); }
+  template <std::derived_from<ParseNode> T = ParseNode>
+  T& node() const {
+    return static_cast<T&>(*stack_.back());
+  }
   ParseNode* parent() const {
     return stack_.size() > 1 ? stack_[stack_.size() - 2] : nullptr;
   }
@@ -105,6 +109,12 @@ std::vector<T> FindStatement(
   FindStatementRecursive<T>(root, stack, transform, &results);
   return results;
 }
+
+// Finds list element nodes within an expression (lists and +-concatenated
+// lists) matching the given value.
+std::vector<TreeNode> FindListElement(const EditTarget& target,
+                                      ParseNode* root,
+                                      const Value& value);
 
 // Represents a set of patterns within a build file.
 class LabelMatcher {
@@ -203,6 +213,10 @@ class BuildFile {
   std::vector<std::unique_ptr<InputFile>> extra_files_;
   LabelMatcher label_matcher_;
 };
+
+// Evaluates a literal node (string, integer, or boolean) into a Value.
+// Returns std::nullopt if the node is not a literal or cannot be evaluated.
+std::optional<Value> AsLiteralValue(const ParseNode* node);
 
 // Resolves a list of LabelPatterns into the union of the build files they
 // cover.

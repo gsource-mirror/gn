@@ -22,22 +22,116 @@
 #include "gn/tokenizer.h"
 #include "gn/value.h"
 
-namespace {
-
-std::optional<std::string> AsStringLiteral(const ParseNode* node) {
+std::optional<Value> AsLiteralValue(const ParseNode* node) {
   auto* literal = node->AsLiteral();
-  if (!literal || literal->value().type() != Token::STRING) {
+  if (!literal) {
     return std::nullopt;
   }
   Scope scope(static_cast<const Settings*>(nullptr));
   Err err;
   Value v = literal->Execute(&scope, &err);
-  // Because we provide an empty scope, "${b}" will result in an error.
-  if (err.has_error() || v.type() != Value::STRING) {
+  // Literals should *usually* not error out, but there are some cases they do.
+  // Eg. the string literal "${foo}" with no variable foo in scope.
+  // When this happens, just treat them as if they're opaque things we don't
+  // know about.
+  if (err.has_error()) {
     return std::nullopt;
   }
-  return std::move(v.string_value());
+  return v;
 }
+
+namespace {
+
+std::optional<std::string> AsStringLiteral(const ParseNode* node) {
+  auto val = AsLiteralValue(node);
+  if (val && val->type() == Value::STRING) {
+    return std::move(val->string_value());
+  }
+  return std::nullopt;
+}
+
+// Returns true if a node in the tree is a literal node matching the user's
+// request.
+bool Matches(const EditTarget& target,
+             const ParseNode* node,
+             const Value& value) {
+  auto got_value = AsLiteralValue(node);
+  if (!got_value) {
+    return false;
+  }
+  if (*got_value == value) {
+    return true;
+  }
+  if (got_value->type() == Value::STRING && value.type() == Value::STRING) {
+    Err err;
+    Label got_label =
+        Label::Resolve(target.label.dir(), "", target.label.GetToolchainLabel(),
+                       *got_value, &err);
+    Label want_label = Label::Resolve(
+        target.label.dir(), "", target.label.GetToolchainLabel(), value, &err);
+    return !err.has_error() && got_label == want_label;
+  }
+  return false;
+}
+
+// Finds nodes matching a pattern in an expression that is assumed to evaluate
+// to a list.
+template <typename T>
+void FindExpressionRecursive(
+    ParseNode* node,
+    std::vector<ParseNode*>& stack,
+    const std::function<std::optional<T>(TreeNode&)>& transform,
+    std::vector<T>* results) {
+  if (!node)
+    return;
+
+  stack.push_back(node);
+
+  TreeNode node_ref(stack);
+  if (auto mapped = transform(node_ref)) {
+    results->push_back(std::move(*mapped));
+  }
+
+  if (auto* list = node->AsListMut()) {
+    for (auto& item : list->contents()) {
+      FindExpressionRecursive(item.get(), stack, transform, results);
+    }
+  } else if (auto* op = node->AsBinaryOpMut()) {
+    if (op->op().type() == Token::PLUS) {
+      FindExpressionRecursive(op->left(), stack, transform, results);
+      FindExpressionRecursive(op->right(), stack, transform, results);
+    }
+  }
+
+  stack.pop_back();
+}
+
+template <typename T>
+std::vector<T> FindExpression(
+    ParseNode* root,
+    const std::function<std::optional<T>(TreeNode&)>& transform) {
+  std::vector<T> results;
+  std::vector<ParseNode*> stack;
+  FindExpressionRecursive<T>(root, stack, transform, &results);
+  return results;
+}
+
+}  // namespace
+
+std::vector<TreeNode> FindListElement(const EditTarget& target,
+                                      ParseNode* root,
+                                      const Value& value) {
+  return FindExpression<TreeNode>(
+      root, [&](TreeNode& node_ref) -> std::optional<TreeNode> {
+        if (node_ref.parent() && node_ref.parent()->AsList() &&
+            Matches(target, &node_ref.node(), value)) {
+          return node_ref;
+        }
+        return std::nullopt;
+      });
+}
+
+namespace {
 
 // Resolves a single LabelPattern to matching SourceFiles.
 Result<std::vector<SourceFile>> ResolvePatternToFiles(
@@ -103,7 +197,7 @@ bool TreeNode::is_conditional() const {
 }
 
 bool TreeNode::is_modification() const {
-  if (const auto* op = node()->AsBinaryOp()) {
+  if (const auto* op = node().AsBinaryOp()) {
     return op->op().type() == Token::PLUS_EQUALS ||
            op->op().type() == Token::MINUS_EQUALS;
   }
@@ -119,9 +213,9 @@ void TreeNode::add_todo(EditState& state, const EditTarget& target) const {
   };
   for (const auto& line : lines) {
     StringAtom atom(line);
-    Token comment_token(node()->GetRange().begin(), Token::LINE_COMMENT,
+    Token comment_token(node().GetRange().begin(), Token::LINE_COMMENT,
                         atom.str());
-    node()->comments_mutable()->append_before(std::move(comment_token));
+    node().comments_mutable()->append_before(std::move(comment_token));
   }
   state.needs_manual_review.insert(target.label);
 }
@@ -139,7 +233,7 @@ void TreeNode::RemoveSelf() const {
   if (auto* block = parent()->AsBlockMut()) {
     auto& stmts = block->statements();
     for (auto it = stmts.begin(); it != stmts.end(); ++it) {
-      if (it->get() == node()) {
+      if (it->get() == &node()) {
         stmts.erase(it);
         return;
       }
@@ -147,7 +241,7 @@ void TreeNode::RemoveSelf() const {
   } else if (auto* list = parent()->AsListMut()) {
     auto& items = list->contents();
     for (auto it = items.begin(); it != items.end(); ++it) {
-      if (it->get() == node()) {
+      if (it->get() == &node()) {
         items.erase(it);
         return;
       }
@@ -224,7 +318,7 @@ std::vector<TreeNode> EditTarget::assignments(std::string_view attr) const {
 void EditTarget::add_warning(EditState& state, std::string_view message) const {
   std::string full_message = "Target \"" + label.GetUserVisibleName(false) +
                              "\" " + std::string(message);
-  state.warnings.push_back(Err(node.node()->GetRange().begin(), full_message));
+  state.warnings.push_back(Err(node.node().GetRange().begin(), full_message));
 }
 
 Result<BuildFile> BuildFile::Create(const BuildSettings* build_settings,

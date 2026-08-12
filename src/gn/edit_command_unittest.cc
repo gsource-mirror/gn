@@ -96,35 +96,6 @@ Result<Edited> DoEdit(std::string command, const std::string& before) {
 
 using EditCommandTest = TestWithScheduler;
 
-TEST_F(EditCommandTest, MultipleTargetsSubset) {
-  EXPECT_SUCCESS(DoEdit("set testonly true", {"//:foo"},
-                        R"(
-executable("foo") {
-  testonly = false
-}
-executable("bar") {
-  testonly = false
-}
-)"),
-                 Edited(R"(
-executable("foo") {
-  testonly = true
-}
-executable("bar") {
-  testonly = false
-}
-)"));
-}
-
-TEST_F(EditCommandTest, PatternNeverMatched) {
-  EXPECT_FAILURE(DoEdit("set testonly true", {"//:nonexistent"},
-                        R"(
-executable("foo") {
-}
-)"),
-                 "Target(s) not found: //:nonexistent");
-}
-
 TEST_F(EditCommandTest, DeleteSubcommand) {
   EXPECT_SUCCESS(DoEdit("delete", {"//:bar"},
                         R"(
@@ -201,6 +172,53 @@ executable("foo") {
                        {Err(Location(),
                             "Target \"//:foo\" does not contain the "
                             "attribute \"nonexistent_attribute\".")}}));
+}
+
+TEST_F(EditCommandTest, RemoveFromAttributeSubcommand) {
+  EXPECT_SUCCESS(DoEdit("remove deps //base :bar",
+                        R"(
+executable("foo") {
+  deps = [
+    "//base",
+    "//:bar",
+    "//other:bar",
+  ]
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  deps = [ "//other:bar" ]
+}
+)"));
+
+  EXPECT_SUCCESS(DoEdit("remove deps //base //nonexistent:glob",
+                        R"(
+executable("foo") {
+  deps = [ "//base" ] + [ "//foo:bar" ]
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  deps = [] + [ "//foo:bar" ]
+}
+)"));
+
+  EXPECT_SUCCESS(DoEdit("remove deps //nonexistent", {"//:foo"},
+                        R"(
+executable("foo") {
+  deps = [ "//base" ]
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  deps = [ "//base" ]
+}
+)",
+                        EditState{{},
+                                  {Err(Location(),
+                                       "Target \"//:foo\" does not contain the "
+                                       "value \"//nonexistent\" in attribute "
+                                       "\"deps\".")}}));
 }
 
 TEST_F(EditCommandTest, SetSubcommand) {
@@ -307,6 +325,35 @@ executable("foo") {
 }
 )",
                      EditState({Label(SourceDir("//"), "foo")})));
+}
+
+TEST_F(EditCommandTest, MultipleTargetsSubset) {
+  EXPECT_SUCCESS(DoEdit("set testonly true", {"//:foo"},
+                        R"(
+executable("foo") {
+  testonly = false
+}
+executable("bar") {
+  testonly = false
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  testonly = true
+}
+executable("bar") {
+  testonly = false
+}
+)"));
+}
+
+TEST_F(EditCommandTest, PatternNeverMatched) {
+  EXPECT_FAILURE(DoEdit("set testonly true", {"//:nonexistent"},
+                        R"(
+executable("foo") {
+}
+)"),
+                 "Target(s) not found: //:nonexistent");
 }
 
 }  // namespace commands

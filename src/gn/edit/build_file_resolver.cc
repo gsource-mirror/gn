@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "gn/edit/build_file_resolver.h"
+#include "gn/edit_subcommands.h"
 
 #include "base/files/file_enumerator.h"
 #include "base/files/file_util.h"
@@ -138,12 +139,12 @@ LabelMatcher::LabelMatcher(const SourceDir& source_dir,
   }
 }
 
-bool LabelMatcher::matches(const std::string& name) {
+MatchType LabelMatcher::matches(const std::string& name) {
   if (auto it = used_.find(name); it != used_.end()) {
     it->second = true;  // Mark as used.
-    return true;
+    return EXACT;
   }
-  return globbed_;
+  return globbed_ ? GLOB : NONE;
 }
 
 Err LabelMatcher::done() const {
@@ -233,9 +234,11 @@ std::vector<EditTarget> BuildFile::targets() {
               func->args()->contents().size() == 1) {
             if (auto name =
                     AsStringLiteral(func->args()->contents()[0].get())) {
-              if (label_matcher_.matches(*name)) {
+              auto match_type = label_matcher_.matches(*name);
+              if (match_type != MatchType::NONE) {
                 return EditTarget{
-                    .name = *name,
+                    .is_explicit = match_type == MatchType::EXACT,
+                    .label = Label(source_file_.GetDir(), *name),
                     .node = node_ref,
                     .block = func->block(),
                 };
@@ -299,12 +302,21 @@ std::unique_ptr<BinaryOpNode> BuildFile::create_assignment(
   return assign;
 }
 
-void TreeNode::add_todo(std::string_view message) const {
+void TreeNode::add_todo(EditState& state,
+                        const EditTarget& target,
+                        std::string_view message) const {
   std::string comment_text = "# TODO(gn edit): " + std::string(message);
   StringAtom atom(comment_text);
   Token comment_token(node()->GetRange().begin(), Token::LINE_COMMENT,
                       atom.str());
   node()->comments_mutable()->append_before(std::move(comment_token));
+  state.needs_manual_review.insert(target.label);
+}
+
+void EditTarget::add_warning(EditState& state, std::string_view message) const {
+  std::string full_message = "Target \"" + label.GetUserVisibleName(false) +
+                             "\" " + std::string(message);
+  state.warnings.push_back(Err(node.node()->GetRange().begin(), full_message));
 }
 
 Result<bool> BuildFile::Write() {
@@ -320,5 +332,4 @@ Result<bool> BuildFile::Write() {
   }
   return true;
 }
-
 }  // namespace commands

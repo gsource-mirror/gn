@@ -12,6 +12,7 @@
 
 #include "gn/err.h"
 #include "gn/input_file.h"
+#include "gn/label.h"
 #include "gn/label_pattern.h"
 #include "gn/parse_tree.h"
 #include "gn/source_file.h"
@@ -20,6 +21,9 @@ class BuildSettings;
 class Loader;
 
 namespace commands {
+
+struct EditState;
+struct EditTarget;
 
 // A TreeNode represents a node in a tree.
 // It fundamentally represents a ParseNode, but differs from one as it
@@ -37,7 +41,9 @@ class TreeNode {
   const std::vector<ParseNode*>& path() const { return stack_; }
   void descend(ParseNode* node) { stack_.push_back(node); }
 
-  void add_todo(std::string_view message) const;
+  void add_todo(EditState& state,
+                const EditTarget& target,
+                std::string_view message) const;
 
   ParseNode* operator->() const { return stack_.back(); }
 
@@ -94,12 +100,18 @@ std::vector<T> FindNodes(
   return results;
 }
 
+enum MatchType {
+  NONE,
+  EXACT,
+  GLOB,
+};
+
 class LabelMatcher {
  public:
   LabelMatcher(const SourceDir& source_dir,
                const std::vector<LabelPattern>& patterns);
 
-  bool matches(const std::string& name);
+  MatchType matches(const std::string& name);
   Err done() const;
 
  private:
@@ -116,8 +128,11 @@ struct Assignment {
 
 struct EditTarget {
   std::vector<Assignment> assignments(std::string_view attr) const;
-
-  std::string name;
+  std::string_view name() const { return label.name(); }
+  void add_warning(EditState& state, std::string_view message) const;
+  // True if the target was an exact match.
+  bool is_explicit;
+  Label label;
   TreeNode node;
   BlockNode* block;
 };

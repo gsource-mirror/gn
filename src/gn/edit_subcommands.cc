@@ -15,9 +15,9 @@ EditCommand::~EditCommand() = default;
 
 class EditTargetCommand : public EditCommand {
  public:
-  Err Apply(BuildFile& build_file) const override {
+  Err Apply(BuildFile& build_file, EditState& state) const override {
     for (const auto& target : build_file.targets()) {
-      Err err = ApplyToTarget(build_file, target);
+      Err err = ApplyToTarget(build_file, target, state);
       if (err.has_error())
         return err;
     }
@@ -26,7 +26,8 @@ class EditTargetCommand : public EditCommand {
 
   // Applies this edit command to the given target in the AST.
   virtual Err ApplyToTarget(BuildFile& build_file,
-                            const EditTarget& target) const = 0;
+                            const EditTarget& target,
+                            EditState& state) const = 0;
 };
 
 class SetCommand : public EditTargetCommand {
@@ -36,24 +37,26 @@ class SetCommand : public EditTargetCommand {
         value_string_(std::move(value_string)) {}
 
   Err ApplyToTarget(BuildFile& build_file,
-                    const EditTarget& target) const override {
-    bool replaced = false;
+                    const EditTarget& target,
+                    EditState& state) const override {
+    bool done = false;
     for (auto& assignment : target.assignments(attribute_)) {
       if (assignment.conditional) {
-        assignment.node.add_todo(
-            "This is conditional, so double check this is safe to remove");
+        assignment.node.add_todo(state, target,
+                                 "This should probably be removed, but unsure "
+                                 "since it is conditional");
       } else if (assignment.modification) {
-        assignment.node.add_todo(
-            "This is a modification, so double check this is safe to remove");
+        assignment.node.add_todo(state, target,
+                                 "This should probably be removed, but unsure "
+                                 "since it is a modification");
       } else {
         assignment.node->AsBinaryOpMut()->set_right(
             build_file.parse(value_string_));
-        replaced = true;
+        done = true;
       }
     }
 
-    if (!replaced) {
-      // Construct new assignment: attribute = value_node.
+    if (!done) {
       target.block->append_statement(build_file.create_assignment(
           attribute_, build_file.parse(value_string_)));
     }

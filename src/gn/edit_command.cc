@@ -13,6 +13,7 @@
 #include "gn/filesystem_utils.h"
 #include "gn/setup.h"
 #include "gn/source_file.h"
+#include "gn/standard_out.h"
 #include "gn/value.h"
 
 namespace commands {
@@ -44,7 +45,7 @@ const char kEdit_Help[] =
     "      Sets 'testonly' to 'true' for all targets in\n"
     "      `//src/tools/BUILD.gn`.\n";
 
-Result<std::vector<SourceFile>> RunEditImpl(
+Result<std::pair<std::vector<SourceFile>, EditState>> RunEditImpl(
     const std::vector<std::string>& args,
     Setup& setup) {
   if (args.size() < 2) {
@@ -90,8 +91,9 @@ Result<std::vector<SourceFile>> RunEditImpl(
                    ResolvePatternsToBuildFiles(&setup.build_settings(),
                                                setup.loader(), patterns));
 
+  EditState state;
   for (auto& build_file : build_files) {
-    RETURN_IF_ERROR(command->Apply(build_file));
+    RETURN_IF_ERROR(command->Apply(build_file, state));
     RETURN_IF_ERROR(build_file.label_matcher().done());
   }
 
@@ -103,7 +105,7 @@ Result<std::vector<SourceFile>> RunEditImpl(
     }
   }
 
-  return modified_files;
+  return std::make_pair(std::move(modified_files), std::move(state));
 }
 
 int RunEdit(const std::vector<std::string>& args) {
@@ -116,8 +118,25 @@ int RunEdit(const std::vector<std::string>& args) {
     result.error().PrintToStdout();
     return 1;
   }
-  for (const auto& file : *result) {
-    printf("Wrote '%s'.\n", file.value().c_str());
+  for (const auto& file : result->first) {
+    OutputString("Wrote '" + file.value() + "'.\n");
+  }
+  for (const auto& warning : result->second.warnings) {
+    warning.PrintNonfatalToStdout();
+  }
+  const auto& review_needed = result->second.needs_manual_review;
+  if (!review_needed.empty()) {
+    OutputString("\nThe following targets need manual review:\n",
+                 DECORATION_YELLOW);
+    for (const Label& label : review_needed) {
+      OutputString("* ");
+      OutputString(label.GetUserVisibleName(false) + "\n", DECORATION_GREEN);
+    }
+
+    OutputString(
+        "\nWhere manual review is required, comments have been added to the "
+        "build file of the form:\n'# TODO(gn edit): ...'\n",
+        DECORATION_DIM);
   }
   return 0;
 }

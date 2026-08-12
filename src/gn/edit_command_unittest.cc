@@ -17,12 +17,40 @@
 
 namespace commands {
 namespace {
+using testing::Pretty;
+
+struct Edited;
+std::string Pretty(const Edited& edited);
+
+struct Edited {
+  Edited(std::string contents, EditState edit_state = {})
+      : contents_(std::move(contents)), edit_state_(std::move(edit_state)) {}
+
+  bool operator==(const Edited& other) const {
+    return Pretty(*this) == Pretty(other);
+  }
+
+  std::string contents_;
+  EditState edit_state_;
+};
+
+std::string Pretty(const Edited& edited) {
+  std::string res = edited.contents_;
+  if (!edited.edit_state_.needs_manual_review.empty()) {
+    res += "\nNeeds manual review: " +
+           Pretty(edited.edit_state_.needs_manual_review);
+  }
+  if (!edited.edit_state_.warnings.empty()) {
+    res += "\nWarnings: " + Pretty(edited.edit_state_.warnings);
+  }
+  return res;
+}
 
 // Runs an edit command on matching the given target
 // patterns, and returns the formatted output file contents.
-Result<std::string> DoEdit(std::string command,
-                           std::vector<std::string> patterns,
-                           const std::string& before) {
+Result<Edited> DoEdit(std::string command,
+                      std::vector<std::string> patterns,
+                      const std::string& before) {
   base::ScopedTempDir temp_dir;
   if (!temp_dir.CreateUniqueTempDir()) {
     return Err(Location(), "Failed to create temp dir");
@@ -56,19 +84,12 @@ Result<std::string> DoEdit(std::string command,
   if (!base::ReadFileToString(build_gn_path, &after)) {
     return Err(Location(), "Failed to read BUILD.gn");
   }
-  return after;
+  return Edited(after, std::move(result->second));
 }
 
 // Runs an edit command on matching target pattern "//..." (everything).
-Result<std::string> DoEdit(std::string command, const std::string& before) {
+Result<Edited> DoEdit(std::string command, const std::string& before) {
   return DoEdit(std::move(command), {"//:*"}, before);
-}
-
-// Doesn't actually do anything, but makes the code look more pretty by
-// matching the indent and creating a clear division between input and
-// expected output.
-std::string Edited(std::string before) {
-  return before;
 }
 
 }  // namespace
@@ -142,12 +163,17 @@ TEST_F(EditCommandTest, SetSubcommand) {
              "}\n"),
       Edited("executable(\"foo\") {\n"
              "  if (is_linux) {\n"
-             "    # TODO(gn edit): This is conditional, so double check "
-             "this is safe to remove\n"
+             "    # TODO(gn edit): This should probably be removed, but unsure "
+             "since it is\n"
+             "    # conditional\n"
              "    testonly = true\n"
              "  }\n"
              "  testonly = true\n"
-             "}\n"));
+             "}\n",
+             EditState{
+                 .needs_manual_review = {Label(SourceDir("//"), "foo")},
+                 .warnings = {},
+             }));
 
   // Modification assignment
   EXPECT_SUCCESS(
@@ -156,12 +182,16 @@ TEST_F(EditCommandTest, SetSubcommand) {
              "  deps += [ \"//bar\" ]\n"
              "}\n"),
       Edited("executable(\"foo\") {\n"
-             "  # TODO(gn edit): This is a modification, so double check "
-             "this is safe to\n"
-             "  # remove\n"
+             "  # TODO(gn edit): This should probably be removed, but unsure "
+             "since it is a\n"
+             "  # modification\n"
              "  deps += [ \"//bar\" ]\n"
              "  deps = [ \"//baz\" ]\n"
-             "}\n"));
+             "}\n",
+             EditState{
+                 .needs_manual_review = {Label(SourceDir("//"), "foo")},
+                 .warnings = {},
+             }));
 }
 
 }  // namespace commands

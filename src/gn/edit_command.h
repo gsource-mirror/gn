@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "gn/edit_subcommands.h"
 #include "gn/err.h"
 #include "gn/source_file.h"
 
@@ -15,7 +16,7 @@ class Setup;
 namespace commands {
 
 // Runs an edit command, and returns a list of files that were modified.
-Result<std::vector<SourceFile>> RunEditImpl(
+Result<std::pair<std::vector<SourceFile>, EditState>> RunEditImpl(
     const std::vector<std::string>& args,
     Setup& setup);
 

@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2b4f99a_e7c33e64",
+        "filename": "docs/reference.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T05:33:58Z",
+      "side": 1,
+      "message": "Better to have more explanation about the behavior for the attribute inside conditional blocks?",
+      "revId": "e0795bc4bdb2b0d5858bb12bfccc1c2400721f04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b544963_34d27e33",
+        "filename": "src/gn/edit/build_file_resolver.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T05:33:58Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: GN locations are typically 1-indexed. Using `(input_file_.get(), 1, 1)` would point to the first character of the file.",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 0
+      },
+      "revId": "e0795bc4bdb2b0d5858bb12bfccc1c2400721f04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e514e0c6_9296bff7",
+        "filename": "src/gn/edit_command.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T05:33:58Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: You can avoid this disk read by comparing `formatted` with the contents already stored in `build_file`. \n\nYou might need to add a getter like `const std::string\u0026 contents() const` to `InputFile` or `BuildFile` to access the buffer loaded during `BuildFile::Create`.",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 0
+      },
+      "revId": "e0795bc4bdb2b0d5858bb12bfccc1c2400721f04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a968220_d2b6c79e",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T05:33:58Z",
+      "side": 1,
+      "message": "Better to move this?",
+      "range": {
+        "startLine": 24,
+        "startChar": 32,
+        "endLine": 24,
+        "endChar": 59
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "648a0ea8_cd7f8c43",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 24,
+                "startChar": 0,
+                "endLine": 25,
+                "endChar": 0
+              },
+              "replacement": "                           std::vector\u003cstd::string\u003e patterns,\n"
+            },
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 46,
+                "startChar": 0,
+                "endLine": 48,
+                "endChar": 0
+              },
+              "replacement": "  for (auto\u0026 p : patterns) {\n    args.push_back(std::move(p));\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e0795bc4bdb2b0d5858bb12bfccc1c2400721f04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d97fd46c_22484efe",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T05:33:58Z",
+      "side": 1,
+      "message": "Use const reference for this?",
+      "range": {
+        "startLine": 25,
+        "startChar": 39,
+        "endLine": 25,
+        "endChar": 45
+      },
+      "revId": "e0795bc4bdb2b0d5858bb12bfccc1c2400721f04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

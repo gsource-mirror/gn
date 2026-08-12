@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4195f409_de0d7d24",
+        "filename": "src/gn/err.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T02:02:23Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Consider adding a static assert to also prevent `Result\u003cErr\u003e` since it would confuse error and success states and cause ambiguities in constructors:\n`static_assert(!std::is_same_v\u003cT, Err\u003e, \"Use Err instead of Result\u003cErr\u003e\");`",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 0
+      },
+      "revId": "1c4b90482119b06d820c66a3203361ffe1aac440",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1a4d581_c0a7ff84",
+        "filename": "src/gn/err.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-12T02:02:23Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: The `Err` value is copied here. We can avoid this copy by moving it: `return std::move(expected_val.error());` or `return std::move(expected_val).error();`. This is consistent with other macros in this file (like `_ASSIGN_OR_RETURN_VOID_IMPL`).",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 229,
+        "endChar": 0
+      },
+      "revId": "1c4b90482119b06d820c66a3203361ffe1aac440",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

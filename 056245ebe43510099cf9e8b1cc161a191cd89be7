@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7611fc13_1c080371",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T02:48:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ff76ded_66b5d117",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 1
+      },
+      "revId": "056245ebe43510099cf9e8b1cc161a191cd89be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "024de32c_ac670123",
@@ -88,6 +112,54 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3c5d774_61f5b774",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T02:48:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c721bb4_9563e36f",
+      "range": {
+        "startLine": 224,
+        "startChar": 15,
+        "endLine": 224,
+        "endChar": 18
+      },
+      "revId": "056245ebe43510099cf9e8b1cc161a191cd89be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2166cb28_ff86cdb0",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T02:48:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "024de32c_ac670123",
+      "range": {
+        "startLine": 224,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 0
+      },
+      "revId": "056245ebe43510099cf9e8b1cc161a191cd89be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ab817bcc_b30ad7e4",
@@ -129,6 +201,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "73cd206c_abcdc2b5",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T02:48:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab817bcc_b30ad7e4",
+      "range": {
+        "startLine": 237,
+        "startChar": 23,
+        "endLine": 237,
+        "endChar": 27
+      },
+      "revId": "056245ebe43510099cf9e8b1cc161a191cd89be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "258442b8_6dc9316a",
@@ -142,6 +238,30 @@
       "writtenOn": "2026-08-12T02:38:09Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: It is safer to wrap `__VA_ARGS__` in parentheses here, similar to how it\u0027s done in `EXPECT_EQ`: `(__VA_ARGS__)`.\n\nWhile braces (`{}`) protect commas from being treated as argument separators in C++ function calls (e.g., `std::vector\u003cint\u003e{1, 2}`), wrapping `__VA_ARGS__` prevents potential issues if the `expected` expression contains other types of commas (like the comma operator).\n\nIf you do this, you can adjust the expansion to: `__VA_OPT__(, (__VA_ARGS__))`.",
+      "range": {
+        "startLine": 387,
+        "startChar": 0,
+        "endLine": 387,
+        "endChar": 0
+      },
+      "revId": "056245ebe43510099cf9e8b1cc161a191cd89be7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0be7f915_e152786f",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-12T02:48:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "258442b8_6dc9316a",
       "range": {
         "startLine": 387,
         "startChar": 0,

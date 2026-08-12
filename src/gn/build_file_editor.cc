@@ -89,7 +89,7 @@ Result<std::vector<SourceFile>> ResolvePatternToFiles(
 }  // namespace
 
 bool TreeNode::is_conditional() const {
-  for (auto it = stack_.rbegin(); it != stack_.rend(); ++it) {
+  for (auto it = stack_.rbegin() + 1; it != stack_.rend(); ++it) {
     if ((*it)->AsCondition()) {
       return true;
     }

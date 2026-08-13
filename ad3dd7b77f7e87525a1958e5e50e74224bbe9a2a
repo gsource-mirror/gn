@@ -42,6 +42,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a681514f_4dc71b71",
+        "filename": "docs/reference.md",
+        "patchSetId": 12
+      },
+      "lineNbr": 733,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-13T09:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7c0fd4c_efa983a4",
+      "range": {
+        "startLine": 733,
+        "startChar": 6,
+        "endLine": 733,
+        "endChar": 37
+      },
+      "revId": "ad3dd7b77f7e87525a1958e5e50e74224bbe9a2a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b6500c83_448fe21b",
@@ -59,6 +83,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed6226f8_042f5407",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-13T09:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6500c83_448fe21b",
+      "revId": "ad3dd7b77f7e87525a1958e5e50e74224bbe9a2a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fdeb7b8d_e063d249",
@@ -72,6 +114,30 @@
       "writtenOn": "2026-08-13T08:01:08Z",
       "side": 1,
       "message": "An anonymous namespace is used inside a header file here. This is heavily discouraged in C++ as it can cause binary bloat and subtle ODR violations since templates inside it will get internal linkage and separate instantiations in each translation unit. Consider dropping the anonymous namespace and either marking internal helper functions as `inline` or putting them in an `internal` namespace.",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 0
+      },
+      "revId": "ad3dd7b77f7e87525a1958e5e50e74224bbe9a2a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1824f89_c1d685cf",
+        "filename": "src/gn/build_file_editor.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-13T09:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fdeb7b8d_e063d249",
       "range": {
         "startLine": 65,
         "startChar": 0,
@@ -123,6 +189,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9406acaf_46880138",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-13T09:56:32Z",
+      "side": 1,
+      "message": "I\u0027ve left the door open for `set testonly:bool` in the future. Don\u0027t intend to do it for now though, since it\u0027s such a niche case.",
+      "parentUuid": "5b8829f7_9b585bbd",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 0
+      },
+      "revId": "ad3dd7b77f7e87525a1958e5e50e74224bbe9a2a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9374c232_c8ac8e13",
@@ -136,6 +226,30 @@
       "writtenOn": "2026-08-13T08:01:08Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If a user wants to set a list to empty using `set deps:list`, this command will fail here because `args.size()` would be 2, not 3. This means it is impossible to clear a list using this subcommand. Is this an intentional limitation? Consider relaxing the size check if `:list` is present.",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 0
+      },
+      "revId": "ad3dd7b77f7e87525a1958e5e50e74224bbe9a2a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "565afab1_56c96f07",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-13T09:56:32Z",
+      "side": 1,
+      "message": "If the user wants to set a list to empty, they should use `remove` to just remove it entirely (not yet implemented).",
+      "parentUuid": "9374c232_c8ac8e13",
       "range": {
         "startLine": 99,
         "startChar": 0,

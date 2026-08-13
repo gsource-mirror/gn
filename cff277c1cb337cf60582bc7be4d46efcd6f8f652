@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6f94fdb_5841aa01",
+        "filename": "docs/reference.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-13T00:37:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7b5afb8_0bea9d4b",
+      "range": {
+        "startLine": 736,
+        "startChar": 0,
+        "endLine": 736,
+        "endChar": 28
+      },
+      "revId": "cff277c1cb337cf60582bc7be4d46efcd6f8f652",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2d25e33f_8fe36589",
@@ -61,6 +85,30 @@
           ]
         }
       ],
+      "revId": "cff277c1cb337cf60582bc7be4d46efcd6f8f652",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0d74230_ef0f0b42",
+        "filename": "src/gn/edit_command.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-13T00:37:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d25e33f_8fe36589",
+      "range": {
+        "startLine": 65,
+        "startChar": 29,
+        "endLine": 65,
+        "endChar": 34
+      },
       "revId": "cff277c1cb337cf60582bc7be4d46efcd6f8f652",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -106,6 +154,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "41c15846_49176bc5",
+        "filename": "src/gn/edit_command.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-13T00:37:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3989706_c93caf07",
+      "range": {
+        "startLine": 86,
+        "startChar": 23,
+        "endLine": 86,
+        "endChar": 30
+      },
+      "revId": "cff277c1cb337cf60582bc7be4d46efcd6f8f652",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "370f2e82_12a0d5d3",
@@ -147,6 +219,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb7f2a4d_958c394d",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-13T00:37:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "370f2e82_12a0d5d3",
+      "range": {
+        "startLine": 70,
+        "startChar": 24,
+        "endLine": 70,
+        "endChar": 30
+      },
+      "revId": "cff277c1cb337cf60582bc7be4d46efcd6f8f652",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90c01c21_800a146f",
@@ -160,6 +256,24 @@
       "writtenOn": "2026-08-12T07:13:56Z",
       "side": 1,
       "message": "Add explanation comment for each subclass of EditCommand?",
+      "revId": "cff277c1cb337cf60582bc7be4d46efcd6f8f652",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfe8c9fd_71511ba8",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-13T00:37:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90c01c21_800a146f",
       "revId": "cff277c1cb337cf60582bc7be4d46efcd6f8f652",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

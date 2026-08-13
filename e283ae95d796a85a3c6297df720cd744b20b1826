@@ -1,0 +1,345 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce961304_da3461f7",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-13T12:29:45Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Consider making this error message more descriptive (e.g., including the node type) to assist in debugging if future subcommands reach unsupported tree structures.",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 0
+      },
+      "revId": "e283ae95d796a85a3c6297df720cd744b20b1826",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3bcb5bb3_b1c540ad",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-13T12:29:45Z",
+      "side": 1,
+      "message": "pass by value and move?",
+      "range": {
+        "startLine": 162,
+        "startChar": 18,
+        "endLine": 162,
+        "endChar": 28
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "3e0186ac_442b6ff3",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/build_file_editor.cc",
+              "range": {
+                "startLine": 162,
+                "startChar": 0,
+                "endLine": 163,
+                "endChar": 0
+              },
+              "replacement": "    : source_dir_(std::move(source_dir)), globbed_(false) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e283ae95d796a85a3c6297df720cd744b20b1826",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92ef5181_1e1775ff",
+        "filename": "src/gn/build_file_editor.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-13T12:29:45Z",
+      "side": 1,
+      "message": "This could be merged?",
+      "range": {
+        "startLine": 92,
+        "startChar": 13,
+        "endLine": 93,
+        "endChar": 24
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "eab70f2d_29a52e27",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/build_file_editor.h",
+              "range": {
+                "startLine": 92,
+                "startChar": 0,
+                "endLine": 97,
+                "endChar": 0
+              },
+              "replacement": "  } else if (auto* func \u003d node-\u003eAsFunctionCall(); func \u0026\u0026 func-\u003eblock()) {\n    FindStatementRecursive(const_cast\u003cBlockNode*\u003e(func-\u003eblock()), stack,\n                           transform, results);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e283ae95d796a85a3c6297df720cd744b20b1826",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b237fd4a_9e54edef",
+        "filename": "src/gn/build_file_editor.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-13T12:29:45Z",
+      "side": 1,
+      "message": "Add comment for this behavior?",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 9
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "d980028e_419b8613",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/build_file_editor.h",
+              "range": {
+                "startLine": 121,
+                "startChar": 0,
+                "endLine": 124,
+                "endChar": 0
+              },
+              "replacement": "    NONE,   // No match.\n    EXACT,  // Matches an explicit target pattern (e.g. //foo:bar)\n    GLOB,   // Matches a glob pattern (e.g. //foo:*)\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e283ae95d796a85a3c6297df720cd744b20b1826",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d1f345a_94a66a7c",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-13T12:29:45Z",
+      "side": 1,
+      "message": "Include this in the first block.",
+      "range": {
+        "startLine": 11,
+        "startChar": 13,
+        "endLine": 11,
+        "endChar": 25
+      },
+      "revId": "e283ae95d796a85a3c6297df720cd744b20b1826",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25136819_80faefd8",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-13T12:29:45Z",
+      "side": 1,
+      "message": "Can we use raw string literals here?",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 31
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "08c8bf82_578f91fb",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 99,
+                "startChar": 0,
+                "endLine": 111,
+                "endChar": 0
+              },
+              "replacement": "                        R\"(executable(\"foo\") {\n  testonly \u003d false\n}\nexecutable(\"bar\") {\n  testonly \u003d false\n}\n)\"),\n                 Edited(R\"(executable(\"foo\") {\n  testonly \u003d true\n}\nexecutable(\"bar\") {\n  testonly \u003d false\n}\n)\"));\n"
+            },
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 115,
+                "startChar": 0,
+                "endLine": 117,
+                "endChar": 0
+              },
+              "replacement": "                        R\"(executable(\"foo\") {\n}\n)\"),\n"
+            },
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 123,
+                "startChar": 0,
+                "endLine": 128,
+                "endChar": 0
+              },
+              "replacement": "                        R\"(executable(\"foo\") {\n}\n)\"),\n                 Edited(R\"(executable(\"foo\") {\n  testonly \u003d true\n}\n)\"));\n"
+            },
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 131,
+                "startChar": 0,
+                "endLine": 137,
+                "endChar": 0
+              },
+              "replacement": "                        R\"(executable(\"foo\") {\n  testonly \u003d true\n}\n)\"),\n                 Edited(R\"(executable(\"foo\") {\n  testonly \u003d false\n}\n)\"));\n"
+            },
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 140,
+                "startChar": 0,
+                "endLine": 145,
+                "endChar": 0
+              },
+              "replacement": "                        R\"(executable(\"foo\") {\n}\n)\"),\n                 Edited(R\"(executable(\"foo\") {\n  label \u003d \"//foo:bar\"\n}\n)\"));\n"
+            },
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 148,
+                "startChar": 0,
+                "endLine": 153,
+                "endChar": 0
+              },
+              "replacement": "                        R\"(executable(\"foo\") {\n}\n)\"),\n                 Edited(R\"(executable(\"foo\") {\n  assert_no_deps \u003d 42\n}\n)\"));\n"
+            },
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 158,
+                "startChar": 0,
+                "endLine": 165,
+                "endChar": 0
+              },
+              "replacement": "             R\"(executable(\"foo\") {\n  deps \u003d [ \"//bar\" ]\n  deps +\u003d [ \"//baz\" ]\n  if (is_linux) {\n    deps +\u003d [ \"//linux\" ]\n  }\n}\n)\"),\n"
+            },
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 166,
+                "startChar": 0,
+                "endLine": 180,
+                "endChar": 0
+              },
+              "replacement": "          R\"(executable(\"foo\") {\n  deps \u003d [\n    \"//bar\",\n    \"//foo\",\n  ]\n\n  if (is_linux) {\n    # TODO(gn edit: set deps //foo //bar):\n    # This would normally be deleted but is conditional.\n    # Manual intervention is required to decide whether it should actually be deleted.\n    deps +\u003d [ \"//linux\" ]\n  }\n}\n)\",\n"
+            },
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 185,
+                "startChar": 0,
+                "endLine": 191,
+                "endChar": 0
+              },
+              "replacement": "             R\"(executable(\"foo\") {\n  if (is_linux) {\n    deps \u003d [ \"//linux\" ]\n    public_deps \u003d [ \"//linux\" ]\n  }\n}\n)\"),\n"
+            },
+            {
+              "path": "src/gn/edit_command_unittest.cc",
+              "range": {
+                "startLine": 192,
+                "startChar": 0,
+                "endLine": 203,
+                "endChar": 0
+              },
+              "replacement": "          R\"(executable(\"foo\") {\n  if (is_linux) {\n    # TODO(gn edit: set deps:list //foo):\n    # This would normally be deleted but is conditional.\n    # Manual intervention is required to decide whether it should actually be deleted.\n    deps \u003d [ \"//linux\" ]\n    public_deps \u003d [ \"//linux\" ]\n  }\n  deps \u003d [ \"//foo\" ]\n}\n)\",\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e283ae95d796a85a3c6297df720cd744b20b1826",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e724cdc_3d6a7255",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-13T12:29:45Z",
+      "side": 1,
+      "message": "Make \":list\" as const string literal and use size of that literal in remove_suffix.",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 33
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "b33ae79c_ac2ea218",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/edit_subcommands.cc",
+              "range": {
+                "startLine": 107,
+                "startChar": 0,
+                "endLine": 109,
+                "endChar": 0
+              },
+              "replacement": "    constexpr std::string_view kListSuffix \u003d \":list\";\n    if (attribute.ends_with(kListSuffix)) {\n      attribute.remove_suffix(kListSuffix.size());\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e283ae95d796a85a3c6297df720cd744b20b1826",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -397,7 +397,6 @@ dependencies = [
 [[package]]
 name = "cxx"
 version = "1.0.196"
-source = "git+https://github.com/matts1/cxx.git?branch=gn#a3259e72e27a86b6d722bd9d168a2c29c96c898f"
 dependencies = [
  "cc",
  "cxx-build",
@@ -411,7 +410,6 @@ dependencies = [
 [[package]]
 name = "cxx-build"
 version = "1.0.196"
-source = "git+https://github.com/matts1/cxx.git?branch=gn#a3259e72e27a86b6d722bd9d168a2c29c96c898f"
 dependencies = [
  "cc",
  "codespan-reporting",
@@ -425,7 +423,6 @@ dependencies = [
 [[package]]
 name = "cxxbridge-cmd"
 version = "1.0.196"
-source = "git+https://github.com/matts1/cxx.git?branch=gn#a3259e72e27a86b6d722bd9d168a2c29c96c898f"
 dependencies = [
  "clap",
  "codespan-reporting",
@@ -438,12 +435,10 @@ dependencies = [
 [[package]]
 name = "cxxbridge-flags"
 version = "1.0.196"
-source = "git+https://github.com/matts1/cxx.git?branch=gn#a3259e72e27a86b6d722bd9d168a2c29c96c898f"
 
 [[package]]
 name = "cxxbridge-macro"
 version = "1.0.196"
-source = "git+https://github.com/matts1/cxx.git?branch=gn#a3259e72e27a86b6d722bd9d168a2c29c96c898f"
 dependencies = [
  "indexmap",
  "proc-macro2",
@@ -748,6 +743,7 @@ name = "gn_starlark"
 version = "0.1.0"
 dependencies = [
  "ffi",
+ "link-cplusplus",
 ]
 
 [[package]]

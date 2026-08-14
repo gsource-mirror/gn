@@ -42,6 +42,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a707a5eb_42012d6e",
+        "filename": "build/gen.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 980,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-14T05:40:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "602be1ba_8b516739",
+      "range": {
+        "startLine": 980,
+        "startChar": 64,
+        "endLine": 980,
+        "endChar": 65
+      },
+      "revId": "a14f0879142f7aebb977ee78114f24bb23cec304",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0273c7ac_e96c4afb",
@@ -65,6 +89,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8108c17_5fbf5862",
+        "filename": "src/gn/functions.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1662,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-14T05:40:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0273c7ac_e96c4afb",
+      "range": {
+        "startLine": 1662,
+        "startChar": 0,
+        "endLine": 1662,
+        "endChar": 0
+      },
+      "revId": "a14f0879142f7aebb977ee78114f24bb23cec304",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c70a5c10_f82ccec4",
@@ -78,6 +126,30 @@
       "writtenOn": "2026-08-14T05:02:28Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Similar to template invocations, we should prevent target declarations and other nestable blocks inside the macro\u0027s argument block. Without this, users could accidentally (or intentionally) declare targets inside the `kwargs` block of a Starlark macro.\n\nConsider adding a `NonNestableBlock` here:\n```cpp\n        NonNestableBlock non_nestable(scope, function, \"macro invocation\");\n        if (!non_nestable.Enter(err))\n          return Value();\n```",
+      "range": {
+        "startLine": 1669,
+        "startChar": 0,
+        "endLine": 1669,
+        "endChar": 0
+      },
+      "revId": "a14f0879142f7aebb977ee78114f24bb23cec304",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "254edefd_97499cd7",
+        "filename": "src/gn/functions.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1669,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-14T05:40:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c70a5c10_f82ccec4",
       "range": {
         "startLine": 1669,
         "startChar": 0,

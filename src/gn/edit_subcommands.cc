@@ -43,9 +43,10 @@ Result<std::vector<Value>> ParseValues(base::span<const std::string> values) {
   return list_elements;
 }
 
-const TreeNode* FirstAssignment(const std::vector<TreeNode>& assignments) {
+const TreeNode* FirstUnconditionalAssignment(
+    const std::vector<TreeNode>& assignments) {
   for (const auto& assignment : assignments) {
-    if (!assignment.is_conditional() && !assignment.is_modification())
+    if (!assignment.is_conditional() && assignment.AsAssignment())
       return &assignment;
   }
   return nullptr;
@@ -63,6 +64,89 @@ EditCommand EditTargetCommand(
     }
     return Ok();
   };
+}
+
+EditCommand AddToAttributeCommand(std::string attribute,
+                                  std::vector<Value> values) {
+  return EditTargetCommand([attribute = std::move(attribute),
+                            values = std::move(values)](
+                               BuildFile& build_file, const EditTarget& target,
+                               EditState& state) -> Err {
+    auto assignments = target.assignments(attribute);
+    std::vector<Value> remaining_values = values;
+
+    // Iterate over a copy of values since we're mutating it.
+    for (const auto& value : values) {
+      for (auto& assignment : assignments) {
+        auto matches = FindListElementInAssignment(target, assignment, value);
+        for (const auto& match : matches) {
+          if (assignment.is_conditional()) {
+            // If it's assigned conditionally, remove it from the list first,
+            // since we're going to assign it unconditionally.
+            // Unlike usual we don't mark this with a comment, because this is
+            // safe.
+            match.RemoveSelfUnconditionally();
+          } else {
+            // If it's added unconditionally, we don't need to worry about
+            // adding it anymore.
+            std::erase(remaining_values, value);
+          }
+        }
+      }
+    }
+
+    if (const auto* first = FirstUnconditionalAssignment(assignments); first) {
+      // Case A: There exists an unconditional assignment -> add values to it.
+      ListNode* target_list = nullptr;
+      if (auto list = FindListInAssignment(*first)) {
+        // The expression is something like `[ "a" ]` or `foo + [ "a" ]`
+        // In this case we just add directly to the first list "literal" we
+        // find.
+        target_list = *list;
+      } else {
+        // The expression is something like `foo`
+        // Rewrite it as `[] + foo` so we can add to the empty list.
+        auto* op = first->AsAssignment();
+        auto empty_list_val =
+            build_file.to_node(Value(nullptr, std::vector<Value>{}));
+        target_list = empty_list_val->AsListMut();
+
+        auto plus_node = std::make_unique<BinaryOpNode>();
+        plus_node->set_op(Token(build_file.location(), Token::PLUS, "+"));
+        plus_node->set_left(std::move(empty_list_val));
+        plus_node->set_right(op->take_right());
+
+        op->set_right(std::move(plus_node));
+      }
+
+      for (const auto& value : remaining_values) {
+        target_list->append_item(build_file.to_node(value));
+      }
+    } else if (!assignments.empty()) {
+      // Case B: attr is only defined conditionally -> add attr = [value] at the
+      // start of the block, change all other assignments to "+=".
+      for (auto& assignment : assignments) {
+        if (auto* op = assignment->AsBinaryOpMut()) {
+          if (op->op().type() == Token::EQUAL) {
+            op->set_op(Token(op->op().location(), Token::PLUS_EQUALS, "+="));
+          }
+        }
+      }
+      target.block->statements().insert(
+          target.block->statements().begin(),
+          build_file.create_assignment(
+              attribute, build_file.to_node(Value(
+                             nullptr, std::vector<Value>(remaining_values)))));
+    } else {
+      // Case C: attr is not defined -> add attr = [value] at the end of the
+      // block.
+      target.block->append_statement(build_file.create_assignment(
+          attribute, build_file.to_node(Value(
+                         nullptr, std::vector<Value>(remaining_values)))));
+    }
+
+    return Ok();
+  });
 }
 
 EditCommand DeleteCommand() {
@@ -121,7 +205,7 @@ EditCommand SetCommand(std::string attribute, Value value) {
   return EditTargetCommand([=](BuildFile& build_file, const EditTarget& target,
                                EditState& state) -> Err {
     auto assignments = target.assignments(attribute);
-    const auto* first = FirstAssignment(assignments);
+    const auto* first = FirstUnconditionalAssignment(assignments);
     for (const auto& assignment : assignments) {
       if (&assignment != first) {
         assignment.RemoveSelf(state, target);
@@ -146,7 +230,15 @@ Result<EditCommand> ParseCommand(std::vector<std::string> args) {
     return Err(Location(), "Empty command.");
   }
 
-  if (args[0] == "delete") {
+  if (args[0] == "add") {
+    if (args.size() < 3) {
+      return Err(Location(), "Invalid add command.",
+                 "Usage: add <attribute> <value(s)>");
+    }
+    ASSIGN_OR_RETURN(std::vector<Value> values,
+                     ParseValues(base::make_span(args).subspan(2)));
+    return AddToAttributeCommand(args[1], std::move(values));
+  } else if (args[0] == "delete") {
     if (args.size() != 1) {
       return Err(Location(), "Invalid delete command.", "Usage: delete");
     }

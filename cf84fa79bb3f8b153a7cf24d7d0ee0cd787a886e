@@ -54,6 +54,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "822064e4_d7bfb0cf",
+        "filename": "src/gn/edit_command.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-14T03:36:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "896bb362_b5b514c7",
+      "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b684d21_fc20e3cf",
@@ -103,6 +121,24 @@
       "side": 1,
       "message": "Could you add such test?",
       "parentUuid": "da9295bc_eafef435",
+      "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b88ae351_8b7fc36f",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-14T03:36:29Z",
+      "side": 1,
+      "message": "This feature was already tested in the test for the `set` command. Since it just reuses the logic from there, I only want to be testing the logic specific to this command.",
+      "parentUuid": "dede6344_6aaee3d8",
       "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f85e745_3e86b16c",
+        "filename": "src/gn/starlark/crates/types/src/scope.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-14T02:56:56Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Since `copy_with` now returns `Self::Owned` instead of returning `Self` by value, the `where Self: Sized` bound on this method is no longer strictly necessary. \\n\\nYou can consider removing it, which also future-proofs the trait for use with `!Sized` opaque C++ types (e.g. if `cxx` switches to using `extern type` for opaque types).",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 0
+      },
+      "revId": "cd8ebfb61260bf92de3d8254bf4ba562c6a1e748",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

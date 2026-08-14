@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ec6e22e_ab3b299e",
+        "filename": "src/gn/functions.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1662,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-14T05:54:07Z",
+      "side": 1,
+      "message": "Consider adding a brief comment here to clarify that this is resolving a loaded Starlark macro. For example: `// Check if the function name matches a loaded Starlark macro.`",
+      "range": {
+        "startLine": 1662,
+        "startChar": 0,
+        "endLine": 1662,
+        "endChar": 0
+      },
+      "revId": "07320f09f741f422f0a94877a6e5e695e0af0b04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

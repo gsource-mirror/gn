@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20e061e4_9737f359",
+        "filename": "src/gn/edit_command.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-14T03:09:02Z",
+      "side": 1,
+      "message": "What happen if the target is defined multiple times?\ne.g.\n\n```\nif (is_win) {\n  group(\"a\") { ... }\n} else {\n  executable(\"a\") { ... }\n}\n```",
+      "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b684d21_fc20e3cf",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-14T03:09:02Z",
+      "side": 1,
+      "message": "What happen if attribute is appeared multiple times?\n\n```\nexecutable(\"foo\") {\n  sources \u003d [ \"foo.cc\" ]\n  if (is_linux) {\n    sources +\u003d [ \"bar.cc\" ]\n  }\n}\n```",
+      "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

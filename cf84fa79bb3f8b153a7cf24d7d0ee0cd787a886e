@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5688836f_0eb35970",
+        "filename": "src/gn/edit_command.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-14T03:10:02Z",
+      "side": 1,
+      "message": "It should delete *all* instances of the target.",
+      "parentUuid": "20e061e4_9737f359",
+      "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b684d21_fc20e3cf",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-08-14T03:09:02Z",
       "side": 1,
       "message": "What happen if attribute is appeared multiple times?\n\n```\nexecutable(\"foo\") {\n  sources \u003d [ \"foo.cc\" ]\n  if (is_linux) {\n    sources +\u003d [ \"bar.cc\" ]\n  }\n}\n```",
+      "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da9295bc_eafef435",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-14T03:10:02Z",
+      "side": 1,
+      "message": "It should delete *all* instances of the attribute",
+      "parentUuid": "4b684d21_fc20e3cf",
       "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

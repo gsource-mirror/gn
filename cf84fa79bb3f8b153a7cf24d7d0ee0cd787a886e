@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "896bb362_b5b514c7",
+        "filename": "src/gn/edit_command.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-14T03:11:22Z",
+      "side": 1,
+      "message": "Could you add such test?",
+      "parentUuid": "5688836f_0eb35970",
+      "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4b684d21_fc20e3cf",
         "filename": "src/gn/edit_command_unittest.cc",
         "patchSetId": 3
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "It should delete *all* instances of the attribute",
       "parentUuid": "4b684d21_fc20e3cf",
+      "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dede6344_6aaee3d8",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-14T03:11:22Z",
+      "side": 1,
+      "message": "Could you add such test?",
+      "parentUuid": "da9295bc_eafef435",
       "revId": "cf84fa79bb3f8b153a7cf24d7d0ee0cd787a886e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

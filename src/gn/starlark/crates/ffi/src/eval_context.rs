@@ -12,7 +12,10 @@ use crate::{errors::Error, Scope};
 
 enum EvalContextKind {
     BzlFile,
-    Macro(NonNull<Scope>),
+    Macro {
+        scope: NonNull<Scope>,
+        err: NonNull<crate::bridge::Err>,
+    },
 }
 
 #[derive(Allocative, ProvidesStaticType)]
@@ -37,7 +40,11 @@ impl EvalContext {
         }
     }
 
-    pub fn new_macro(session: &'static crate::session::Session, scope: NonNull<Scope>) -> Self {
+    pub fn new_macro(
+        session: &'static crate::session::Session,
+        scope: NonNull<Scope>,
+        err: NonNull<crate::bridge::Err>,
+    ) -> Self {
         let scope_ref = types::util::deref_ptr(scope);
         // Safety: Package paths in GN scopes are interned and valid for the build
         // session.
@@ -47,7 +54,7 @@ impl EvalContext {
         Self {
             session,
             package,
-            kind: EvalContextKind::Macro(scope),
+            kind: EvalContextKind::Macro { scope, err },
         }
     }
 }
@@ -70,7 +77,9 @@ impl types::EvalContext for EvalContext {
 
     fn current_toolchain(&self) -> LabelRef<'_> {
         match &self.kind {
-            EvalContextKind::Macro(scope) => types::util::deref_ptr(*scope).settings().toolchain(),
+            EvalContextKind::Macro { scope, .. } => {
+                types::util::deref_ptr(*scope).settings().toolchain()
+            },
             EvalContextKind::BzlFile => {
                 unreachable!("current_toolchain is only available during macro evaluation")
             },
@@ -81,7 +90,7 @@ impl types::EvalContext for EvalContext {
     #[allow(clippy::mut_from_ref)]
     fn require_macro(&self) -> starlark::Result<std::pin::Pin<&mut Self::Scope>> {
         match &self.kind {
-            EvalContextKind::Macro(scope) => Ok(types::util::pin_mut_ptr(*scope)),
+            EvalContextKind::Macro { scope, .. } => Ok(types::util::pin_mut_ptr(*scope)),
             _ => Err(Error::RequiresMacro.into()),
         }
     }
@@ -100,15 +109,29 @@ impl types::EvalContext for EvalContext {
 impl attr::traits::EvalContextAttrExt for EvalContext {
     fn create_target(
         &self,
-        _target_type: Option<types::OutputType>,
-        _target_name: &str,
-        _scope: std::pin::Pin<&mut Scope>,
+        target_type: Option<types::OutputType>,
+        target_name: &str,
+        scope: std::pin::Pin<&mut Scope>,
     ) -> starlark::Result<
         std::pin::Pin<
             &'static mut <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,
         >,
     > {
-        todo!()
+        let output_type = target_type.map_or("starlark", |t| t.into());
+        let err_ptr = match &self.kind {
+            EvalContextKind::Macro { err, .. } => *err,
+            _ => return Err(Error::RequiresMacro.into()),
+        };
+        let target_ptr = crate::bridge::create_target(
+            scope,
+            target_name,
+            output_type,
+            types::util::pin_mut_ptr(err_ptr),
+        );
+        types::util::deref_ptr(err_ptr).into_result()?;
+        let target_non_null =
+            NonNull::new(target_ptr).expect("Target pointer is null but no error was set");
+        Ok(types::util::pin_mut_ptr(target_non_null))
     }
 
     fn register_target(

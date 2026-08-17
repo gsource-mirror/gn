@@ -55,7 +55,7 @@ More information
 const char kCheck[] = "check";
 const char kCheck_HelpShort[] = "check: Check header dependencies.";
 const char kCheck_Help[] =
-    R"(gn check <out_dir> [<label_pattern>] [--force] [--check-generated]
+    R"(gn check <out_dir> [<label_pattern>] [--force] [--check-generated] [--fix]
 
   GN's include header checker validates that the includes for C-like source
   files match the build dependency graph.
@@ -78,6 +78,9 @@ Command-specific switches
   --check-system
      Check system style includes (using <angle brackets>) in addition to
      "double quote" includes.
+
+  --fix
+      Automatically apply suggestions to resolve header dependency errors.
 
 )" DEFAULT_TOOLCHAIN_SWITCH_HELP
     R"(
@@ -241,10 +244,11 @@ int RunCheck(const std::vector<std::string>& args) {
   bool check_generated = cmdline->HasSwitch("check-generated");
   bool check_system =
       setup->check_system_includes() || cmdline->HasSwitch("check-system");
+  bool fix = cmdline->HasSwitch("fix");
 
   if (!CheckPublicHeaders(&setup->build_settings(), all_targets,
                           targets_to_check, force, check_generated,
-                          check_system))
+                          check_system, fix, setup))
     return 1;
 
   if (!base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kQuiet)) {
@@ -266,21 +270,77 @@ bool CheckPublicHeaders(const BuildSettings* build_settings,
                         const std::vector<const Target*>& to_check,
                         bool force_check,
                         bool check_generated,
-                        bool check_system) {
+                        bool check_system,
+                        bool apply,
+                        Setup* setup,
+                        OutputStringFunc output_fn) {
   ScopedTrace trace(TraceItem::TRACE_CHECK_HEADERS, "Check headers");
+
+  auto OutputString = [&](std::string_view str,
+                          TextDecoration dec = DECORATION_NONE,
+                          HtmlEscaping esc = DEFAULT_ESCAPING) {
+    if (output_fn) {
+      output_fn(str, dec, esc);
+    } else {
+      ::OutputString(str, dec, esc);
+    }
+  };
 
   scoped_refptr<HeaderChecker> header_checker(new HeaderChecker(
       build_settings, all_targets, check_generated, check_system));
 
-  std::vector<Err> header_errors;
-  header_checker->Run(to_check, force_check, &header_errors);
-  for (size_t i = 0; i < header_errors.size(); i++) {
-    if (i > 0)
+  std::vector<HeaderChecker::Violation> violations;
+  header_checker->Run(to_check, force_check, &violations);
+
+  Label default_toolchain = setup ? setup->loader()->default_toolchain_label()
+                                  : Label(SourceDir("//toolchain/"), "default");
+
+  bool remaining_violations = false;
+  bool needs_separator = false;
+  for (size_t i = 0; i < violations.size(); i++) {
+    if (needs_separator)
       OutputString("___________________\n", DECORATION_YELLOW);
-    if (!header_errors[i].PrintToStdout())
-      break;
+    needs_separator = true;
+    bool fixed = false;
+    std::vector<std::tuple<std::string, TextDecoration, HtmlEscaping>> buf;
+    if (!violations[i].source_file.is_null() &&
+        !violations[i].include_file.is_null()) {
+      int exit_code = OutputSuggestions(
+          all_targets, build_settings, default_toolchain,
+          violations[i].source_file.value(), violations[i].include_file.value(),
+          [&](std::string_view str, TextDecoration dec, HtmlEscaping esc) {
+            buf.emplace_back(str, dec, esc);
+          },
+          apply, setup);
+      fixed = exit_code == 0;
+    }
+
+    if (fixed) {
+      for (const auto& [str, dec, esc] : buf) {
+        OutputString(str, dec, esc);
+      }
+    } else {
+      remaining_violations = true;
+      if (output_fn) {
+        OutputString(violations[i].error.to_string());
+        for (const auto& [str, dec, esc] : buf) {
+          OutputString(str, dec, esc);
+        }
+      } else if (violations[i].error.PrintToStdout()) {
+        for (const auto& [str, dec, esc] : buf) {
+          OutputString(str, dec, esc);
+        }
+      } else if (apply) {
+        // If we're applying suggestions and only configured to print a single
+        // error, we can't yet stop because we might be able to apply more.
+        needs_separator = false;
+      } else {
+        break;
+      }
+    }
   }
-  return header_errors.empty();
+
+  return !remaining_violations;
 }
 
 }  // namespace commands

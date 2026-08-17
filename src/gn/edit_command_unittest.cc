@@ -367,6 +367,42 @@ executable("foo") {
                                        "\"deps\".")}}));
 }
 
+TEST_F(EditCommandTest, RenameSubcommand) {
+  EXPECT_SUCCESS(DoEdit("rename srcs sources",
+                        R"(
+executable("foo") {
+  srcs = [ "foo.cc" ]
+  if (is_linux) {
+    srcs += [ "linux.cc" ]
+  }
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+  if (is_linux) {
+    sources += [ "linux.cc" ]
+  }
+}
+)"));
+
+  EXPECT_SUCCESS(DoEdit("rename nonexistent new_attr", {"//:foo"},
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)",
+                        EditState{{},
+                                  {Err(Location(),
+                                       "Target \"//:foo\" does not contain the "
+                                       "attribute \"nonexistent\".")}}));
+}
+
 TEST_F(EditCommandTest, SetSubcommand) {
   // New bool attribute
   EXPECT_SUCCESS(DoEdit("set testonly true",

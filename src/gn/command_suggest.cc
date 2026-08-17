@@ -43,12 +43,31 @@ const char kSuggest_Help[] =
 
   Will print a suggestion like:
   Request: path/to/target.cc wants to depend on foo/bar.h
-  Suggestion: add deps = [ "//foo:bar" ] to "//path/to:target" (defined in //path/to/BUILD.gn:1234)
+  Suggestion: Add deps = [ "//foo:bar" ] to //path/to:target (defined in //path/to/BUILD.gn:1234)
+    (`gn edit "add deps //foo:bar" //path/to:target`)
 )";
 
 constexpr std::string_view kPrivateSuffix = "_Private";
 
 namespace {
+
+struct EditCommand {
+  std::vector<std::string> command;
+  std::string target;
+
+  std::string ToString() const {
+    std::string result = "gn edit \"";
+    for (size_t i = 0; i < command.size(); ++i) {
+      if (i > 0)
+        result += " ";
+      result += command[i];
+    }
+    result += "\" ";
+    result += target;
+    return result;
+  }
+};
+
 // Determines whether a source file is in either the public or private API of a
 // target.
 std::optional<commands::ApiScope> DepKind(const Target* target,
@@ -351,14 +370,6 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     OutputString("\"", kLabelLike);
   };
 
-  auto OutputDefinition = [&](const Target* target) {
-    OutputString(":", kLabelLike);
-    OutputString(target->label().name(), kLabelLike);
-    OutputString(" (defined at ");
-    OutputString(target->user_friendly_location().Describe(false), kLabelLike);
-    OutputString(")");
-  };
-
   Label current_toolchain = default_toolchain;
   auto OutputTarget = [&current_toolchain,
                        &OutputString](const Target* target) {
@@ -366,40 +377,66 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
                  kLabelLike);
   };
 
-  auto OutputInsertionHint = [&](std::string_view key,
-                                 const std::vector<std::string>& candidates,
-                                 const Target* target) {
-    bool plural = candidates.size() != 1;
-    StartSuggestion();
-    if (plural) {
-      OutputString("Add one of the following to ");
-      OutputString(key);
-      OutputString(" in ");
-    } else {
-      OutputString("Add ");
-      OutputString(key);
-      OutputString(" = [ ");
-      OutputQuoted(candidates.front());
-      OutputString(" ] to ");
-    }
-    OutputDefinition(target);
+  auto OutputDefinition = [&](const Target* target) {
+    OutputString(":", kLabelLike);
+    OutputString(target->label().name(), kLabelLike);
+    OutputString(" (defined at ");
+    OutputString(target->user_friendly_location().Describe(false), kLabelLike);
+    OutputString(")");
     if (current_toolchain != default_toolchain) {
       OutputString(" for toolchain ");
       OutputString(
           target->label().GetToolchainLabel().GetUserVisibleName(false),
           kLabelLike);
     }
-    if (plural) {
-      OutputString(":\n");
-      for (const auto& candidate : candidates) {
-        OutputString("* ");
-        OutputString(candidate);
-        OutputString("\n");
-      }
-    } else {
-      OutputString("\n");
-    }
   };
+
+  auto OutputEditCommand = [&](const EditCommand& edit, const Target* target,
+                               std::string_view move_included_name = {}) {
+    StartSuggestion();
+    if (edit.command.size() >= 4 && edit.command[0] == "move") {
+      OutputString("Move ");
+      OutputQuoted(move_included_name.empty() ? edit.command[3]
+                                              : move_included_name);
+      OutputString(" from `sources` to `public` in ");
+      OutputDefinition(target);
+    } else if (edit.command.size() >= 3 && edit.command[0] == "add") {
+      OutputString("Add ");
+      OutputString(edit.command[1]);
+      OutputString(" = [ ");
+      OutputQuoted(edit.command[2]);
+      OutputString(" ] to ");
+      OutputDefinition(target);
+    } else {
+      NOTREACHED();
+    }
+    OutputString("\n  (`" + edit.ToString() + "`)\n");
+  };
+
+  auto OutputDepCandidates =
+      [&](const std::vector<EditCommand>& candidates, const Target* target) {
+        if (candidates.size() == 1) {
+          OutputEditCommand(candidates.front(), target);
+          return;
+        }
+
+        StartSuggestion();
+        const std::string& key = candidates.front().command.size() >= 2
+                                     ? candidates.front().command[1]
+                                     : "deps";
+        OutputString("Add one of the following to ");
+        OutputString(key);
+        OutputString(" in ");
+        OutputDefinition(target);
+        OutputString(":\n");
+        for (const auto& candidate : candidates) {
+          OutputString("* ");
+          if (candidate.command.size() >= 3) {
+            OutputString(candidate.command[2]);
+          }
+          OutputString(" (`" + candidate.ToString() + "`)\n");
+        }
+      };
 
   auto ResolveSuggestion = [&](std::string_view value,
                                const Target* target_context = nullptr) {
@@ -486,8 +523,18 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     OutputString(", but not in the toolchain ");
     OutputString(current_toolchain.GetUserVisibleName(false), kLabelLike);
     OutputString("\n");
-    OutputInsertionHint("public", {std::string(included_name)},
-                        targets.front().first);
+    SourceFile file =
+        ResolveFilePath(build_settings, all_targets, included_name, includer);
+    const Target* target = targets.front().first;
+    std::string path = file.is_null()
+                           ? std::string(included_name)
+                           : RebasePath(file.value(), target->label().dir(),
+                                        build_settings->root_path_utf8());
+    EditCommand edit{
+        .command = {"add", "public", std::move(path)},
+        .target = target->label().GetUserVisibleName(current_toolchain),
+    };
+    OutputEditCommand(edit, target);
     return true;
   }
 
@@ -503,8 +550,12 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     StartSuggestion();
     OutputString(
         "Create a source_set target for the common headers and sources and "
-        "have all of the above targets depend on that.");
-    OutputInsertionHint(dep_field, {"$NEW_SOURCE_SET"}, includer);
+        "have all of the above targets depend on that.\n");
+    EditCommand edit{
+        .command = {"add", dep_field, "$NEW_SOURCE_SET"},
+        .target = includer->label().GetUserVisibleName(current_toolchain),
+    };
+    OutputEditCommand(edit, includer);
     return true;
   }
 
@@ -514,11 +565,27 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     OutputQuoted(included_name);
     OutputString(" is in the private API of ");
     OutputTarget(included);
-    StartSuggestion();
-    OutputString("Move ");
-    OutputQuoted(included_name);
-    OutputString(" from `sources` to `public` in ");
-    OutputDefinition(included);
+    OutputString("\n");
+    SourceFile file =
+        ResolveFilePath(build_settings, all_targets, included_name, includer);
+    if (file.is_null() && !included->module_name().empty()) {
+      std::string header_name = included->module_name() + ".h";
+      for (const auto& source : included->sources()) {
+        if (source.GetName() == header_name) {
+          file = source;
+          break;
+        }
+      }
+    }
+    std::string path = file.is_null()
+                           ? std::string(included_name)
+                           : RebasePath(file.value(), included->label().dir(),
+                                        build_settings->root_path_utf8());
+    EditCommand edit{
+        .command = {"move", "sources", "public", std::move(path)},
+        .target = included->label().GetUserVisibleName(current_toolchain),
+    };
+    OutputEditCommand(edit, included, included_name);
   }
 
   // TODO: There are a bunch of optimizations we can perform here to make better
@@ -618,7 +685,14 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
                 bool rhs_abs = !rhs.starts_with(':');
                 return std::tie(lhs_abs, lhs) < std::tie(rhs_abs, rhs);
               });
-    OutputInsertionHint(dep_field, labels, includer);
+    std::vector<EditCommand> edits;
+    for (const auto& l : labels) {
+      edits.push_back(EditCommand{
+          .command = {"add", dep_field, l},
+          .target = includer->label().GetUserVisibleName(current_toolchain),
+      });
+    }
+    OutputDepCandidates(edits, includer);
   };
 
   if (included->visibility().CanSeeMe(includer->label())) {

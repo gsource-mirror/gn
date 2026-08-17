@@ -760,6 +760,12 @@
       Example:
         gn edit "remove deps //base" //src/tools:*
 
+  rename <from_attribute> <to_attribute>
+      Renames <from_attribute> to <to_attribute>.
+
+      Example:
+        gn edit "rename srcs sources" //src/tools:*
+
   set <attribute>[:list] <value(s)>
       Sets or overwrites the target's <attribute> to <value(s)>.
       If multiple values are provided, or if the ":list" suffix is
@@ -1511,7 +1517,8 @@
 
   Will print a suggestion like:
   Request: path/to/target.cc wants to depend on foo/bar.h
-  Suggestion: add deps = [ "//foo:bar" ] to "//path/to:target" (defined in //path/to/BUILD.gn:1234)
+  Suggestion: Add deps = [ "//foo:bar" ] to //path/to:target (defined in //path/to/BUILD.gn:1234)
+    (`gn edit "add deps //foo:bar" //path/to:target`)
 ```
 ## <a name="targets"></a>Target declarations
 

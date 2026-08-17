@@ -95,11 +95,21 @@ void TargetGenerator::GenerateTarget(Scope* scope,
     return;
   }
 
+  GenerateTarget(scope, function_call, args[0].string_value(), output_type,
+                 err);
+}
+
+// static
+Target* TargetGenerator::GenerateTarget(Scope* scope,
+                                        const FunctionCallNode* function_call,
+                                        std::string_view name,
+                                        std::string_view output_type,
+                                        Err* err) {
   // The location of the target is the directory name with no slash at the end.
   // FIXME(brettw) validate name.
   const Label& toolchain_label = ToolchainLabelForScope(scope);
-  Label label(scope->GetSourceDir(), args[0].string_value(),
-              toolchain_label.dir(), toolchain_label.name());
+  Label label(scope->GetSourceDir(), name, toolchain_label.dir(),
+              toolchain_label.name());
 
   if (g_scheduler->verbose_logging())
     g_scheduler->Log("Defining target", label.GetUserVisibleName(true));
@@ -163,21 +173,24 @@ void TargetGenerator::GenerateTarget(Scope* scope,
     BinaryTargetGenerator generator(target.get(), scope, function_call,
                                     Target::RUST_PROC_MACRO, err);
     generator.Run();
-  } else {
+  } else if (output_type != "starlark") {
     *err = Err(function_call, "Not a known target type",
-               "I am very confused by the target type \"" + output_type + "\"");
+               "I am very confused by the target type \"" +
+                   std::string(output_type) + "\"");
   }
 
   if (err->has_error())
-    return;
+    return nullptr;
 
   // Save this target for the file.
   Scope::ItemVector* collector = scope->GetItemCollector();
   if (!collector) {
     *err = Err(function_call, "Can't define a target in this context.");
-    return;
+    return nullptr;
   }
+  Target* target_ptr = target.get();
   collector->push_back(std::move(target));
+  return target_ptr;
 }
 
 const BuildSettings* TargetGenerator::GetBuildSettings() const {

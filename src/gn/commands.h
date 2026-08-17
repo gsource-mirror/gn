@@ -112,12 +112,17 @@ int RunSuggest(const std::vector<std::string>& args);
 
 using OutputStringFunc =
     std::function<void(std::string_view, TextDecoration, HtmlEscaping)>;
-bool OutputSuggestions(const std::vector<const Target*>& all_targets,
-                       const BuildSettings* build_settings,
-                       const Label& default_toolchain,
-                       std::string_view includer_name,
-                       std::string_view included_name,
-                       OutputStringFunc output_fn);
+// Returns the suggested exit status of the program.
+// 1 -> failure
+// 2 -> unapplied changes remain
+int OutputSuggestions(const std::vector<const Target*>& all_targets,
+                      const BuildSettings* build_settings,
+                      const Label& default_toolchain,
+                      std::string_view includer_name,
+                      std::string_view included_name,
+                      OutputStringFunc output_fn,
+                      bool apply = false,
+                      Setup* setup = nullptr);
 
 extern const char kCleanStale[];
 extern const char kCleanStale_HelpShort[];

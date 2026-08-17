@@ -117,10 +117,16 @@ where
                 // Collect all the arguments we don't recognise and pass them to the native
                 // implementation.
                 let kwargs: SmallMap<String, Value<'v>> = param_parser.next()?;
-                let child_scope = scope.copy_with(kwargs.iter().map(|(k, v)| (k.as_str(), *v)))?;
-                context.create_target(Some(builtin), target_name, &*child_scope)?
+                let mut child_scope =
+                    scope.copy_with(kwargs.iter().map(|(k, v)| (k.as_str(), *v)))?;
+                context.create_target(
+                    Some(builtin),
+                    target_name,
+                    C::Scope::as_pin_mut(&mut child_scope),
+                )?
             } else {
-                context.create_target(None, target_name, scope)?
+                let mut child_scope = scope.copy_with(std::iter::empty())?;
+                context.create_target(None, target_name, C::Scope::as_pin_mut(&mut child_scope))?
             };
             for attr in &attrs {
                 attr.register_dependencies(cxx_target.as_mut(), context.current_toolchain());

@@ -44,7 +44,11 @@ impl OwnedFrozenValue {
         // Safety: `self` (and thus self.0.owner()) is guaranteed to outlive
         // the temp module and thus this cannot be GC'd during this call.
         let func_val = unsafe { self.0.unchecked_frozen_value() };
-        err.as_mut().handle((|| {
+        // Safety: Transmuting to 'static is safe because eval_context is dropped before
+        // invoke returns.
+        let err_static: std::pin::Pin<&'static mut Err> =
+            unsafe { std::mem::transmute(err.as_mut()) };
+        let res = (|| {
             let val = starlark::environment::Module::with_temp_heap(
                 |module| -> starlark::Result<Self> {
                     let heap = module.heap();
@@ -57,8 +61,9 @@ impl OwnedFrozenValue {
                         .collect();
 
                     let package = scope.package();
-                    let eval_context =
-                        crate::eval_context::EvalContext::new_macro(session, package, scope);
+                    let eval_context = crate::eval_context::EvalContext::new_macro(
+                        session, package, scope, err_static,
+                    );
 
                     let res = {
                         let mut eval = starlark::eval::Evaluator::new(&module);
@@ -79,7 +84,8 @@ impl OwnedFrozenValue {
                 origin,
             )?;
             Ok(())
-        })());
+        })();
+        err.handle(res);
     }
 }
 
@@ -150,7 +156,7 @@ mod dummy {
         pub fn NewErr() -> UniquePtr<Err>;
         // Dead code for production, used in tests only
         #[allow(dead_code)]
-        pub(in crate::err) fn ErrToString(err: &Err) -> String;
+        pub(crate) fn ErrToString(err: &Err) -> String;
 
         pub(in crate::err) fn PopulateErrWithLocation(
             err: Pin<&mut Err>,
@@ -193,6 +199,12 @@ mod dummy {
         pub fn label(self: &Target) -> &Label;
         #[rust_name = "settings_cxx"]
         pub(in crate::target) fn settings(self: &Target) -> *const Settings;
+        pub(in crate::eval_context) fn create_target(
+            scope: Pin<&mut Scope>,
+            name: &str,
+            output_type: &str,
+            err: Pin<&mut Err>,
+        ) -> *mut Target;
         pub fn register_dependency(
             target: Pin<&mut Target>,
             package: &str,

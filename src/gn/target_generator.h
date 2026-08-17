@@ -6,6 +6,7 @@
 #define TOOLS_GN_TARGET_GENERATOR_H_
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "gn/label_ptr.h"
@@ -16,6 +17,7 @@ class Err;
 class FunctionCallNode;
 class Scope;
 class SubstitutionPattern;
+class Target;
 class Value;
 
 // Fills the variables in a Target object from a Scope (the result of a script
@@ -39,6 +41,12 @@ class TargetGenerator {
                              const std::vector<Value>& args,
                              const std::string& output_type,
                              Err* err);
+
+  static Target* GenerateTarget(Scope* scope,
+                                const FunctionCallNode* function_call,
+                                std::string_view name,
+                                std::string_view output_type,
+                                Err* err);
 
  protected:
   // Derived classes implement this to do type-specific generation.

@@ -18,6 +18,9 @@ pub trait Scope {
         kv: impl Iterator<Item = (&'a str, Value<'v>)>,
     ) -> starlark::Result<Self::Owned>;
 
+    /// Returns a pinned mutable reference to the owned scope.
+    fn as_pin_mut(owned: &mut Self::Owned) -> std::pin::Pin<&mut Self>;
+
     /// Retrieves a value from the key-value store.
     /// May allocate the value it retrieves on the heap.
     fn get<'v>(&self, key: &str, heap: &Heap<'v>) -> Option<Value<'v>>;

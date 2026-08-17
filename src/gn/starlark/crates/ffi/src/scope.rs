@@ -58,6 +58,10 @@ impl Scope {
 impl types::Scope for Scope {
     type Owned = cxx::UniquePtr<Self>;
 
+    fn as_pin_mut(owned: &mut Self::Owned) -> std::pin::Pin<&mut Self> {
+        owned.pin_mut()
+    }
+
     fn copy_with<'b, 'v>(
         &self,
         kv: impl Iterator<Item = (&'b str, StarlarkValue<'v>)>,

@@ -36,6 +36,10 @@ impl Scope for FakeScope {
         Ok(Box::new(Self(values)))
     }
 
+    fn as_pin_mut(owned: &mut Self::Owned) -> std::pin::Pin<&mut Self> {
+        std::pin::Pin::new(owned.as_mut())
+    }
+
     fn get<'v>(&self, key: &str, _heap: &Heap<'v>) -> Option<Value<'v>> {
         self.0.get(key).map(|v| {
             // Safety: Shortening the lifetime is always safe.
@@ -134,7 +138,7 @@ impl EvalContextAttrExt for FakeEvalContext {
         &self,
         target_type: Option<OutputType>,
         target_name: &str,
-        scope: &FakeScope,
+        scope: std::pin::Pin<&mut FakeScope>,
     ) -> Result<std::pin::Pin<&'static mut FakeTarget>> {
         let label = Label::new(self.package.clone(), target_name.to_owned());
         let toolchain = self.current_toolchain().to_owned();

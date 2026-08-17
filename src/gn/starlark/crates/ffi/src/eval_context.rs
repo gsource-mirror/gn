@@ -10,7 +10,10 @@ use crate::{errors::Error, Scope};
 
 enum EvalContextKind {
     BzlFile,
-    Macro(&'static Scope),
+    Macro {
+        scope: &'static Scope,
+        err: std::cell::RefCell<std::pin::Pin<&'static mut crate::bridge::Err>>,
+    },
 }
 
 #[derive(Allocative, ProvidesStaticType)]
@@ -39,11 +42,15 @@ impl EvalContext {
         session: &'static crate::session::Session,
         package: &'static PackageRef,
         scope: &'static Scope,
+        err: std::pin::Pin<&'static mut crate::bridge::Err>,
     ) -> Self {
         Self {
             session,
             package,
-            kind: EvalContextKind::Macro(scope),
+            kind: EvalContextKind::Macro {
+                scope,
+                err: std::cell::RefCell::new(err),
+            },
         }
     }
 }
@@ -70,7 +77,7 @@ impl types::EvalContext for EvalContext {
 
     fn require_macro(&self) -> starlark::Result<&Self::Scope> {
         match &self.kind {
-            EvalContextKind::Macro(scope) => Ok(*scope),
+            EvalContextKind::Macro { scope, .. } => Ok(*scope),
             _ => Err(Error::RequiresMacro.into()),
         }
     }
@@ -89,15 +96,28 @@ impl types::EvalContext for EvalContext {
 impl attr::traits::EvalContextAttrExt for EvalContext {
     fn create_target(
         &self,
-        _target_type: Option<types::OutputType>,
-        _target_name: &str,
-        _scope: &Scope,
+        target_type: Option<types::OutputType>,
+        target_name: &str,
+        scope: std::pin::Pin<&mut Scope>,
     ) -> starlark::Result<
         std::pin::Pin<
             &'static mut <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,
         >,
     > {
-        todo!()
+        let output_type = target_type.map_or("", |t| t.into());
+        let mut err_guard = match &self.kind {
+            EvalContextKind::Macro { err, .. } => err.borrow_mut(),
+            _ => return Err(Error::RequiresMacro.into()),
+        };
+        let target_ptr =
+            crate::bridge::create_target(scope, target_name, output_type, err_guard.as_mut());
+        err_guard.as_ref().into_result()?;
+        let target_ref: &'static mut crate::bridge::Target =
+            // Safety: Target allocated by GN in C++ outlives the session and is non-null when err is not set.
+            unsafe { target_ptr.as_mut() }.expect("Target pointer is null but no error was set");
+        // Safety: All C++ opaque types are marked Unpin, but target can safely be
+        // pinned.
+        Ok(unsafe { std::pin::Pin::new_unchecked(target_ref) })
     }
 
     fn register_target(

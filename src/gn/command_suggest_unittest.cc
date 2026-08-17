@@ -600,3 +600,64 @@ source_set("included") {
 )";
   EXPECT_EQ(expected_build_gn, project.Read(SourceFile("//BUILD.gn")));
 }
+
+TEST_F(SuggestTest, CheckPublicHeadersWithoutFix) {
+  TestProject project({
+      {SourceFile("//BUILD.gn"), R"(executable("includer") {
+  sources = [ "includer.cc" ]
+}
+
+source_set("included") {
+  sources = [ "included.h" ]
+}
+)"},
+      {SourceFile("//includer.cc"), "#include \"included.h\"\n"},
+      {SourceFile("//included.h"), ""},
+  });
+
+  bool success = commands::CheckPublicHeaders(
+      &project.setup.build_settings(), project.targets(), project.targets(),
+      false, false, false, false, &project.setup);
+
+  EXPECT_FALSE(success);
+  EXPECT_EQ(R"(executable("includer") {
+  sources = [ "includer.cc" ]
+}
+
+source_set("included") {
+  sources = [ "included.h" ]
+}
+)",
+            project.Read(SourceFile("//BUILD.gn")));
+}
+
+TEST_F(SuggestTest, CheckPublicHeadersWithFix) {
+  TestProject project({
+      {SourceFile("//BUILD.gn"), R"(executable("includer") {
+  sources = [ "includer.cc" ]
+}
+
+source_set("included") {
+  sources = [ "included.h" ]
+}
+)"},
+      {SourceFile("//includer.cc"), "#include \"included.h\"\n"},
+      {SourceFile("//included.h"), ""},
+  });
+
+  bool success = commands::CheckPublicHeaders(
+      &project.setup.build_settings(), project.targets(), project.targets(),
+      false, false, false, true, &project.setup);
+
+  EXPECT_TRUE(success);
+  EXPECT_EQ(R"(executable("includer") {
+  sources = [ "includer.cc" ]
+  deps = [ ":included" ]
+}
+
+source_set("included") {
+  sources = [ "included.h" ]
+}
+)",
+            project.Read(SourceFile("//BUILD.gn")));
+}

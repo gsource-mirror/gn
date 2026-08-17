@@ -55,7 +55,7 @@ More information
 const char kCheck[] = "check";
 const char kCheck_HelpShort[] = "check: Check header dependencies.";
 const char kCheck_Help[] =
-    R"(gn check <out_dir> [<label_pattern>] [--force] [--check-generated]
+    R"(gn check <out_dir> [<label_pattern>] [--force] [--check-generated] [--fix]
 
   GN's include header checker validates that the includes for C-like source
   files match the build dependency graph.
@@ -78,6 +78,9 @@ Command-specific switches
   --check-system
      Check system style includes (using <angle brackets>) in addition to
      "double quote" includes.
+
+  --fix
+      Automatically apply suggestions to resolve header dependency errors.
 
 )" DEFAULT_TOOLCHAIN_SWITCH_HELP
     R"(
@@ -241,10 +244,11 @@ int RunCheck(const std::vector<std::string>& args) {
   bool check_generated = cmdline->HasSwitch("check-generated");
   bool check_system =
       setup->check_system_includes() || cmdline->HasSwitch("check-system");
+  bool fix = cmdline->HasSwitch("fix");
 
   if (!CheckPublicHeaders(&setup->build_settings(), all_targets,
                           targets_to_check, force, check_generated,
-                          check_system))
+                          check_system, fix, setup))
     return 1;
 
   if (!base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kQuiet)) {
@@ -266,21 +270,47 @@ bool CheckPublicHeaders(const BuildSettings* build_settings,
                         const std::vector<const Target*>& to_check,
                         bool force_check,
                         bool check_generated,
-                        bool check_system) {
+                        bool check_system,
+                        bool apply,
+                        Setup* setup) {
   ScopedTrace trace(TraceItem::TRACE_CHECK_HEADERS, "Check headers");
 
   scoped_refptr<HeaderChecker> header_checker(new HeaderChecker(
       build_settings, all_targets, check_generated, check_system));
 
-  std::vector<Err> header_errors;
-  header_checker->Run(to_check, force_check, &header_errors);
-  for (size_t i = 0; i < header_errors.size(); i++) {
+  std::vector<HeaderChecker::Violation> violations;
+  header_checker->Run(to_check, force_check, &violations);
+
+  if (violations.empty())
+    return true;
+
+  Label default_toolchain = setup ? setup->loader()->default_toolchain_label()
+                                  : Label(SourceDir("//toolchain/"), "default");
+
+  bool all_applied = true;
+  for (size_t i = 0; i < violations.size(); i++) {
     if (i > 0)
       OutputString("___________________\n", DECORATION_YELLOW);
-    if (!header_errors[i].PrintToStdout())
+    if (!violations[i].error.PrintToStdout())
       break;
+
+    if (!violations[i].source_file.is_null() &&
+        !violations[i].include_file.is_null()) {
+      bool ok = OutputSuggestions(
+          all_targets, build_settings, default_toolchain,
+          violations[i].source_file.value(), violations[i].include_file.value(),
+          [](std::string_view str, TextDecoration dec, HtmlEscaping esc) {
+            ::OutputString(str, dec, esc);
+          },
+          apply, setup);
+      if (!ok)
+        all_applied = false;
+    } else {
+      all_applied = false;
+    }
   }
-  return header_errors.empty();
+
+  return apply && all_applied;
 }
 
 }  // namespace commands

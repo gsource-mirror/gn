@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use std::ptr::NonNull;
+
 use allocative::Allocative;
 use starlark::values::ProvidesStaticType;
 use types::{LabelRef, PackageRef, PathResolver};
@@ -10,7 +12,7 @@ use crate::{errors::Error, Scope};
 
 enum EvalContextKind {
     BzlFile,
-    Macro(&'static Scope),
+    Macro(NonNull<Scope>),
 }
 
 #[derive(Allocative, ProvidesStaticType)]
@@ -35,11 +37,13 @@ impl EvalContext {
         }
     }
 
-    pub fn new_macro(
-        session: &'static crate::session::Session,
-        package: &'static PackageRef,
-        scope: &'static Scope,
-    ) -> Self {
+    pub fn new_macro(session: &'static crate::session::Session, scope: NonNull<Scope>) -> Self {
+        let scope_ref = types::util::deref_ptr(scope);
+        // Safety: Package paths in GN scopes are interned and valid for the build
+        // session.
+        let package: &'static types::PackageRef =
+            unsafe { types::util::extend_lifetime(scope_ref.package()) };
+
         Self {
             session,
             package,
@@ -65,12 +69,19 @@ impl types::EvalContext for EvalContext {
     }
 
     fn current_toolchain(&self) -> LabelRef<'_> {
-        todo!()
+        match &self.kind {
+            EvalContextKind::Macro(scope) => types::util::deref_ptr(*scope).settings().toolchain(),
+            EvalContextKind::BzlFile => {
+                unreachable!("current_toolchain is only available during macro evaluation")
+            },
+        }
     }
 
-    fn require_macro(&self) -> starlark::Result<&Self::Scope> {
+    // EvalContext uses interior mutability to provide access to the mutable scope.
+    #[allow(clippy::mut_from_ref)]
+    fn require_macro(&self) -> starlark::Result<std::pin::Pin<&mut Self::Scope>> {
         match &self.kind {
-            EvalContextKind::Macro(scope) => Ok(*scope),
+            EvalContextKind::Macro(scope) => Ok(types::util::pin_mut_ptr(*scope)),
             _ => Err(Error::RequiresMacro.into()),
         }
     }
@@ -91,7 +102,7 @@ impl attr::traits::EvalContextAttrExt for EvalContext {
         &self,
         _target_type: Option<types::OutputType>,
         _target_name: &str,
-        _scope: &Scope,
+        _scope: std::pin::Pin<&mut Scope>,
     ) -> starlark::Result<
         std::pin::Pin<
             &'static mut <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,

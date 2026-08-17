@@ -658,6 +658,10 @@ int OutputSuggestions(const std::vector<const Target*>& all_targets,
     OutputEditCommand(edit, included);
   }
 
+  if (includer == included) {
+    return result;
+  }
+
   // TODO: There are a bunch of optimizations we can perform here to make better
   // suggestions. They may be considered in the future. Some initial thoughts
   // include:

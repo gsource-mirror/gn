@@ -1504,7 +1504,7 @@
 ### <a name="cmd_suggest"></a>**suggest**: Suggest fixes to build graph based on includes.&nbsp;[Back to Top](#gn-reference)
 
 ```
-  gn suggest <out_dir> includer1=included1 includer2=included2...
+  gn suggest [--apply] <out_dir> includer1=included1 includer2=included2...
 
   Where each includer or included is either:
   * A label

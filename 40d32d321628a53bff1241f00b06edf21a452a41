@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a3c5d25_f32a1307",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-17T03:10:29Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Since this function is only used within this file, it should be placed inside the anonymous namespace below to give it internal linkage.",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 0
+      },
+      "revId": "40d32d321628a53bff1241f00b06edf21a452a41",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa55f28f_8bc86352",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-17T03:10:29Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Should `Token::MINUS_EQUALS` be included here as well? If omitted, `gn edit remove deps //base` will ignore occurrences of `//base` in `deps -\u003d [ \"//base\" ]` lists.",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 0
+      },
+      "revId": "40d32d321628a53bff1241f00b06edf21a452a41",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

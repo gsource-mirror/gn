@@ -12,10 +12,12 @@
 #include <unordered_set>
 #include <vector>
 
+#include "base/command_line.h"
 #include "base/files/file_util.h"
 #include "base/strings/string_split.h"
 #include "gn/commands.h"
 #include "gn/config_values_extractors.h"
+#include "gn/edit_command.h"
 #include "gn/filesystem_utils.h"
 #include "gn/item.h"
 #include "gn/setup.h"
@@ -30,7 +32,7 @@ const char kSuggest_HelpShort[] =
 const char kSuggest_Help[] =
     R"(suggest: Suggest fixes to build graph based on includes.
 
-  gn suggest <out_dir> includer1=included1 includer2=included2...
+  gn suggest [--apply] <out_dir> includer1=included1 includer2=included2...
 
   Where each includer or included is either:
   * A label
@@ -55,17 +57,33 @@ struct EditCommand {
   std::vector<std::string> command;
   std::string target;
 
-  std::string ToString() const {
-    std::string result = "gn edit \"";
+  std::string SubcommandString() const {
+    std::string result;
     for (size_t i = 0; i < command.size(); ++i) {
       if (i > 0)
         result += " ";
-      result += command[i];
+      if (command[i].find(' ') != std::string::npos) {
+        result += "\"" + command[i] + "\"";
+      } else {
+        result += command[i];
+      }
     }
-    result += "\" ";
-    result += target;
     return result;
   }
+
+  std::vector<std::string> Args() const { return {SubcommandString(), target}; }
+
+  std::string ToString() const {
+    return "gn edit \"" + SubcommandString() + "\" " + target;
+  }
+};
+
+enum class ApplyResult {
+  NO_APPLY,
+  SUCCESS,
+  FAILURE,
+  AMBIGUOUS,
+  ADDED_TODOS,
 };
 
 // Determines whether a source file is in either the public or private API of a
@@ -347,7 +365,9 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
                        const Label& default_toolchain,
                        std::string_view includer_name,
                        std::string_view included_name,
-                       OutputStringFunc output_fn) {
+                       OutputStringFunc output_fn,
+                       bool apply,
+                       Setup* setup) {
   auto OutputString =
       [&](std::string_view str, TextDecoration dec = DECORATION_NONE,
           HtmlEscaping esc = DEFAULT_ESCAPING) { output_fn(str, dec, esc); };
@@ -385,8 +405,47 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
                  kLabelLike);
   };
 
-  auto OutputEditCommand = [&](const EditCommand& edit, const Target* target,
-                               std::string_view move_included_name = {}) {
+  auto OutputEditCommand =
+      [&](const EditCommand& edit, const Target* target,
+          std::string_view move_included_name = {}) -> bool {
+    ApplyResult res = ApplyResult::NO_APPLY;
+    if (apply) {
+      for (const auto& arg : edit.command) {
+        if (arg.starts_with('$')) {
+          res = ApplyResult::AMBIGUOUS;
+          break;
+        }
+      }
+      if (res != ApplyResult::AMBIGUOUS) {
+        auto result = RunEditImpl(edit.Args(), *setup);
+        if (!result.has_value() || !result.value().second.warnings.empty()) {
+          // Warnings should be treated as errors.
+          res = ApplyResult::FAILURE;
+        } else if (result.value().second.needs_manual_review.empty()) {
+          res = ApplyResult::SUCCESS;
+        } else {
+          res = ApplyResult::ADDED_TODOS;
+        }
+      }
+    }
+
+    switch (res) {
+      case ApplyResult::SUCCESS:
+        OutputString("[APPLIED] ", TextDecoration::DECORATION_GREEN);
+        break;
+      case ApplyResult::AMBIGUOUS:
+        OutputString("[AMBIGUOUS] ", TextDecoration::DECORATION_YELLOW);
+        break;
+      case ApplyResult::ADDED_TODOS:
+        OutputString("[PARTIALLY APPLIED, TODOS ADDED] ",
+                     TextDecoration::DECORATION_YELLOW);
+        break;
+      case ApplyResult::FAILURE:
+        OutputString("[FAILED TO APPLY] ", TextDecoration::DECORATION_RED);
+        break;
+      case ApplyResult::NO_APPLY:
+        break;
+    }
     StartSuggestion();
     if (edit.command.size() >= 4 && edit.command[0] == "move") {
       OutputString("Move ");
@@ -409,20 +468,34 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
       OutputString(
           target->label().GetToolchainLabel().GetUserVisibleName(false),
           kLabelLike);
-      OutputString("\n");
-    } else {
-      OutputString("\n  (`" + edit.ToString() + "`)\n");
     }
+    OutputString("\n");
+
+    switch (res) {
+      case ApplyResult::NO_APPLY:
+      case ApplyResult::AMBIGUOUS:
+        OutputString("  (`" + edit.ToString() + "`)\n");
+        break;
+      case ApplyResult::SUCCESS:
+      case ApplyResult::FAILURE:
+      case ApplyResult::ADDED_TODOS:
+        break;
+    }
+    return res == ApplyResult::SUCCESS || res == ApplyResult::NO_APPLY;
   };
 
   auto OutputDepCandidates = [&](const std::vector<EditCommand>& candidates,
-                                 const Target* target) {
+                                 const Target* target) -> bool {
     if (candidates.size() == 1) {
-      OutputEditCommand(candidates.front(), target);
-      return;
+      return OutputEditCommand(candidates.front(), target);
     }
 
-    StartSuggestion();
+    if (apply) {
+      OutputString("[AMBIGUOUS] ", TextDecoration::DECORATION_YELLOW);
+      OutputString("Suggestion (pick one):\n");
+    } else {
+      StartSuggestion();
+    }
     const std::string& key = candidates.front().command.size() >= 2
                                  ? candidates.front().command[1]
                                  : "deps";
@@ -453,6 +526,7 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
         OutputString(" (`" + candidate.ToString() + "`)\n");
       }
     }
+    return !apply;
   };
 
   auto ResolveSuggestion = [&](std::string_view value,
@@ -518,8 +592,8 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     StartSuggestion();
     OutputString("Add ");
     OutputQuoted(included_name);
-    OutputString(" to a target's public headers");
-    return true;
+    OutputString(" to a target's public headers\n");
+    return !apply;
   }
 
   std::set<Label> labels_without_toolchain;
@@ -551,8 +625,7 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
         .command = {"add", "public", std::move(path)},
         .target = target->label().GetUserVisibleName(current_toolchain),
     };
-    OutputEditCommand(edit, target);
-    return true;
+    return OutputEditCommand(edit, target);
   }
 
   if (targets.size() > 1) {
@@ -572,10 +645,10 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
         .command = {"add", dep_field, "$NEW_SOURCE_SET"},
         .target = includer->label().GetUserVisibleName(current_toolchain),
     };
-    OutputEditCommand(edit, includer);
-    return true;
+    return OutputEditCommand(edit, includer);
   }
 
+  bool move_ok = true;
   const auto& [included, included_dep_kind] = targets.front();
   if (included_dep_kind == commands::ApiScope::kPrivate) {
     StartWarning();
@@ -605,7 +678,7 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
         .command = {"move", "sources", "public", std::move(path)},
         .target = included->label().GetUserVisibleName(current_toolchain),
     };
-    OutputEditCommand(edit, included, included_name);
+    move_ok = OutputEditCommand(edit, included, included_name);
   }
 
   // TODO: There are a bunch of optimizations we can perform here to make better
@@ -614,12 +687,15 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
   // * Check if included transitively depends on includer. Suggest ways to break
   // the loop.
 
-  auto OutputDepSuggestion = [&](const std::vector<const Target*>& candidates) {
+  auto OutputDepSuggestion =
+      [&](const std::vector<const Target*>& candidates) -> bool {
+    bool has_cycle = false;
     std::vector<std::string> labels;
     for (const auto& target : candidates) {
       Label label = target->label();
       std::vector<const Target*> cycle = FindDependencyPath(target, includer);
       if (!cycle.empty()) {
+        has_cycle = true;
         StartWarning();
         OutputTarget(target);
         OutputString(" depends on ");
@@ -698,6 +774,10 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
                            : label.GetUserVisibleName(current_toolchain));
     }
 
+    if (has_cycle && apply) {
+      return false;
+    }
+
     std::sort(labels.begin(), labels.end(),
               [](std::string_view lhs, std::string_view rhs) {
                 // Ensure relative labels come before absolute labels.
@@ -712,12 +792,11 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
           .target = includer->label().GetUserVisibleName(current_toolchain),
       });
     }
-    OutputDepCandidates(edits, includer);
+    return OutputDepCandidates(edits, includer);
   };
 
   if (included->visibility().CanSeeMe(includer->label())) {
-    OutputDepSuggestion({included});
-    return true;
+    return move_ok && OutputDepSuggestion({included});
   }
 
   // Now we need to look for things that expose it.
@@ -752,7 +831,7 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
   }
 
   if (visible_candidates.size() == 1) {
-    OutputDepSuggestion(visible_candidates);
+    return move_ok && OutputDepSuggestion(visible_candidates);
   } else if (visible_candidates.size() > 1) {
     StartWarning();
     OutputTarget(included);
@@ -763,7 +842,7 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
         "visible to ");
     OutputTarget(includer);
     OutputString("\n");
-    OutputDepSuggestion(visible_candidates);
+    return move_ok && OutputDepSuggestion(visible_candidates);
   } else if (all_candidates.empty()) {
     StartWarning();
     OutputTarget(included);
@@ -774,7 +853,7 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
     OutputString(
         "Carefully consider whether you want to change the visibility so that "
         "you can depend on it\n");
-    OutputDepSuggestion({included});
+    return move_ok && OutputDepSuggestion({included});
   } else {
     StartWarning();
     OutputTarget(included);
@@ -787,10 +866,8 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
         "Carefully consider whether you want to change the visibility so that "
         "you can depend on one of them\n");
     all_candidates.push_back(included);
-    OutputDepSuggestion(all_candidates);
+    return move_ok && OutputDepSuggestion(all_candidates);
   }
-
-  return true;
 }
 
 int RunSuggest(const std::vector<std::string>& args) {
@@ -811,6 +888,8 @@ int RunSuggest(const std::vector<std::string>& args) {
     OutputError("gn suggest requires arguments. See \"gn help suggest\"\n");
     return 1;
   }
+
+  bool apply = base::CommandLine::ForCurrentProcess()->HasSwitch("apply");
 
   // Deliberately leaked to avoid expensive process teardown.
   Setup* setup = new Setup;
@@ -850,7 +929,8 @@ int RunSuggest(const std::vector<std::string>& args) {
         setup->loader()->default_toolchain_label(), includer, included,
         [](std::string_view str, TextDecoration dec, HtmlEscaping esc) {
           ::OutputString(str, dec, esc);
-        });
+        },
+        apply, setup);
   }
 
   return success ? 0 : 1;

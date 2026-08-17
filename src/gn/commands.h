@@ -117,7 +117,9 @@ bool OutputSuggestions(const std::vector<const Target*>& all_targets,
                        const Label& default_toolchain,
                        std::string_view includer_name,
                        std::string_view included_name,
-                       OutputStringFunc output_fn);
+                       OutputStringFunc output_fn,
+                       bool apply = false,
+                       Setup* setup = nullptr);
 
 extern const char kCleanStale[];
 extern const char kCleanStale_HelpShort[];

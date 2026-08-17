@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "38dcfa83_ebbb34b8",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-17T03:13:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a3c5d25_f32a1307",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 0
+      },
+      "revId": "40d32d321628a53bff1241f00b06edf21a452a41",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa55f28f_8bc86352",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-08-17T03:10:29Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Should `Token::MINUS_EQUALS` be included here as well? If omitted, `gn edit remove deps //base` will ignore occurrences of `//base` in `deps -\u003d [ \"//base\" ]` lists.",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 0
+      },
+      "revId": "40d32d321628a53bff1241f00b06edf21a452a41",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7442280_07693d6a",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-17T03:13:39Z",
+      "side": 1,
+      "message": "This is WAI. `remove deps //base` should remove //base from the list of deps. Removing it from the `-\u003d` would add a dep on `//base`.",
+      "parentUuid": "aa55f28f_8bc86352",
       "range": {
         "startLine": 201,
         "startChar": 0,

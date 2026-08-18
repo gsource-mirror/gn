@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3002ab0e_05a08a1d",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-18T04:20:14Z",
+      "side": 1,
+      "message": "Can we use string_view or const ref for these?",
+      "range": {
+        "startLine": 237,
+        "startChar": 35,
+        "endLine": 238,
+        "endChar": 62
+      },
+      "revId": "71ef7c9b6e0d99b0ab3d87aa1b0e1995c400b986",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

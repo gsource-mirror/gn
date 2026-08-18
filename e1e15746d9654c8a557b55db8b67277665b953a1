@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f16772b4_a434198e",
+        "filename": "src/gn/target_generator.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-18T04:30:57Z",
+      "side": 1,
+      "message": "Can we leave comment for how starlark output type is handled?",
+      "revId": "e1e15746d9654c8a557b55db8b67277665b953a1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

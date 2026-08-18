@@ -16,6 +16,42 @@
       "message": "Can we leave comment for how starlark output type is handled?",
       "revId": "e1e15746d9654c8a557b55db8b67277665b953a1",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3710cad_ca02081e",
+        "filename": "src/gn/target_generator.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-18T05:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f16772b4_a434198e",
+      "revId": "e1e15746d9654c8a557b55db8b67277665b953a1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16ca7d6c_ce0c5b00",
+        "filename": "src/gn/target_generator.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-18T05:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f16772b4_a434198e",
+      "revId": "e1e15746d9654c8a557b55db8b67277665b953a1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

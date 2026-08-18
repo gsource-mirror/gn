@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "269fe660_87f72340",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-18T06:34:53Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Is there a specific reason `TargetRef` stores a `\u0026\u0027static Target` rather than storing `Target` by value?\n\n`Target` is just a small wrapper around a `NonNull` and derives `Copy`/`Clone`. Storing it directly (`pub struct TargetRef(pub(crate) Target);`) avoids a double indirection and removes the need to create static references to the wrapper struct.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 0
+      },
+      "revId": "529f3c033d8e5572c0dfa82bd6b44ec32195b134",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "764b8879_a3800253",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-18T06:34:53Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `TargetRef` stores a `\u0026\u0027static Target`, this will compare the pointers to the *wrapper* struct rather than the underlying `CxxTarget`. If two different wrapper structs are created that point to the same `CxxTarget` in C++, they will incorrectly compare as unequal.\n\nIf you change `TargetRef` to store `Target` by value, you can compare the underlying pointer here (e.g., `self.0.cxx \u003d\u003d other.0.cxx`).",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 0
+      },
+      "revId": "529f3c033d8e5572c0dfa82bd6b44ec32195b134",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e257f78e_54d9e79b",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-18T06:34:53Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Similar to `PartialEq`, this hashes the pointer to the wrapper struct rather than the underlying `CxxTarget`. It should hash the inner `cxx` pointer instead (e.g., `self.0.cxx.hash(state)` if `Target` is stored by value).",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 0
+      },
+      "revId": "529f3c033d8e5572c0dfa82bd6b44ec32195b134",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c789f963_d0381301",
+        "filename": "src/gn/starlark/crates/types/src/util.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-18T06:34:53Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This function exposes an `unsafe` operation (`ptr.as_ref()`) without being marked as `unsafe fn`, breaking Rust\u0027s safety guarantees. Safe code could pass an invalid `NonNull` to this function and trigger undefined behavior.\n\nIt should either be marked as `unsafe fn`, or removed entirely in favor of calling `unsafe { ptr.as_ref() }` directly at the call sites (such as in `Target`\u0027s `Deref` implementation).",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 0
+      },
+      "revId": "529f3c033d8e5572c0dfa82bd6b44ec32195b134",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

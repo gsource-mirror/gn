@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "945a28f7_5af03d5e",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-18T04:34:38Z",
+      "side": 1,
+      "message": "Can we keep string_view type here? If not, better to pass string as before to avoid unnecessary copy.",
+      "range": {
+        "startLine": 239,
+        "startChar": 28,
+        "endLine": 240,
+        "endChar": 40
+      },
+      "revId": "0fcf2df7c1febe1cf581cc1a713703953364aa3c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

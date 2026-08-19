@@ -76,7 +76,6 @@ bool Matches(const EditTarget& target,
   return false;
 }
 
-// Finds matching nodes in an expression.
 template <typename T>
 void FindExpressionRecursive(
     ParseNode* node,
@@ -167,6 +166,33 @@ Result<std::vector<SourceFile>> ResolvePatternToFiles(
 }
 
 }  // namespace
+
+std::vector<TreeNode> FindAllListElements(const TreeNode& assignment) {
+  auto* op = assignment.AsAssignment();
+  if (!op)
+    return {};
+  return FindExpression<TreeNode>(
+      assignment.Descend(op->right()),
+      [](TreeNode& node_ref) -> std::optional<TreeNode> {
+        if (node_ref.parent() && node_ref.parent()->AsList()) {
+          return node_ref;
+        }
+        return std::nullopt;
+      });
+}
+
+std::optional<std::string_view> AsStringLiteral(const TreeNode& node_ref) {
+  if (const auto* lit = node_ref->AsLiteral()) {
+    if (lit->value().type() == Token::STRING) {
+      std::string_view val = lit->value().value();
+      if (val.size() >= 2 && val.front() == '"' && val.back() == '"') {
+        val = val.substr(1, val.size() - 2);
+      }
+      return val;
+    }
+  }
+  return std::nullopt;
+}
 
 std::vector<TreeNode> FindListElementInAssignment(const EditTarget& target,
                                                   const TreeNode& root,
@@ -349,22 +375,38 @@ Err LabelMatcher::done() const {
   return Ok();
 }
 
-std::vector<TreeNode> EditTarget::assignments(std::string_view attr) const {
+std::vector<TreeNode> TreeNode::assignments(
+    std::initializer_list<std::string_view> attrs) const {
   return FindStatement<TreeNode>(
-      block, [attr](TreeNode& node_ref) -> std::optional<TreeNode> {
+      node(), [attrs](TreeNode& node_ref) -> std::optional<TreeNode> {
         if (const auto* op = node_ref->AsBinaryOp()) {
           if (op->op().type() == Token::EQUAL ||
               op->op().type() == Token::PLUS_EQUALS ||
               op->op().type() == Token::MINUS_EQUALS) {
             if (const auto* left = op->left()->AsIdentifier()) {
-              if (left->value().value() == attr) {
-                return node_ref;
+              for (auto attr : attrs) {
+                if (left->value().value() == attr) {
+                  return node_ref;
+                }
               }
             }
           }
         }
         return std::nullopt;
       });
+}
+
+std::vector<TreeNode> TreeNode::assignments(std::string_view attr) const {
+  return assignments({attr});
+}
+
+std::vector<TreeNode> EditTarget::assignments(
+    std::initializer_list<std::string_view> attrs) const {
+  return node.Descend(block).assignments(attrs);
+}
+
+std::vector<TreeNode> EditTarget::assignments(std::string_view attr) const {
+  return assignments({attr});
 }
 
 void EditTarget::add_warning(EditState& state, std::string_view message) const {

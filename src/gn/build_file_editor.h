@@ -6,6 +6,7 @@
 #define TOOLS_GN_BUILD_FILE_EDITOR_H_
 
 #include <functional>
+#include <initializer_list>
 #include <memory>
 #include <optional>
 #include <unordered_map>
@@ -76,6 +77,12 @@ class TreeNode {
 
   TreeNode Descend(ParseNode* child) const;
 
+  // Calculates all =, +=, and -= assignments of the given attributes under this
+  // node.
+  std::vector<TreeNode> assignments(
+      std::initializer_list<std::string_view> attrs) const;
+  std::vector<TreeNode> assignments(std::string_view attr) const;
+
  private:
   std::vector<ParseNode*> stack_;
 };
@@ -124,6 +131,12 @@ std::vector<T> FindStatement(
   return results;
 }
 
+// Finds all list elements directly in an assignment expression.
+std::vector<TreeNode> FindAllListElements(const TreeNode& assignment);
+
+// Returns the string literal value if the node is a string literal.
+std::optional<std::string_view> AsStringLiteral(const TreeNode& node_ref);
+
 // Finds an element in an assignment expression ("=" or "+=") whose right-hand
 // side likely evaluates to a list.
 std::vector<TreeNode> FindListElementInAssignment(const EditTarget& target,
@@ -167,7 +180,9 @@ class LabelMatcher {
 
 // Represents a build target to be edited.
 struct EditTarget {
-  // Calculates all =, +=, and -= of a given attribute.
+  // Calculates all =, +=, and -= of the given attributes.
+  std::vector<TreeNode> assignments(
+      std::initializer_list<std::string_view> attrs) const;
   std::vector<TreeNode> assignments(std::string_view attr) const;
 
   // Emits a warning to the user.

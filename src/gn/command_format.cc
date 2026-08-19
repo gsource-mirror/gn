@@ -140,6 +140,7 @@ class Printer {
   ~Printer();
 
   void Block(const ParseNode* file);
+  void FormatNode(const ParseNode* node);
 
   std::string String() const { return output_; }
 
@@ -813,6 +814,14 @@ int Printer::CurrentLine() const {
   return count;
 }
 
+void Printer::FormatNode(const ParseNode* node) {
+  if (node->AsBlock()) {
+    Block(node);
+  } else {
+    Expr(node, kPrecedenceLowest, std::string());
+  }
+}
+
 void Printer::Block(const ParseNode* root) {
   const BlockNode* block = root->AsBlock();
 
@@ -1424,7 +1433,7 @@ void DoFormat(const ParseNode* root,
   }
 
   Printer pr(format_width);
-  pr.Block(root);
+  pr.FormatNode(root);
   *output = pr.String();
 }
 

@@ -4,6 +4,8 @@
 
 #include "gn/edit_subcommands.h"
 
+#include <set>
+
 #include "base/containers/span.h"
 #include "base/strings/string_number_conversions.h"
 #include "gn/build_file_editor.h"
@@ -311,6 +313,115 @@ EditCommand SetCommand(std::string attribute, Value value) {
   });
 }
 
+Result<std::string> GetShardName(const LocationRange& location,
+                                 std::string_view path) {
+  if (path.empty() || path.starts_with("//") || path.starts_with("/")) {
+    return Err(location, "Cannot shard target with non-relative source path: " +
+                             std::string(path));
+  }
+  if (path.starts_with("./")) {
+    path.remove_prefix(2);
+  }
+
+  size_t last_dot = path.rfind('.');
+  if (last_dot != std::string_view::npos) {
+    path = path.substr(0, last_dot);
+  }
+
+  std::string shard_name;
+  shard_name.reserve(path.size());
+  for (char c : path) {
+    if (c == '/' || c == '\\' || c == '.' || c == '-') {
+      shard_name.push_back('_');
+    } else {
+      shard_name.push_back(c);
+    }
+  }
+  return shard_name;
+}
+
+EditCommand ShardCommand(
+    std::optional<std::string> shard_target_type = std::nullopt,
+    std::string group_type = "group") {
+  return EditTargetCommand([shard_target_type, group_type](
+                               BuildFile& build_file, const EditTarget& target,
+                               EditState& state) -> Err {
+    for (auto assign : target.assignments({"public_deps", "deps"})) {
+      assign.RemoveSelfUnconditionally();
+    }
+
+    std::set<std::string> shards;
+    for (auto assign : target.assignments({"sources", "public"})) {
+      for (const auto& item : FindAllListElements(assign)) {
+        if (auto lit = AsStringLiteral(item); lit) {
+          ASSIGN_OR_RETURN(std::string shard_name,
+                           GetShardName(item->GetRange(), *lit));
+          shards.insert(std::move(shard_name));
+        }
+      }
+    }
+
+    if (shards.size() <= 1) {
+      target.add_warning(state, "does not need to be sharded.");
+      return Ok();
+    }
+
+    std::vector<Value> target_names;
+    auto [container, it] = target.node.node_location();
+    // Ensure we insert the shard after the group.
+    ++it;
+
+    for (const auto& shard : shards) {
+      std::string target_name = (shard == target.label.name())
+                                    ? (target.label.name() + "_" + shard)
+                                    : shard;
+      target_names.push_back(Value(nullptr, ":" + target_name));
+      state.needs_check_fix.insert(Label(target.label.dir(), target_name));
+
+      auto node = target.node.node()->Clone();
+      auto* func = node->AsFunctionCallMut();
+      if (shard_target_type) {
+        func->set_function(Token(func->function().location(), Token::IDENTIFIER,
+                                 *shard_target_type));
+      }
+      it = container.insert(it, std::move(node));
+      ++it;
+
+      func->args()->contents()[0] =
+          build_file.to_node(Value(nullptr, target_name));
+
+      for (auto assign :
+           TreeNode({func->block()}).assignments({"sources", "public"})) {
+        for (const auto& item : FindAllListElements(assign)) {
+          if (auto lit = AsStringLiteral(item); lit) {
+            auto res = GetShardName(item->GetRange(), *lit);
+            DCHECK(!res.has_error()) << "should have failed above";
+            if (*res != shard) {
+              item.RemoveSelfUnconditionally();
+            }
+          }
+        }
+      }
+    }
+
+    auto* orig_func =
+        const_cast<FunctionCallNode*>(target.node.node()->AsFunctionCall());
+    orig_func->set_function(
+        Token(orig_func->function().location(), Token::IDENTIFIER, group_type));
+
+    std::vector<std::unique_ptr<ParseNode>> group_stmts;
+    group_stmts.push_back(build_file.create_assignment(
+        "public_deps",
+        build_file.to_node(Value(nullptr, std::move(target_names)))));
+    for (const auto& assign : target.assignments("visibility")) {
+      group_stmts.push_back(assign.node()->Clone());
+    }
+
+    target.block->statements() = std::move(group_stmts);
+    return Ok();
+  });
+}
+
 }  // namespace
 
 Result<EditCommand> ParseCommand(std::vector<std::string> args) {
@@ -411,6 +522,20 @@ Result<EditCommand> ParseCommand(std::vector<std::string> args) {
     }
 
     return SetCommand(std::string(attribute), std::move(val));
+  } else if (args[0] == "shard") {
+    if (args.size() > 3) {
+      return Err(Location(), "Invalid shard command.",
+                 "Usage: shard [sharded target type] [group type]");
+    }
+    std::optional<std::string> shard_target_type = std::nullopt;
+    std::string group_type = "group";
+    if (args.size() >= 2) {
+      shard_target_type = args[1];
+    }
+    if (args.size() == 3) {
+      group_type = args[2];
+    }
+    return ShardCommand(std::move(shard_target_type), std::move(group_type));
   } else {
     return Err(Location(),
                "Unknown edit command: " + std::string(args[0]) +

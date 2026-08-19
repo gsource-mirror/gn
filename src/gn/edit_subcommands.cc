@@ -276,6 +276,50 @@ EditCommand SetCommand(std::string attribute, Value value) {
   });
 }
 
+enum class InsertPosition { kEnd, kBefore, kAfter };
+
+EditCommand NewCommand(std::string rule_kind,
+                       std::string rule_name,
+                       InsertPosition position,
+                       std::string relative_rule_name) {
+  return [rule_kind = std::move(rule_kind), rule_name = std::move(rule_name),
+          position, relative_rule_name = std::move(relative_rule_name)](
+             BuildFile& build_file, EditState& state) -> Err {
+    if (build_file.find_target_index(rule_name)) {
+      return Err(Location(), "Target \"" + rule_name + "\" already exists in " +
+                                 build_file.source_file().value() + ".");
+    }
+
+    size_t index = 0;
+    if (position == InsertPosition::kEnd) {
+      if (const auto* block = build_file.root()->AsBlock()) {
+        index = block->statements().size();
+      }
+    } else if (relative_rule_name == "__pkg__") {
+      index = 0;
+      build_file.label_matcher().matches("__pkg__");
+    } else {
+      auto target_idx = build_file.find_target_index(relative_rule_name);
+      if (!target_idx) {
+        return Err(Location(), "Target \"" + relative_rule_name +
+                                   "\" not found in " +
+                                   build_file.source_file().value() + ".");
+      }
+      build_file.label_matcher().matches(relative_rule_name);
+      index =
+          (position == InsertPosition::kBefore) ? *target_idx : *target_idx + 1;
+    }
+
+    build_file.label_matcher().matches(rule_name);
+
+    auto block = build_file.create_empty_block();
+    auto target =
+        build_file.create_target(rule_kind, rule_name, std::move(block));
+    build_file.insert_statement(index, std::move(target));
+    return Ok();
+  };
+}
+
 }  // namespace
 
 Result<EditCommand> ParseCommand(std::vector<std::string> args) {
@@ -346,6 +390,28 @@ Result<EditCommand> ParseCommand(std::vector<std::string> args) {
     }
 
     return SetCommand(std::string(attribute), std::move(val));
+  } else if (args[0] == "new") {
+    if (args.size() == 3) {
+      return NewCommand(args[1], args[2], InsertPosition::kEnd, "");
+    } else if (args.size() == 5) {
+      InsertPosition pos;
+      if (args[3] == "before") {
+        pos = InsertPosition::kBefore;
+      } else if (args[3] == "after") {
+        pos = InsertPosition::kAfter;
+      } else {
+        return Err(Location(), "Invalid new command.",
+                   "Expected 'before' or 'after' but got '" + args[3] +
+                       "'.\n"
+                       "Usage: new <rule_kind> <rule_name> [(before|after) "
+                       "<relative_rule_name>]");
+      }
+      return NewCommand(args[1], args[2], pos, args[4]);
+    } else {
+      return Err(Location(), "Invalid new command.",
+                 "Usage: new <rule_kind> <rule_name> [(before|after) "
+                 "<relative_rule_name>]");
+    }
   } else {
     return Err(Location(),
                "Unknown edit command: " + std::string(args[0]) +

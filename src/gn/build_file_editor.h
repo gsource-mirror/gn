@@ -198,6 +198,22 @@ class BuildFile {
       std::string_view name,
       std::unique_ptr<ParseNode> value);
 
+  // Creates an empty BlockNode `{}`.
+  std::unique_ptr<BlockNode> create_empty_block();
+
+  // Synthesizes a new target: `<type>("<name>") { ... }`
+  std::unique_ptr<FunctionCallNode> create_target(
+      std::string_view type,
+      std::string_view name,
+      std::unique_ptr<BlockNode> block);
+
+  // Finds the index of a top-level target by name in the root block.
+  // Returns std::nullopt if not found.
+  std::optional<size_t> find_target_index(std::string_view target_name) const;
+
+  // Inserts a statement at a specific index in the root block.
+  void insert_statement(size_t index, std::unique_ptr<ParseNode> stmt);
+
   // Serializes the AST to the build file if it has changed.
   // Returns Ok(true) if the file was written, Ok(false) if it was unchanged.
   Result<bool> Write();

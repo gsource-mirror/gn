@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "09362560_1be08bad",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T02:51:53Z",
+      "side": 1,
+      "message": "Target currently contains just NonNull\u003cCxxTarget\u003e, but will have additional starlark-specific fields added to it in the future",
+      "parentUuid": "269fe660_87f72340",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 0
+      },
+      "revId": "529f3c033d8e5572c0dfa82bd6b44ec32195b134",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "764b8879_a3800253",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-08-18T06:34:53Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If `TargetRef` stores a `\u0026\u0027static Target`, this will compare the pointers to the *wrapper* struct rather than the underlying `CxxTarget`. If two different wrapper structs are created that point to the same `CxxTarget` in C++, they will incorrectly compare as unequal.\n\nIf you change `TargetRef` to store `Target` by value, you can compare the underlying pointer here (e.g., `self.0.cxx \u003d\u003d other.0.cxx`).",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 0
+      },
+      "revId": "529f3c033d8e5572c0dfa82bd6b44ec32195b134",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85215503_b92bcb45",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T02:51:53Z",
+      "side": 1,
+      "message": "The relationship between a C++ Target and a rust target will be:\n\nrust target: contains a reference to the C++ target\nC++ target: contains an optional reference to the rust target\n\nSo it\u0027s a 1-1 / 1-0 relationship - we can never have multiple rust Targets for a single C++ target.",
+      "parentUuid": "764b8879_a3800253",
       "range": {
         "startLine": 19,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a0a4a17_3d254b62",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T02:51:53Z",
+      "side": 1,
+      "message": "Same as above, this is WAI",
+      "parentUuid": "e257f78e_54d9e79b",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 0
+      },
+      "revId": "529f3c033d8e5572c0dfa82bd6b44ec32195b134",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c789f963_d0381301",
@@ -83,6 +155,30 @@
       "writtenOn": "2026-08-18T06:34:53Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: This function exposes an `unsafe` operation (`ptr.as_ref()`) without being marked as `unsafe fn`, breaking Rust\u0027s safety guarantees. Safe code could pass an invalid `NonNull` to this function and trigger undefined behavior.\n\nIt should either be marked as `unsafe fn`, or removed entirely in favor of calling `unsafe { ptr.as_ref() }` directly at the call sites (such as in `Target`\u0027s `Deref` implementation).",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 0
+      },
+      "revId": "529f3c033d8e5572c0dfa82bd6b44ec32195b134",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "369d9080_fb123ad6",
+        "filename": "src/gn/starlark/crates/types/src/util.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T02:51:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c789f963_d0381301",
       "range": {
         "startLine": 20,
         "startChar": 0,

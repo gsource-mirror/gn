@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8971ba7c_86991bc5",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-19T04:18:30Z",
+      "side": 1,
+      "message": "It is fine to use range based for here?",
+      "fixSuggestions": [
+        {
+          "fixId": "06365295_b55ba821",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_check.cc",
+              "range": {
+                "startLine": 300,
+                "startChar": 0,
+                "endLine": 301,
+                "endChar": 0
+              },
+              "replacement": "  for (auto\u0026 violation : violations) {\n"
+            },
+            {
+              "path": "src/gn/command_check.cc",
+              "range": {
+                "startLine": 306,
+                "startChar": 0,
+                "endLine": 307,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "1487d56aaa24041b91a23905e0d825301c8df5ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "741086f9_04c86749",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-19T04:18:30Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Consider explicitly including `\u003ctuple\u003e` in this file since it\u0027s used here.",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 0
+      },
+      "revId": "1487d56aaa24041b91a23905e0d825301c8df5ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "858a0558_92ecbcf2",
+        "filename": "src/gn/header_checker.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-19T04:18:30Z",
+      "side": 1,
+      "message": "Add comment about this struct?",
+      "fixSuggestions": [
+        {
+          "fixId": "4ec3d55d_2007014f",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker.h",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "  // Represents a header check violation. It contains the error, the source\n  // file that contains the illegal include, and the header file that was\n  // illegally included.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "1487d56aaa24041b91a23905e0d825301c8df5ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

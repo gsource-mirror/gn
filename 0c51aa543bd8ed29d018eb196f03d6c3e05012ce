@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a32e8f65_90abf639",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:03:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d94b7df_f004ff12",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 29
+      },
+      "revId": "0c51aa543bd8ed29d018eb196f03d6c3e05012ce",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "63972231_2b9a63be",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-08-19T04:11:08Z",
       "side": 1,
       "message": "Better to add explanation for this flag?",
+      "range": {
+        "startLine": 39,
+        "startChar": 12,
+        "endLine": 39,
+        "endChar": 22
+      },
+      "revId": "0c51aa543bd8ed29d018eb196f03d6c3e05012ce",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fedb082_c0b014b2",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:03:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63972231_2b9a63be",
       "range": {
         "startLine": 39,
         "startChar": 12,
@@ -70,6 +118,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f4e213e_af4a9e66",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:03:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e456358_3a3f34db",
+      "range": {
+        "startLine": 89,
+        "startChar": 2,
+        "endLine": 89,
+        "endChar": 11
+      },
+      "revId": "0c51aa543bd8ed29d018eb196f03d6c3e05012ce",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd3a58f8_4b8ff916",
@@ -83,6 +155,30 @@
       "writtenOn": "2026-08-19T04:11:08Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: `setup` is dereferenced inside `OutputEditCommand` if `apply` is true. Consider adding a `CHECK(setup);` at the top of the function or inside `OutputEditCommand` to prevent potential null pointer dereferences if someone uses this API in the future and forgets to provide `setup`.",
+      "range": {
+        "startLine": 374,
+        "startChar": 0,
+        "endLine": 374,
+        "endChar": 0
+      },
+      "revId": "0c51aa543bd8ed29d018eb196f03d6c3e05012ce",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb23040e_c608777e",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:03:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd3a58f8_4b8ff916",
       "range": {
         "startLine": 374,
         "startChar": 0,
@@ -116,6 +212,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f4409bf_2f41e17a",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:03:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "259081db_09016457",
+      "range": {
+        "startLine": 432,
+        "startChar": 0,
+        "endLine": 433,
+        "endChar": 39
+      },
+      "revId": "0c51aa543bd8ed29d018eb196f03d6c3e05012ce",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89af3c65_96339cd0",
@@ -129,6 +249,30 @@
       "writtenOn": "2026-08-19T04:11:08Z",
       "side": 1,
       "message": "Better to pass string by vaue?",
+      "range": {
+        "startLine": 71,
+        "startChar": 14,
+        "endLine": 71,
+        "endChar": 30
+      },
+      "revId": "0c51aa543bd8ed29d018eb196f03d6c3e05012ce",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84583686_77efa94e",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:03:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89af3c65_96339cd0",
       "range": {
         "startLine": 71,
         "startChar": 14,

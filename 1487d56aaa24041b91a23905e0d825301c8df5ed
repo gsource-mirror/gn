@@ -46,6 +46,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "02d85ac0_801efebd",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:08:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8971ba7c_86991bc5",
+      "revId": "1487d56aaa24041b91a23905e0d825301c8df5ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "741086f9_04c86749",
@@ -59,6 +77,30 @@
       "writtenOn": "2026-08-19T04:18:30Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Consider explicitly including `\u003ctuple\u003e` in this file since it\u0027s used here.",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 0
+      },
+      "revId": "1487d56aaa24041b91a23905e0d825301c8df5ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "abb255f4_d230c1c0",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:08:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "741086f9_04c86749",
       "range": {
         "startLine": 307,
         "startChar": 0,
@@ -100,6 +142,24 @@
           ]
         }
       ],
+      "revId": "1487d56aaa24041b91a23905e0d825301c8df5ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38be15da_f8ecd484",
+        "filename": "src/gn/header_checker.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:08:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "858a0558_92ecbcf2",
       "revId": "1487d56aaa24041b91a23905e0d825301c8df5ed",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

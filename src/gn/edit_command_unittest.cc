@@ -511,4 +511,90 @@ executable("foo") {
                      EditState({Label(SourceDir("//"), "foo")})));
 }
 
+TEST_F(EditCommandTest, New) {
+  // Append new target to the end of the file.
+  EXPECT_SUCCESS(DoEdit("new source_set bar",
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+source_set("bar") {
+}
+)"));
+
+  // Insert before a relative target.
+  EXPECT_SUCCESS(DoEdit("new source_set bar before foo",
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"),
+                 Edited(R"(
+source_set("bar") {
+}
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"));
+
+  // Insert after a relative target.
+  EXPECT_SUCCESS(DoEdit("new source_set bar after foo",
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+
+executable("baz") {
+  sources = [ "baz.cc" ]
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+source_set("bar") {
+}
+
+executable("baz") {
+  sources = [ "baz.cc" ]
+}
+)"));
+
+  // Insert before package root (__pkg__).
+  EXPECT_SUCCESS(DoEdit("new source_set bar before __pkg__", {"//:__pkg__"},
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"),
+                 Edited(R"(
+source_set("bar") {
+}
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"));
+
+  // Error when target already exists.
+  EXPECT_FAILURE(DoEdit("new source_set foo",
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"));
+
+  // Error when relative target not found.
+  EXPECT_FAILURE(DoEdit("new source_set bar before nonexistent",
+                        R"(
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"));
+}
+
 }  // namespace commands

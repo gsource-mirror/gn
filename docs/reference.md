@@ -751,6 +751,15 @@
       Example:
         gn edit "move deps public_deps //base" //src/tools:*
 
+  new <rule_kind> <rule_name> [(before|after) <relative_rule_name>]
+      Adds a new rule at the end of the BUILD file (or before/after
+      <relative_rule_name>). The identifier __pkg__ can be used to
+      position rules relative to the start of the file.
+
+      Examples:
+        gn edit "new source_set my_target" //src/tools:__pkg__
+        gn edit "new static_library helper before old_target" //src/tools:*
+
   remove <attribute>
       Removes <attribute> entirely.
 

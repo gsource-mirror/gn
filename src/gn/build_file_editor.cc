@@ -443,6 +443,64 @@ std::unique_ptr<BinaryOpNode> BuildFile::create_assignment(
   return assign;
 }
 
+std::unique_ptr<BlockNode> BuildFile::create_empty_block() {
+  auto block = std::make_unique<BlockNode>(BlockNode::DISCARDS_RESULT);
+  block->set_begin_token(Token(location(), Token::LEFT_BRACE, "{"));
+  block->set_end(
+      std::make_unique<EndNode>(Token(location(), Token::RIGHT_BRACE, "}")));
+  return block;
+}
+
+std::unique_ptr<FunctionCallNode> BuildFile::create_target(
+    std::string_view type,
+    std::string_view name,
+    std::unique_ptr<BlockNode> block) {
+  auto func = std::make_unique<FunctionCallNode>();
+  func->set_function(
+      Token(location(), Token::IDENTIFIER, StringAtom(type).str()));
+
+  auto args = std::make_unique<ListNode>();
+  args->set_begin_token(Token(location(), Token::LEFT_PAREN, "("));
+  args->set_end(
+      std::make_unique<EndNode>(Token(location(), Token::RIGHT_PAREN, ")")));
+  args->append_item(to_node(Value(nullptr, std::string(name))));
+  func->set_args(std::move(args));
+
+  func->set_block(std::move(block));
+  return func;
+}
+
+std::optional<size_t> BuildFile::find_target_index(
+    std::string_view target_name) const {
+  if (const auto* block = tree_root_->AsBlock()) {
+    for (size_t i = 0; i < block->statements().size(); ++i) {
+      if (const auto* func = block->statements()[i]->AsFunctionCall()) {
+        if (func->block() && func->args() &&
+            func->args()->contents().size() == 1) {
+          if (auto name = AsStringLiteral(func->args()->contents()[0].get())) {
+            if (*name == target_name) {
+              return i;
+            }
+          }
+        }
+      }
+    }
+  }
+  return std::nullopt;
+}
+
+void BuildFile::insert_statement(size_t index,
+                                 std::unique_ptr<ParseNode> stmt) {
+  if (auto* block = tree_root_->AsBlockMut()) {
+    if (index >= block->statements().size()) {
+      block->append_statement(std::move(stmt));
+    } else {
+      block->statements().insert(block->statements().begin() + index,
+                                 std::move(stmt));
+    }
+  }
+}
+
 Result<bool> BuildFile::Write() {
   ASSIGN_OR_RETURN(std::string formatted, commands::FormatNodeToString(root()));
   if (input_file_->contents() == formatted) {

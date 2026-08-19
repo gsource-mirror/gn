@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffeb455c_0dd697e4",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:57:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed504738_9379d7ea",
+      "revId": "c48873e8063b57e08d8ae6d2ff6b08d5ff0c1099",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e9fba563_b732466a",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-08-19T06:54:19Z",
       "side": 1,
       "message": "Can we move this?",
+      "range": {
+        "startLine": 567,
+        "startChar": 55,
+        "endLine": 567,
+        "endChar": 68
+      },
+      "revId": "c48873e8063b57e08d8ae6d2ff6b08d5ff0c1099",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "162f7643_168125ed",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-19T06:57:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9fba563_b732466a",
       "range": {
         "startLine": 567,
         "startChar": 55,

@@ -154,8 +154,15 @@ TEST(NinjaCopyTargetWriter, NoSourcesInOutputs) {
     std::ostringstream out;
     std::vector<OutputFile> ninja_outputs;
     NinjaCopyTargetWriter writer(&target, out);
-    writer.SetNinjaOutputs(&ninja_outputs);
-    writer.Run();
+    NinjaTargetGroup group = writer.GenerateTargetGroup();
+    for (const auto& edge : group.edges) {
+      ninja_outputs.insert(ninja_outputs.end(), edge.outputs.begin(),
+                           edge.outputs.end());
+    }
+    NinjaFile file;
+    file.AddTargetGroup(std::move(group));
+    file.Hoist();
+    file.Serialize(out);
 
     const char expected_linux[] =
         "build action1.copy: copy action1.out || phony/foo/action1\n"
@@ -204,8 +211,15 @@ TEST(NinjaCopyTargetWriter, NoSourcesInOutputs) {
     std::ostringstream out;
     std::vector<OutputFile> ninja_outputs;
     NinjaCopyTargetWriter writer(&target, out);
-    writer.SetNinjaOutputs(&ninja_outputs);
-    writer.Run();
+    NinjaTargetGroup group = writer.GenerateTargetGroup();
+    for (const auto& edge : group.edges) {
+      ninja_outputs.insert(ninja_outputs.end(), edge.outputs.begin(),
+                           edge.outputs.end());
+    }
+    NinjaFile file;
+    file.AddTargetGroup(std::move(group));
+    file.Hoist();
+    file.Serialize(out);
 
     const char expected_linux[] =
         "build phony/foo/bar.inputdeps: phony || phony/foo/action1 "
@@ -217,10 +231,11 @@ TEST(NinjaCopyTargetWriter, NoSourcesInOutputs) {
     std::string out_str = out.str();
     EXPECT_EQ(expected_linux, out_str);
 
-    EXPECT_EQ(3u, ninja_outputs.size());
-    EXPECT_EQ(ninja_outputs[0].value(), "action1.copy");
-    EXPECT_EQ(ninja_outputs[1].value(), "action2.copy");
-    EXPECT_EQ(ninja_outputs[2].value(), "phony/foo/bar");
+    EXPECT_EQ(4u, ninja_outputs.size());
+    EXPECT_EQ(ninja_outputs[0].value(), "phony/foo/bar.inputdeps");
+    EXPECT_EQ(ninja_outputs[1].value(), "action1.copy");
+    EXPECT_EQ(ninja_outputs[2].value(), "action2.copy");
+    EXPECT_EQ(ninja_outputs[3].value(), "phony/foo/bar");
   }
 }
 

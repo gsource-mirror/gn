@@ -20,20 +20,29 @@ class TestingNinjaTargetWriter : public NinjaTargetWriter {
                            std::ostream& out)
       : NinjaTargetWriter(target, out) {}
 
-  void Run() override {}
+  void GenerateRules() override {}
 
   // Make this public so the test can call it.
   NinjaTargetWriter::InputDeps WriteInputDepsStampOrPhonyAndGetDep(
       const std::vector<const Target*>& additional_hard_deps,
       size_t num_stamp_uses) {
-    return NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep(
+    auto deps = NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep(
         additional_hard_deps, num_stamp_uses);
+    NinjaFile file;
+    file.AddTargetGroup(std::move(target_group_));
+    file.Hoist();
+    file.Serialize(out_);
+    return deps;
   }
 
   void WriteStampOrPhonyForTarget(
       const std::vector<OutputFile>& deps,
       const std::vector<OutputFile>& order_only_deps) {
     NinjaTargetWriter::WriteStampOrPhonyForTarget(deps, order_only_deps);
+    NinjaFile file;
+    file.AddTargetGroup(std::move(target_group_));
+    file.Hoist();
+    file.Serialize(out_);
   }
 };
 

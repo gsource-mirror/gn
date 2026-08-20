@@ -77,7 +77,6 @@ TEST_F(NinjaBinaryTargetWriterTest, NoSourcesSourceSet) {
       "target_gen_dir = gen/foo\n"
       "target_out_dir = obj/foo\n"
       "target_output_name = bar\n"
-      "\n"
       "\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected, out_str);

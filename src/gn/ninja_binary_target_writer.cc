@@ -99,19 +99,17 @@ NinjaBinaryTargetWriter::NinjaBinaryTargetWriter(const Target* target,
 
 NinjaBinaryTargetWriter::~NinjaBinaryTargetWriter() = default;
 
-void NinjaBinaryTargetWriter::Run() {
+void NinjaBinaryTargetWriter::GenerateRules() {
   if (target_->source_types_used().RustSourceUsed()) {
     NinjaRustBinaryTargetWriter writer(target_, out_);
     writer.SetResolvedTargetData(GetResolvedTargetData());
-    writer.SetNinjaOutputs(ninja_outputs_);
-    writer.Run();
+    target_group_ = writer.GenerateTargetGroup();
     return;
   }
 
   NinjaCBinaryTargetWriter writer(target_, out_);
   writer.SetResolvedTargetData(GetResolvedTargetData());
-  writer.SetNinjaOutputs(ninja_outputs_);
-  writer.Run();
+  target_group_ = writer.GenerateTargetGroup();
 }
 
 void NinjaBinaryTargetWriter::WritePublicModuleMap(std::ostream& out,
@@ -207,17 +205,15 @@ NinjaBinaryTargetWriter::WriteInputsStampOrPhonyAndGetDep(
            GeneralTool::kGeneralToolStamp;
   }
 
-  out_ << "build ";
-  WriteOutput(stamp_or_phony);
-  out_ << ": " << tool;
-
-  // File inputs.
+  NinjaBuildEdge edge;
+  edge.outputs.push_back(stamp_or_phony);
+  edge.rule = tool;
   for (const auto* input : inputs) {
-    out_ << " ";
-    path_output_.WriteFile(out_, *input);
+    edge.explicit_inputs.push_back(
+        OutputFile(settings_->build_settings(), *input));
   }
+  const_cast<NinjaBinaryTargetWriter*>(this)->AddEdge(std::move(edge));
 
-  out_ << std::endl;
   return {stamp_or_phony};
 }
 
@@ -378,40 +374,44 @@ void NinjaBinaryTargetWriter::WriteCompilerBuildLine(
     const std::vector<OutputFile>& outputs,
     bool can_write_source_info,
     bool restat_output_allowed) {
-  out_ << "build";
-  WriteOutputs(outputs);
+  NinjaBuildEdge edge;
+  edge.outputs = outputs;
 
-  out_ << ": " << rule_prefix_ << tool->name();
-  path_output_.WriteFiles(out_, sources);
-
-  if (!extra_deps.empty() || !tool->inputs().empty()) {
-    out_ << " |";
-    path_output_.WriteFiles(out_, extra_deps);
-    if (auto phony = tool->inputs_phony_or_file(rule_prefix_,
-                                                *settings_->build_settings())) {
-      out_ << " ";
-      path_output_.WriteFile(out_, *phony);
+  edge.rule = rule_prefix_ + tool->name();
+  for (const auto& source : sources) {
+    edge.explicit_inputs.push_back(
+        OutputFile(settings_->build_settings(), source));
+  }
+  edge.implicit_inputs = extra_deps;
+  if (auto phony = tool->inputs_phony_or_file(rule_prefix_,
+                                              *settings_->build_settings())) {
+    edge.implicit_inputs.push_back(*phony);
+  }
+  edge.order_only_inputs = order_only_deps;
+  for (const auto& pair : target_->validations()) {
+    if (pair.ptr->has_dependency_output()) {
+      edge.validation_inputs.push_back(pair.ptr->dependency_output());
     }
   }
 
-  if (!order_only_deps.empty()) {
-    out_ << " ||";
-    path_output_.WriteFiles(out_, order_only_deps);
-  }
-  WriteValidations();
-  out_ << std::endl;
-
   if (!sources.empty() && can_write_source_info) {
-    out_ << "  " << "source_file_part = " << sources[0].GetName();
-    out_ << std::endl;
-    out_ << "  " << "source_name_part = "
-         << FindFilenameNoExtension(&sources[0].value());
-    out_ << std::endl;
+    edge.edge_vars.push_back({"source_file_part", sources[0].GetName()});
+    edge.edge_vars.push_back(
+        {"source_name_part",
+         std::string(FindFilenameNoExtension(&sources[0].value()))});
   }
 
   if (restat_output_allowed) {
-    out_ << "  restat = 1" << std::endl;
+    edge.edge_vars.push_back({"restat", "1"});
   }
+
+  if (target_->pool().ptr) {
+    edge.edge_vars.push_back(
+        {"pool", target_->pool().ptr->GetNinjaName(
+                     settings_->default_toolchain_label())});
+  }
+
+  AddEdge(std::move(edge));
 }
 
 void NinjaBinaryTargetWriter::WriteCustomLinkerFlags(std::ostream& out,

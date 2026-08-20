@@ -1209,7 +1209,8 @@ TEST_F(NinjaCBinaryTargetWriterTest, SharedLibraryModuleDefinitionFile) {
   writer.Run();
 
   const char expected[] =
-      "defines =\n"
+
+      " /DEF:defines =\n"
       "include_dirs =\n"
       "cflags =\n"
       "cflags_cc =\n"
@@ -1223,7 +1224,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SharedLibraryModuleDefinitionFile) {
       "  source_name_part = sources\n"
       "\n"
       "build ./libbar.so: solink obj/foo/libbar.sources.o | ../../foo/bar.def\n"
-      "  ldflags = /DEF:../../foo/bar.def\n"
+      "  ldflags = ../../foo/bar.def\n"
       "  libs =\n"
       "  frameworks =\n"
       "  swiftmodules =\n"
@@ -1411,50 +1412,31 @@ TEST_F(NinjaCBinaryTargetWriterTest, WinPrecompiledHeaders) {
     writer.Run();
 
     const char pch_win_expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
-        // It should output language-specific pch files.
-        "cflags_c = /Fpwithpch/obj/foo/pch_target_c.pch "
-        "/Yubuild/precompile.h\n"
-        "cflags_cc = /Fpwithpch/obj/foo/pch_target_cc.pch "
-        "/Yubuild/precompile.h\n"
+        "cflags_c = /Fpwithpch/obj/foo/pch_target_c.pch /Yubuild/precompile.h\n"
+        "cflags_cc = /Fpwithpch/obj/foo/pch_target_cc.pch /Yubuild/precompile.h\n"
         "target_output_name = pch_target\n"
         "\n"
-        // Compile the precompiled source files with /Yc.
-        "build withpch/obj/build/pch_target.precompile.c.o: "
-        "withpch_cc ../../build/precompile.cc\n"
+        "build withpch/obj/build/pch_target.precompile.c.o: withpch_cc ../../build/precompile.cc\n"
         "  source_file_part = precompile.cc\n"
         "  source_name_part = precompile\n"
         "  cflags_c = ${cflags_c} /Ycbuild/precompile.h\n"
-        "\n"
-        "build withpch/obj/build/pch_target.precompile.cc.o: "
-        "withpch_cxx ../../build/precompile.cc\n"
+        "build withpch/obj/build/pch_target.precompile.cc.o: withpch_cxx ../../build/precompile.cc\n"
         "  source_file_part = precompile.cc\n"
         "  source_name_part = precompile\n"
         "  cflags_cc = ${cflags_cc} /Ycbuild/precompile.h\n"
-        "\n"
-        "build withpch/obj/foo/pch_target.input1.o: "
-        "withpch_cxx ../../foo/input1.cc | "
-        // Explicit dependency on the PCH build step.
-        "withpch/obj/build/pch_target.precompile.cc.o\n"
+        "build withpch/obj/foo/pch_target.input1.o: withpch_cxx ../../foo/input1.cc | withpch/obj/build/pch_target.precompile.cc.o\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "build withpch/obj/foo/pch_target.input2.o: "
-        "withpch_cc ../../foo/input2.c | "
-        // Explicit dependency on the PCH build step.
-        "withpch/obj/build/pch_target.precompile.c.o\n"
+        "build withpch/obj/foo/pch_target.input2.o: withpch_cc ../../foo/input2.c | withpch/obj/build/pch_target.precompile.c.o\n"
         "  source_file_part = input2.c\n"
         "  source_name_part = input2\n"
         "\n"
-        "build withpch/phony/foo/pch_target.linkdeps: phony "
-        "withpch/obj/foo/pch_target.input1.o "
-        "withpch/obj/foo/pch_target.input2.o "
-        // The precompiled object files were added to the outputs.
-        "withpch/obj/build/pch_target.precompile.c.o "
-        "withpch/obj/build/pch_target.precompile.cc.o\n"
-        "build withpch/phony/foo/pch_target: phony "
-        "withpch/phony/foo/pch_target.linkdeps\n";
+        "build withpch/phony/foo/pch_target.linkdeps: phony withpch/obj/foo/pch_target.input1.o withpch/obj/foo/pch_target.input2.o withpch/obj/build/pch_target.precompile.c.o withpch/obj/build/pch_target.precompile.cc.o\n"
+        "build withpch/phony/foo/pch_target: phony withpch/phony/foo/pch_target.linkdeps\n";
     EXPECT_EQ(pch_win_expected, out.str());
   }
 }
@@ -1561,45 +1543,31 @@ TEST_F(NinjaCBinaryTargetWriterTest, GCCPrecompiledHeaders) {
     writer.Run();
 
     const char pch_gcc_expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
-        "cflags_c = -std=c99 "
-        "-include withpch/obj/build/pch_target.precompile.h-c\n"
+        "cflags_c = -std=c99 -include withpch/obj/build/pch_target.precompile.h-c\n"
         "cflags_cc = -include withpch/obj/build/pch_target.precompile.h-cc\n"
         "target_output_name = pch_target\n"
         "\n"
-        // Compile the precompiled sources with -x <lang>.
-        "build withpch/obj/build/pch_target.precompile.h-c.gch: "
-        "withpch_cc ../../build/precompile.h\n"
+        "build withpch/obj/build/pch_target.precompile.h-c.gch: withpch_cc ../../build/precompile.h\n"
         "  source_file_part = precompile.h\n"
         "  source_name_part = precompile\n"
         "  cflags_c = -std=c99 -x c-header\n"
-        "\n"
-        "build withpch/obj/build/pch_target.precompile.h-cc.gch: "
-        "withpch_cxx ../../build/precompile.h\n"
+        "build withpch/obj/build/pch_target.precompile.h-cc.gch: withpch_cxx ../../build/precompile.h\n"
         "  source_file_part = precompile.h\n"
         "  source_name_part = precompile\n"
         "  cflags_cc = -x c++-header\n"
-        "\n"
-        "build withpch/obj/foo/pch_target.input1.o: "
-        "withpch_cxx ../../foo/input1.cc | "
-        // Explicit dependency on the PCH build step.
-        "withpch/obj/build/pch_target.precompile.h-cc.gch\n"
+        "build withpch/obj/foo/pch_target.input1.o: withpch_cxx ../../foo/input1.cc | withpch/obj/build/pch_target.precompile.h-cc.gch\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "build withpch/obj/foo/pch_target.input2.o: "
-        "withpch_cc ../../foo/input2.c | "
-        // Explicit dependency on the PCH build step.
-        "withpch/obj/build/pch_target.precompile.h-c.gch\n"
+        "build withpch/obj/foo/pch_target.input2.o: withpch_cc ../../foo/input2.c | withpch/obj/build/pch_target.precompile.h-c.gch\n"
         "  source_file_part = input2.c\n"
         "  source_name_part = input2\n"
         "\n"
-        "build withpch/phony/foo/pch_target.linkdeps: "
-        "phony withpch/obj/foo/pch_target.input1.o "
-        "withpch/obj/foo/pch_target.input2.o\n"
-        "build withpch/phony/foo/pch_target: "
-        "phony withpch/phony/foo/pch_target.linkdeps\n";
+        "build withpch/phony/foo/pch_target.linkdeps: phony withpch/obj/foo/pch_target.input1.o withpch/obj/foo/pch_target.input2.o\n"
+        "build withpch/phony/foo/pch_target: phony withpch/phony/foo/pch_target.linkdeps\n";
     EXPECT_EQ(pch_gcc_expected, out.str());
   }
 }

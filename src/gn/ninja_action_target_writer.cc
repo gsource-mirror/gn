@@ -26,7 +26,7 @@ NinjaActionTargetWriter::NinjaActionTargetWriter(const Target* target,
 
 NinjaActionTargetWriter::~NinjaActionTargetWriter() = default;
 
-void NinjaActionTargetWriter::Run() {
+void NinjaActionTargetWriter::GenerateRules() {
   std::string custom_rule_name = WriteRuleDefinition();
 
   // Collect our deps to pass as additional "hard dependencies" for input deps.
@@ -78,7 +78,6 @@ void NinjaActionTargetWriter::Run() {
   std::vector<OutputFile> input_deps = stamp_deps.implicit;
   input_deps.insert(input_deps.end(), stamp_deps.order_only.begin(),
                     stamp_deps.order_only.end());
-  out_ << std::endl;
 
   // Collects all output files for writing below.
   std::vector<OutputFile> output_files;
@@ -92,49 +91,55 @@ void NinjaActionTargetWriter::Run() {
 
     // Write a rule that invokes the script once with the outputs as outputs,
     // and the data as inputs. It does not depend on the sources.
-    out_ << "build";
     SubstitutionWriter::GetListAsOutputFiles(
         settings_, target_->action_values().outputs(), &output_files);
-    WriteOutputs(output_files);
 
-    out_ << ": " << custom_rule_name;
-    if (!input_deps.empty()) {
-      // As in WriteSourceRules, we want to force this target to rebuild any
-      // time any of its dependencies change.
-      out_ << " |";
-      path_output_.WriteFiles(out_, input_deps);
+    NinjaBuildEdge edge;
+    edge.blank_line_before = true;
+    edge.outputs = output_files;
+    edge.rule = custom_rule_name;
+    edge.implicit_inputs = input_deps;
+    edge.order_only_inputs = order_only_deps;
+    for (const auto& pair : target_->validations()) {
+      if (pair.ptr->has_dependency_output()) {
+        edge.validation_inputs.push_back(pair.ptr->dependency_output());
+      }
     }
-    if (!order_only_deps.empty()) {
-      // Write any order-only deps out for actions just like they are for
-      // binaries.
-      out_ << " ||";
-      path_output_.WriteFiles(out_, order_only_deps);
-    }
-
-    WriteValidations();
-    out_ << std::endl;
 
     if (target_->action_values().has_depfile()) {
-      WriteDepfile(SourceFile());
+      std::ostringstream ss;
+      path_output_.WriteFile(
+          ss,
+          SubstitutionWriter::ApplyPatternToSourceAsOutputFile(
+              target_, settings_, target_->action_values().depfile(),
+              SourceFile()));
+      edge.edge_vars.push_back({"depfile", ss.str()});
+      if (settings_->build_settings()->ninja_required_version() >=
+          Version{1, 9, 0}) {
+        edge.edge_vars.push_back({"deps", "gcc"});
+      }
     }
 
-    WriteNinjaVariablesForAction();
+    SubstitutionBits subst;
+    target_->action_values().args().FillRequiredTypes(&subst);
+    WriteRustCompilerVars(subst, /*always_write=*/false, edge.edge_vars);
+    WriteCCompilerVars(subst, /*respect_source_used=*/false, edge.edge_vars);
 
     if (target_->pool().ptr) {
-      out_ << "  pool = ";
-      out_ << target_->pool().ptr->GetNinjaName(
-          settings_->default_toolchain_label());
-      out_ << std::endl;
+      edge.edge_vars.push_back(
+          {"pool", target_->pool().ptr->GetNinjaName(
+                       settings_->default_toolchain_label())});
     }
+
+    AddEdge(std::move(edge));
   }
-  out_ << std::endl;
 
   // Write the phony, which doesn't need to depend on the data deps because they
   // have been added as order-only deps of the action output itself.
-  //
-  // TODO(thakis): If the action has just a single output, make things depend
   std::vector<OutputFile> stamp_file_order_only_deps;
   WriteStampOrPhonyForTarget(output_files, stamp_file_order_only_deps);
+  if (!target_group_.edges.empty())
+    target_group_.edges.back().blank_line_before = true;
 }
 
 std::string NinjaActionTargetWriter::WriteRuleDefinition() {
@@ -152,7 +157,8 @@ std::string NinjaActionTargetWriter::WriteRuleDefinition() {
   EscapeOptions args_escape_options;
   args_escape_options.mode = ESCAPE_NINJA_COMMAND;
 
-  out_ << "rule " << custom_rule_name << std::endl;
+  std::ostringstream rule_out;
+  rule_out << "rule " << custom_rule_name << std::endl;
 
   if (target_->action_values().uses_rsp_file()) {
     // Needs a response file. The unique_name part is for action_foreach so
@@ -163,17 +169,17 @@ std::string NinjaActionTargetWriter::WriteRuleDefinition() {
     if (!target_->sources().empty())
       rspfile += ".$unique_name";
     rspfile += ".rsp";
-    out_ << "  rspfile = " << rspfile << std::endl;
+    rule_out << "  rspfile = " << rspfile << std::endl;
 
     // Response file contents.
-    out_ << "  rspfile_content =";
+    rule_out << "  rspfile_content =";
     for (const auto& arg :
          target_->action_values().rsp_file_contents().list()) {
-      out_ << " ";
+      rule_out << " ";
       SubstitutionWriter::WriteWithNinjaVariables(arg, args_escape_options,
-                                                  out_);
+                                                  rule_out);
     }
-    out_ << std::endl;
+    rule_out << std::endl;
   }
 
   // The command line requires shell escaping to properly handle filenames
@@ -182,29 +188,32 @@ std::string NinjaActionTargetWriter::WriteRuleDefinition() {
                             settings_->build_settings()->root_path_utf8(),
                             ESCAPE_NINJA_COMMAND);
 
-  out_ << "  command = ";
-  command_output.WriteFile(out_, settings_->build_settings()->python_path());
-  out_ << " ";
-  command_output.WriteFile(out_, target_->action_values().script());
+  rule_out << "  command = ";
+  command_output.WriteFile(rule_out, settings_->build_settings()->python_path());
+  rule_out << " ";
+  command_output.WriteFile(rule_out, target_->action_values().script());
   for (const auto& arg : args.list()) {
-    out_ << " ";
-    SubstitutionWriter::WriteWithNinjaVariables(arg, args_escape_options, out_);
+    rule_out << " ";
+    SubstitutionWriter::WriteWithNinjaVariables(arg, args_escape_options,
+                                                rule_out);
   }
-  out_ << std::endl;
+  rule_out << std::endl;
   auto mnemonic = target_->action_values().mnemonic();
   if (mnemonic.empty())
     mnemonic = "ACTION";
-  out_ << "  description = " << mnemonic << " " << target_label << std::endl;
-  out_ << "  restat = 1" << std::endl;
+  rule_out << "  description = " << mnemonic << " " << target_label
+           << std::endl;
+  rule_out << "  restat = 1" << std::endl;
   const Tool* tool =
       target_->toolchain()->GetTool(GeneralTool::kGeneralToolAction);
   if (tool && tool->pool().ptr) {
-    out_ << "  pool = ";
-    out_ << tool->pool().ptr->GetNinjaName(
+    rule_out << "  pool = ";
+    rule_out << tool->pool().ptr->GetNinjaName(
         settings_->default_toolchain_label());
-    out_ << std::endl;
+    rule_out << std::endl;
   }
 
+  target_group_.custom_rules.push_back(rule_out.str());
   return custom_rule_name;
 }
 
@@ -221,56 +230,80 @@ void NinjaActionTargetWriter::WriteSourceRules(
 
   const Target::FileList& sources = target_->sources();
   for (size_t i = 0; i < sources.size(); i++) {
-    out_ << "build";
-    WriteOutputFilesForBuildLine(sources[i], output_files);
+    std::vector<OutputFile> cur_outputs;
+    SubstitutionWriter::ApplyListToSourceAsOutputFile(
+        target_, settings_, target_->action_values().outputs(), sources[i],
+        &cur_outputs);
+    output_files->insert(output_files->end(), cur_outputs.begin(),
+                         cur_outputs.end());
 
-    out_ << ": " << custom_rule_name << " ";
-    path_output_.WriteFile(out_, sources[i]);
-    if (!input_deps.empty()) {
-      // Using "|" for the dependencies forces all implicit dependencies to be
-      // fully up to date before running the action, and will re-run this
-      // action if any input dependencies change. This is important because
-      // this action may consume the outputs of previous steps.
-      out_ << " |";
-      path_output_.WriteFiles(out_, input_deps);
+    NinjaBuildEdge edge;
+    if (i == 0)
+      edge.blank_line_before = true;
+    edge.outputs = std::move(cur_outputs);
+    edge.rule = custom_rule_name;
+    edge.explicit_inputs.push_back(
+        OutputFile(settings_->build_settings(), sources[i]));
+    edge.implicit_inputs = input_deps;
+    edge.order_only_inputs = order_only_deps;
+    for (const auto& pair : target_->validations()) {
+      if (pair.ptr->has_dependency_output()) {
+        edge.validation_inputs.push_back(pair.ptr->dependency_output());
+      }
     }
-    if (!order_only_deps.empty()) {
-      // Write any order-only deps out for actions just like they are written
-      // out for binaries.
-      out_ << " ||";
-      path_output_.WriteFiles(out_, order_only_deps);
-    }
-    WriteValidations();
-    out_ << std::endl;
 
     // Response files require a unique name be defined.
     if (target_->action_values().uses_rsp_file())
-      out_ << "  unique_name = " << i << std::endl;
+      edge.edge_vars.push_back({"unique_name", std::to_string(i)});
 
-    // The required types is the union of the args and response file. This
-    // might theoretically duplicate a definition if the same substitution is
-    // used in both the args and the response file. However, this should be
-    // very unusual (normally the substitutions will go in one place or the
-    // other) and the redundant assignment won't bother Ninja.
-    SubstitutionWriter::WriteNinjaVariablesForSource(
-        target_, settings_, sources[i],
-        target_->action_values().args().required_types(), args_escape_options,
-        out_);
-    SubstitutionWriter::WriteNinjaVariablesForSource(
-        target_, settings_, sources[i],
-        target_->action_values().rsp_file_contents().required_types(),
-        args_escape_options, out_);
-    WriteNinjaVariablesForAction();
+    auto append_source_vars =
+        [&](const std::vector<const Substitution*>& types) {
+          for (const auto& type : types) {
+            if (type != &SubstitutionSource &&
+                type != &SubstitutionRspFileName) {
+              std::ostringstream ss;
+              EscapeStringToStream(
+                  ss,
+                  SubstitutionWriter::GetSourceSubstitution(
+                      target_, settings_, sources[i], type,
+                      SubstitutionWriter::OUTPUT_RELATIVE,
+                      settings_->build_settings()->build_dir()),
+                  args_escape_options);
+              edge.edge_vars.push_back({type->ninja_name, ss.str()});
+            }
+          }
+        };
+
+    append_source_vars(target_->action_values().args().required_types());
+    append_source_vars(
+        target_->action_values().rsp_file_contents().required_types());
+
+    SubstitutionBits subst;
+    target_->action_values().args().FillRequiredTypes(&subst);
+    WriteRustCompilerVars(subst, /*always_write=*/false, edge.edge_vars);
+    WriteCCompilerVars(subst, /*respect_source_used=*/false, edge.edge_vars);
 
     if (target_->action_values().has_depfile()) {
-      WriteDepfile(sources[i]);
+      std::ostringstream ss;
+      path_output_.WriteFile(
+          ss,
+          SubstitutionWriter::ApplyPatternToSourceAsOutputFile(
+              target_, settings_, target_->action_values().depfile(),
+              sources[i]));
+      edge.edge_vars.push_back({"depfile", ss.str()});
+      if (settings_->build_settings()->ninja_required_version() >=
+          Version{1, 9, 0}) {
+        edge.edge_vars.push_back({"deps", "gcc"});
+      }
     }
+
     if (target_->pool().ptr) {
-      out_ << "  pool = ";
-      out_ << target_->pool().ptr->GetNinjaName(
-          settings_->default_toolchain_label());
-      out_ << std::endl;
+      edge.edge_vars.push_back(
+          {"pool", target_->pool().ptr->GetNinjaName(
+                       settings_->default_toolchain_label())});
     }
+
+    AddEdge(std::move(edge));
   }
 }
 
@@ -285,7 +318,7 @@ void NinjaActionTargetWriter::WriteOutputFilesForBuildLine(
 
   for (size_t i = first_output_index; i < output_files->size(); i++) {
     out_ << " ";
-    WriteOutput((*output_files)[i]);
+    path_output_.WriteFile(out_, (*output_files)[i]);
   }
 }
 
@@ -296,10 +329,6 @@ void NinjaActionTargetWriter::WriteDepfile(const SourceFile& source) {
       SubstitutionWriter::ApplyPatternToSourceAsOutputFile(
           target_, settings_, target_->action_values().depfile(), source));
   out_ << std::endl;
-  // Using "deps = gcc" allows Ninja to read and store the depfile content in
-  // its internal database which improves performance, especially for large
-  // depfiles. The use of this feature with depfiles that contain multiple
-  // outputs require Ninja version 1.9.0 or newer.
   if (settings_->build_settings()->ninja_required_version() >=
       Version{1, 9, 0}) {
     out_ << "  deps = gcc" << std::endl;
@@ -309,6 +338,6 @@ void NinjaActionTargetWriter::WriteDepfile(const SourceFile& source) {
 void NinjaActionTargetWriter::WriteNinjaVariablesForAction() {
   SubstitutionBits subst;
   target_->action_values().args().FillRequiredTypes(&subst);
-  WriteRustCompilerVars(subst, /*indent=*/true, /*always_write=*/false);
-  WriteCCompilerVars(subst, /*indent=*/true, /*respect_source_types=*/false);
+  WriteRustCompilerVars(subst, /*always_write=*/false);
+  WriteCCompilerVars(subst, /*respect_source_used=*/false);
 }

@@ -20,7 +20,7 @@ class NinjaBinaryTargetWriter : public NinjaTargetWriter {
   NinjaBinaryTargetWriter(const Target* target, std::ostream& out);
   ~NinjaBinaryTargetWriter() override;
 
-  void Run() override;
+  void GenerateRules() override;
   void WritePublicModuleMap(std::ostream& out, const SourceDir& out_dir);
   void WritePrivateModuleMap(std::ostream& out, const SourceDir& out_dir);
 

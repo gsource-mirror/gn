@@ -1,0 +1,91 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8111d0d9_fbbfe18d",
+        "filename": "src/base/logging.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T04:54:37Z",
+      "side": 1,
+      "message": "This is rather `LOG_FATAL`?",
+      "range": {
+        "startLine": 806,
+        "startChar": 48,
+        "endLine": 806,
+        "endChar": 58
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "96eab92e_2ed179bb",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/base/logging.h",
+              "range": {
+                "startLine": 806,
+                "startChar": 0,
+                "endLine": 807,
+                "endChar": 0
+              },
+              "replacement": "      : log_message_(std::in_place, file, line, LOG_FATAL) {}\n"
+            }
+          ]
+        }
+      ],
+      "revId": "4f05bc1242a62f29c8304f6223eb5e8a35b60953",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "feb25abc_3d3cc4e9",
+        "filename": "src/base/logging.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T04:54:37Z",
+      "side": 1,
+      "message": "Marking `NOTREACHED()` as `[[noreturn]]` means it must not return, and calling `std::abort()` ensures this. However, this causes `NOTREACHED()` to become **fatal in release builds**, whereas previously `DCHECK(false)` was ignored or compiled away when `DCHECK_IS_ON()` was false.\n\nIf making it fatal everywhere is intended (e.g. to prevent undefined behavior when falling off the end of a function), consider using `IMMEDIATE_CRASH()` instead of `std::abort()`. `IMMEDIATE_CRASH()` is defined earlier in this file and is designed to play well with crash reporters and preserve good crash signatures.\n\n```suggestion\n    IMMEDIATE_CRASH();\n```",
+      "range": {
+        "startLine": 810,
+        "startChar": 0,
+        "endLine": 810,
+        "endChar": 0
+      },
+      "revId": "4f05bc1242a62f29c8304f6223eb5e8a35b60953",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69b2dd16_be3810c3",
+        "filename": "src/base/logging.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T04:54:37Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Because `.stream()` returns `std::ostream\u0026`, using this macro as a standalone statement (e.g. `NOTREACHED();` or `NOTREACHED() \u003c\u003c \\\"message\\\";`) will evaluate to `std::ostream\u0026` and likely trigger an `unused-value` compiler warning.\n\nYou can wrap the expression with `LogMessageVoidify` (similar to how `LAZY_STREAM` and other logging macros work) so it evaluates to `void` and suppresses the warning:\n\n```suggestion\n#define NOTREACHED() \\\n  ::logging::LogMessageVoidify() \u0026 \\\n  ::logging::NotReachedLogMessage(__FILE__, __LINE__).stream()\n```",
+      "range": {
+        "startLine": 822,
+        "startChar": 0,
+        "endLine": 822,
+        "endChar": 0
+      },
+      "revId": "4f05bc1242a62f29c8304f6223eb5e8a35b60953",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

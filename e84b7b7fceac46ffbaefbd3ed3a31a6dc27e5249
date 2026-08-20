@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "109f02b2_600cda43",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000019
+      },
+      "writtenOn": "2026-08-20T12:52:33Z",
+      "side": 1,
+      "message": "This is incorrect. This is due to an upstream regression that breaks `__attribute__((used))` (https://github.com/llvm/llvm-project/pull/209585#issuecomment-5349204517). It\u0027ll be fixed, and this will go away again.",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5ca117e7_03acbdde",

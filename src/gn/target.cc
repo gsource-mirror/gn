@@ -624,6 +624,9 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
   if (!SwiftValues::OnTargetResolved(this, err))
     return false;
 
+  if (!write_linker_inputs_output_.value().empty())
+    g_scheduler->AddWriteLinkerInputsTarget(this);
+
   if (!write_runtime_deps_output_.value().empty())
     g_scheduler->AddWriteRuntimeDepsTarget(this);
 

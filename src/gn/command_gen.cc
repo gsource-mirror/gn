@@ -25,6 +25,7 @@
 #include "gn/ninja_tools.h"
 #include "gn/ninja_writer.h"
 #include "gn/qt_creator_writer.h"
+#include "gn/linker_inputs.h"
 #include "gn/runtime_deps.h"
 #include "gn/rust_project_writer.h"
 #include "gn/scheduler.h"
@@ -882,6 +883,11 @@ int RunGen(const std::vector<std::string>& args) {
           "Generating Ninja outputs file took %" PRId64 "ms\n",
           outputs_timer.Elapsed().InMilliseconds()));
     }
+  }
+
+  if (!WriteLinkerInputsFilesIfNecessary(&setup->build_settings(),
+                                         setup->builder())) {
+    return 1;
   }
 
   if (!WriteRuntimeDepsFilesIfNecessary(&setup->build_settings(),

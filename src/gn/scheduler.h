@@ -64,6 +64,10 @@ class Scheduler {
   // inputs (see AddUnknownGeneratedInput below).
   void AddWrittenFile(const SourceFile& file);
 
+  // Schedules a file to be written due to a target setting write_linker_inputs.
+  void AddWriteLinkerInputsTarget(const Target* entry);
+  std::vector<const Target*> GetWriteLinkerInputsTargets() const;
+
   // Schedules a file to be written due to a target setting write_runtime_deps.
   void AddWriteRuntimeDepsTarget(const Target* entry);
   std::vector<const Target*> GetWriteRuntimeDepsTargets() const;
@@ -146,6 +150,7 @@ class Scheduler {
   // Protected by the lock. See the corresponding Add/Get functions above.
   std::vector<base::FilePath> gen_dependencies_;
   std::vector<SourceFile> written_files_;
+  std::vector<const Target*> write_linker_inputs_targets_;
   std::vector<const Target*> write_runtime_deps_targets_;
   std::multimap<SourceFile, const Target*> unknown_generated_inputs_;
   std::map<SourceFile, bool> generated_files_;

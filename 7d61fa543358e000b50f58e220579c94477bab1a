@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5dc6e3a4_2b289051",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-20T07:06:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "603189ad_e57f8953",
+      "range": {
+        "startLine": 353,
+        "startChar": 0,
+        "endLine": 353,
+        "endChar": 0
+      },
+      "revId": "7d61fa543358e000b50f58e220579c94477bab1a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4100bf9e_5a90db9d",
@@ -47,6 +71,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6a18aaa_34517f3f",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-20T07:06:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4100bf9e_5a90db9d",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 380,
+        "endChar": 0
+      },
+      "revId": "7d61fa543358e000b50f58e220579c94477bab1a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ab41476a_97a44fc1",
@@ -60,6 +108,30 @@
       "writtenOn": "2026-08-20T05:16:34Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: NIT: You can likely use `target.node.node()-\u003eAsFunctionCallMut()` here to avoid the `const_cast`, assuming `node()` doesn\u0027t return a strictly `const ParseNode*` (similar to how it works on line 386).",
+      "range": {
+        "startLine": 412,
+        "startChar": 0,
+        "endLine": 412,
+        "endChar": 0
+      },
+      "revId": "7d61fa543358e000b50f58e220579c94477bab1a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bafb19ec_73bf5287",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-20T07:06:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab41476a_97a44fc1",
       "range": {
         "startLine": 412,
         "startChar": 0,

@@ -68,6 +68,23 @@
       "parentUuid": "ee07004a_6f9228bf",
       "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3545bb51_ac03ae35",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000019
+      },
+      "writtenOn": "2026-08-20T12:53:14Z",
+      "side": 1,
+      "message": "I think we can disable enable_resource_allowlist_generation on Windows for a bit instead (https://issues.chromium.org/issues/542981236#comment15).",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

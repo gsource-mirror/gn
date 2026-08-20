@@ -16,6 +16,23 @@
       "message": "Oh, this is nice.",
       "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee07004a_6f9228bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-20T07:15:46Z",
+      "side": 1,
+      "message": "I find this approach somewhat questionable, TBH. It feels very \"I\u0027m gonna solve this very specific problem that happened this one time\", and thus doesn\u0027t feel like it belongs in a build system.\n\nWhat other approaches were considered before you decided on this one? Is there any way we could make this solution more general-purpose? One approach that comes to mind to me would be something like:\n\n```\nstatic_library(\"foo\") {\n    tool(\"alink\") {\n       ...\n    }\n}\n```\n\nTo just allow overriding of the tool\n\nAlternatively, perhaps we could simply come up with a way to use the link args elsewhere.\n\nKeep in mind that I\u0027m not strictly saying we shouldn\u0027t be doing this, just that I\u0027m very hesitant about adding something to a build system that isn\u0027t general-purpose.",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

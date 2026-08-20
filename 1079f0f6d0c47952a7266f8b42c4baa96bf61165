@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba66011a_f192f793",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T02:46:42Z",
+      "side": 1,
+      "message": "Having CHECK(false) above is sufficient? As far as I understand, this is for compiler optimization, but I prefer to avoid using this if we don\u0027t know how much benefit we can have by this `std::unreachable` as this causes undefined behavior.",
+      "revId": "1079f0f6d0c47952a7266f8b42c4baa96bf61165",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9229f5a4_38998ae9",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T02:46:42Z",
+      "side": 1,
+      "message": "Can we have an empty line between targets?",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 305,
+        "endChar": 19
+      },
+      "revId": "1079f0f6d0c47952a7266f8b42c4baa96bf61165",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

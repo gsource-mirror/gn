@@ -54,6 +54,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "775a5a5d_3e65c93a",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-20T04:14:21Z",
+      "side": 1,
+      "message": "fixed NOTREACHED instead",
+      "parentUuid": "8b630714_5e0890f3",
+      "revId": "1079f0f6d0c47952a7266f8b42c4baa96bf61165",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9229f5a4_38998ae9",

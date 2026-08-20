@@ -2494,6 +2494,27 @@ const char kWriteOutputConversion_Help[] =
   See `gn help io_conversion`.
 )";
 
+const char kWriteLinkerInputs[] = "write_linker_inputs";
+const char kWriteLinkerInputs_HelpShort[] =
+    "write_linker_inputs: Writes the target's linker inputs to the given path.";
+const char kWriteLinkerInputs_Help[] =
+    R"(write_linker_inputs: Writes the target's linker inputs to the given path.
+
+  Does not synchronously write the file, but rather schedules it to be written
+  at the end of generation.
+
+  If the file exists and the contents are identical to that being written, the
+  file will not be updated. This will prevent unnecessary rebuilds of targets
+  that depend on this file.
+
+  Path must be within the output directory.
+
+  The format of this file will list one file per line with no escaping. The
+  files will be relative to the root_build_dir. The file contents will list all
+  object files, static libraries, import libraries, and Rust .rlib files
+  that are passed to the linker for this target.
+)";
+
 const char kWriteRuntimeDeps[] = "write_runtime_deps";
 const char kWriteRuntimeDeps_HelpShort[] =
     "write_runtime_deps: Writes the target's runtime_deps to the given path.";
@@ -2646,6 +2667,7 @@ const VariableInfoMap& GetTargetVariables() {
     INSERT_VARIABLE(WeakLibraries)
     INSERT_VARIABLE(WriteOutputConversion)
     INSERT_VARIABLE(WriteValueContents)
+    INSERT_VARIABLE(WriteLinkerInputs)
     INSERT_VARIABLE(WriteRuntimeDeps)
     INSERT_VARIABLE(XcodeExtraAttributes)
     InsertRustVariables(&info_map);

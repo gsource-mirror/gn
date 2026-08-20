@@ -24,7 +24,6 @@ class NinjaBinaryTargetWriter : public NinjaTargetWriter {
   void WritePublicModuleMap(std::ostream& out, const SourceDir& out_dir);
   void WritePrivateModuleMap(std::ostream& out, const SourceDir& out_dir);
 
- protected:
   // Structure used to return the classified deps from |GetDeps| method.
   struct ClassifiedDeps {
     UniqueVector<OutputFile> extra_object_files;
@@ -34,6 +33,23 @@ class NinjaBinaryTargetWriter : public NinjaTargetWriter {
     UniqueVector<const Target*> swiftmodule_deps;
   };
 
+  // Gets all target dependencies and classifies them, as well as accumulates
+  // object files from source sets we need to link.
+  static ClassifiedDeps GetClassifiedDeps(const Target* target,
+                                          const ResolvedTargetData& resolved);
+
+  // Classifies the dependency as linkable or nonlinkable with the current
+  // target, adding it to the appropriate vector of |classified_deps|. If the
+  // dependency is a source set we should link in, the source set's object
+  // files will be appended to |classified_deps.extra_object_files|.
+  static void ClassifyDependency(const Target* target,
+                                 const Target* dep,
+                                 ClassifiedDeps* classified_deps);
+
+  static void AddSourceSetFiles(const Target* source_set,
+                                UniqueVector<OutputFile>* obj_files);
+
+ protected:
   // Writes to the output stream a phony rule for inputs, and
   // returns the target to be appended to source rules that encodes the
   // implicit dependencies for the current target.
@@ -51,13 +67,6 @@ class NinjaBinaryTargetWriter : public NinjaTargetWriter {
   // Expands group dependencies and returns order-only dependencies.
   std::vector<OutputFile> GetOrderOnlyDepsFromNonLinkableDeps(
       const UniqueVector<const Target*>& non_linkable_deps) const;
-
-  // Classifies the dependency as linkable or nonlinkable with the current
-  // target, adding it to the appropriate vector of |classified_deps|. If the
-  // dependency is a source set we should link in, the source set's object
-  // files will be appended to |classified_deps.extra_object_files|.
-  void ClassifyDependency(const Target* dep,
-                          ClassifiedDeps* classified_deps) const;
 
   void WriteCompilerBuildLine(const std::vector<SourceFile>& sources,
                               const std::vector<OutputFile>& extra_deps,
@@ -78,9 +87,6 @@ class NinjaBinaryTargetWriter : public NinjaTargetWriter {
                          const Tool* tool,
                          const std::vector<OutputFile>& swiftmodules);
   void WritePool(std::ostream& out);
-
-  void AddSourceSetFiles(const Target* source_set,
-                         UniqueVector<OutputFile>* obj_files) const;
 
   // Cached version of the prefix used for rule types for this toolchain.
   std::string rule_prefix_;

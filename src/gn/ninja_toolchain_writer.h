@@ -16,6 +16,7 @@
 #include "gn/toolchain.h"
 
 struct EscapeOptions;
+class ResolvedTargetData;
 class Settings;
 class Tool;
 
@@ -26,7 +27,8 @@ class NinjaToolchainWriter {
   static bool RunAndWriteFile(
       const Settings* settings,
       const Toolchain* toolchain,
-      const std::vector<NinjaWriter::TargetRulePair>& rules);
+      const std::vector<NinjaWriter::TargetRulePair>& rules,
+      ResolvedTargetData* resolved);
 
  private:
   FRIEND_TEST_ALL_PREFIXES(NinjaToolchainWriter, WriteToolRule);
@@ -38,7 +40,7 @@ class NinjaToolchainWriter {
                        std::ostream& out);
   ~NinjaToolchainWriter();
 
-  void Run(const std::vector<NinjaWriter::TargetRulePair>& extra_rules);
+  void RunToolRules();
 
   void WriteRules();
   void WriteToolRule(Tool* tool, const std::string& rule_prefix);

@@ -1,0 +1,39 @@
+cflags = -fPIC -pthread
+
+build obj/hello.hello.o: cxx ../hello.cc
+  source_file_part = hello.cc
+  source_name_part = hello
+
+build hello: link obj/hello.hello.o ./libhello_shared.so obj/libhello_static.a
+  ldflags = -ldexecutable_ldconfig
+  libs =
+  frameworks =
+  swiftmodules =
+  output_extension =
+  output_dir = .
+  target_output_name = hello
+  target_out_dir = obj
+build obj/libhello_shared.hello_shared.o: cxx ../hello_shared.cc
+  source_file_part = hello_shared.cc
+  source_name_part = hello_shared
+  defines = -DHELLO_SHARED_IMPLEMENTATION
+
+build ./libhello_shared.so: solink obj/libhello_shared.hello_shared.o
+  ldflags =
+  libs =
+  frameworks =
+  swiftmodules =
+  output_extension = .so
+  output_dir = .
+  target_output_name = libhello_shared
+  target_out_dir = obj
+build obj/libhello_static.hello_static.o: cxx ../hello_static.cc
+  source_file_part = hello_static.cc
+  source_name_part = hello_static
+
+build obj/libhello_static.a: alink obj/libhello_static.hello_static.o
+  arflags =
+  output_extension = .a
+  output_dir =
+  target_output_name = libhello_static
+  target_out_dir = obj

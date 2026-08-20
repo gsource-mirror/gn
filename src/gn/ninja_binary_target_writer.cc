@@ -104,6 +104,7 @@ void NinjaBinaryTargetWriter::Run() {
     NinjaRustBinaryTargetWriter writer(target_, out_);
     writer.SetResolvedTargetData(GetResolvedTargetData());
     writer.SetNinjaOutputs(ninja_outputs_);
+    writer.SetCommonVars(common_vars_);
     writer.Run();
     return;
   }
@@ -111,6 +112,7 @@ void NinjaBinaryTargetWriter::Run() {
   NinjaCBinaryTargetWriter writer(target_, out_);
   writer.SetResolvedTargetData(GetResolvedTargetData());
   writer.SetNinjaOutputs(ninja_outputs_);
+  writer.SetCommonVars(common_vars_);
   writer.Run();
 }
 

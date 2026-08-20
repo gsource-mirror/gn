@@ -54,25 +54,21 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RustExecutable) {
     writer.Run();
 
     const char expected[] =
-        "crate_name = foo_bar\n"
-        "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
-        "rustflags =\n"
-        "rustenv =\n"
-        "root_out_dir = .\n"
-        "target_gen_dir = gen/foo\n"
-        "target_out_dir = obj/foo\n"
-        "target_output_name = bar\n"
-        "\n"
-        "build ./foo_bar: rust_bin ../../foo/main.rs | ../../foo/input3.rs "
-        "../../foo/main.rs\n"
+
+        "build ./foo_bar: rust_bin ../../foo/main.rs | ../../foo/input3.rs ../../foo/main.rs\n"
         "  source_file_part = main.rs\n"
         "  source_name_part = main\n"
+        "  crate_name = foo_bar\n"
+        "  crate_type = bin\n"
+        "  root_out_dir = .\n"
+        "  target_gen_dir = gen/foo\n"
+        "  target_out_dir = obj/foo\n"
+        "  target_output_name = bar\n"
         "  externs =\n"
         "  rustdeps =\n"
         "  ldflags = -fsanitize=address\n"
-        "  sources = ../../foo/input3.rs ../../foo/main.rs\n";
+        "  sources = ../../foo/input3.rs ../../foo/main.rs\n"
+        "\n";
     std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
   }

@@ -20,15 +20,17 @@ NinjaWriter::~NinjaWriter() = default;
 bool NinjaWriter::RunAndWriteFiles(const BuildSettings* build_settings,
                                    const Builder& builder,
                                    const PerToolchainRules& per_toolchain_rules,
+                                   ResolvedTargetData* resolved,
                                    Err* err) {
   NinjaWriter writer(builder);
 
-  if (!writer.WriteToolchains(per_toolchain_rules, err))
+  if (!writer.WriteToolchains(per_toolchain_rules, resolved, err))
     return false;
   return NinjaBuildWriter::RunAndWriteFile(build_settings, builder, err);
 }
 
 bool NinjaWriter::WriteToolchains(const PerToolchainRules& per_toolchain_rules,
+                                  ResolvedTargetData* resolved,
                                   Err* err) {
   if (per_toolchain_rules.empty()) {
     *err = Err(Location(), "No targets.",
@@ -40,7 +42,8 @@ bool NinjaWriter::WriteToolchains(const PerToolchainRules& per_toolchain_rules,
     const Toolchain* toolchain = i.first;
     const Settings* settings =
         builder_.loader()->GetToolchainSettings(toolchain->label());
-    if (!NinjaToolchainWriter::RunAndWriteFile(settings, toolchain, i.second)) {
+    if (!NinjaToolchainWriter::RunAndWriteFile(settings, toolchain, i.second,
+                                               resolved)) {
       *err =
           Err(Location(), "Couldn't open toolchain buildfile(s) for writing");
       return false;

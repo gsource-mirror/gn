@@ -120,7 +120,8 @@ void WriteOneFlag(RecursiveWriterConfig config,
                   PathOutput& path_output,
                   std::ostream& out,
                   bool write_substitution = true,
-                  bool indent = false);
+                  bool indent = false,
+                  std::string_view common_value = {});
 
 // Fills |outputs| with the object or gch file for the precompiled header of the
 // given type (flag type and tool type must match).

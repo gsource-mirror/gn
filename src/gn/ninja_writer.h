@@ -13,6 +13,7 @@
 class Builder;
 class BuildSettings;
 class Err;
+class ResolvedTargetData;
 class Target;
 class Toolchain;
 
@@ -31,13 +32,16 @@ class NinjaWriter {
   static bool RunAndWriteFiles(const BuildSettings* build_settings,
                                const Builder& builder,
                                const PerToolchainRules& per_toolchain_rules,
+                               ResolvedTargetData* resolved,
                                Err* err);
 
  private:
   NinjaWriter(const Builder& builder);
   ~NinjaWriter();
 
-  bool WriteToolchains(const PerToolchainRules& per_toolchain_rules, Err* err);
+  bool WriteToolchains(const PerToolchainRules& per_toolchain_rules,
+                       ResolvedTargetData* resolved,
+                       Err* err);
 
   const Builder& builder_;
 

@@ -25,7 +25,7 @@ class NinjaRustBinaryTargetWriter : public NinjaBinaryTargetWriter {
     bool has_direct_access;
   };
 
-  void WriteCompilerVars();
+  void WriteCompilerVars(bool indent = false);
   void WriteSources(const OutputFile& input_dep,
                     const std::vector<OutputFile>& order_only_deps);
   void WriteExternsAndDeps(const std::vector<const Target*>& deps,

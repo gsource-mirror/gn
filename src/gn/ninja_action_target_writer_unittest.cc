@@ -65,9 +65,7 @@ TEST(NinjaActionTargetWriter, ActionNoSources) {
   command = /usr/bin/python ../../foo++/script.py
   description = ACTION //foo++:bar()
   restat = 1
-
 build foo.out: __foo___bar___rule | ../../foo++/script.py ../../foo++/included.txt
-
 build phony/foo++/bar: phony foo.out
 )";
   EXPECT_EQ(expected, out.str()) << expected << "--" << out.str();
@@ -109,10 +107,8 @@ TEST(NinjaActionTargetWriter, ActionNoSourcesConsole) {
   command = /usr/bin/python ../../foo/script.py
   description = ACTION //foo:bar()
   restat = 1
-
 build foo.out: __foo_bar___rule | ../../foo/script.py ../../foo/included.txt
   pool = console
-
 build phony/foo/bar: phony foo.out
 )";
   EXPECT_EQ(expected, out.str());
@@ -146,14 +142,12 @@ TEST(NinjaActionTargetWriter, ActionWithSources) {
   writer.Run();
 
   const char expected_linux[] =
+
       "rule __foo_bar___rule\n"
       "  command = /usr/bin/python ../../foo/script.py\n"
       "  description = ACTION //foo:bar()\n"
       "  restat = 1\n"
-      "\n"
-      "build foo.out: __foo_bar___rule | ../../foo/script.py "
-      "../../foo/included.txt ../../foo/source.txt\n"
-      "\n"
+      "build foo.out: __foo_bar___rule | ../../foo/script.py ../../foo/included.txt ../../foo/source.txt\n"
       "build phony/foo/bar: phony foo.out\n";
   EXPECT_EQ(expected_linux, out.str());
 }
@@ -203,15 +197,12 @@ TEST(NinjaActionTargetWriter, ActionWithOrderOnlyDeps) {
   writer.Run();
 
   const char expected[] =
+
       "rule __foo_bar___rule\n"
       "  command = /usr/bin/python ../../foo/script.py\n"
       "  description = ACTION //foo:bar()\n"
       "  restat = 1\n"
-      "\n"
-      "build foo.out: __foo_bar___rule | ../../foo/script.py "
-      "../../foo/included.txt ../../foo/source.txt phony/foo/dep || "
-      "phony/foo/datadep\n"
-      "\n"
+      "build foo.out: __foo_bar___rule | ../../foo/script.py ../../foo/included.txt ../../foo/source.txt phony/foo/dep || phony/foo/datadep\n"
       "build phony/foo/bar: phony foo.out\n";
 
   EXPECT_EQ(expected, out.str());
@@ -274,30 +265,17 @@ TEST(NinjaActionTargetWriter, ForEach) {
   writer.Run();
 
   const char expected_linux[] =
+
       "rule __foo_bar___rule\n"
-      "  command = /usr/bin/python ../../foo/script.py -i ${in} "
-// Escaping is different between Windows and Posix.
-#if defined(OS_WIN)
-      "\"--out=foo$ bar${source_name_part}.o\"\n"
-#else
-      "--out=foo\\$ bar${source_name_part}.o\n"
-#endif
+      "  command = /usr/bin/python ../../foo/script.py -i ${in} --out=foo\\$ bar${source_name_part}.o\n"
       "  description = ACTION //foo:bar()\n"
       "  restat = 1\n"
-      "build phony/foo/bar.inputdeps: phony ../../foo/script.py "
-      "../../foo/included.txt phony/foo/dep\n"
-      "\n"
-      "build input1.out: __foo_bar___rule ../../foo/input1.txt | "
-      "phony/foo/bar.inputdeps || phony/foo/bundle_data_dep "
-      "phony/foo/datadep\n"
+      "build phony/foo/bar.inputdeps: phony ../../foo/script.py ../../foo/included.txt phony/foo/dep\n"
+      "build input1.out: __foo_bar___rule ../../foo/input1.txt | phony/foo/bar.inputdeps || phony/foo/bundle_data_dep phony/foo/datadep\n"
       "  source_name_part = input1\n"
-      "build input2.out: __foo_bar___rule ../../foo/input2.txt | "
-      "phony/foo/bar.inputdeps || phony/foo/bundle_data_dep "
-      "phony/foo/datadep\n"
+      "build input2.out: __foo_bar___rule ../../foo/input2.txt | phony/foo/bar.inputdeps || phony/foo/bundle_data_dep phony/foo/datadep\n"
       "  source_name_part = input2\n"
-      "\n"
-      "build phony/foo/bar: "
-      "phony input1.out input2.out\n";
+      "build phony/foo/bar: phony input1.out input2.out\n";
 
   std::string out_str = out.str();
 #if defined(OS_WIN)
@@ -342,29 +320,20 @@ TEST(NinjaActionTargetWriter, ForEachWithDepfile) {
   writer.Run();
 
   const char expected_linux[] =
+
       "rule __foo_bar___rule\n"
-      "  command = /usr/bin/python ../../foo/script.py -i ${in} "
-#if defined(OS_WIN)
-      "\"--out=foo$ bar${source_name_part}.o\"\n"
-#else
-      "--out=foo\\$ bar${source_name_part}.o\n"
-#endif
+      "  command = /usr/bin/python ../../foo/script.py -i ${in} --out=foo\\$ bar${source_name_part}.o\n"
       "  description = ACTION //foo:bar()\n"
       "  restat = 1\n"
-      "build phony/foo/bar.inputdeps: phony ../../foo/script.py "
-      "../../foo/included.txt\n"
-      "\n"
-      "build input1.out: __foo_bar___rule ../../foo/input1.txt"
-      " | phony/foo/bar.inputdeps\n"
+      "build phony/foo/bar.inputdeps: phony ../../foo/script.py ../../foo/included.txt\n"
+      "build input1.out: __foo_bar___rule ../../foo/input1.txt | phony/foo/bar.inputdeps\n"
       "  source_name_part = input1\n"
       "  depfile = gen/input1.d\n"
       "  deps = gcc\n"
-      "build input2.out: __foo_bar___rule ../../foo/input2.txt"
-      " | phony/foo/bar.inputdeps\n"
+      "build input2.out: __foo_bar___rule ../../foo/input2.txt | phony/foo/bar.inputdeps\n"
       "  source_name_part = input2\n"
       "  depfile = gen/input2.d\n"
       "  deps = gcc\n"
-      "\n"
       "build phony/foo/bar: phony input1.out input2.out\n";
   EXPECT_EQ(expected_linux, out.str());
 }
@@ -399,26 +368,17 @@ TEST(NinjaActionTargetWriter, ForEachWithResponseFile) {
   writer.Run();
 
   const char expected_linux[] =
+
       "rule __foo_bar___rule\n"
-      // This name is autogenerated from the target rule name.
       "  rspfile = __foo_bar___rule.$unique_name.rsp\n"
-      // These come from rsp_file_contents above.
       "  rspfile_content = -j ${source_name_part}\n"
-      // These come from the args.
-      "  command = /usr/bin/python ../../foo/script.py ${in} "
-      "${source_file_part} ${rspfile}\n"
+      "  command = /usr/bin/python ../../foo/script.py ${in} ${source_file_part} ${rspfile}\n"
       "  description = ACTION //foo:bar()\n"
       "  restat = 1\n"
-      "\n"
-      "build input1.out: __foo_bar___rule ../../foo/input1.txt"
-      " | ../../foo/script.py\n"
-      // Necessary for the rspfile defined in the rule.
+      "build input1.out: __foo_bar___rule ../../foo/input1.txt | ../../foo/script.py\n"
       "  unique_name = 0\n"
-      // Substitution for the args.
       "  source_file_part = input1.txt\n"
-      // Substitution for the rspfile contents.
       "  source_name_part = input1\n"
-      "\n"
       "build phony/foo/bar: phony input1.out\n";
   EXPECT_EQ(expected_linux, out.str());
 }
@@ -457,19 +417,14 @@ TEST(NinjaActionTargetWriter, ForEachWithPool) {
   writer.Run();
 
   const char expected_linux[] =
+
       "rule __foo_bar___rule\n"
-      // These come from the args.
-      "  command = /usr/bin/python ../../foo/script.py ${in} "
-      "${source_file_part}\n"
+      "  command = /usr/bin/python ../../foo/script.py ${in} ${source_file_part}\n"
       "  description = ACTION //foo:bar()\n"
       "  restat = 1\n"
-      "\n"
-      "build input1.out: __foo_bar___rule ../../foo/input1.txt"
-      " | ../../foo/script.py\n"
-      // Substitution for the args.
+      "build input1.out: __foo_bar___rule ../../foo/input1.txt | ../../foo/script.py\n"
       "  source_file_part = input1.txt\n"
       "  pool = foo_pool\n"
-      "\n"
       "build phony/foo/bar: phony input1.out\n";
   EXPECT_EQ(expected_linux, out.str());
 }
@@ -504,15 +459,12 @@ TEST(NinjaActionTargetWriter, NoTransitiveHardDeps) {
     writer.Run();
 
     const char expected_linux[] =
+
         "rule __foo_foo___rule\n"
-        // These come from the args.
         "  command = /usr/bin/python ../../foo/script.py\n"
         "  description = ACTION //foo:foo()\n"
         "  restat = 1\n"
-        "\n"
-        "build foo.out: __foo_foo___rule | ../../foo/script.py"
-        " ../../foo/input1.txt phony/foo/dep\n"
-        "\n"
+        "build foo.out: __foo_foo___rule | ../../foo/script.py ../../foo/input1.txt phony/foo/dep\n"
         "build phony/foo/foo: phony foo.out\n";
     EXPECT_EQ(expected_linux, out.str());
   }
@@ -533,16 +485,12 @@ TEST(NinjaActionTargetWriter, NoTransitiveHardDeps) {
     writer.Run();
 
     const char expected_linux[] =
+
         "rule __bar_bar___rule\n"
-        // These come from the args.
         "  command = /usr/bin/python ../../bar/script.py\n"
         "  description = ACTION //bar:bar()\n"
         "  restat = 1\n"
-        "\n"
-        // Do not have obj/foo/dep.stamp as dependency.
-        "build bar.out: __bar_bar___rule | ../../bar/script.py"
-        " ../../bar/input1.txt phony/foo/foo\n"
-        "\n"
+        "build bar.out: __bar_bar___rule | ../../bar/script.py ../../bar/input1.txt phony/foo/foo\n"
         "build phony/bar/bar: phony bar.out\n";
     EXPECT_EQ(expected_linux, out.str());
   }
@@ -588,20 +536,16 @@ TEST(NinjaActionTargetWriter, SeesConfig) {
     writer.Run();
 
     const char expected[] =
+
         "rule __foo_foo___rule\n"
-        // These come from the args.
-        "  command = /usr/bin/python ../../foo/script.py ${rustenv} "
-        "${include_dirs} ${defines} ${cflags}\n"
+        "  command = /usr/bin/python ../../foo/script.py ${rustenv} ${include_dirs} ${defines} ${cflags}\n"
         "  description = ACTION //foo:foo()\n"
         "  restat = 1\n"
-        "\n"
-        "build foo.out: __foo_foo___rule | ../../foo/script.py"
-        " ../../foo/input1.txt\n"
+        "build foo.out: __foo_foo___rule | ../../foo/script.py ../../foo/input1.txt\n"
         "  rustenv = my_rustenv\n"
         "  defines = -DMY_DEFINE -DMY_DEFINE2\n"
         "  include_dirs = -I../../my_inc_dir\n"
         "  cflags = -isysroot=baz\n"
-        "\n"
         "build phony/foo/foo: phony foo.out\n";
     std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
@@ -634,23 +578,13 @@ TEST(NinjaActionTargetWriter, ActionWithSpaces) {
   writer.Run();
 
   const char expected[] =
-      R"(rule __foo_bar___rule)"
-      "\n"
-// Escaping is different between Windows and Posix.
-#if defined(OS_WIN)
-      R"(  command = "/Program$ Files/python" "../../foo/my$ script.py" "my$ argument")"
-      "\n"
-#else
-      R"(  command = /Program\$ Files/python ../../foo/my\$ script.py my\$ argument)"
-      "\n"
-#endif
-      R"(  description = ACTION //foo:bar()
-  restat = 1
 
-build foo.out: __foo_bar___rule | ../../foo/my$ script.py ../../foo/input$ file.txt
-
-build phony/foo/bar: phony foo.out
-)";
+      "rule __foo_bar___rule\n"
+      "  command = /Program\\$ Files/python ../../foo/my\\$ script.py my\\$ argument\n"
+      "  description = ACTION //foo:bar()\n"
+      "  restat = 1\n"
+      "build foo.out: __foo_bar___rule | ../../foo/my$ script.py ../../foo/input$ file.txt\n"
+      "build phony/foo/bar: phony foo.out\n";
   EXPECT_EQ(expected, out.str()) << expected << "--" << out.str();
 }
 
@@ -686,13 +620,12 @@ TEST(NinjaActionTargetWriter, ActionWithValidations) {
   writer.Run();
 
   const char expected[] =
+
       "rule __foo_bar___rule\n"
       "  command = /usr/bin/python ../../foo/script.py\n"
       "  description = ACTION //foo:bar()\n"
       "  restat = 1\n"
-      "\n"
       "build foo.out: __foo_bar___rule | ../../foo/script.py |@ phony/foo/val\n"
-      "\n"
       "build phony/foo/bar: phony foo.out |@ phony/foo/val\n";
 
   EXPECT_EQ(expected, out.str());

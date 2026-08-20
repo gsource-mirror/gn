@@ -51,6 +51,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSet) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -66,9 +67,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSet) {
         "build obj/foo/bar.input2.o: cxx ../../foo/input2.cc\n"
         "  source_file_part = input2.cc\n"
         "  source_name_part = input2\n"
-        "\n"
-        "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o "
-        "obj/foo/bar.input2.o ../../foo/input3.o ../../foo/input4.obj\n"
+        "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o obj/foo/bar.input2.o ../../foo/input3.o ../../foo/input4.obj\n"
         "build phony/foo/bar: phony phony/foo/bar.linkdeps\n";
     std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
@@ -87,6 +86,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSet) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "root_out_dir = .\n"
@@ -94,13 +94,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSet) {
         "target_out_dir = obj/foo\n"
         "target_output_name = libshlib\n"
         "\n"
-        "\n"
-        // Ordering of the obj files here should come out in the order
-        // specified, with the target's first, followed by the source set's, in
-        // order.
-        "build ./libshlib.so: solink obj/foo/bar.input1.o "
-        "obj/foo/bar.input2.o ../../foo/input3.o ../../foo/input4.obj "
-        "|| phony/foo/bar.linkdeps\n"
+        "build ./libshlib.so: solink obj/foo/bar.input1.o obj/foo/bar.input2.o ../../foo/input3.o ../../foo/input4.obj || phony/foo/bar.linkdeps\n"
         "  ldflags =\n"
         "  libs =\n"
         "  frameworks =\n"
@@ -124,6 +118,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSet) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "root_out_dir = .\n"
@@ -131,9 +126,6 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSet) {
         "target_out_dir = obj/foo\n"
         "target_output_name = libstlib\n"
         "\n"
-        "\n"
-        // There are no sources so there are no params to alink. (In practice
-        // this will probably fail in the archive tool.)
         "build obj/foo/libstlib.a: alink || phony/foo/bar.linkdeps\n"
         "  arflags =\n"
         "  output_extension =\n"
@@ -150,6 +142,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSet) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "root_out_dir = .\n"
@@ -157,13 +150,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSet) {
         "target_out_dir = obj/foo\n"
         "target_output_name = libstlib\n"
         "\n"
-        "\n"
-        // Ordering of the obj files here should come out in the order
-        // specified, with the target's first, followed by the source set's, in
-        // order.
-        "build obj/foo/libstlib.a: alink obj/foo/bar.input1.o "
-        "obj/foo/bar.input2.o ../../foo/input3.o ../../foo/input4.obj "
-        "|| phony/foo/bar.linkdeps\n"
+        "build obj/foo/libstlib.a: alink obj/foo/bar.input1.o obj/foo/bar.input2.o ../../foo/input3.o ../../foo/input4.obj || phony/foo/bar.linkdeps\n"
         "  arflags =\n"
         "  output_extension =\n"
         "  output_dir =\n";
@@ -206,6 +193,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, AdditionalOutputs) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -215,11 +203,9 @@ TEST_F(NinjaCBinaryTargetWriterTest, AdditionalOutputs) {
       "target_out_dir = obj/foo\n"
       "target_output_name = bar\n"
       "\n"
-      "build obj/foo/bar.input1.o obj/foo/input1.dwo: cxx "
-      "../../foo/input1.cc\n"
+      "build obj/foo/bar.input1.o obj/foo/input1.dwo: cxx ../../foo/input1.cc\n"
       "  source_file_part = input1.cc\n"
       "  source_name_part = input1\n"
-      "\n"
       "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o\n"
       "build phony/foo/bar: phony phony/foo/bar.linkdeps obj/foo/input1.dwo\n";
 
@@ -260,6 +246,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, AdditionalOutputsSourceSet) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -269,11 +256,9 @@ TEST_F(NinjaCBinaryTargetWriterTest, AdditionalOutputsSourceSet) {
       "target_out_dir = obj/foo\n"
       "target_output_name = bar\n"
       "\n"
-      "build obj/foo/bar.input1.o obj/foo/input1.dwo: cxx "
-      "../../foo/input1.cc\n"
+      "build obj/foo/bar.input1.o obj/foo/input1.dwo: cxx ../../foo/input1.cc\n"
       "  source_file_part = input1.cc\n"
       "  source_name_part = input1\n"
-      "\n"
       "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o\n"
       "build phony/foo/bar: phony phony/foo/bar.linkdeps obj/foo/input1.dwo\n";
 
@@ -328,6 +313,7 @@ TEST_F(NinjaCBinaryTargetWriterTest,
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -343,10 +329,8 @@ TEST_F(NinjaCBinaryTargetWriterTest,
         "build obj/foo/b.b2.o obj/foo/b2.dwo: cxx ../../foo/b2.cc\n"
         "  source_file_part = b2.cc\n"
         "  source_name_part = b2\n"
-        "\n"
         "build phony/foo/b.linkdeps: phony obj/foo/b.b.o obj/foo/b.b2.o\n"
-        "build phony/foo/b: phony phony/foo/b.linkdeps obj/foo/b.dwo "
-        "obj/foo/b2.dwo\n";
+        "build phony/foo/b: phony phony/foo/b.linkdeps obj/foo/b.dwo obj/foo/b2.dwo\n";
 
     EXPECT_EQ(expected, out.str());
   }
@@ -358,6 +342,7 @@ TEST_F(NinjaCBinaryTargetWriterTest,
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -370,7 +355,6 @@ TEST_F(NinjaCBinaryTargetWriterTest,
         "build obj/foo/liba.a.o: cxx ../../foo/a.cc\n"
         "  source_file_part = a.cc\n"
         "  source_name_part = a\n"
-        "\n"
         "build obj/foo/liba.a: alink obj/foo/liba.a.o || phony/foo/b.linkdeps\n"
         "  arflags =\n"
         "  output_extension =\n"
@@ -450,6 +434,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, GroupOrderOnlyDeps) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -462,7 +447,6 @@ TEST_F(NinjaCBinaryTargetWriterTest, GroupOrderOnlyDeps) {
         "build obj/foo/libf.f.o obj/foo/f.dwo: cxx ../../foo/f.cc\n"
         "  source_file_part = f.cc\n"
         "  source_name_part = f\n"
-        "\n"
         "build obj/foo/libf.a: alink obj/foo/libf.f.o || phony/foo/b.linkdeps\n"
         "  arflags =\n"
         "  output_extension =\n"
@@ -511,6 +495,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, StaticLibrary) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -523,7 +508,6 @@ TEST_F(NinjaCBinaryTargetWriterTest, StaticLibrary) {
       "build obj/foo/libbar.input1.o: cxx ../../foo/input1.cc\n"
       "  source_file_part = input1.cc\n"
       "  source_name_part = input1\n"
-      "\n"
       "build obj/foo/libbar.a: alink obj/foo/libbar.input1.o\n"
       "  arflags = --asdf\n"
       "  output_extension =\n"
@@ -560,6 +544,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, CompleteStaticLibrary) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -572,9 +557,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, CompleteStaticLibrary) {
         "build obj/foo/libbar.input1.o: cxx ../../foo/input1.cc\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "\n"
-        "build obj/foo/libbar.a: alink obj/foo/libbar.input1.o "
-        "obj/foo/libbaz.input2.o || obj/foo/libbaz.a\n"
+        "build obj/foo/libbar.a: alink obj/foo/libbar.input1.o obj/foo/libbaz.input2.o || obj/foo/libbaz.a\n"
         "  arflags = --asdf\n"
         "  output_extension =\n"
         "  output_dir =\n";
@@ -592,6 +575,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, CompleteStaticLibrary) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -604,9 +588,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, CompleteStaticLibrary) {
         "build obj/foo/libbar.input1.o: cxx ../../foo/input1.cc\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "\n"
-        "build obj/foo/libbar.a: alink obj/foo/libbar.input1.o "
-        "|| obj/foo/libbaz.a\n"
+        "build obj/foo/libbar.a: alink obj/foo/libbar.input1.o || obj/foo/libbaz.a\n"
         "  arflags = --asdf\n"
         "  output_extension =\n"
         "  output_dir =\n";
@@ -643,6 +625,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, CompleteStaticLibraryWithRustDep) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -655,9 +638,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, CompleteStaticLibraryWithRustDep) {
       "build obj/foo/libbar.input1.o: cxx ../../foo/input1.cc\n"
       "  source_file_part = input1.cc\n"
       "  source_name_part = input1\n"
-      "\n"
-      "build obj/foo/libbar.a: alink obj/foo/libbar.input1.o | "
-      "obj/foo/librust_lib.rlib\n"
+      "build obj/foo/libbar.a: alink obj/foo/libbar.input1.o | obj/foo/librust_lib.rlib\n"
       "  arflags =\n"
       "  output_extension =\n"
       "  output_dir =\n"
@@ -704,6 +685,7 @@ TEST_F(NinjaCBinaryTargetWriterTest,
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -716,9 +698,7 @@ TEST_F(NinjaCBinaryTargetWriterTest,
       "build obj/foo/main.main.o: cxx ../../foo/main.cc\n"
       "  source_file_part = main.cc\n"
       "  source_name_part = main\n"
-      "\n"
-      "build ./main: link obj/foo/main.main.o obj/foo/libc_lib.a | "
-      "obj/foo/librust_lib.rlib\n"
+      "build ./main: link obj/foo/main.main.o obj/foo/libc_lib.a | obj/foo/librust_lib.rlib\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -760,6 +740,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, OutputExtensionAndInputDeps) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -769,20 +750,13 @@ TEST_F(NinjaCBinaryTargetWriterTest, OutputExtensionAndInputDeps) {
       "target_out_dir = obj/foo\n"
       "target_output_name = libshlib\n"
       "\n"
-      "build obj/foo/libshlib.input1.o: cxx ../../foo/input1.cc"
-      " || phony/foo/action\n"
+      "build obj/foo/libshlib.input1.o: cxx ../../foo/input1.cc || phony/foo/action\n"
       "  source_file_part = input1.cc\n"
       "  source_name_part = input1\n"
-      "build obj/foo/libshlib.input2.o: cxx ../../foo/input2.cc"
-      " || phony/foo/action\n"
+      "build obj/foo/libshlib.input2.o: cxx ../../foo/input2.cc || phony/foo/action\n"
       "  source_file_part = input2.cc\n"
       "  source_name_part = input2\n"
-      "\n"
-      "build ./libshlib.so.6: solink obj/foo/libshlib.input1.o "
-      // The order-only dependency here is stricly unnecessary since the
-      // sources list this as an order-only dep. See discussion in the code
-      // that writes this.
-      "obj/foo/libshlib.input2.o || phony/foo/action\n"
+      "build ./libshlib.so.6: solink obj/foo/libshlib.input1.o obj/foo/libshlib.input2.o || phony/foo/action\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -828,6 +802,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, NoHardDepsToNoPublicHeaderTarget) {
   obj_writer.Run();
 
   const char obj_expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -837,16 +812,10 @@ TEST_F(NinjaCBinaryTargetWriterTest, NoHardDepsToNoPublicHeaderTarget) {
       "target_out_dir = obj/foo\n"
       "target_output_name = gen_obj\n"
       "\n"
-      "build obj/BUILD_DIR/gen_obj.generated.o: cxx generated.cc"
-      " || phony/foo/generate\n"
+      "build obj/BUILD_DIR/gen_obj.generated.o: cxx generated.cc || phony/foo/generate\n"
       "  source_file_part = generated.cc\n"
       "  source_name_part = generated\n"
-      "\n"
-      "build phony/foo/gen_obj.linkdeps: phony "
-      "obj/BUILD_DIR/gen_obj.generated.o"
-      // The order-only dependency here is strictly unnecessary since the
-      // sources list this as an order-only dep.
-      " || phony/foo/generate\n"
+      "build phony/foo/gen_obj.linkdeps: phony obj/BUILD_DIR/gen_obj.generated.o || phony/foo/generate\n"
       "build phony/foo/gen_obj: phony phony/foo/gen_obj.linkdeps\n";
 
   std::string obj_str = obj_out.str();
@@ -869,6 +838,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, NoHardDepsToNoPublicHeaderTarget) {
   lib_writer.Run();
 
   const char lib_expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "root_out_dir = .\n"
@@ -876,12 +846,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, NoHardDepsToNoPublicHeaderTarget) {
       "target_out_dir = obj/foo\n"
       "target_output_name = libgen_lib\n"
       "\n"
-      "\n"
-      "build ./libgen_lib.so: solink obj/BUILD_DIR/gen_obj.generated.o"
-      // The order-only dependency here is strictly unnecessary since
-      // obj/out/Debug/gen_obj.generated.o has dependency to
-      // obj/foo/gen_obj.stamp
-      " || phony/foo/gen_obj.linkdeps\n"
+      "build ./libgen_lib.so: solink obj/BUILD_DIR/gen_obj.generated.o || phony/foo/gen_obj.linkdeps\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -909,6 +874,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, NoHardDepsToNoPublicHeaderTarget) {
 
   // There is no order only dependency to action target.
   const char final_expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -921,9 +887,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, NoHardDepsToNoPublicHeaderTarget) {
       "build obj/foo/final_target.main.o: cxx ../../foo/main.cc\n"
       "  source_file_part = main.cc\n"
       "  source_name_part = main\n"
-      "\n"
-      "build ./final_target: link obj/foo/final_target.main.o"
-      " ./libgen_lib.so\n"
+      "build ./final_target: link obj/foo/final_target.main.o ./libgen_lib.so\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -956,6 +920,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, LibsAndLibDirs) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "root_out_dir = .\n"
@@ -963,16 +928,9 @@ TEST_F(NinjaCBinaryTargetWriterTest, LibsAndLibDirs) {
       "target_out_dir = obj/foo\n"
       "target_output_name = libshlib\n"
       "\n"
-      "\n"
-      "build ./libshlib.so: solink | ../../foo/lib1.a ../../sysroot/DIA$ "
-      "SDK/diaguids.lib\n"
+      "build ./libshlib.so: solink | ../../foo/lib1.a ../../sysroot/DIA$ SDK/diaguids.lib\n"
       "  ldflags = -L../../foo/bar\n"
-#ifdef _WIN32
-      "  libs = ../../foo/lib1.a \"../../sysroot/DIA$ SDK/diaguids.lib\" "
-      "-lfoo\n"
-#else
       "  libs = ../../foo/lib1.a ../../sysroot/DIA\\$ SDK/diaguids.lib -lfoo\n"
-#endif
       "  frameworks =\n"
       "  swiftmodules =\n"
       "  output_extension = .so\n"
@@ -1027,6 +985,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, FrameworksAndFrameworkDirs) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "root_out_dir = .\n"
@@ -1034,12 +993,10 @@ TEST_F(NinjaCBinaryTargetWriterTest, FrameworksAndFrameworkDirs) {
       "target_out_dir = obj/foo\n"
       "target_output_name = libshlib\n"
       "\n"
-      "\n"
       "build ./libshlib.so: solink | phony/bar/framework\n"
       "  ldflags = -F.\n"
       "  libs =\n"
-      "  frameworks = -framework System -framework Bar "
-      "-weak_framework Whizbang\n"
+      "  frameworks = -framework System -framework Bar -weak_framework Whizbang\n"
       "  swiftmodules =\n"
       "  output_extension = .so\n"
       "  output_dir =\n";
@@ -1071,6 +1028,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, EmptyOutputExtension) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -1086,9 +1044,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, EmptyOutputExtension) {
       "build obj/foo/shlib.input2.o: cxx ../../foo/input2.cc\n"
       "  source_file_part = input2.cc\n"
       "  source_name_part = input2\n"
-      "\n"
-      "build ./shlib: solink obj/foo/shlib.input1.o "
-      "obj/foo/shlib.input2.o\n"
+      "build ./shlib: solink obj/foo/shlib.input1.o obj/foo/shlib.input2.o\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -1130,6 +1086,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSetDataDeps) {
   // object files, and will have an order-only dependency on its data dep and
   // data file.
   const char inter_expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -1142,9 +1099,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSetDataDeps) {
       "build obj/foo/inter.inter.o: cxx ../../foo/inter.cc\n"
       "  source_file_part = inter.cc\n"
       "  source_name_part = inter\n"
-      "\n"
-      "build phony/foo/inter.linkdeps: phony obj/foo/inter.inter.o || "
-      "./data_target\n"
+      "build phony/foo/inter.linkdeps: phony obj/foo/inter.inter.o || ./data_target\n"
       "build phony/foo/inter: phony phony/foo/inter.linkdeps\n";
   EXPECT_EQ(inter_expected, inter_out.str());
 
@@ -1167,6 +1122,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSetDataDeps) {
   // dependency will create an implicit order-only dependency on the data
   // target.
   const char final_expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -1179,9 +1135,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSetDataDeps) {
       "build obj/foo/exe.final.o: cxx ../../foo/final.cc\n"
       "  source_file_part = final.cc\n"
       "  source_name_part = final\n"
-      "\n"
-      "build ./exe: link obj/foo/exe.final.o obj/foo/inter.inter.o || "
-      "phony/foo/inter.linkdeps\n"
+      "build ./exe: link obj/foo/exe.final.o obj/foo/inter.inter.o || phony/foo/inter.linkdeps\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -1209,7 +1163,8 @@ TEST_F(NinjaCBinaryTargetWriterTest, SharedLibraryModuleDefinitionFile) {
   writer.Run();
 
   const char expected[] =
-      "defines =\n"
+
+      " /DEF:defines =\n"
       "include_dirs =\n"
       "cflags =\n"
       "cflags_cc =\n"
@@ -1221,9 +1176,8 @@ TEST_F(NinjaCBinaryTargetWriterTest, SharedLibraryModuleDefinitionFile) {
       "build obj/foo/libbar.sources.o: cxx ../../foo/sources.cc\n"
       "  source_file_part = sources.cc\n"
       "  source_name_part = sources\n"
-      "\n"
       "build ./libbar.so: solink obj/foo/libbar.sources.o | ../../foo/bar.def\n"
-      "  ldflags = /DEF:../../foo/bar.def\n"
+      "  ldflags = ../../foo/bar.def\n"
       "  libs =\n"
       "  frameworks =\n"
       "  swiftmodules =\n"
@@ -1249,6 +1203,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, LoadableModule) {
   writer.Run();
 
   const char loadable_expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -1261,7 +1216,6 @@ TEST_F(NinjaCBinaryTargetWriterTest, LoadableModule) {
       "build obj/foo/libbar.sources.o: cxx ../../foo/sources.cc\n"
       "  source_file_part = sources.cc\n"
       "  source_name_part = sources\n"
-      "\n"
       "build ./libbar.so: solink_module obj/foo/libbar.sources.o\n"
       "  ldflags =\n"
       "  libs =\n"
@@ -1287,6 +1241,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, LoadableModule) {
   // The final output depends on the loadable module so should have an
   // order-only dependency on the loadable modules's output file.
   const char final_expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -1299,7 +1254,6 @@ TEST_F(NinjaCBinaryTargetWriterTest, LoadableModule) {
       "build obj/foo/exe.final.o: cxx ../../foo/final.cc\n"
       "  source_file_part = final.cc\n"
       "  source_name_part = final\n"
-      "\n"
       "build ./exe: link obj/foo/exe.final.o || ./libbar.so\n"
       "  ldflags =\n"
       "  libs =\n"
@@ -1367,6 +1321,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, WinPrecompiledHeaders) {
     writer.Run();
 
     const char no_pch_expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -1374,20 +1329,14 @@ TEST_F(NinjaCBinaryTargetWriterTest, WinPrecompiledHeaders) {
         "cflags_cc =\n"
         "target_output_name = no_pch_target\n"
         "\n"
-        "build withpch/obj/foo/no_pch_target.input1.o: "
-        "withpch_cxx ../../foo/input1.cc\n"
+        "build withpch/obj/foo/no_pch_target.input1.o: withpch_cxx ../../foo/input1.cc\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "build withpch/obj/foo/no_pch_target.input2.o: "
-        "withpch_cc ../../foo/input2.c\n"
+        "build withpch/obj/foo/no_pch_target.input2.o: withpch_cc ../../foo/input2.c\n"
         "  source_file_part = input2.c\n"
         "  source_name_part = input2\n"
-        "\n"
-        "build withpch/phony/foo/no_pch_target.linkdeps: "
-        "phony withpch/obj/foo/no_pch_target.input1.o "
-        "withpch/obj/foo/no_pch_target.input2.o\n"
-        "build withpch/phony/foo/no_pch_target: "
-        "phony withpch/phony/foo/no_pch_target.linkdeps\n";
+        "build withpch/phony/foo/no_pch_target.linkdeps: phony withpch/obj/foo/no_pch_target.input1.o withpch/obj/foo/no_pch_target.input2.o\n"
+        "build withpch/phony/foo/no_pch_target: phony withpch/phony/foo/no_pch_target.linkdeps\n";
     EXPECT_EQ(no_pch_expected, out.str());
   }
 
@@ -1411,50 +1360,30 @@ TEST_F(NinjaCBinaryTargetWriterTest, WinPrecompiledHeaders) {
     writer.Run();
 
     const char pch_win_expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
-        // It should output language-specific pch files.
-        "cflags_c = /Fpwithpch/obj/foo/pch_target_c.pch "
-        "/Yubuild/precompile.h\n"
-        "cflags_cc = /Fpwithpch/obj/foo/pch_target_cc.pch "
-        "/Yubuild/precompile.h\n"
+        "cflags_c = /Fpwithpch/obj/foo/pch_target_c.pch /Yubuild/precompile.h\n"
+        "cflags_cc = /Fpwithpch/obj/foo/pch_target_cc.pch /Yubuild/precompile.h\n"
         "target_output_name = pch_target\n"
         "\n"
-        // Compile the precompiled source files with /Yc.
-        "build withpch/obj/build/pch_target.precompile.c.o: "
-        "withpch_cc ../../build/precompile.cc\n"
+        "build withpch/obj/build/pch_target.precompile.c.o: withpch_cc ../../build/precompile.cc\n"
         "  source_file_part = precompile.cc\n"
         "  source_name_part = precompile\n"
         "  cflags_c = ${cflags_c} /Ycbuild/precompile.h\n"
-        "\n"
-        "build withpch/obj/build/pch_target.precompile.cc.o: "
-        "withpch_cxx ../../build/precompile.cc\n"
+        "build withpch/obj/build/pch_target.precompile.cc.o: withpch_cxx ../../build/precompile.cc\n"
         "  source_file_part = precompile.cc\n"
         "  source_name_part = precompile\n"
         "  cflags_cc = ${cflags_cc} /Ycbuild/precompile.h\n"
-        "\n"
-        "build withpch/obj/foo/pch_target.input1.o: "
-        "withpch_cxx ../../foo/input1.cc | "
-        // Explicit dependency on the PCH build step.
-        "withpch/obj/build/pch_target.precompile.cc.o\n"
+        "build withpch/obj/foo/pch_target.input1.o: withpch_cxx ../../foo/input1.cc | withpch/obj/build/pch_target.precompile.cc.o\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "build withpch/obj/foo/pch_target.input2.o: "
-        "withpch_cc ../../foo/input2.c | "
-        // Explicit dependency on the PCH build step.
-        "withpch/obj/build/pch_target.precompile.c.o\n"
+        "build withpch/obj/foo/pch_target.input2.o: withpch_cc ../../foo/input2.c | withpch/obj/build/pch_target.precompile.c.o\n"
         "  source_file_part = input2.c\n"
         "  source_name_part = input2\n"
-        "\n"
-        "build withpch/phony/foo/pch_target.linkdeps: phony "
-        "withpch/obj/foo/pch_target.input1.o "
-        "withpch/obj/foo/pch_target.input2.o "
-        // The precompiled object files were added to the outputs.
-        "withpch/obj/build/pch_target.precompile.c.o "
-        "withpch/obj/build/pch_target.precompile.cc.o\n"
-        "build withpch/phony/foo/pch_target: phony "
-        "withpch/phony/foo/pch_target.linkdeps\n";
+        "build withpch/phony/foo/pch_target.linkdeps: phony withpch/obj/foo/pch_target.input1.o withpch/obj/foo/pch_target.input2.o withpch/obj/build/pch_target.precompile.c.o withpch/obj/build/pch_target.precompile.cc.o\n"
+        "build withpch/phony/foo/pch_target: phony withpch/phony/foo/pch_target.linkdeps\n";
     EXPECT_EQ(pch_win_expected, out.str());
   }
 }
@@ -1517,6 +1446,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, GCCPrecompiledHeaders) {
     writer.Run();
 
     const char no_pch_expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -1524,20 +1454,14 @@ TEST_F(NinjaCBinaryTargetWriterTest, GCCPrecompiledHeaders) {
         "cflags_cc =\n"
         "target_output_name = no_pch_target\n"
         "\n"
-        "build withpch/obj/foo/no_pch_target.input1.o: "
-        "withpch_cxx ../../foo/input1.cc\n"
+        "build withpch/obj/foo/no_pch_target.input1.o: withpch_cxx ../../foo/input1.cc\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "build withpch/obj/foo/no_pch_target.input2.o: "
-        "withpch_cc ../../foo/input2.c\n"
+        "build withpch/obj/foo/no_pch_target.input2.o: withpch_cc ../../foo/input2.c\n"
         "  source_file_part = input2.c\n"
         "  source_name_part = input2\n"
-        "\n"
-        "build withpch/phony/foo/no_pch_target.linkdeps: "
-        "phony withpch/obj/foo/no_pch_target.input1.o "
-        "withpch/obj/foo/no_pch_target.input2.o\n"
-        "build withpch/phony/foo/no_pch_target: "
-        "phony withpch/phony/foo/no_pch_target.linkdeps\n";
+        "build withpch/phony/foo/no_pch_target.linkdeps: phony withpch/obj/foo/no_pch_target.input1.o withpch/obj/foo/no_pch_target.input2.o\n"
+        "build withpch/phony/foo/no_pch_target: phony withpch/phony/foo/no_pch_target.linkdeps\n";
     EXPECT_EQ(no_pch_expected, out.str());
   }
 
@@ -1561,45 +1485,30 @@ TEST_F(NinjaCBinaryTargetWriterTest, GCCPrecompiledHeaders) {
     writer.Run();
 
     const char pch_gcc_expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
-        "cflags_c = -std=c99 "
-        "-include withpch/obj/build/pch_target.precompile.h-c\n"
+        "cflags_c = -std=c99 -include withpch/obj/build/pch_target.precompile.h-c\n"
         "cflags_cc = -include withpch/obj/build/pch_target.precompile.h-cc\n"
         "target_output_name = pch_target\n"
         "\n"
-        // Compile the precompiled sources with -x <lang>.
-        "build withpch/obj/build/pch_target.precompile.h-c.gch: "
-        "withpch_cc ../../build/precompile.h\n"
+        "build withpch/obj/build/pch_target.precompile.h-c.gch: withpch_cc ../../build/precompile.h\n"
         "  source_file_part = precompile.h\n"
         "  source_name_part = precompile\n"
         "  cflags_c = -std=c99 -x c-header\n"
-        "\n"
-        "build withpch/obj/build/pch_target.precompile.h-cc.gch: "
-        "withpch_cxx ../../build/precompile.h\n"
+        "build withpch/obj/build/pch_target.precompile.h-cc.gch: withpch_cxx ../../build/precompile.h\n"
         "  source_file_part = precompile.h\n"
         "  source_name_part = precompile\n"
         "  cflags_cc = -x c++-header\n"
-        "\n"
-        "build withpch/obj/foo/pch_target.input1.o: "
-        "withpch_cxx ../../foo/input1.cc | "
-        // Explicit dependency on the PCH build step.
-        "withpch/obj/build/pch_target.precompile.h-cc.gch\n"
+        "build withpch/obj/foo/pch_target.input1.o: withpch_cxx ../../foo/input1.cc | withpch/obj/build/pch_target.precompile.h-cc.gch\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "build withpch/obj/foo/pch_target.input2.o: "
-        "withpch_cc ../../foo/input2.c | "
-        // Explicit dependency on the PCH build step.
-        "withpch/obj/build/pch_target.precompile.h-c.gch\n"
+        "build withpch/obj/foo/pch_target.input2.o: withpch_cc ../../foo/input2.c | withpch/obj/build/pch_target.precompile.h-c.gch\n"
         "  source_file_part = input2.c\n"
         "  source_name_part = input2\n"
-        "\n"
-        "build withpch/phony/foo/pch_target.linkdeps: "
-        "phony withpch/obj/foo/pch_target.input1.o "
-        "withpch/obj/foo/pch_target.input2.o\n"
-        "build withpch/phony/foo/pch_target: "
-        "phony withpch/phony/foo/pch_target.linkdeps\n";
+        "build withpch/phony/foo/pch_target.linkdeps: phony withpch/obj/foo/pch_target.input1.o withpch/obj/foo/pch_target.input2.o\n"
+        "build withpch/phony/foo/pch_target: phony withpch/phony/foo/pch_target.linkdeps\n";
     EXPECT_EQ(pch_gcc_expected, out.str());
   }
 }
@@ -1650,6 +1559,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, InputFiles) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -1659,17 +1569,13 @@ TEST_F(NinjaCBinaryTargetWriterTest, InputFiles) {
         "target_out_dir = obj/foo\n"
         "target_output_name = bar\n"
         "\n"
-        "build obj/foo/bar.input1.o: cxx ../../foo/input1.cc"
-        " | ../../foo/input.data\n"
+        "build obj/foo/bar.input1.o: cxx ../../foo/input1.cc | ../../foo/input.data\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "build obj/foo/bar.input2.o: cxx ../../foo/input2.cc"
-        " | ../../foo/input.data\n"
+        "build obj/foo/bar.input2.o: cxx ../../foo/input2.cc | ../../foo/input.data\n"
         "  source_file_part = input2.cc\n"
         "  source_name_part = input2\n"
-        "\n"
-        "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o "
-        "obj/foo/bar.input2.o\n"
+        "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o obj/foo/bar.input2.o\n"
         "build phony/foo/bar: phony phony/foo/bar.linkdeps\n";
 
     EXPECT_EQ(expected, out.str());
@@ -1689,13 +1595,13 @@ TEST_F(NinjaCBinaryTargetWriterTest, InputFiles) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "root_out_dir = .\n"
         "target_gen_dir = gen/foo\n"
         "target_out_dir = obj/foo\n"
         "target_output_name = libbar\n"
-        "\n"
         "\n"
         "build ./libbar.so: solink | ../../foo/input.data\n"
         "  ldflags =\n"
@@ -1726,6 +1632,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, InputFiles) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -1735,19 +1642,14 @@ TEST_F(NinjaCBinaryTargetWriterTest, InputFiles) {
         "target_out_dir = obj/foo\n"
         "target_output_name = bar\n"
         "\n"
-        "build phony/foo/bar.inputs: phony"
-        " ../../foo/input1.data ../../foo/input2.data\n"
-        "build obj/foo/bar.input1.o: cxx ../../foo/input1.cc"
-        " | phony/foo/bar.inputs\n"
+        "build phony/foo/bar.inputs: phony ../../foo/input1.data ../../foo/input2.data\n"
+        "build obj/foo/bar.input1.o: cxx ../../foo/input1.cc | phony/foo/bar.inputs\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "build obj/foo/bar.input2.o: cxx ../../foo/input2.cc"
-        " | phony/foo/bar.inputs\n"
+        "build obj/foo/bar.input2.o: cxx ../../foo/input2.cc | phony/foo/bar.inputs\n"
         "  source_file_part = input2.cc\n"
         "  source_name_part = input2\n"
-        "\n"
-        "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o "
-        "obj/foo/bar.input2.o\n"
+        "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o obj/foo/bar.input2.o\n"
         "build phony/foo/bar: phony phony/foo/bar.linkdeps\n";
 
     EXPECT_EQ(expected, out.str());
@@ -1782,6 +1684,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, InputFiles) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -1791,19 +1694,14 @@ TEST_F(NinjaCBinaryTargetWriterTest, InputFiles) {
         "target_out_dir = obj/foo\n"
         "target_output_name = bar\n"
         "\n"
-        "build phony/foo/bar.inputs: phony"
-        " ../../foo/input1.data ../../foo/input2.data ../../foo/input3.data\n"
-        "build obj/foo/bar.input1.o: cxx ../../foo/input1.cc"
-        " | phony/foo/bar.inputs\n"
+        "build phony/foo/bar.inputs: phony ../../foo/input1.data ../../foo/input2.data ../../foo/input3.data\n"
+        "build obj/foo/bar.input1.o: cxx ../../foo/input1.cc | phony/foo/bar.inputs\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
-        "build obj/foo/bar.input2.o: cxx ../../foo/input2.cc"
-        " | phony/foo/bar.inputs\n"
+        "build obj/foo/bar.input2.o: cxx ../../foo/input2.cc | phony/foo/bar.inputs\n"
         "  source_file_part = input2.cc\n"
         "  source_name_part = input2\n"
-        "\n"
-        "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o "
-        "obj/foo/bar.input2.o\n"
+        "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o obj/foo/bar.input2.o\n"
         "build phony/foo/bar: phony phony/foo/bar.linkdeps\n";
 
     EXPECT_EQ(expected, out.str());
@@ -1840,6 +1738,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, RustStaticLib) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -1852,7 +1751,6 @@ TEST_F(NinjaCBinaryTargetWriterTest, RustStaticLib) {
       "build obj/bar/bar.bar.o: cxx ../../bar/bar.cc\n"
       "  source_file_part = bar.cc\n"
       "  source_name_part = bar\n"
-      "\n"
       "build ./bar: link obj/bar/bar.bar.o obj/foo/libfoo.a\n"
       "  ldflags =\n"
       "  libs =\n"
@@ -2017,6 +1915,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, RlibInLibrary) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -2029,24 +1928,14 @@ TEST_F(NinjaCBinaryTargetWriterTest, RlibInLibrary) {
       "build obj/exe/exe.main.o: cxx ../../exe/main.cc\n"
       "  source_file_part = main.cc\n"
       "  source_name_part = main\n"
-      "\n"
-      "build ./exe: link obj/exe/exe.main.o "
-      "obj/pub_sset_in_staticlib/pub_sset_in_staticlib.lib.o "
-      "obj/priv_sset_in_staticlib/priv_sset_in_staticlib.lib.o "
-      "obj/staticlib/libstaticlib.a "
-      "obj/dylib/libdylib.so | "
-      "obj/pub_in_staticlib/libpub_in_staticlib.rlib "
-      "obj/priv_in_staticlib/libpriv_in_staticlib.rlib || "
-      "phony/pub_sset_in_staticlib/pub_sset_in_staticlib.linkdeps "
-      "phony/priv_sset_in_staticlib/priv_sset_in_staticlib.linkdeps\n"
+      "build ./exe: link obj/exe/exe.main.o obj/pub_sset_in_staticlib/pub_sset_in_staticlib.lib.o obj/priv_sset_in_staticlib/priv_sset_in_staticlib.lib.o obj/staticlib/libstaticlib.a obj/dylib/libdylib.so | obj/pub_in_staticlib/libpub_in_staticlib.rlib obj/priv_in_staticlib/libpriv_in_staticlib.rlib || phony/pub_sset_in_staticlib/pub_sset_in_staticlib.linkdeps phony/priv_sset_in_staticlib/priv_sset_in_staticlib.linkdeps\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
       "  swiftmodules =\n"
       "  output_extension =\n"
       "  output_dir =\n"
-      "  rlibs = obj/pub_in_staticlib/libpub_in_staticlib.rlib "
-      "obj/priv_in_staticlib/libpriv_in_staticlib.rlib\n";
+      "  rlibs = obj/pub_in_staticlib/libpub_in_staticlib.rlib obj/priv_in_staticlib/libpriv_in_staticlib.rlib\n";
 
   std::string out_str = out.str();
   EXPECT_EQ(expected, out_str);
@@ -2185,6 +2074,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, RlibsWithProcMacros) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -2197,23 +2087,14 @@ TEST_F(NinjaCBinaryTargetWriterTest, RlibsWithProcMacros) {
       "build obj/exe/exe.main.o: cxx ../../exe/main.cc\n"
       "  source_file_part = main.cc\n"
       "  source_name_part = main\n"
-      "\n"
-      "build ./exe: link obj/exe/exe.main.o "
-      "obj/staticlib/libstaticlib.a | "
-      "obj/pub_in_staticlib/libpub_in_staticlib.rlib "
-      "obj/priv_in_staticlib/libpriv_in_staticlib.rlib "
-      "obj/rlib/librlib.rlib "
-      "obj/pub_in_procmacro_and_rlib/libpub_in_procmacro_and_rlib.rlib\n"
+      "build ./exe: link obj/exe/exe.main.o obj/staticlib/libstaticlib.a | obj/pub_in_staticlib/libpub_in_staticlib.rlib obj/priv_in_staticlib/libpriv_in_staticlib.rlib obj/rlib/librlib.rlib obj/pub_in_procmacro_and_rlib/libpub_in_procmacro_and_rlib.rlib\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
       "  swiftmodules =\n"
       "  output_extension =\n"
       "  output_dir =\n"
-      "  rlibs = obj/pub_in_staticlib/libpub_in_staticlib.rlib "
-      "obj/priv_in_staticlib/libpriv_in_staticlib.rlib "
-      "obj/rlib/librlib.rlib "
-      "obj/pub_in_procmacro_and_rlib/libpub_in_procmacro_and_rlib.rlib\n";
+      "  rlibs = obj/pub_in_staticlib/libpub_in_staticlib.rlib obj/priv_in_staticlib/libpriv_in_staticlib.rlib obj/rlib/librlib.rlib obj/pub_in_procmacro_and_rlib/libpub_in_procmacro_and_rlib.rlib\n";
 
   std::string out_str = out.str();
   EXPECT_EQ(expected, out_str);
@@ -2262,6 +2143,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, ProcMacroInRustStaticLib) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -2274,7 +2156,6 @@ TEST_F(NinjaCBinaryTargetWriterTest, ProcMacroInRustStaticLib) {
       "build obj/bar/bar.bar.o: cxx ../../bar/bar.cc\n"
       "  source_file_part = bar.cc\n"
       "  source_name_part = bar\n"
-      "\n"
       "build ./bar: link obj/bar/bar.bar.o obj/foo/libfoo.a\n"
       "  ldflags =\n"
       "  libs =\n"
@@ -2365,6 +2246,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, RustDepsOverDynamicLinking) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -2377,9 +2259,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, RustDepsOverDynamicLinking) {
       "build obj/exe/binary.main.o: cxx ../../exe/main.cc\n"
       "  source_file_part = main.cc\n"
       "  source_name_part = main\n"
-      "\n"
-      "build ./binary: link obj/exe/binary.main.o obj/sh/libmylib.so | "
-      "obj/near/libnear.rlib\n"
+      "build ./binary: link obj/exe/binary.main.o obj/sh/libmylib.so | obj/near/libnear.rlib\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -2461,6 +2341,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, LinkingWithRustLibraryDepsOnCdylib) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -2473,11 +2354,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, LinkingWithRustLibraryDepsOnCdylib) {
       "build obj/exe/binary.main.o: cxx ../../exe/main.cc\n"
       "  source_file_part = main.cc\n"
       "  source_name_part = main\n"
-      "\n"
-      "build ./binary: link obj/exe/binary.main.o "
-      "obj/pub_rust_shlib/libpub_rust_shlib.so obj/rust_shlib/librust_shlib.so "
-      "./libcc_shlib.so | "
-      "obj/rlib/librlib.rlib\n"
+      "build ./binary: link obj/exe/binary.main.o obj/pub_rust_shlib/libpub_rust_shlib.so obj/rust_shlib/librust_shlib.so ./libcc_shlib.so | obj/rlib/librlib.rlib\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -2559,6 +2436,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, LinkingWithRustLibraryDepsOnDylib) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -2571,11 +2449,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, LinkingWithRustLibraryDepsOnDylib) {
       "build obj/exe/binary.main.o: cxx ../../exe/main.cc\n"
       "  source_file_part = main.cc\n"
       "  source_name_part = main\n"
-      "\n"
-      "build ./binary: link obj/exe/binary.main.o "
-      "obj/pub_rust_shlib/libpub_rust_shlib.so obj/rust_shlib/librust_shlib.so "
-      "./libcc_shlib.so | "
-      "obj/rlib/librlib.rlib\n"
+      "build ./binary: link obj/exe/binary.main.o obj/pub_rust_shlib/libpub_rust_shlib.so obj/rust_shlib/librust_shlib.so ./libcc_shlib.so | obj/rlib/librlib.rlib\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -2669,6 +2543,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, RustLibAfterSharedLib) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -2681,10 +2556,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, RustLibAfterSharedLib) {
       "build obj/exe/binary.main.o: cxx ../../exe/main.cc\n"
       "  source_file_part = main.cc\n"
       "  source_name_part = main\n"
-      "\n"
-      "build ./binary: link obj/exe/binary.main.o "
-      "./mysharedlib1.so ./mysharedlib3.so "
-      "obj/static2/libstaticlib2.a | obj/rlib2/libmyrlib2.rlib\n"
+      "build ./binary: link obj/exe/binary.main.o ./mysharedlib1.so ./mysharedlib3.so obj/static2/libstaticlib2.a | obj/rlib2/libmyrlib2.rlib\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -2714,26 +2586,24 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapInStaticLibrary) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
       "cflags_cc =\n"
-      "module_deps = -fmodule-map-file=../../foo/bar.modulemap "
-      "-fmodule-file=//foo:bar=obj/foo/libbar.bar.pcm\n"
+      "module_deps = -fmodule-map-file=../../foo/bar.modulemap -fmodule-file=//foo:bar=obj/foo/libbar.bar.pcm\n"
       "module_deps_no_self = -fmodule-map-file=../../foo/bar.modulemap\n"
       "root_out_dir = .\n"
       "target_gen_dir = gen/foo\n"
       "target_out_dir = obj/foo\n"
       "target_output_name = libbar\n"
       "\n"
-      "build obj/foo/libbar.bar.o: cxx ../../foo/bar.cc | "
-      "obj/foo/libbar.bar.pcm\n"
+      "build obj/foo/libbar.bar.o: cxx ../../foo/bar.cc | obj/foo/libbar.bar.pcm\n"
       "  source_file_part = bar.cc\n"
       "  source_name_part = bar\n"
       "build obj/foo/libbar.bar.pcm: cxx_module ../../foo/bar.modulemap\n"
       "  source_file_part = bar.modulemap\n"
       "  source_name_part = bar\n"
-      "\n"
       "build obj/foo/libbar.a: alink obj/foo/libbar.bar.o\n"
       "  arflags =\n"
       "  output_extension =\n"
@@ -2759,26 +2629,24 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapInSourceSet) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
       "cflags_cc =\n"
-      "module_deps = -fmodule-map-file=../../foo/bar.modulemap "
-      "-fmodule-file=//foo:bar=obj/foo/bar.bar.pcm\n"
+      "module_deps = -fmodule-map-file=../../foo/bar.modulemap -fmodule-file=//foo:bar=obj/foo/bar.bar.pcm\n"
       "module_deps_no_self = -fmodule-map-file=../../foo/bar.modulemap\n"
       "root_out_dir = .\n"
       "target_gen_dir = gen/foo\n"
       "target_out_dir = obj/foo\n"
       "target_output_name = bar\n"
       "\n"
-      "build obj/foo/bar.bar.o: cxx ../../foo/bar.cc | "
-      "obj/foo/bar.bar.pcm\n"
+      "build obj/foo/bar.bar.o: cxx ../../foo/bar.cc | obj/foo/bar.bar.pcm\n"
       "  source_file_part = bar.cc\n"
       "  source_name_part = bar\n"
       "build obj/foo/bar.bar.pcm: cxx_module ../../foo/bar.modulemap\n"
       "  source_file_part = bar.modulemap\n"
       "  source_name_part = bar\n"
-      "\n"
       "build phony/foo/bar.linkdeps: phony obj/foo/bar.bar.o\n"
       "build phony/foo/bar: phony phony/foo/bar.linkdeps obj/foo/bar.bar.pcm\n";
   std::string out_str = out.str();
@@ -2807,6 +2675,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SwiftModule) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "module_name = Foo\n"
@@ -2816,13 +2685,10 @@ TEST_F(NinjaCBinaryTargetWriterTest, SwiftModule) {
         "target_out_dir = obj/foo\n"
         "target_output_name = foo\n"
         "\n"
-        "build gen/foo/foo.h obj/foo/Foo.swiftmodule obj/foo/file1.o "
-        "obj/foo/file2.o: swift ../../foo/file1.swift ../../foo/file2.swift\n"
+        "build gen/foo/foo.h obj/foo/Foo.swiftmodule obj/foo/file1.o obj/foo/file2.o: swift ../../foo/file1.swift ../../foo/file2.swift\n"
         "  restat = 1\n"
-        "\n"
         "build phony/foo/foo.linkdeps: phony obj/foo/file1.o obj/foo/file2.o\n"
-        "build phony/foo/foo: phony phony/foo/foo.linkdeps gen/foo/foo.h "
-        "obj/foo/Foo.swiftmodule\n";
+        "build phony/foo/foo: phony phony/foo/foo.linkdeps gen/foo/foo.h obj/foo/Foo.swiftmodule\n";
 
     const std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
@@ -2845,6 +2711,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SwiftModule) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "module_name = Bar\n"
@@ -2854,14 +2721,10 @@ TEST_F(NinjaCBinaryTargetWriterTest, SwiftModule) {
         "target_out_dir = obj/bar\n"
         "target_output_name = bar\n"
         "\n"
-        "build gen/bar/bar.h obj/bar/Bar.swiftmodule obj/bar/bar.o: swift "
-        "../../bar/bar.swift || phony/foo/foo\n"
+        "build gen/bar/bar.h obj/bar/Bar.swiftmodule obj/bar/bar.o: swift ../../bar/bar.swift || phony/foo/foo\n"
         "  restat = 1\n"
-        "\n"
-        "build phony/bar/bar.linkdeps: phony obj/bar/bar.o || "
-        "phony/foo/foo.linkdeps\n"
-        "build phony/bar/bar: phony phony/bar/bar.linkdeps gen/bar/bar.h "
-        "obj/bar/Bar.swiftmodule\n";
+        "build phony/bar/bar.linkdeps: phony obj/bar/bar.o || phony/foo/foo.linkdeps\n"
+        "build phony/bar/bar: phony phony/bar/bar.linkdeps gen/bar/bar.h obj/bar/Bar.swiftmodule\n";
 
     const std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
@@ -2892,6 +2755,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SwiftModule) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "module_name = Bar\n"
@@ -2901,14 +2765,10 @@ TEST_F(NinjaCBinaryTargetWriterTest, SwiftModule) {
         "target_out_dir = obj/bar\n"
         "target_output_name = bar\n"
         "\n"
-        "build gen/bar/bar.h obj/bar/Bar.swiftmodule obj/bar/bar.o: swift "
-        "../../bar/bar.swift || phony/bar/group phony/foo/foo\n"
+        "build gen/bar/bar.h obj/bar/Bar.swiftmodule obj/bar/bar.o: swift ../../bar/bar.swift || phony/bar/group phony/foo/foo\n"
         "  restat = 1\n"
-        "\n"
-        "build phony/bar/bar.linkdeps: phony obj/bar/bar.o || "
-        "phony/foo/foo.linkdeps\n"
-        "build phony/bar/bar: phony phony/bar/bar.linkdeps gen/bar/bar.h "
-        "obj/bar/Bar.swiftmodule\n";
+        "build phony/bar/bar.linkdeps: phony obj/bar/bar.o || phony/foo/foo.linkdeps\n"
+        "build phony/bar/bar: phony phony/bar/bar.linkdeps gen/bar/bar.h obj/bar/Bar.swiftmodule\n";
 
     const std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
@@ -2928,6 +2788,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SwiftModule) {
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "root_out_dir = .\n"
@@ -2935,10 +2796,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SwiftModule) {
         "target_out_dir = obj/bar\n"
         "target_output_name = bar\n"
         "\n"
-        "\n"
-        "build ./bar: link obj/foo/file1.o obj/foo/file2.o "
-        "| obj/foo/Foo.swiftmodule "
-        "|| phony/foo/foo.linkdeps\n"
+        "build ./bar: link obj/foo/file1.o obj/foo/file2.o | obj/foo/Foo.swiftmodule || phony/foo/foo.linkdeps\n"
         "  ldflags =\n"
         "  libs =\n"
         "  frameworks =\n"
@@ -3028,29 +2886,28 @@ TEST_F(NinjaCBinaryTargetWriterTest, DependOnModule) {
     NinjaCBinaryTargetWriter writer(&target, out);
     writer.Run();
 
-    const char expected[] = R"(defines =
-include_dirs =
-cflags =
-cflags_cc =
-cc_module_name = blah_a
-module_deps = -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-module_deps_no_self = -fmodule-map-file=../../blah/a.modulemap
-root_out_dir = withmodules
-target_out_dir = obj/blah
-target_output_name = liba
-
-build obj/blah/liba.a.pcm: cxx_module ../../blah/a.modulemap
-  source_file_part = a.modulemap
-  source_name_part = a
-build obj/blah/liba.a.o: cxx ../../blah/a.cc | obj/blah/liba.a.pcm
-  source_file_part = a.cc
-  source_name_part = a
-
-build obj/blah/liba.a: alink obj/blah/liba.a.o
-  arflags =
-  output_extension =
-  output_dir =
-)";
+    const char expected[] = 
+        "defines =\n"
+        "include_dirs =\n"
+        "cflags =\n"
+        "cflags_cc =\n"
+        "cc_module_name = blah_a\n"
+        "module_deps = -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm\n"
+        "module_deps_no_self = -fmodule-map-file=../../blah/a.modulemap\n"
+        "root_out_dir = withmodules\n"
+        "target_out_dir = obj/blah\n"
+        "target_output_name = liba\n"
+        "\n"
+        "build obj/blah/liba.a.pcm: cxx_module ../../blah/a.modulemap\n"
+        "  source_file_part = a.modulemap\n"
+        "  source_name_part = a\n"
+        "build obj/blah/liba.a.o: cxx ../../blah/a.cc | obj/blah/liba.a.pcm\n"
+        "  source_file_part = a.cc\n"
+        "  source_name_part = a\n"
+        "build obj/blah/liba.a: alink obj/blah/liba.a.o\n"
+        "  arflags =\n"
+        "  output_extension =\n"
+        "  output_dir =\n";
 
     std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
@@ -3077,29 +2934,28 @@ build obj/blah/liba.a: alink obj/blah/liba.a.o
     NinjaCBinaryTargetWriter writer(&target2, out);
     writer.Run();
 
-    const char expected[] = R"(defines =
-include_dirs =
-cflags =
-cflags_cc =
-cc_module_name = //stuff$:b(//toolchain$:default)
-module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-root_out_dir = withmodules
-target_out_dir = obj/stuff
-target_output_name = libb
-
-build obj/stuff/libb.b.pcm: cxx_module ../../stuff/b.modulemap | obj/blah/liba.a.pcm
-  source_file_part = b.modulemap
-  source_name_part = b
-build obj/stuff/libb.b.o: cxx ../../stuff/b.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
-  source_file_part = b.cc
-  source_name_part = b
-
-build obj/stuff/libb.a: alink obj/stuff/libb.b.o || obj/blah/liba.a
-  arflags =
-  output_extension =
-  output_dir =
-)";
+    const char expected[] = 
+        "defines =\n"
+        "include_dirs =\n"
+        "cflags =\n"
+        "cflags_cc =\n"
+        "cc_module_name = //stuff$:b(//toolchain$:default)\n"
+        "module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm\n"
+        "module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm\n"
+        "root_out_dir = withmodules\n"
+        "target_out_dir = obj/stuff\n"
+        "target_output_name = libb\n"
+        "\n"
+        "build obj/stuff/libb.b.pcm: cxx_module ../../stuff/b.modulemap | obj/blah/liba.a.pcm\n"
+        "  source_file_part = b.modulemap\n"
+        "  source_name_part = b\n"
+        "build obj/stuff/libb.b.o: cxx ../../stuff/b.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm\n"
+        "  source_file_part = b.cc\n"
+        "  source_name_part = b\n"
+        "build obj/stuff/libb.a: alink obj/stuff/libb.b.o || obj/blah/liba.a\n"
+        "  arflags =\n"
+        "  output_extension =\n"
+        "  output_dir =\n";
 
     std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
@@ -3124,26 +2980,25 @@ build obj/stuff/libb.a: alink obj/stuff/libb.b.o || obj/blah/liba.a
     NinjaCBinaryTargetWriter writer(&target3, out);
     writer.Run();
 
-    const char expected[] = R"(defines =
-include_dirs =
-cflags =
-cflags_cc =
-cc_module_name = //things$:c
-module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../stuff/c.modulemap -fmodule-file=//things:c=obj/stuff/libc.c.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../stuff/c.modulemap -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-root_out_dir = withmodules
-target_out_dir = obj/things
-target_output_name = libc
-
-build obj/stuff/libc.c.pcm: cxx_module ../../stuff/c.modulemap | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
-  source_file_part = c.modulemap
-  source_name_part = c
-
-build obj/things/libc.a: alink || obj/stuff/libb.a obj/blah/liba.a
-  arflags =
-  output_extension =
-  output_dir =
-)";
+    const char expected[] = 
+        "defines =\n"
+        "include_dirs =\n"
+        "cflags =\n"
+        "cflags_cc =\n"
+        "cc_module_name = //things$:c\n"
+        "module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../stuff/c.modulemap -fmodule-file=//things:c=obj/stuff/libc.c.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm\n"
+        "module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../stuff/c.modulemap -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm\n"
+        "root_out_dir = withmodules\n"
+        "target_out_dir = obj/things\n"
+        "target_output_name = libc\n"
+        "\n"
+        "build obj/stuff/libc.c.pcm: cxx_module ../../stuff/c.modulemap | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm\n"
+        "  source_file_part = c.modulemap\n"
+        "  source_name_part = c\n"
+        "build obj/things/libc.a: alink || obj/stuff/libb.a obj/blah/liba.a\n"
+        "  arflags =\n"
+        "  output_extension =\n"
+        "  output_dir =\n";
 
     std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
@@ -3166,32 +3021,31 @@ build obj/things/libc.a: alink || obj/stuff/libb.a obj/blah/liba.a
     NinjaCBinaryTargetWriter writer(&depender, out);
     writer.Run();
 
-    const char expected[] = R"(defines =
-include_dirs =
-cflags =
-cflags_cc =
-cc_module_name = //zap$:c(//toolchain$:default)
-module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-root_out_dir = withmodules
-target_out_dir = obj/zap
-target_output_name = c
-
-build obj/zap/c.x.o: cxx ../../zap/x.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
-  source_file_part = x.cc
-  source_name_part = x
-build obj/zap/c.y.o: cxx ../../zap/y.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
-  source_file_part = y.cc
-  source_name_part = y
-
-build withmodules/c: link obj/zap/c.x.o obj/zap/c.y.o obj/stuff/libb.a obj/blah/liba.a
-  ldflags =
-  libs =
-  frameworks =
-  swiftmodules =
-  output_extension =
-  output_dir =
-)";
+    const char expected[] = 
+        "defines =\n"
+        "include_dirs =\n"
+        "cflags =\n"
+        "cflags_cc =\n"
+        "cc_module_name = //zap$:c(//toolchain$:default)\n"
+        "module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm\n"
+        "module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm\n"
+        "root_out_dir = withmodules\n"
+        "target_out_dir = obj/zap\n"
+        "target_output_name = c\n"
+        "\n"
+        "build obj/zap/c.x.o: cxx ../../zap/x.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm\n"
+        "  source_file_part = x.cc\n"
+        "  source_name_part = x\n"
+        "build obj/zap/c.y.o: cxx ../../zap/y.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm\n"
+        "  source_file_part = y.cc\n"
+        "  source_name_part = y\n"
+        "build withmodules/c: link obj/zap/c.x.o obj/zap/c.y.o obj/stuff/libb.a obj/blah/liba.a\n"
+        "  ldflags =\n"
+        "  libs =\n"
+        "  frameworks =\n"
+        "  swiftmodules =\n"
+        "  output_extension =\n"
+        "  output_dir =\n";
 
     std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
@@ -3228,30 +3082,25 @@ TEST_F(NinjaCBinaryTargetWriterTest, SolibsEscaping) {
   NinjaCBinaryTargetWriter writer(&target, out);
   writer.Run();
 
-  const char expected[] = R"(defines =
-include_dirs =
-root_out_dir = .
-target_gen_dir = gen/launchpad
-target_out_dir = obj/launchpad
-target_output_name = main
-
-build obj/launchpad/main.main.o: cxx ../../launchpad/main.cc
-  source_file_part = main.cc
-  source_name_part = main
-
-build ./main: link obj/launchpad/main.main.o | ./Space$ Cadet.so.TOC
-  ldflags =
-  libs =
-  frameworks =
-  swiftmodules =
-  output_extension =
-  output_dir =
-)"
-#if defined(OS_WIN)
-                          "  solibs = \"./Space$ Cadet.so\"\n";
-#else
-                          "  solibs = ./Space\\$ Cadet.so\n";
-#endif
+  const char expected[] = 
+      "defines =\n"
+      "include_dirs =\n"
+      "root_out_dir = .\n"
+      "target_gen_dir = gen/launchpad\n"
+      "target_out_dir = obj/launchpad\n"
+      "target_output_name = main\n"
+      "\n"
+      "build obj/launchpad/main.main.o: cxx ../../launchpad/main.cc\n"
+      "  source_file_part = main.cc\n"
+      "  source_name_part = main\n"
+      "build ./main: link obj/launchpad/main.main.o | ./Space$ Cadet.so.TOC\n"
+      "  ldflags =\n"
+      "  libs =\n"
+      "  frameworks =\n"
+      "  swiftmodules =\n"
+      "  output_extension =\n"
+      "  output_dir =\n"
+      "  solibs = ./Space\\$ Cadet.so\n";
 
   std::string out_str = out.str();
   EXPECT_EQ(expected, out_str);
@@ -3279,6 +3128,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, Pool) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "root_out_dir = .\n"
@@ -3290,7 +3140,6 @@ TEST_F(NinjaCBinaryTargetWriterTest, Pool) {
       "  source_file_part = source.cc\n"
       "  source_name_part = source\n"
       "  pool = foo_pool\n"
-      "\n"
       "build ./bar: link obj/foo/bar.source.o\n"
       "  ldflags =\n"
       "  libs =\n"
@@ -3345,18 +3194,16 @@ TEST_F(NinjaCBinaryTargetWriterTest, ToolInputs) {
   writer.Run();
 
   const char expected[] =
+
       "defines =\n"
       "include_dirs =\n"
       "root_out_dir = .\n"
       "target_output_name = bar\n"
       "\n"
-      "build obj/foo/bar.source.o: cxx ../../foo/source.cc | "
-      "../../bin/clang++\n"
+      "build obj/foo/bar.source.o: cxx ../../foo/source.cc | ../../bin/clang++\n"
       "  source_file_part = source.cc\n"
       "  source_name_part = source\n"
-      "\n"
-      "build ./bar: link obj/foo/bar.source.o | "
-      "phony/link_inputs\n"
+      "build ./bar: link obj/foo/bar.source.o | phony/link_inputs\n"
       "  ldflags =\n"
       "  libs =\n"
       "  frameworks =\n"
@@ -3432,6 +3279,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapGeneration) {
   EXPECT_EQ(expected_modulemap, modulemap_str);
 
   const char expected_ninja[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -3446,7 +3294,6 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapGeneration) {
       "build obj/foo/bar.source1.o: cxx ../../foo/source1.cc\n"
       "  source_file_part = source1.cc\n"
       "  source_name_part = source1\n"
-      "\n"
       "build phony/foo/bar.linkdeps: phony obj/foo/bar.source1.o\n"
       "build phony/foo/bar: phony phony/foo/bar.linkdeps\n";
   writer.Run();
@@ -3582,6 +3429,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapGeneration) {
   NinjaCBinaryTargetWriter(&root, root_ninja_out).Run();
   std::string root_ninja_str = root_ninja_out.str();
   const char expected_root_ninja[] =
+
       "defines =\n"
       "include_dirs =\n"
       "cflags =\n"
@@ -3593,7 +3441,6 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapGeneration) {
       "build obj/foo/root.root.o: cxx ../../foo/root.cc\n"
       "  source_file_part = root.cc\n"
       "  source_name_part = root\n"
-      "\n"
       "build phony/foo/root.linkdeps: phony obj/foo/root.root.o\n"
       "build phony/foo/root: phony phony/foo/root.linkdeps\n";
 
@@ -3655,6 +3502,7 @@ TEST_F(NinjaCBinaryTargetWriterTest,
     writer.Run();
 
     const char expected[] =
+
         "defines =\n"
         "include_dirs =\n"
         "cflags =\n"
@@ -3667,9 +3515,7 @@ TEST_F(NinjaCBinaryTargetWriterTest,
         "build obj/foo/a.a.o: cxx ../../foo/a.cc\n"
         "  source_file_part = a.cc\n"
         "  source_name_part = a\n"
-        "\n"
-        "build phony/foo/a.linkdeps: phony obj/foo/a.a.o"
-        " || phony/foo/b.linkdeps\n"
+        "build phony/foo/a.linkdeps: phony obj/foo/a.a.o || phony/foo/b.linkdeps\n"
         "build phony/foo/a: phony phony/foo/a.linkdeps\n";
 
     EXPECT_EQ(expected, out.str());

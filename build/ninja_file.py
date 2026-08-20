@@ -229,6 +229,39 @@ class NinjaFile:
         goldens=golden_path,
     )
 
+  @property
+  def build_prefix(self):
+    return '' if self.platform.is_windows() else './'
+
+  def python(self, path, args):
+    return (
+        f'{escape_path_command(sys.executable)}'
+        f' {escape_path_command(self.source_file(path))} {args}'
+    )
+
+  def AddExternalGenTarget(self, name: str, src_dir: pathlib.Path, out_dir: pathlib.Path):
+    run_gn_external = Rule(
+        name='run_gn_external',
+        ninja_file=self,
+        command=self.chain(
+            f'{self.build_prefix}{self._gn_exe} gen --root={escape_path_command(src_dir)} {escape_path_command(src_dir / out_dir)}',
+            self.python('tools/touch.py', '$out'),
+        ),
+        description=f'GEN {src_dir} -> {out_dir}',
+        inputs=[self._gn_exe],
+    )
+    gen_action = run_gn_external(name)
+
+    run_siso_dump = Rule(
+        name='run_siso_dump',
+        ninja_file=self,
+        command=self.chain(
+            f'siso dump -C {escape_path_command(src_dir / out_dir)} > $out',
+        ),
+        description=f'SISO DUMP {out_dir} -> {name}.json',
+    )
+    run_siso_dump(f'{name}.json', implicit_inputs=[gen_action])
+
   def write_ninja(self):
     out = []
     for rule in self.rules:

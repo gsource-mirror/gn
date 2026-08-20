@@ -14,8 +14,11 @@
 #include "gn/filesystem_utils.h"
 #include "gn/general_tool.h"
 #include "gn/ninja_utils.h"
+#include "gn/output_file.h"
 #include "gn/pool.h"
 #include "gn/settings.h"
+#include "gn/source_file.h"
+#include "gn/string_output_buffer.h"
 #include "gn/substitution_writer.h"
 #include "gn/target.h"
 #include "gn/toolchain.h"
@@ -39,8 +42,7 @@ NinjaToolchainWriter::NinjaToolchainWriter(const Settings* settings,
 
 NinjaToolchainWriter::~NinjaToolchainWriter() = default;
 
-void NinjaToolchainWriter::Run(
-    const std::vector<NinjaWriter::TargetRulePair>& rules) {
+void NinjaToolchainWriter::RunToolRules() {
   std::string rule_prefix = GetNinjaRulePrefixForToolchain(settings_);
 
   for (const auto& tool : toolchain_->tools()) {
@@ -50,10 +52,6 @@ void NinjaToolchainWriter::Run(
     }
     WriteToolRule(tool.second.get(), rule_prefix);
   }
-  out_ << std::endl;
-
-  for (const auto& pair : rules)
-    out_ << pair.second;
 }
 
 // static
@@ -61,6 +59,34 @@ bool NinjaToolchainWriter::RunAndWriteFile(
     const Settings* settings,
     const Toolchain* toolchain,
     const std::vector<NinjaWriter::TargetRulePair>& rules) {
+  // Group rules by SourceDir.
+  // The rules are already sorted by target->label(), meaning targets in each
+  // directory are contiguous and sorted alphabetically by target name.
+  std::vector<std::pair<SourceDir, std::string>> dir_rules;
+  for (const auto& pair : rules) {
+    const SourceDir& dir = pair.first->label().dir();
+    if (dir_rules.empty() || dir_rules.back().first != dir) {
+      dir_rules.emplace_back(dir, std::string());
+    }
+    dir_rules.back().second.append(pair.second);
+  }
+
+  std::vector<SourceFile> written_subninjas;
+  for (const auto& dir_entry : dir_rules) {
+    if (dir_entry.second.empty())
+      continue;
+
+    SourceFile ninja_file = GetNinjaFileForBuildFile(settings, dir_entry.first);
+    base::FilePath full_ninja_file =
+        settings->build_settings()->GetFullPath(ninja_file);
+
+    StringOutputBuffer storage;
+    storage.Append(dir_entry.second);
+    storage.WriteToFileIfChanged(full_ninja_file, nullptr);
+
+    written_subninjas.push_back(ninja_file);
+  }
+
   base::FilePath ninja_file(settings->build_settings()->GetFullPath(
       GetNinjaFileForToolchain(settings)));
   ScopedTrace trace(TraceItem::TRACE_FILE_WRITE_NINJA,
@@ -68,14 +94,24 @@ bool NinjaToolchainWriter::RunAndWriteFile(
 
   base::CreateDirectory(ninja_file.DirName());
 
-  std::ofstream file;
-  file.open(FilePathToUTF8(ninja_file).c_str(),
-            std::ios_base::out | std::ios_base::binary);
-  if (file.fail())
-    return false;
+  StringOutputBuffer toolchain_storage;
+  std::ostream file(&toolchain_storage);
 
   NinjaToolchainWriter gen(settings, toolchain, file);
-  gen.Run(rules);
+  gen.RunToolRules();
+  file << std::endl;
+
+  EscapeOptions options;
+  options.mode = ESCAPE_NINJA;
+  for (const auto& subninja_file : written_subninjas) {
+    file << "subninja ";
+    file << EscapeString(
+        OutputFile(settings->build_settings(), subninja_file).value(), options,
+        nullptr);
+    file << "\n";
+  }
+
+  toolchain_storage.WriteToFileIfChanged(ninja_file, nullptr);
   return true;
 }
 

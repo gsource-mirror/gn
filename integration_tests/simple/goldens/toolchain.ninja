@@ -28,6 +28,4 @@ rule stamp
   command = stamp ${out}
   description = STAMP ${out}
 
-subninja obj/hello.ninja
-subninja obj/hello_shared.ninja
-subninja obj/hello_static.ninja
+subninja obj/BUILD.ninja

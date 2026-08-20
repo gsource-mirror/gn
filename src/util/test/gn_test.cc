@@ -110,8 +110,12 @@ std::string DiffStrings(std::string_view expected, std::string_view actual) {
   int exit_code = 0;
   ::internal::ExecProcess(cmdline, base::FilePath(FILE_PATH_LITERAL(".")),
                           &output, &stderr_output, &exit_code);
-  if (output.empty()) {
-    return fallback();
+  if (getenv("GN_DUMP_TEST_DIFFS")) {
+    fprintf(stderr,
+            "\n=== EXPECTED_START ===\n%.*s\n=== EXPECTED_END ===\n=== "
+            "ACTUAL_START ===\n%.*s\n=== ACTUAL_END ===\n",
+            static_cast<int>(expected.size()), expected.data(),
+            static_cast<int>(actual.size()), actual.data());
   }
   return output;
 }

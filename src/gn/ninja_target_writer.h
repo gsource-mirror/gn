@@ -70,7 +70,8 @@ class NinjaTargetWriter {
   // Writes out the substitution values that are shared between the different
   // types of tools (target gen dir, target label, etc.). Only the substitutions
   // identified by the given bits will be written.
-  void WriteSharedVars(const SubstitutionBits& bits);
+  void WriteSharedVars(const SubstitutionBits& bits, bool indent = false);
+  void WriteEscapedSubstitution(const Substitution* type, bool indent = false);
 
   // Writes out the substitution values that are shared between C compiler tools
   // and action tools. Only the substitutions identified by the given bits will
@@ -142,7 +143,6 @@ class NinjaTargetWriter {
 
  private:
   void WriteCopyRules();
-  void WriteEscapedSubstitution(const Substitution* type);
 
   NinjaTargetWriter(const NinjaTargetWriter&) = delete;
   NinjaTargetWriter& operator=(const NinjaTargetWriter&) = delete;

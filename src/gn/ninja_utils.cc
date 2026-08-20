@@ -15,6 +15,13 @@ SourceFile GetNinjaFileForTarget(const Target* target) {
                     target->label().name() + ".ninja");
 }
 
+SourceFile GetNinjaFileForBuildFile(const Settings* settings,
+                                    const SourceDir& dir) {
+  return SourceFile(
+      GetSourceDir(BuildDirContext(settings), dir, BuildDirType::OBJ).value() +
+      "BUILD.ninja");
+}
+
 SourceFile GetNinjaFileForToolchain(const Settings* settings) {
   return SourceFile(
       GetSourceDir(BuildDirContext(settings), BuildDirType::TOOLCHAIN_ROOT)

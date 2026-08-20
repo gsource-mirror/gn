@@ -51,23 +51,19 @@ void WriteOneFlag(RecursiveWriterConfig config,
   if (!target->toolchain()->substitution_bits().used.count(subst_enum))
     return;
 
-  if (indent)
-    out << "  ";
-  if (write_substitution)
-    out << subst_enum->ninja_name << " =";
-
+  std::ostringstream buffer;
   if (has_precompiled_headers) {
     const CTool* tool = target->toolchain()->GetToolAsC(tool_name);
     if (tool && tool->precompiled_header_type() == CTool::PCH_MSVC) {
       // Name the .pch file.
-      out << " /Fp";
-      path_output.WriteFile(out, GetWindowsPCHFile(target, tool_name));
+      buffer << " /Fp";
+      path_output.WriteFile(buffer, GetWindowsPCHFile(target, tool_name));
 
       // Enables precompiled headers and names the .h file. It's a string
       // rather than a file name (so no need to rebase or use path_output).
-      out << " /Yu" << target->config_values().precompiled_header();
+      buffer << " /Yu" << target->config_values().precompiled_header();
       RecursiveTargetConfigStringsToStream(config, target, getter,
-                                           flag_escape_options, out);
+                                           flag_escape_options, buffer);
     } else if (tool && tool->precompiled_header_type() == CTool::PCH_GCC) {
       // The targets to build the .gch files should omit the -include flag
       // below. To accomplish this, each substitution flag is overwritten in
@@ -75,7 +71,7 @@ void WriteOneFlag(RecursiveWriterConfig config,
       // omitted in place of the required -x <header lang> flag for .gch
       // targets.
       RecursiveTargetConfigStringsToStream(config, target, getter,
-                                           flag_escape_options, out);
+                                           flag_escape_options, buffer);
 
       // Compute the gch file (it will be language-specific).
       std::vector<OutputFile> outputs;
@@ -85,17 +81,26 @@ void WriteOneFlag(RecursiveWriterConfig config,
         // e.g. for gch file foo/bar/target.precompiled.h.gch:
         //          -include foo/bar/target.precompiled.h
         std::string_view pch_file = outputs[0].value();
-        out << " -include " << pch_file.substr(0, pch_file.length() - 4);
+        buffer << " -include " << pch_file.substr(0, pch_file.length() - 4);
       }
     } else {
       RecursiveTargetConfigStringsToStream(config, target, getter,
-                                           flag_escape_options, out);
+                                           flag_escape_options, buffer);
     }
   } else {
     RecursiveTargetConfigStringsToStream(config, target, getter,
-                                         flag_escape_options, out);
+                                         flag_escape_options, buffer);
   }
 
+  std::string flag_str = buffer.str();
+  if (flag_str.empty())
+    return;
+
+  if (indent)
+    out << "  ";
+  if (write_substitution)
+    out << subst_enum->ninja_name << " =";
+  out << flag_str;
   if (write_substitution)
     out << std::endl;
 }

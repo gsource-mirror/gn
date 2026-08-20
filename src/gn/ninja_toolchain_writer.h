@@ -38,7 +38,7 @@ class NinjaToolchainWriter {
                        std::ostream& out);
   ~NinjaToolchainWriter();
 
-  void Run(const std::vector<NinjaWriter::TargetRulePair>& extra_rules);
+  void RunToolRules();
 
   void WriteRules();
   void WriteToolRule(Tool* tool, const std::string& rule_prefix);

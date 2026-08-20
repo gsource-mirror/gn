@@ -6,6 +6,7 @@
 
 [revset-aliases]
 "trunk()" = "main@origin"
+"before" = "trunk()"
 
 # For users of jj-on-piper, this is enabled by default for *all* repos.
 # We want GN's formatters, not google3's.
@@ -15,6 +16,45 @@ enabled = false
 # google3format is an invalid fix tool because it has no command/patterns
 command = ["/dev/null"]
 patterns = ["null"]
+
+[aliases]
+compare = [
+  "run",
+  "-j2",
+  "--revision=before=before",
+  "--revision=after=@",
+  # Allow running on immutable commits
+  "--ignore-changes",
+  "--",
+  "bash",
+  "-c",
+]
+
+# Runs ninja on /tmp/before and /tmp/after
+before-after = [
+  "compare",
+  "python3 build/gen.py --out-path=/tmp/$JJ_LABEL ${GN_OPTS:-} && ninja -C /tmp/$JJ_LABEL ${NINJA_TARGETS:-gn}",
+]
+
+compare-perf = [
+  "util",
+  "exec",
+  "--",
+  "bash",
+  "-c",
+  """
+  jj before-after && \
+  cd "${SRC:-$HOME/chromium/src}" && \
+  rm -rf /tmp/traces && mkdir -p /tmp/traces && \
+  hyperfine \
+    -n "after (@)" "/tmp/after/gn  gen ${OUT_AFTER:-out/after}   --tracelog=/tmp/traces/after_\\$HYPERFINE_ITERATION.trace" \
+    -n "before"    "/tmp/before/gn gen ${OUT_BEFORE:-out/before} --tracelog=/tmp/traces/before_\\$HYPERFINE_ITERATION.trace" \
+    ${HYPERFINE_OPTS:-} && \
+  python3 "$JJ_WORKSPACE_ROOT/tools/compare_traces.py" \
+    --before /tmp/traces/before_[0-9]*.trace \
+    --after  /tmp/traces/after_[0-9]*.trace
+  """,
+]
 
 [fix.tools.clang-format]
 command = ["clang/bin/clang-format", "--assume-filename=$path"]

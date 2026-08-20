@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "908bbc1b_c20e2a1d",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-20T02:49:17Z",
+      "side": 1,
+      "message": "CHECK(false) is sufficient, std::unreachable is just to prevent the compiler complaining that there\u0027s no return in every branch (since we can\u0027t return a reference to nothing).",
+      "parentUuid": "ba66011a_f192f793",
+      "revId": "1079f0f6d0c47952a7266f8b42c4baa96bf61165",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9229f5a4_38998ae9",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-08-20T02:46:42Z",
       "side": 1,
       "message": "Can we have an empty line between targets?",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 305,
+        "endChar": 19
+      },
+      "revId": "1079f0f6d0c47952a7266f8b42c4baa96bf61165",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a13f3cc0_cbc0c592",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-20T02:49:17Z",
+      "side": 1,
+      "message": "I agree, but this isn\u0027t the right place to do it. It should be done in the formatter itself.",
+      "parentUuid": "9229f5a4_38998ae9",
       "range": {
         "startLine": 304,
         "startChar": 0,

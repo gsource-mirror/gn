@@ -7,7 +7,6 @@ target_output_name = libhello_shared
 build obj/libhello_shared.hello_shared.o: cxx ../hello_shared.cc
   source_file_part = hello_shared.cc
   source_name_part = hello_shared
-
 build ./libhello_shared.so: solink obj/libhello_shared.hello_shared.o
   ldflags =
   libs =

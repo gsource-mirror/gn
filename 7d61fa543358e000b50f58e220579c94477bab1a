@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "603189ad_e57f8953",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T05:16:34Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: We should compute `shards` and verify `shards.size() \u003e 1` (as well as handle potential errors from `GetShardName`) *before* modifying the target\u0027s AST.\n\nCurrently, `deps` and `public_deps` are removed unconditionally here. If we later return `Ok()` early because `shards.size() \u003c\u003d 1` (line 370), the original target will unintentionally have its dependencies permanently stripped and saved to disk.\n\nYou can safely fix this by moving this loop to line 372, right after the early return check.",
+      "range": {
+        "startLine": 353,
+        "startChar": 0,
+        "endLine": 353,
+        "endChar": 0
+      },
+      "revId": "7d61fa543358e000b50f58e220579c94477bab1a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4100bf9e_5a90db9d",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T05:16:34Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: NIT: If a target has sources that map to a shard named `foo` (e.g., `foo.cc`), and also sources that map to a shard named `foo_foo` (e.g. `foo_foo.cc`), they will both try to map to the `target_name` `\"foo_foo\"`. This would result in duplicate target names in the build file.\n\nIt\u0027s probably a rare edge case, but might be worth avoiding or being aware of.",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 380,
+        "endChar": 0
+      },
+      "revId": "7d61fa543358e000b50f58e220579c94477bab1a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab41476a_97a44fc1",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T05:16:34Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: NIT: You can likely use `target.node.node()-\u003eAsFunctionCallMut()` here to avoid the `const_cast`, assuming `node()` doesn\u0027t return a strictly `const ParseNode*` (similar to how it works on line 386).",
+      "range": {
+        "startLine": 412,
+        "startChar": 0,
+        "endLine": 412,
+        "endChar": 0
+      },
+      "revId": "7d61fa543358e000b50f58e220579c94477bab1a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

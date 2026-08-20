@@ -177,6 +177,7 @@
     *   [walk_keys: [string list] Key(s) for managing the metadata collection walk.](#var_walk_keys)
     *   [weak_frameworks: [name list] Name of frameworks that must be weak linked.](#var_weak_frameworks)
     *   [weak_libraries: [file list] File of libraries that must be weak linked.](#var_weak_libraries)
+    *   [write_linker_inputs: Writes the target's linker inputs to the given path.](#var_write_linker_inputs)
     *   [write_runtime_deps: Writes the target's runtime_deps to the given path.](#var_write_runtime_deps)
     *   [xcasset_compiler_flags: [string list] Flags passed to xcassets compiler](#var_xcasset_compiler_flags)
     *   [xcode_extra_attributes: [scope] Extra attributes for Xcode projects.](#var_xcode_extra_attributes)
@@ -1616,7 +1617,7 @@
          rustenv, rustflags, swiftflags, testonly
   Dependent configs: all_dependent_configs, public_configs
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
            visibility
@@ -1717,7 +1718,7 @@
          rustenv, rustflags, swiftflags, testonly
   Dependent configs: all_dependent_configs, public_configs
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
            visibility
@@ -1787,7 +1788,7 @@
 ```
   Dependent configs: all_dependent_configs, public_configs
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
            visibility
@@ -1852,7 +1853,7 @@
 ```
   Dependent configs: all_dependent_configs, public_configs
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
            visibility
@@ -1947,7 +1948,7 @@
 ```
   Dependent configs: all_dependent_configs, public_configs
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
            visibility
@@ -2080,7 +2081,7 @@
          lib_dirs, libs, precompiled_header, precompiled_source,
          rustenv, rustflags, swiftflags, testonly
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   Dependent configs: all_dependent_configs, public_configs
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
@@ -2116,7 +2117,7 @@
 ```
   Dependent configs: all_dependent_configs, public_configs
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
            visibility
@@ -2233,7 +2234,7 @@
 
 ```
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   Dependent configs: all_dependent_configs, public_configs
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
@@ -2280,7 +2281,7 @@
          lib_dirs, libs, precompiled_header, precompiled_source,
          rustenv, rustflags, swiftflags, testonly
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   Dependent configs: all_dependent_configs, public_configs
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
@@ -2313,7 +2314,7 @@
          lib_dirs, libs, precompiled_header, precompiled_source,
          rustenv, rustflags, swiftflags, testonly
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   Dependent configs: all_dependent_configs, public_configs
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
@@ -2349,7 +2350,7 @@
          lib_dirs, libs, precompiled_header, precompiled_source,
          rustenv, rustflags, swiftflags, testonly
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   Dependent configs: all_dependent_configs, public_configs
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
@@ -2384,7 +2385,7 @@
          lib_dirs, libs, precompiled_header, precompiled_source,
          rustenv, rustflags, swiftflags, testonly
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   Dependent configs: all_dependent_configs, public_configs
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
@@ -2430,7 +2431,7 @@
          lib_dirs, libs, precompiled_header, precompiled_source,
          rustenv, rustflags, swiftflags, testonly
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   Dependent configs: all_dependent_configs, public_configs
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
@@ -2455,7 +2456,7 @@
          lib_dirs, libs, precompiled_header, precompiled_source,
          rustenv, rustflags, swiftflags, testonly
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   Dependent configs: all_dependent_configs, public_configs
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
@@ -2491,7 +2492,7 @@
 
 ```
   Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,
-        write_runtime_deps
+        write_linker_inputs, write_runtime_deps
   Dependent configs: all_dependent_configs, public_configs
   General: check_includes, configs, data, friend, inputs, metadata,
            output_extension, output_name, public, sources, testonly,
@@ -7414,6 +7415,23 @@
 
 ```
   weak_libraries = [ rebase_path("//path/to/libOnlyOnNewerOSes.dylib") ]
+```
+### <a name="var_write_linker_inputs"></a>**write_linker_inputs**: Writes the target's linker inputs to the given path.&nbsp;[Back to Top](#gn-reference)
+
+```
+  Does not synchronously write the file, but rather schedules it to be written
+  at the end of generation.
+
+  If the file exists and the contents are identical to that being written, the
+  file will not be updated. This will prevent unnecessary rebuilds of targets
+  that depend on this file.
+
+  Path must be within the output directory.
+
+  The format of this file will list one file per line with no escaping. The
+  files will be relative to the root_build_dir. The file contents will list all
+  object files, static libraries, import libraries, and Rust .rlib files
+  that are passed to the linker for this target.
 ```
 ### <a name="var_write_runtime_deps"></a>**write_runtime_deps**: Writes the target's runtime_deps to the given path.&nbsp;[Back to Top](#gn-reference)
 

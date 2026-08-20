@@ -17,7 +17,7 @@
   "  Dependent configs: all_dependent_configs, public_configs\n"
 #define DEPS_VARS                                                         \
   "  Deps: assert_no_deps, data_deps, deps, public_deps, runtime_deps,\n" \
-  "        write_runtime_deps\n"
+  "        write_linker_inputs, write_runtime_deps\n"
 #define GENERAL_TARGET_VARS                                                \
   "  General: check_includes, configs, data, friend, inputs, metadata,\n"  \
   "           output_extension, output_name, public, sources, testonly,\n" \

@@ -20,6 +20,7 @@
 #include "gn/filesystem_utils.h"
 #include "gn/json_project_writer.h"
 #include "gn/label_pattern.h"
+#include "gn/linker_inputs.h"
 #include "gn/ninja_outputs_writer.h"
 #include "gn/ninja_target_writer.h"
 #include "gn/ninja_tools.h"
@@ -882,6 +883,11 @@ int RunGen(const std::vector<std::string>& args) {
           "Generating Ninja outputs file took %" PRId64 "ms\n",
           outputs_timer.Elapsed().InMilliseconds()));
     }
+  }
+
+  if (!WriteLinkerInputsFilesIfNecessary(&setup->build_settings(),
+                                         setup->builder())) {
+    return 1;
   }
 
   if (!WriteRuntimeDepsFilesIfNecessary(&setup->build_settings(),

@@ -249,6 +249,13 @@ class Target : public Item {
   }
   std::vector<std::string>& walk_keys() { return generated_file().walk_keys_; }
 
+  OutputFile write_linker_inputs_output() const {
+    return write_linker_inputs_output_;
+  }
+  void set_write_linker_inputs_output(OutputFile value) {
+    write_linker_inputs_output_ = std::move(value);
+  }
+
   OutputFile write_runtime_deps_output() const {
     return write_runtime_deps_output_;
   }
@@ -573,6 +580,7 @@ class Target : public Item {
   bool complete_static_lib_ = false;
   std::vector<std::string> data_;
   std::unique_ptr<BundleData> bundle_data_;
+  OutputFile write_linker_inputs_output_;
   OutputFile write_runtime_deps_output_;
 
   LabelTargetVector private_deps_;

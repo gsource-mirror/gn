@@ -103,6 +103,16 @@ void Scheduler::AddUnknownGeneratedInput(const Target* target,
   unknown_generated_inputs_.insert(std::make_pair(file, target));
 }
 
+void Scheduler::AddWriteLinkerInputsTarget(const Target* target) {
+  std::lock_guard<std::mutex> lock(lock_);
+  write_linker_inputs_targets_.push_back(target);
+}
+
+std::vector<const Target*> Scheduler::GetWriteLinkerInputsTargets() const {
+  std::lock_guard<std::mutex> lock(lock_);
+  return write_linker_inputs_targets_;
+}
+
 void Scheduler::AddWriteRuntimeDepsTarget(const Target* target) {
   std::lock_guard<std::mutex> lock(lock_);
   write_runtime_deps_targets_.push_back(target);

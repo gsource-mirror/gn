@@ -189,3 +189,120 @@ FORMAT_TEST(103)
 FORMAT_TEST(104)
 FORMAT_TEST(105)
 FORMAT_TEST_WITH_WIDTH(106, 20)
+
+TEST_F(FormatTest, EmptyLineBetweenTargets) {
+  ::Setup setup;
+  auto format = [](const std::string& input) {
+    std::string out;
+    EXPECT_TRUE(commands::FormatStringToString(
+        input, commands::TreeDumpMode::kInactive, commands::kDefaultFormatWidth,
+        &out, nullptr));
+    return out;
+  };
+
+  // Adjacent built-in targets.
+  EXPECT_EQ(
+      R"(executable("foo") {
+  sources = [ "foo.cc" ]
+}
+
+source_set("bar") {
+  sources = [ "bar.cc" ]
+}
+)",
+      format(R"(executable("foo") {
+  sources = [ "foo.cc" ]
+}
+source_set("bar") {
+  sources = [ "bar.cc" ]
+}
+)"));
+
+  // Adjacent custom template targets.
+  EXPECT_EQ(
+      R"(my_template("foo") {
+  sources = [ "foo.cc" ]
+}
+
+my_template("bar") {
+  sources = [ "bar.cc" ]
+}
+)",
+      format(R"(my_template("foo") {
+  sources = [ "foo.cc" ]
+}
+my_template("bar") {
+  sources = [ "bar.cc" ]
+}
+)"));
+
+  // Target with preceding comments on the next target.
+  EXPECT_EQ(
+      R"(executable("foo") {
+  sources = [ "foo.cc" ]
+}
+
+# Comment before bar
+source_set("bar") {
+  sources = [ "bar.cc" ]
+}
+)",
+      format(R"(executable("foo") {
+  sources = [ "foo.cc" ]
+}
+# Comment before bar
+source_set("bar") {
+  sources = [ "bar.cc" ]
+}
+)"));
+
+  // Targets inside a condition block.
+  EXPECT_EQ(
+      R"(if (is_linux) {
+  executable("foo") {
+    sources = [ "foo.cc" ]
+  }
+
+  source_set("bar") {
+    sources = [ "bar.cc" ]
+  }
+}
+)",
+      format(R"(if (is_linux) {
+  executable("foo") {
+    sources = [ "foo.cc" ]
+  }
+  source_set("bar") {
+    sources = [ "bar.cc" ]
+  }
+}
+)"));
+
+  // Target preceded by import.
+  EXPECT_EQ(
+      R"(import("//build/foo.gni")
+
+source_set("bar") {
+  sources = [ "bar.cc" ]
+}
+)",
+      format(R"(import("//build/foo.gni")
+source_set("bar") {
+  sources = [ "bar.cc" ]
+}
+)"));
+
+  // Target preceded by variable assignment.
+  EXPECT_EQ(
+      R"(cflags = [ "-O2" ]
+
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)",
+      format(R"(cflags = [ "-O2" ]
+executable("foo") {
+  sources = [ "foo.cc" ]
+}
+)"));
+}

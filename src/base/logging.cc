@@ -186,6 +186,26 @@ LogMessage::~LogMessage() {
   }
 }
 
+NotReachedLogMessage::NotReachedLogMessage(const char* file, int line)
+    : log_message_(std::in_place, file, line, LOG_DCHECK) {}
+
+// Suppress MSVC warning "destructor never returns, potential memory leak".
+#if defined(COMPILER_MSVC)
+#pragma warning(push)
+#pragma warning(disable : 4722)
+#endif
+NotReachedLogMessage::~NotReachedLogMessage() {
+  log_message_.reset();
+  std::abort();
+}
+#if defined(COMPILER_MSVC)
+#pragma warning(pop)
+#endif
+
+std::ostream& NotReachedLogMessage::stream() {
+  return log_message_->stream();
+}
+
 // writes the common header info to the stream
 void LogMessage::Init(const char* file, int line) {
   std::string_view filename(file);

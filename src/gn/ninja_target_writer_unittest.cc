@@ -20,20 +20,27 @@ class TestingNinjaTargetWriter : public NinjaTargetWriter {
                            std::ostream& out)
       : NinjaTargetWriter(target, out) {}
 
-  void Run() override {}
+  void GenerateRules() override {}
 
   // Make this public so the test can call it.
   NinjaTargetWriter::InputDeps WriteInputDepsStampOrPhonyAndGetDep(
       const std::vector<const Target*>& additional_hard_deps,
       size_t num_stamp_uses) {
-    return NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep(
+    auto deps = NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep(
         additional_hard_deps, num_stamp_uses);
+    NinjaFile file;
+    file.AddTargetGroup(std::move(target_group_));
+    file.Serialize(out_);
+    return deps;
   }
 
   void WriteStampOrPhonyForTarget(
       const std::vector<OutputFile>& deps,
       const std::vector<OutputFile>& order_only_deps) {
     NinjaTargetWriter::WriteStampOrPhonyForTarget(deps, order_only_deps);
+    NinjaFile file;
+    file.AddTargetGroup(std::move(target_group_));
+    file.Serialize(out_);
   }
 };
 
@@ -154,10 +161,8 @@ TEST(NinjaTargetWriter, WriteInputDepsStampOrPhonyAndGetDep) {
         "  command =  ../../foo/script.py\n"
         "  description = ACTION //foo:action()\n"
         "  restat = 1\n"
-        "\n"
         "build: __foo_action___rule | ../../foo/script.py"
         " ../../foo/action_source.txt ./target\n"
-        "\n"
         "build phony/foo/action: phony ./target\n",
         stream.str());
   }
@@ -254,10 +259,8 @@ TEST(NinjaTargetWriter, WriteInputDepsStampOrPhonyAndGetDepUseStampFiles) {
         "  command =  ../../foo/script.py\n"
         "  description = ACTION //foo:action()\n"
         "  restat = 1\n"
-        "\n"
         "build: __foo_action___rule | ../../foo/script.py"
         " ../../foo/action_source.txt ./target\n"
-        "\n"
         "build obj/foo/action.stamp: stamp ./target\n",
         stream.str());
   }
@@ -539,15 +542,13 @@ TEST(NinjaTargetWriter, PhonyPropagation) {
         "  command =  ../../foo/script.py\n"
         "  description = ACTION //foo:b_pub()\n"
         "  restat = 1\n"
-        "\n"
         "build b_pub.out: __foo_b_pub___rule | ../../foo/script.py "
         "phony/foo/a\n"
-        "\n"
         "build phony/foo/b_pub: phony b_pub.out phony/foo/a\n",
         stream.str());
   }
 
-  // 2. Verify B_priv's stamp/phony target. It should NOT contain A's output.
+  // Verify B_priv's stamp/phony target. It should NOT contain A's output.
   {
     std::ostringstream stream;
     NinjaActionTargetWriter writer(&b_priv, stream);
@@ -557,15 +558,13 @@ TEST(NinjaTargetWriter, PhonyPropagation) {
         "  command =  ../../foo/script.py\n"
         "  description = ACTION //foo:b_priv()\n"
         "  restat = 1\n"
-        "\n"
         "build b_priv.out: __foo_b_priv___rule | ../../foo/script.py "
         "phony/foo/a\n"
-        "\n"
         "build phony/foo/b_priv: phony b_priv.out\n",
         stream.str());
   }
 
-  // 3. Verify C_pub's inputdeps contains B_pub's stamp/phony.
+  // Verify C_pub's inputdeps contains B_pub's stamp/phony.
   {
     std::ostringstream stream;
     TestingNinjaTargetWriter writer(&c_pub, setup.toolchain(), stream);
@@ -580,7 +579,7 @@ TEST(NinjaTargetWriter, PhonyPropagation) {
         stream.str());
   }
 
-  // 4. Verify C_priv's inputdeps contains B_priv's stamp/phony.
+  // Verify C_priv's inputdeps contains B_priv's stamp/phony.
   {
     std::ostringstream stream;
     TestingNinjaTargetWriter writer(&c_priv, setup.toolchain(), stream);
@@ -595,7 +594,7 @@ TEST(NinjaTargetWriter, PhonyPropagation) {
         stream.str());
   }
 
-  // 5. Verify B_data's stamp/phony target. It should NOT contain A's output
+  // Verify B_data's stamp/phony target. It should NOT contain A's output
   // in implicit deps (since A is a data_dep), but in order_only_deps.
   {
     std::ostringstream stream;
@@ -606,15 +605,13 @@ TEST(NinjaTargetWriter, PhonyPropagation) {
         "  command =  ../../foo/script.py\n"
         "  description = ACTION //foo:b_data()\n"
         "  restat = 1\n"
-        "\n"
         "build b_data.out: __foo_b_data___rule | ../../foo/script.py || "
         "phony/foo/a\n"
-        "\n"
         "build phony/foo/b_data: phony b_data.out\n",
         stream.str());
   }
 
-  // 6. Verify C_data's stamp/phony target. It should contain B_data, but NOT A.
+  // Verify C_data's stamp/phony target. It should contain B_data, but NOT A.
   {
     std::ostringstream stream;
     NinjaActionTargetWriter writer(&c_data, stream);
@@ -624,15 +621,13 @@ TEST(NinjaTargetWriter, PhonyPropagation) {
         "  command =  ../../foo/script.py\n"
         "  description = ACTION //foo:c_data()\n"
         "  restat = 1\n"
-        "\n"
         "build c_data.out: __foo_c_data___rule | ../../foo/script.py "
         "phony/foo/b_data\n"
-        "\n"
         "build phony/foo/c_data: phony c_data.out phony/foo/b_data\n",
         stream.str());
   }
 
-  // 7. Verify D_data's inputdeps contains C_data, but NOT A.
+  // Verify D_data's inputdeps contains C_data, but NOT A.
   {
     std::ostringstream stream;
     TestingNinjaTargetWriter writer(&d_data, setup.toolchain(), stream);

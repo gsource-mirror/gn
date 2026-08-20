@@ -18,7 +18,7 @@ class NinjaActionTargetWriter : public NinjaTargetWriter {
   NinjaActionTargetWriter(const Target* target, std::ostream& out);
   ~NinjaActionTargetWriter() override;
 
-  void Run() override;
+  void GenerateRules() override;
 
  private:
   FRIEND_TEST_ALL_PREFIXES(NinjaActionTargetWriter,
@@ -49,11 +49,12 @@ class NinjaActionTargetWriter : public NinjaTargetWriter {
   void WriteOutputFilesForBuildLine(const SourceFile& source,
                                     std::vector<OutputFile>* output_files);
 
-  void WriteDepfile(const SourceFile& source);
+  void WriteDepfile(const SourceFile& source,
+                    std::vector<NinjaVariable>& edge_vars);
 
   // Writes variables that we make available to all actions, irrespective
   // of whether they're associated with a specific source file.
-  void WriteNinjaVariablesForAction();
+  void WriteNinjaVariablesForAction(std::vector<NinjaVariable>& edge_vars);
 
   // Path output writer that doesn't do any escaping or quoting. It does,
   // however, convert slashes.  Used for

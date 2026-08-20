@@ -26,16 +26,18 @@ class NinjaCBinaryTargetWriter : public NinjaBinaryTargetWriter {
   using OutputFileSet = std::set<OutputFile>;
 
   // Writes all flags for the compiler: includes, defines, cflags, etc.
-  void WriteCompilerVars(const std::set<ClangModuleDep>& module_dep_info);
+  void WriteCompilerVars(const std::set<ClangModuleDep>& module_dep_info,
+                         bool indent = false);
 
   // Write module_deps or module_deps_no_self flags for clang modulemaps.
   void WriteModuleDepsSubstitution(
       const Substitution* substitution,
       const std::set<ClangModuleDep>& module_dep_info,
-      bool include_self);
+      bool include_self,
+      bool indent = false);
 
   // Writes module_name substitution for clang modulemaps.
-  void WriteModuleNameSubstitution();
+  void WriteModuleNameSubstitution(bool indent = false);
 
   // Writes build lines required for precompiled headers. Any generated
   // object files will be appended to the |object_files|. Any generated

@@ -100,7 +100,8 @@ void NinjaTargetWriter::WriteOutputs(std::vector<OutputFile>&& outputs) const {
 std::string NinjaTargetWriter::RunAndWriteFile(
     const Target* target,
     ResolvedTargetData* resolved,
-    std::vector<OutputFile>* ninja_outputs) {
+    std::vector<OutputFile>* ninja_outputs,
+    const CommonVars* common_vars) {
   const Settings* settings = target->settings();
 
   ScopedTrace trace(TraceItem::TRACE_FILE_WRITE_NINJA,
@@ -115,58 +116,49 @@ std::string NinjaTargetWriter::RunAndWriteFile(
   StringOutputBuffer storage;
   std::ostream rules(&storage);
 
-  // Call out to the correct sub-type of writer. Binary targets need to be
-  // written to separate files for compiler flag scoping, but other target
-  // types can have their rules coalesced.
-  //
-  // In ninja, if a rule uses a variable (like $include_dirs) it will use
-  // the value set by indenting it under the build line or it takes the value
-  // from the end of the invoking scope (otherwise the current file). It does
-  // not copy the value from what it was when the build line was encountered.
-  // To avoid writing lots of duplicate rules for defines and cflags, etc. on
-  // each source file build line, we use separate .ninja files with the shared
-  // variables set at the top.
-  //
-  // Groups and actions don't use this type of flag, they make unique rules
-  // or write variables scoped under each build line. As a result, they don't
-  // need the separate files.
-  bool needs_file_write = false;
+  // Call out to the correct sub-type of writer.
   if (target->output_type() == Target::BUNDLE_DATA) {
     NinjaBundleDataTargetWriter writer(target, rules);
     writer.SetResolvedTargetData(resolved);
     writer.SetNinjaOutputs(ninja_outputs);
+    writer.SetCommonVars(common_vars);
     writer.Run();
   } else if (target->output_type() == Target::CREATE_BUNDLE) {
     NinjaCreateBundleTargetWriter writer(target, rules);
     writer.SetResolvedTargetData(resolved);
     writer.SetNinjaOutputs(ninja_outputs);
+    writer.SetCommonVars(common_vars);
     writer.Run();
   } else if (target->output_type() == Target::COPY_FILES) {
     NinjaCopyTargetWriter writer(target, rules);
     writer.SetResolvedTargetData(resolved);
     writer.SetNinjaOutputs(ninja_outputs);
+    writer.SetCommonVars(common_vars);
     writer.Run();
   } else if (target->output_type() == Target::ACTION ||
              target->output_type() == Target::ACTION_FOREACH) {
     NinjaActionTargetWriter writer(target, rules);
     writer.SetResolvedTargetData(resolved);
     writer.SetNinjaOutputs(ninja_outputs);
+    writer.SetCommonVars(common_vars);
     writer.Run();
   } else if (target->output_type() == Target::GROUP) {
     NinjaGroupTargetWriter writer(target, rules);
     writer.SetResolvedTargetData(resolved);
     writer.SetNinjaOutputs(ninja_outputs);
+    writer.SetCommonVars(common_vars);
     writer.Run();
   } else if (target->output_type() == Target::GENERATED_FILE) {
     NinjaGeneratedFileTargetWriter writer(target, rules);
     writer.SetResolvedTargetData(resolved);
     writer.SetNinjaOutputs(ninja_outputs);
+    writer.SetCommonVars(common_vars);
     writer.Run();
   } else if (target->IsBinary()) {
-    needs_file_write = true;
     NinjaBinaryTargetWriter writer(target, rules);
     writer.SetResolvedTargetData(resolved);
     writer.SetNinjaOutputs(ninja_outputs);
+    writer.SetCommonVars(common_vars);
     if (target->module_type().test(Target::MODULEMAP_IS_GENERATED)) {
       const SourceFile* modulemap = target->modulemap_file();
       CHECK(modulemap);
@@ -194,26 +186,6 @@ std::string NinjaTargetWriter::RunAndWriteFile(
 
   WritePublicInputsStampOrPhony(target, resolved, rules);
 
-  if (needs_file_write) {
-    // Write the ninja file.
-    SourceFile ninja_file = GetNinjaFileForTarget(target);
-    base::FilePath full_ninja_file =
-        settings->build_settings()->GetFullPath(ninja_file);
-    storage.WriteToFileIfChanged(full_ninja_file, nullptr);
-
-    EscapeOptions options;
-    options.mode = ESCAPE_NINJA;
-
-    // Return the subninja command to load the rules file.
-    std::string result = "subninja ";
-    result.append(EscapeString(
-        OutputFile(target->settings()->build_settings(), ninja_file).value(),
-        options, nullptr));
-    result.push_back('\n');
-    return result;
-  }
-
-  // No separate file required, just return the rules.
   return storage.str();
 }
 
@@ -256,94 +228,185 @@ void NinjaTargetWriter::WritePublicInputsStampOrPhony(
   out << std::endl << std::endl;
 }
 
-void NinjaTargetWriter::WriteEscapedSubstitution(const Substitution* type) {
+// static
+std::string NinjaTargetWriter::ComputeDefines(const Target* target) {
+  std::ostringstream out;
+  RecursiveTargetConfigToStream<std::string>(kRecursiveWriterSkipDuplicates,
+                                             target, &ConfigValues::defines,
+                                             DefineWriter(), out);
+  return out.str();
+}
+
+// static
+std::string NinjaTargetWriter::ComputeIncludeDirs(const Target* target,
+                                                  PathOutput& path_output) {
+  std::ostringstream out;
+  RecursiveTargetConfigToStream<SourceDir>(
+      kRecursiveWriterSkipDuplicates, target, &ConfigValues::include_dirs,
+      IncludeWriter(path_output), out);
+  return out.str();
+}
+
+// static
+std::string NinjaTargetWriter::ComputeCFlags(const Target* target,
+                                             const Substitution* subst,
+                                             PathOutput& path_output) {
+  std::ostringstream out;
+  EscapeOptions opts;
+  opts.mode = ESCAPE_NINJA_COMMAND;
+  bool has_precompiled_headers =
+      target->config_values().has_precompiled_headers();
+  if (subst == &CSubstitutionCFlags) {
+    WriteOneFlag(kRecursiveWriterKeepDuplicates, target, &CSubstitutionCFlags,
+                 false, Tool::kToolNone, &ConfigValues::cflags, opts,
+                 path_output, out, false);
+  } else if (subst == &CSubstitutionCFlagsC) {
+    WriteOneFlag(kRecursiveWriterKeepDuplicates, target, &CSubstitutionCFlagsC,
+                 has_precompiled_headers, CTool::kCToolCc,
+                 &ConfigValues::cflags_c, opts, path_output, out, false);
+  } else if (subst == &CSubstitutionCFlagsCc) {
+    WriteOneFlag(kRecursiveWriterKeepDuplicates, target, &CSubstitutionCFlagsCc,
+                 has_precompiled_headers, CTool::kCToolCxx,
+                 &ConfigValues::cflags_cc, opts, path_output, out, false);
+  } else if (subst == &CSubstitutionCFlagsObjC) {
+    WriteOneFlag(kRecursiveWriterKeepDuplicates, target,
+                 &CSubstitutionCFlagsObjC, has_precompiled_headers,
+                 CTool::kCToolObjC, &ConfigValues::cflags_objc, opts,
+                 path_output, out, false);
+  } else if (subst == &CSubstitutionCFlagsObjCc) {
+    WriteOneFlag(kRecursiveWriterKeepDuplicates, target,
+                 &CSubstitutionCFlagsObjCc, has_precompiled_headers,
+                 CTool::kCToolObjCxx, &ConfigValues::cflags_objcc, opts,
+                 path_output, out, false);
+  } else if (subst == &CSubstitutionAsmFlags) {
+    WriteOneFlag(kRecursiveWriterKeepDuplicates, target, &CSubstitutionAsmFlags,
+                 false, Tool::kToolNone, &ConfigValues::asmflags, opts,
+                 path_output, out, false);
+  }
+  return out.str();
+}
+
+// static
+std::string NinjaTargetWriter::ComputeRustFlags(const Target* target,
+                                                PathOutput& path_output) {
+  std::ostringstream out;
+  EscapeOptions opts;
+  opts.mode = ESCAPE_NINJA_COMMAND;
+  WriteOneFlag(kRecursiveWriterKeepDuplicates, target,
+               &kRustSubstitutionRustFlags, false, Tool::kToolNone,
+               &ConfigValues::rustflags, opts, path_output, out, false);
+  return out.str();
+}
+
+void NinjaTargetWriter::WriteEscapedSubstitution(const Substitution* type,
+                                                 bool indent) {
+  std::string value = SubstitutionWriter::GetTargetSubstitution(target_, type);
+  if (value.empty())
+    return;
   EscapeOptions opts;
   opts.mode = ESCAPE_NINJA;
 
+  if (indent)
+    out_ << "  ";
   out_ << type->ninja_name << " = ";
-  EscapeStringToStream(
-      out_, SubstitutionWriter::GetTargetSubstitution(target_, type), opts);
+  EscapeStringToStream(out_, value, opts);
   out_ << std::endl;
 }
 
-void NinjaTargetWriter::WriteSharedVars(const SubstitutionBits& bits) {
+void NinjaTargetWriter::WriteSharedVars(const SubstitutionBits& bits,
+                                        bool indent) {
   bool written_anything = false;
 
   // Target label.
   if (bits.used.count(&SubstitutionLabel)) {
-    WriteEscapedSubstitution(&SubstitutionLabel);
+    WriteEscapedSubstitution(&SubstitutionLabel, indent);
     written_anything = true;
   }
 
   // Target label name.
   if (bits.used.count(&SubstitutionLabelName)) {
-    WriteEscapedSubstitution(&SubstitutionLabelName);
+    WriteEscapedSubstitution(&SubstitutionLabelName, indent);
     written_anything = true;
   }
 
   // Target label name without toolchain.
   if (bits.used.count(&SubstitutionLabelNoToolchain)) {
-    WriteEscapedSubstitution(&SubstitutionLabelNoToolchain);
+    WriteEscapedSubstitution(&SubstitutionLabelNoToolchain, indent);
     written_anything = true;
   }
 
   // Root gen dir.
   if (bits.used.count(&SubstitutionRootGenDir)) {
-    WriteEscapedSubstitution(&SubstitutionRootGenDir);
+    WriteEscapedSubstitution(&SubstitutionRootGenDir, indent);
     written_anything = true;
   }
 
   // Root out dir.
   if (bits.used.count(&SubstitutionRootOutDir)) {
-    WriteEscapedSubstitution(&SubstitutionRootOutDir);
+    WriteEscapedSubstitution(&SubstitutionRootOutDir, indent);
     written_anything = true;
   }
 
   // Target gen dir.
   if (bits.used.count(&SubstitutionTargetGenDir)) {
-    WriteEscapedSubstitution(&SubstitutionTargetGenDir);
+    WriteEscapedSubstitution(&SubstitutionTargetGenDir, indent);
     written_anything = true;
   }
 
   // Target out dir.
   if (bits.used.count(&SubstitutionTargetOutDir)) {
-    WriteEscapedSubstitution(&SubstitutionTargetOutDir);
+    WriteEscapedSubstitution(&SubstitutionTargetOutDir, indent);
     written_anything = true;
   }
 
   // Target output name.
   if (bits.used.count(&SubstitutionTargetOutputName)) {
-    WriteEscapedSubstitution(&SubstitutionTargetOutputName);
+    WriteEscapedSubstitution(&SubstitutionTargetOutputName, indent);
     written_anything = true;
   }
 
   // If we wrote any vars, separate them from the rest of the file that follows
   // with a blank line.
-  if (written_anything)
+  if (written_anything && !indent)
     out_ << std::endl;
 }
 
 void NinjaTargetWriter::WriteCCompilerVars(const SubstitutionBits& bits,
                                            bool indent,
                                            bool respect_source_used) {
+  std::string_view common_defines = GetCommonVar(&CSubstitutionDefines);
+  std::string_view common_include_dirs =
+      GetCommonVar(&CSubstitutionIncludeDirs);
+  std::string_view common_framework_dirs =
+      GetCommonVar(&CSubstitutionFrameworkDirs);
+  std::string_view common_cflags = GetCommonVar(&CSubstitutionCFlags);
+  std::string_view common_cflags_c = GetCommonVar(&CSubstitutionCFlagsC);
+  std::string_view common_cflags_cc = GetCommonVar(&CSubstitutionCFlagsCc);
+  std::string_view common_cflags_objc = GetCommonVar(&CSubstitutionCFlagsObjC);
+  std::string_view common_cflags_objcc =
+      GetCommonVar(&CSubstitutionCFlagsObjCc);
+  std::string_view common_asmflags = GetCommonVar(&CSubstitutionAsmFlags);
+  std::string_view common_swiftflags = GetCommonVar(&CSubstitutionSwiftFlags);
+
   // Defines.
   if (bits.used.count(&CSubstitutionDefines)) {
-    if (indent)
-      out_ << "  ";
-    out_ << CSubstitutionDefines.ninja_name << " =";
+    std::ostringstream defines_out;
     RecursiveTargetConfigToStream<std::string>(kRecursiveWriterSkipDuplicates,
                                                target_, &ConfigValues::defines,
-                                               DefineWriter(), out_);
-    out_ << std::endl;
+                                               DefineWriter(), defines_out);
+    std::string str = defines_out.str();
+    if (str != common_defines) {
+      if (indent)
+        out_ << "  ";
+      out_ << CSubstitutionDefines.ninja_name << " =" << str << std::endl;
+    }
   }
 
   // Framework search path.
   if (bits.used.count(&CSubstitutionFrameworkDirs)) {
     const Tool* tool = target_->toolchain()->GetTool(CTool::kCToolLink);
 
-    if (indent)
-      out_ << "  ";
-    out_ << CSubstitutionFrameworkDirs.ninja_name << " =";
+    std::ostringstream framework_dirs_out;
     PathOutput framework_dirs_output(
         path_output_.current_dir(),
         settings_->build_settings()->root_path_utf8(), ESCAPE_NINJA_COMMAND);
@@ -351,22 +414,30 @@ void NinjaTargetWriter::WriteCCompilerVars(const SubstitutionBits& bits,
         kRecursiveWriterSkipDuplicates, target_, &ConfigValues::framework_dirs,
         FrameworkDirsWriter(framework_dirs_output,
                             tool->framework_dir_switch()),
-        out_);
-    out_ << std::endl;
+        framework_dirs_out);
+    std::string str = framework_dirs_out.str();
+    if (str != common_framework_dirs) {
+      if (indent)
+        out_ << "  ";
+      out_ << CSubstitutionFrameworkDirs.ninja_name << " =" << str << std::endl;
+    }
   }
 
   // Include directories.
   if (bits.used.count(&CSubstitutionIncludeDirs)) {
-    if (indent)
-      out_ << "  ";
-    out_ << CSubstitutionIncludeDirs.ninja_name << " =";
+    std::ostringstream include_dirs_out;
     PathOutput include_path_output(
         path_output_.current_dir(),
         settings_->build_settings()->root_path_utf8(), ESCAPE_NINJA_COMMAND);
     RecursiveTargetConfigToStream<SourceDir>(
         kRecursiveWriterSkipDuplicates, target_, &ConfigValues::include_dirs,
-        IncludeWriter(include_path_output), out_);
-    out_ << std::endl;
+        IncludeWriter(include_path_output), include_dirs_out);
+    std::string str = include_dirs_out.str();
+    if (str != common_include_dirs) {
+      if (indent)
+        out_ << "  ";
+      out_ << CSubstitutionIncludeDirs.ninja_name << " =" << str << std::endl;
+    }
   }
 
   bool has_precompiled_headers =
@@ -380,7 +451,7 @@ void NinjaTargetWriter::WriteCCompilerVars(const SubstitutionBits& bits,
     WriteOneFlag(kRecursiveWriterKeepDuplicates, target_,
                  &CSubstitutionAsmFlags, false, Tool::kToolNone,
                  &ConfigValues::asmflags, opts, path_output_, out_, true,
-                 indent);
+                 indent, common_asmflags);
   }
   if (respect_source_used
           ? (target_->source_types_used().Get(SourceFile::SOURCE_C) ||
@@ -391,7 +462,7 @@ void NinjaTargetWriter::WriteCCompilerVars(const SubstitutionBits& bits,
           : bits.used.count(&CSubstitutionCFlags)) {
     WriteOneFlag(kRecursiveWriterKeepDuplicates, target_, &CSubstitutionCFlags,
                  false, Tool::kToolNone, &ConfigValues::cflags, opts,
-                 path_output_, out_, true, indent);
+                 path_output_, out_, true, indent, common_cflags);
   }
   if (respect_source_used
           ? target_->source_types_used().Get(SourceFile::SOURCE_C)
@@ -399,7 +470,7 @@ void NinjaTargetWriter::WriteCCompilerVars(const SubstitutionBits& bits,
     WriteOneFlag(kRecursiveWriterKeepDuplicates, target_, &CSubstitutionCFlagsC,
                  has_precompiled_headers, CTool::kCToolCc,
                  &ConfigValues::cflags_c, opts, path_output_, out_, true,
-                 indent);
+                 indent, common_cflags_c);
   }
   if (respect_source_used
           ? (target_->source_types_used().Get(SourceFile::SOURCE_CPP) ||
@@ -408,7 +479,7 @@ void NinjaTargetWriter::WriteCCompilerVars(const SubstitutionBits& bits,
     WriteOneFlag(kRecursiveWriterKeepDuplicates, target_,
                  &CSubstitutionCFlagsCc, has_precompiled_headers,
                  CTool::kCToolCxx, &ConfigValues::cflags_cc, opts, path_output_,
-                 out_, true, indent);
+                 out_, true, indent, common_cflags_cc);
   }
   if (respect_source_used
           ? target_->source_types_used().Get(SourceFile::SOURCE_M)
@@ -416,7 +487,7 @@ void NinjaTargetWriter::WriteCCompilerVars(const SubstitutionBits& bits,
     WriteOneFlag(kRecursiveWriterKeepDuplicates, target_,
                  &CSubstitutionCFlagsObjC, has_precompiled_headers,
                  CTool::kCToolObjC, &ConfigValues::cflags_objc, opts,
-                 path_output_, out_, true, indent);
+                 path_output_, out_, true, indent, common_cflags_objc);
   }
   if (respect_source_used
           ? target_->source_types_used().Get(SourceFile::SOURCE_MM)
@@ -424,7 +495,7 @@ void NinjaTargetWriter::WriteCCompilerVars(const SubstitutionBits& bits,
     WriteOneFlag(kRecursiveWriterKeepDuplicates, target_,
                  &CSubstitutionCFlagsObjCc, has_precompiled_headers,
                  CTool::kCToolObjCxx, &ConfigValues::cflags_objcc, opts,
-                 path_output_, out_, true, indent);
+                 path_output_, out_, true, indent, common_cflags_objcc);
   }
   if (target_->source_types_used().SwiftSourceUsed() || !respect_source_used) {
     if (bits.used.count(&CSubstitutionSwiftModuleName)) {
@@ -470,7 +541,7 @@ void NinjaTargetWriter::WriteCCompilerVars(const SubstitutionBits& bits,
     WriteOneFlag(kRecursiveWriterKeepDuplicates, target_,
                  &CSubstitutionSwiftFlags, false, CTool::kCToolSwift,
                  &ConfigValues::swiftflags, opts, path_output_, out_, true,
-                 indent);
+                 indent, common_swiftflags);
   }
 }
 
@@ -480,18 +551,22 @@ void NinjaTargetWriter::WriteRustCompilerVars(const SubstitutionBits& bits,
   EscapeOptions opts;
   opts.mode = ESCAPE_NINJA_COMMAND;
 
+  std::string_view common_rustflags =
+      GetCommonVar(&kRustSubstitutionRustFlags);
+  std::string_view common_rustenv = GetCommonVar(&kRustSubstitutionRustEnv);
+
   if (bits.used.count(&kRustSubstitutionRustFlags) || always_write) {
     WriteOneFlag(kRecursiveWriterKeepDuplicates, target_,
                  &kRustSubstitutionRustFlags, false, Tool::kToolNone,
                  &ConfigValues::rustflags, opts, path_output_, out_, true,
-                 indent);
+                 indent, common_rustflags);
   }
 
   if (bits.used.count(&kRustSubstitutionRustEnv) || always_write) {
     WriteOneFlag(kRecursiveWriterKeepDuplicates, target_,
                  &kRustSubstitutionRustEnv, false, Tool::kToolNone,
                  &ConfigValues::rustenv, opts, path_output_, out_, true,
-                 indent);
+                 indent, common_rustenv);
   }
 }
 

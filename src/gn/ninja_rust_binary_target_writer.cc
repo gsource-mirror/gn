@@ -30,7 +30,12 @@ EscapeOptions GetFlagOptions() {
 void WriteVar(const char* name,
               const std::string& value,
               EscapeOptions opts,
-              std::ostream& out) {
+              std::ostream& out,
+              bool indent = false) {
+  if (value.empty())
+    return;
+  if (indent)
+    out << "  ";
   out << name << " = ";
   EscapeStringToStream(out, value, opts);
   out << std::endl;
@@ -39,9 +44,10 @@ void WriteVar(const char* name,
 void WriteCrateVars(const Target* target,
                     const Tool* tool,
                     EscapeOptions opts,
-                    std::ostream& out) {
+                    std::ostream& out,
+                    bool indent = false) {
   WriteVar(kRustSubstitutionCrateName.ninja_name,
-           target->rust_values().crate_name(), opts, out);
+           target->rust_values().crate_name(), opts, out, indent);
 
   std::string crate_type;
   switch (target->rust_values().crate_type()) {
@@ -86,16 +92,17 @@ void WriteCrateVars(const Target* target,
     default:
       NOTREACHED();
   }
-  WriteVar(kRustSubstitutionCrateType.ninja_name, crate_type, opts, out);
+  WriteVar(kRustSubstitutionCrateType.ninja_name, crate_type, opts, out,
+           indent);
 
   WriteVar(SubstitutionOutputExtension.ninja_name,
            SubstitutionWriter::GetLinkerSubstitution(
                target, tool, &SubstitutionOutputExtension),
-           opts, out);
+           opts, out, indent);
   WriteVar(SubstitutionOutputDir.ninja_name,
            SubstitutionWriter::GetLinkerSubstitution(target, tool,
                                                      &SubstitutionOutputDir),
-           opts, out);
+           opts, out, indent);
 }
 
 }  // namespace
@@ -116,8 +123,6 @@ void NinjaRustBinaryTargetWriter::Run() {
 
   std::vector<OutputFile> input_deps =
       WriteInputsStampOrPhonyAndGetDep(num_output_uses);
-
-  WriteCompilerVars();
 
   // Classify our dependencies.
   ClassifiedDeps classified_deps = GetClassifiedDeps();
@@ -280,6 +285,7 @@ void NinjaRustBinaryTargetWriter::Run() {
   WriteCompilerBuildLine({target_->rust_values().crate_root()},
                          implicit_deps.vector(), order_only_deps, tool_,
                          tool_outputs);
+  WriteCompilerVars(/*indent=*/true);
 
   std::vector<const Target*> extern_deps(
       classified_deps.linkable_deps.vector());
@@ -293,15 +299,15 @@ void NinjaRustBinaryTargetWriter::Run() {
   WritePool(out_);
 }
 
-void NinjaRustBinaryTargetWriter::WriteCompilerVars() {
+void NinjaRustBinaryTargetWriter::WriteCompilerVars(bool indent) {
   const SubstitutionBits& subst = target_->toolchain()->substitution_bits();
 
   EscapeOptions opts = GetFlagOptions();
-  WriteCrateVars(target_, tool_, opts, out_);
+  WriteCrateVars(target_, tool_, opts, out_, indent);
 
-  WriteRustCompilerVars(subst, /*indent=*/false, /*always_write=*/true);
+  WriteRustCompilerVars(subst, indent, /*always_write=*/true);
 
-  WriteSharedVars(subst);
+  WriteSharedVars(subst, indent);
 }
 
 void NinjaRustBinaryTargetWriter::AppendSourcesAndInputsToImplicitDeps(

@@ -33,21 +33,28 @@ TEST_F(NinjaBinaryTargetWriterTest, CSources) {
   writer.Run();
 
   const char expected[] =
-      "defines =\n"
-      "include_dirs =\n"
-      "cflags =\n"
-      "cflags_cc =\n"
-      "root_out_dir = .\n"
-      "target_gen_dir = gen/foo\n"
-      "target_out_dir = obj/foo\n"
-      "target_output_name = bar\n"
-      "\n"
       "build obj/foo/bar.input1.o: cxx ../../foo/input1.cc\n"
       "  source_file_part = input1.cc\n"
       "  source_name_part = input1\n"
+      "  defines =\n"
+      "  include_dirs =\n"
+      "  cflags =\n"
+      "  cflags_cc =\n"
+      "  root_out_dir = .\n"
+      "  target_gen_dir = gen/foo\n"
+      "  target_out_dir = obj/foo\n"
+      "  target_output_name = bar\n"
       "build obj/foo/bar.input2.o: cxx ../../foo/input2.cc\n"
       "  source_file_part = input2.cc\n"
       "  source_name_part = input2\n"
+      "  defines =\n"
+      "  include_dirs =\n"
+      "  cflags =\n"
+      "  cflags_cc =\n"
+      "  root_out_dir = .\n"
+      "  target_gen_dir = gen/foo\n"
+      "  target_out_dir = obj/foo\n"
+      "  target_output_name = bar\n"
       "\n"
       "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o "
       "obj/foo/bar.input2.o ../../foo/input3.o ../../foo/input4.obj\n"
@@ -70,15 +77,7 @@ TEST_F(NinjaBinaryTargetWriterTest, NoSourcesSourceSet) {
   NinjaBinaryTargetWriter writer(&target, out);
   writer.Run();
 
-  const char expected[] =
-      "defines =\n"
-      "include_dirs =\n"
-      "root_out_dir = .\n"
-      "target_gen_dir = gen/foo\n"
-      "target_out_dir = obj/foo\n"
-      "target_output_name = bar\n"
-      "\n"
-      "\n";
+  const char expected[] = "\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected, out_str);
 }
@@ -98,18 +97,14 @@ TEST_F(NinjaBinaryTargetWriterTest, NoSourcesStaticLib) {
   writer.Run();
 
   const char expected[] =
-      "defines =\n"
-      "include_dirs =\n"
-      "root_out_dir = .\n"
-      "target_gen_dir = gen/foo\n"
-      "target_out_dir = obj/foo\n"
-      "target_output_name = libbar\n"
-      "\n"
       "\n"
       "build obj/foo/libbar.a: alink\n"
       "  arflags =\n"
       "  output_extension =\n"
-      "  output_dir =\n";
+      "  output_dir =\n"
+      "  target_output_name = libbar\n"
+      "  target_out_dir = obj/foo\n"
+      "  target_gen_dir = gen/foo\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected, out_str);
 }
@@ -134,19 +129,18 @@ TEST_F(NinjaBinaryTargetWriterTest, Inputs) {
     writer.Run();
 
     const char expected[] =
-        "defines =\n"
-        "include_dirs =\n"
-        "cflags =\n"
-        "cflags_cc =\n"
-        "root_out_dir = .\n"
-        "target_gen_dir = gen/foo\n"
-        "target_out_dir = obj/foo\n"
-        "target_output_name = bar\n"
-        "\n"
         "build obj/foo/bar.source1.o: cxx ../../foo/source1.cc | "
         "../../foo/input1 ../../foo/input2\n"
         "  source_file_part = source1.cc\n"
         "  source_name_part = source1\n"
+        "  defines =\n"
+        "  include_dirs =\n"
+        "  cflags =\n"
+        "  cflags_cc =\n"
+        "  root_out_dir = .\n"
+        "  target_gen_dir = gen/foo\n"
+        "  target_out_dir = obj/foo\n"
+        "  target_output_name = bar\n"
         "\n"
         "build phony/foo/bar.linkdeps: phony obj/foo/bar.source1.o\n"
         "build phony/foo/bar: phony phony/foo/bar.linkdeps\n";
@@ -171,25 +165,32 @@ TEST_F(NinjaBinaryTargetWriterTest, Inputs) {
     writer.Run();
 
     const char expected[] =
-        "defines =\n"
-        "include_dirs =\n"
-        "cflags =\n"
-        "cflags_cc =\n"
-        "root_out_dir = .\n"
-        "target_gen_dir = gen/foo\n"
-        "target_out_dir = obj/foo\n"
-        "target_output_name = bar\n"
-        "\n"
         "build phony/foo/bar.inputs: phony "
         "../../foo/input1 ../../foo/input2\n"
         "build obj/foo/bar.source1.o: cxx ../../foo/source1.cc | "
         "phony/foo/bar.inputs\n"
         "  source_file_part = source1.cc\n"
         "  source_name_part = source1\n"
+        "  defines =\n"
+        "  include_dirs =\n"
+        "  cflags =\n"
+        "  cflags_cc =\n"
+        "  root_out_dir = .\n"
+        "  target_gen_dir = gen/foo\n"
+        "  target_out_dir = obj/foo\n"
+        "  target_output_name = bar\n"
         "build obj/foo/bar.source2.o: cxx ../../foo/source2.cc | "
         "phony/foo/bar.inputs\n"
         "  source_file_part = source2.cc\n"
         "  source_name_part = source2\n"
+        "  defines =\n"
+        "  include_dirs =\n"
+        "  cflags =\n"
+        "  cflags_cc =\n"
+        "  root_out_dir = .\n"
+        "  target_gen_dir = gen/foo\n"
+        "  target_out_dir = obj/foo\n"
+        "  target_output_name = bar\n"
         "\n"
         "build phony/foo/bar.linkdeps: phony obj/foo/bar.source1.o "
         "obj/foo/bar.source2.o\n"
@@ -231,19 +232,18 @@ TEST_F(NinjaBinaryTargetWriterTest, PublicInputs) {
   // Because it only has one input (a.in), it is depended on directly instead
   // of via a phony target.
   const char expected[] =
-      "defines =\n"
-      "include_dirs =\n"
-      "cflags =\n"
-      "cflags_cc =\n"
-      "root_out_dir = .\n"
-      "target_gen_dir = gen/foo\n"
-      "target_out_dir = obj/foo\n"
-      "target_output_name = b\n"
-      "\n"
       "build obj/foo/b.source1.o: cxx ../../foo/source1.cc | "
       "phony/foo/a.public_inputs || phony/foo/a\n"
       "  source_file_part = source1.cc\n"
       "  source_name_part = source1\n"
+      "  defines =\n"
+      "  include_dirs =\n"
+      "  cflags =\n"
+      "  cflags_cc =\n"
+      "  root_out_dir = .\n"
+      "  target_gen_dir = gen/foo\n"
+      "  target_out_dir = obj/foo\n"
+      "  target_output_name = b\n"
       "\n"
       "build phony/foo/b.linkdeps: phony obj/foo/b.source1.o || phony/foo/a\n"
       "build phony/foo/b: phony phony/foo/b.linkdeps\n";

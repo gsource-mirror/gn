@@ -10,12 +10,18 @@
 class BuildSettings;
 class OutputFile;
 class Settings;
+class SourceDir;
 class SourceFile;
 class Target;
 
 // Example: "base/base.ninja". The string version will not be escaped, and
 // will always have slashes for path separators.
 SourceFile GetNinjaFileForTarget(const Target* target);
+
+// Returns the name of the .ninja file for the BUILD.gn file in the given dir
+// and toolchain settings (e.g. "obj/base/BUILD.ninja").
+SourceFile GetNinjaFileForBuildFile(const Settings* settings,
+                                    const SourceDir& dir);
 
 // Returns the name of the root .ninja file for the given toolchain.
 SourceFile GetNinjaFileForToolchain(const Settings* settings);

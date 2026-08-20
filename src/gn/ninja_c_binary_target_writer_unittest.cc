@@ -51,15 +51,7 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSet) {
     writer.Run();
 
     const char expected[] =
-        "defines =\n"
-        "include_dirs =\n"
-        "cflags =\n"
-        "cflags_cc =\n"
-        "root_out_dir = .\n"
-        "target_gen_dir = gen/foo\n"
-        "target_out_dir = obj/foo\n"
-        "target_output_name = bar\n"
-        "\n"
+
         "build obj/foo/bar.input1.o: cxx ../../foo/input1.cc\n"
         "  source_file_part = input1.cc\n"
         "  source_name_part = input1\n"
@@ -67,9 +59,9 @@ TEST_F(NinjaCBinaryTargetWriterTest, SourceSet) {
         "  source_file_part = input2.cc\n"
         "  source_name_part = input2\n"
         "\n"
-        "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o "
-        "obj/foo/bar.input2.o ../../foo/input3.o ../../foo/input4.obj\n"
-        "build phony/foo/bar: phony phony/foo/bar.linkdeps\n";
+        "build phony/foo/bar.linkdeps: phony obj/foo/bar.input1.o obj/foo/bar.input2.o ../../foo/input3.o ../../foo/input4.obj\n"
+        "build phony/foo/bar: phony phony/foo/bar.linkdeps\n"
+        "\n";
     std::string out_str = out.str();
     EXPECT_EQ(expected, out_str);
   }
@@ -3028,28 +3020,39 @@ TEST_F(NinjaCBinaryTargetWriterTest, DependOnModule) {
     NinjaCBinaryTargetWriter writer(&target, out);
     writer.Run();
 
-    const char expected[] = R"(defines =
-include_dirs =
-cflags =
-cflags_cc =
-cc_module_name = blah_a
-module_deps = -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-module_deps_no_self = -fmodule-map-file=../../blah/a.modulemap
-root_out_dir = withmodules
-target_out_dir = obj/blah
-target_output_name = liba
-
-build obj/blah/liba.a.pcm: cxx_module ../../blah/a.modulemap
+    const char expected[] = R"(build obj/blah/liba.a.pcm: cxx_module ../../blah/a.modulemap
   source_file_part = a.modulemap
   source_name_part = a
+  defines =
+  include_dirs =
+  cflags =
+  cflags_cc =
+  cc_module_name = blah_a
+  module_deps = -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  module_deps_no_self = -fmodule-map-file=../../blah/a.modulemap
+  root_out_dir = withmodules
+  target_out_dir = obj/blah
+  target_output_name = liba
 build obj/blah/liba.a.o: cxx ../../blah/a.cc | obj/blah/liba.a.pcm
   source_file_part = a.cc
   source_name_part = a
+  defines =
+  include_dirs =
+  cflags =
+  cflags_cc =
+  cc_module_name = blah_a
+  module_deps = -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  module_deps_no_self = -fmodule-map-file=../../blah/a.modulemap
+  root_out_dir = withmodules
+  target_out_dir = obj/blah
+  target_output_name = liba
 
 build obj/blah/liba.a: alink obj/blah/liba.a.o
   arflags =
   output_extension =
   output_dir =
+  target_output_name = liba
+  target_out_dir = obj/blah
 )";
 
     std::string out_str = out.str();
@@ -3077,28 +3080,39 @@ build obj/blah/liba.a: alink obj/blah/liba.a.o
     NinjaCBinaryTargetWriter writer(&target2, out);
     writer.Run();
 
-    const char expected[] = R"(defines =
-include_dirs =
-cflags =
-cflags_cc =
-cc_module_name = //stuff$:b(//toolchain$:default)
-module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-root_out_dir = withmodules
-target_out_dir = obj/stuff
-target_output_name = libb
-
-build obj/stuff/libb.b.pcm: cxx_module ../../stuff/b.modulemap | obj/blah/liba.a.pcm
+    const char expected[] = R"(build obj/stuff/libb.b.pcm: cxx_module ../../stuff/b.modulemap | obj/blah/liba.a.pcm
   source_file_part = b.modulemap
   source_name_part = b
+  defines =
+  include_dirs =
+  cflags =
+  cflags_cc =
+  cc_module_name = //stuff$:b(//toolchain$:default)
+  module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  root_out_dir = withmodules
+  target_out_dir = obj/stuff
+  target_output_name = libb
 build obj/stuff/libb.b.o: cxx ../../stuff/b.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
   source_file_part = b.cc
   source_name_part = b
+  defines =
+  include_dirs =
+  cflags =
+  cflags_cc =
+  cc_module_name = //stuff$:b(//toolchain$:default)
+  module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  root_out_dir = withmodules
+  target_out_dir = obj/stuff
+  target_output_name = libb
 
 build obj/stuff/libb.a: alink obj/stuff/libb.b.o || obj/blah/liba.a
   arflags =
   output_extension =
   output_dir =
+  target_output_name = libb
+  target_out_dir = obj/stuff
 )";
 
     std::string out_str = out.str();
@@ -3124,25 +3138,26 @@ build obj/stuff/libb.a: alink obj/stuff/libb.b.o || obj/blah/liba.a
     NinjaCBinaryTargetWriter writer(&target3, out);
     writer.Run();
 
-    const char expected[] = R"(defines =
-include_dirs =
-cflags =
-cflags_cc =
-cc_module_name = //things$:c
-module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../stuff/c.modulemap -fmodule-file=//things:c=obj/stuff/libc.c.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../stuff/c.modulemap -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-root_out_dir = withmodules
-target_out_dir = obj/things
-target_output_name = libc
-
-build obj/stuff/libc.c.pcm: cxx_module ../../stuff/c.modulemap | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
+    const char expected[] = R"(build obj/stuff/libc.c.pcm: cxx_module ../../stuff/c.modulemap | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
   source_file_part = c.modulemap
   source_name_part = c
+  defines =
+  include_dirs =
+  cflags =
+  cflags_cc =
+  cc_module_name = //things$:c
+  module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../stuff/c.modulemap -fmodule-file=//things:c=obj/stuff/libc.c.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../stuff/c.modulemap -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  root_out_dir = withmodules
+  target_out_dir = obj/things
+  target_output_name = libc
 
 build obj/things/libc.a: alink || obj/stuff/libb.a obj/blah/liba.a
   arflags =
   output_extension =
   output_dir =
+  target_output_name = libc
+  target_out_dir = obj/things
 )";
 
     std::string out_str = out.str();
@@ -3166,23 +3181,32 @@ build obj/things/libc.a: alink || obj/stuff/libb.a obj/blah/liba.a
     NinjaCBinaryTargetWriter writer(&depender, out);
     writer.Run();
 
-    const char expected[] = R"(defines =
-include_dirs =
-cflags =
-cflags_cc =
-cc_module_name = //zap$:c(//toolchain$:default)
-module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
-root_out_dir = withmodules
-target_out_dir = obj/zap
-target_output_name = c
-
-build obj/zap/c.x.o: cxx ../../zap/x.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
+    const char expected[] = R"(build obj/zap/c.x.o: cxx ../../zap/x.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
   source_file_part = x.cc
   source_name_part = x
+  defines =
+  include_dirs =
+  cflags =
+  cflags_cc =
+  cc_module_name = //zap$:c(//toolchain$:default)
+  module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  root_out_dir = withmodules
+  target_out_dir = obj/zap
+  target_output_name = c
 build obj/zap/c.y.o: cxx ../../zap/y.cc | obj/stuff/libb.b.pcm obj/blah/liba.a.pcm
   source_file_part = y.cc
   source_name_part = y
+  defines =
+  include_dirs =
+  cflags =
+  cflags_cc =
+  cc_module_name = //zap$:c(//toolchain$:default)
+  module_deps = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  module_deps_no_self = -fmodule-map-file=../../stuff/b.modulemap -fmodule-file=//stuff:b(//toolchain:default)=obj/stuff/libb.b.pcm -fmodule-map-file=../../blah/a.modulemap -fmodule-file=blah_a=obj/blah/liba.a.pcm
+  root_out_dir = withmodules
+  target_out_dir = obj/zap
+  target_output_name = c
 
 build withmodules/c: link obj/zap/c.x.o obj/zap/c.y.o obj/stuff/libb.a obj/blah/liba.a
   ldflags =
@@ -3191,6 +3215,8 @@ build withmodules/c: link obj/zap/c.x.o obj/zap/c.y.o obj/stuff/libb.a obj/blah/
   swiftmodules =
   output_extension =
   output_dir =
+  target_output_name = c
+  target_out_dir = obj/zap
 )";
 
     std::string out_str = out.str();
@@ -3228,29 +3254,31 @@ TEST_F(NinjaCBinaryTargetWriterTest, SolibsEscaping) {
   NinjaCBinaryTargetWriter writer(&target, out);
   writer.Run();
 
-  const char expected[] = R"(defines =
-include_dirs =
-root_out_dir = .
-target_gen_dir = gen/launchpad
-target_out_dir = obj/launchpad
-target_output_name = main
-
-build obj/launchpad/main.main.o: cxx ../../launchpad/main.cc
-  source_file_part = main.cc
-  source_name_part = main
-
-build ./main: link obj/launchpad/main.main.o | ./Space$ Cadet.so.TOC
-  ldflags =
-  libs =
-  frameworks =
-  swiftmodules =
-  output_extension =
-  output_dir =
-)"
+  const char expected[] =
+      "build obj/launchpad/main.main.o: cxx ../../launchpad/main.cc\n"
+      "  source_file_part = main.cc\n"
+      "  source_name_part = main\n"
+      "  defines =\n"
+      "  include_dirs =\n"
+      "  root_out_dir = .\n"
+      "  target_gen_dir = gen/launchpad\n"
+      "  target_out_dir = obj/launchpad\n"
+      "  target_output_name = main\n"
+      "\n"
+      "build ./main: link obj/launchpad/main.main.o | ./Space$ Cadet.so.TOC\n"
+      "  ldflags =\n"
+      "  libs =\n"
+      "  frameworks =\n"
+      "  swiftmodules =\n"
+      "  output_extension =\n"
+      "  output_dir =\n"
+      "  target_output_name = main\n"
+      "  target_out_dir = obj/launchpad\n"
+      "  target_gen_dir = gen/launchpad\n"
 #if defined(OS_WIN)
-                          "  solibs = \"./Space$ Cadet.so\"\n";
+      "  solibs = \"./Space$ Cadet.so\"\n";
 #else
-                          "  solibs = ./Space\\$ Cadet.so\n";
+      "  solibs = ./Space\\$ Cadet.so\n";
 #endif
 
   std::string out_str = out.str();
@@ -3279,16 +3307,15 @@ TEST_F(NinjaCBinaryTargetWriterTest, Pool) {
   writer.Run();
 
   const char expected[] =
-      "defines =\n"
-      "include_dirs =\n"
-      "root_out_dir = .\n"
-      "target_gen_dir = gen/foo\n"
-      "target_out_dir = obj/foo\n"
-      "target_output_name = bar\n"
-      "\n"
       "build obj/foo/bar.source.o: cxx ../../foo/source.cc\n"
       "  source_file_part = source.cc\n"
       "  source_name_part = source\n"
+      "  defines =\n"
+      "  include_dirs =\n"
+      "  root_out_dir = .\n"
+      "  target_gen_dir = gen/foo\n"
+      "  target_out_dir = obj/foo\n"
+      "  target_output_name = bar\n"
       "  pool = foo_pool\n"
       "\n"
       "build ./bar: link obj/foo/bar.source.o\n"
@@ -3298,6 +3325,9 @@ TEST_F(NinjaCBinaryTargetWriterTest, Pool) {
       "  swiftmodules =\n"
       "  output_extension =\n"
       "  output_dir =\n"
+      "  target_output_name = bar\n"
+      "  target_out_dir = obj/foo\n"
+      "  target_gen_dir = gen/foo\n"
       "  pool = foo_pool\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected, out_str);
@@ -3345,15 +3375,14 @@ TEST_F(NinjaCBinaryTargetWriterTest, ToolInputs) {
   writer.Run();
 
   const char expected[] =
-      "defines =\n"
-      "include_dirs =\n"
-      "root_out_dir = .\n"
-      "target_output_name = bar\n"
-      "\n"
       "build obj/foo/bar.source.o: cxx ../../foo/source.cc | "
       "../../bin/clang++\n"
       "  source_file_part = source.cc\n"
       "  source_name_part = source\n"
+      "  defines =\n"
+      "  include_dirs =\n"
+      "  root_out_dir = .\n"
+      "  target_output_name = bar\n"
       "\n"
       "build ./bar: link obj/foo/bar.source.o | "
       "phony/link_inputs\n"
@@ -3362,7 +3391,8 @@ TEST_F(NinjaCBinaryTargetWriterTest, ToolInputs) {
       "  frameworks =\n"
       "  swiftmodules =\n"
       "  output_extension =\n"
-      "  output_dir =\n";
+      "  output_dir =\n"
+      "  target_output_name = bar\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected, out_str);
 }
@@ -3432,20 +3462,20 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapGeneration) {
   EXPECT_EQ(expected_modulemap, modulemap_str);
 
   const char expected_ninja[] =
-      "defines =\n"
-      "include_dirs =\n"
-      "cflags =\n"
-      "cflags_cc =\n"
-      "module_deps = -fmodule-map-file=gen/foo/bar.private.modulemap\n"
-      "module_deps_no_self = -fmodule-map-file=gen/foo/bar.private.modulemap\n"
-      "root_out_dir = .\n"
-      "target_gen_dir = gen/foo\n"
-      "target_out_dir = obj/foo\n"
-      "target_output_name = bar\n"
-      "\n"
       "build obj/foo/bar.source1.o: cxx ../../foo/source1.cc\n"
       "  source_file_part = source1.cc\n"
       "  source_name_part = source1\n"
+      "  defines =\n"
+      "  include_dirs =\n"
+      "  cflags =\n"
+      "  cflags_cc =\n"
+      "  module_deps = -fmodule-map-file=gen/foo/bar.private.modulemap\n"
+      "  module_deps_no_self = "
+      "-fmodule-map-file=gen/foo/bar.private.modulemap\n"
+      "  root_out_dir = .\n"
+      "  target_gen_dir = gen/foo\n"
+      "  target_out_dir = obj/foo\n"
+      "  target_output_name = bar\n"
       "\n"
       "build phony/foo/bar.linkdeps: phony obj/foo/bar.source1.o\n"
       "build phony/foo/bar: phony phony/foo/bar.linkdeps\n";
@@ -3582,17 +3612,16 @@ TEST_F(NinjaCBinaryTargetWriterTest, ModuleMapGeneration) {
   NinjaCBinaryTargetWriter(&root, root_ninja_out).Run();
   std::string root_ninja_str = root_ninja_out.str();
   const char expected_root_ninja[] =
-      "defines =\n"
-      "include_dirs =\n"
-      "cflags =\n"
-      "cflags_cc =\n"
-      "module_deps = -fmodule-map-file=gen/foo/root.private.modulemap\n"
-      "target_out_dir = obj/foo\n"
-      "target_output_name = root\n"
-      "\n"
       "build obj/foo/root.root.o: cxx ../../foo/root.cc\n"
       "  source_file_part = root.cc\n"
       "  source_name_part = root\n"
+      "  defines =\n"
+      "  include_dirs =\n"
+      "  cflags =\n"
+      "  cflags_cc =\n"
+      "  module_deps = -fmodule-map-file=gen/foo/root.private.modulemap\n"
+      "  target_out_dir = obj/foo\n"
+      "  target_output_name = root\n"
       "\n"
       "build phony/foo/root.linkdeps: phony obj/foo/root.root.o\n"
       "build phony/foo/root: phony phony/foo/root.linkdeps\n";
@@ -3655,18 +3684,17 @@ TEST_F(NinjaCBinaryTargetWriterTest,
     writer.Run();
 
     const char expected[] =
-        "defines =\n"
-        "include_dirs =\n"
-        "cflags =\n"
-        "cflags_cc =\n"
-        "root_out_dir = .\n"
-        "target_gen_dir = gen/foo\n"
-        "target_out_dir = obj/foo\n"
-        "target_output_name = a\n"
-        "\n"
         "build obj/foo/a.a.o: cxx ../../foo/a.cc\n"
         "  source_file_part = a.cc\n"
         "  source_name_part = a\n"
+        "  defines =\n"
+        "  include_dirs =\n"
+        "  cflags =\n"
+        "  cflags_cc =\n"
+        "  root_out_dir = .\n"
+        "  target_gen_dir = gen/foo\n"
+        "  target_out_dir = obj/foo\n"
+        "  target_output_name = a\n"
         "\n"
         "build phony/foo/a.linkdeps: phony obj/foo/a.a.o"
         " || phony/foo/b.linkdeps\n"

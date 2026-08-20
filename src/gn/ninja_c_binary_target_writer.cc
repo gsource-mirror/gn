@@ -67,8 +67,6 @@ void NinjaCBinaryTargetWriter::Run() {
   std::set<ClangModuleDep> module_dep_info =
       GetModuleDepsInformation(target_, resolved());
 
-  WriteCompilerVars(module_dep_info);
-
   size_t num_output_uses = target_->sources().size();
 
   std::vector<OutputFile> input_deps =
@@ -173,47 +171,53 @@ void NinjaCBinaryTargetWriter::Run() {
 }
 
 void NinjaCBinaryTargetWriter::WriteCompilerVars(
-    const std::set<ClangModuleDep>& module_dep_info) {
+    const std::set<ClangModuleDep>& module_dep_info,
+    bool indent) {
   const SubstitutionBits& subst = target_->toolchain()->substitution_bits();
 
-  WriteCCompilerVars(subst, /*indent=*/false,
+  WriteCCompilerVars(subst, indent,
                      /*respect_source_types_used=*/true);
 
-  WriteModuleNameSubstitution();
+  WriteModuleNameSubstitution(indent);
 
   if (!module_dep_info.empty()) {
     // TODO(scottmg): Currently clang modules only working for C++.
     if (target_->source_types_used().Get(SourceFile::SOURCE_CPP) ||
         target_->source_types_used().Get(SourceFile::SOURCE_MODULEMAP)) {
       WriteModuleDepsSubstitution(&CSubstitutionModuleDeps, module_dep_info,
-                                  true);
+                                  true, indent);
       WriteModuleDepsSubstitution(&CSubstitutionModuleDepsNoSelf,
-                                  module_dep_info, false);
+                                  module_dep_info, false, indent);
     }
   }
-
-  WriteSharedVars(subst);
 }
 
-void NinjaCBinaryTargetWriter::WriteModuleNameSubstitution() {
+void NinjaCBinaryTargetWriter::WriteModuleNameSubstitution(bool indent) {
   if (target_->toolchain()->substitution_bits().used.count(
           &CSubstitutionModuleName)) {
-    out_ << CSubstitutionModuleName.ninja_name << " = ";
-    EscapeOptions options;
-    options.mode = ESCAPE_NINJA;
-    EscapeStringToStream(out_, target_->module_name(), options);
-    out_ << std::endl;
+    if (!target_->module_name().empty()) {
+      if (indent)
+        out_ << "  ";
+      out_ << CSubstitutionModuleName.ninja_name << " = ";
+      EscapeOptions options;
+      options.mode = ESCAPE_NINJA;
+      EscapeStringToStream(out_, target_->module_name(), options);
+      out_ << std::endl;
+    }
   }
 }
 
 void NinjaCBinaryTargetWriter::WriteModuleDepsSubstitution(
     const Substitution* substitution,
     const std::set<ClangModuleDep>& module_dep_info,
-    bool include_self) {
+    bool include_self,
+    bool indent) {
   if (target_->toolchain()->substitution_bits().used.count(substitution)) {
     EscapeOptions options;
     options.mode = ESCAPE_NINJA_COMMAND;
 
+    if (indent)
+      out_ << "  ";
     out_ << substitution->ninja_name << " =";
     for (const auto& module_dep : module_dep_info) {
       module_dep.Write(out_, path_output_, include_self);
@@ -309,6 +313,7 @@ void NinjaCBinaryTargetWriter::WriteGCCPCHCommand(
   // Build line to compile the file.
   WriteCompilerBuildLine({target_->config_values().precompiled_source()},
                          extra_deps, order_only_deps, tool, outputs);
+  WriteCompilerVars(std::set<ClangModuleDep>(), /*indent=*/true);
 
   // This build line needs a custom language-specific flags value. Rule-specific
   // variables are just indented underneath the rule line.
@@ -365,6 +370,7 @@ void NinjaCBinaryTargetWriter::WriteWindowsPCHCommand(
   // Build line to compile the file.
   WriteCompilerBuildLine({target_->config_values().precompiled_source()},
                          extra_deps, order_only_deps, tool, outputs);
+  WriteCompilerVars(std::set<ClangModuleDep>(), /*indent=*/true);
 
   // This build line needs a custom language-specific flags value. Rule-specific
   // variables are just indented underneath the rule line.
@@ -475,6 +481,7 @@ void NinjaCBinaryTargetWriter::WriteSources(
 
       WriteCompilerBuildLine({source}, deps, order_only_deps, tool,
                              tool_outputs);
+      WriteCompilerVars(module_dep_info, /*indent=*/true);
       WritePool(out_);
     }
 
@@ -529,6 +536,7 @@ void NinjaCBinaryTargetWriter::WriteSwiftSources(
                          swift_order_only_deps.vector(), tool, *output_files,
                          /*can_write_source_info=*/false,
                          /*restat_output_allowed=*/true);
+  WriteCompilerVars(std::set<ClangModuleDep>(), /*indent=*/true);
 
   out_ << std::endl;
 }
@@ -784,6 +792,17 @@ void NinjaCBinaryTargetWriter::WriteOutputSubstitutions() {
     out_ << " " << output_dir;
   }
   out_ << std::endl;
+
+  const SubstitutionBits& bits = target_->toolchain()->substitution_bits();
+  if (bits.used.count(&SubstitutionTargetOutputName)) {
+    WriteEscapedSubstitution(&SubstitutionTargetOutputName, /*indent=*/true);
+  }
+  if (bits.used.count(&SubstitutionTargetOutDir)) {
+    WriteEscapedSubstitution(&SubstitutionTargetOutDir, /*indent=*/true);
+  }
+  if (bits.used.count(&SubstitutionTargetGenDir)) {
+    WriteEscapedSubstitution(&SubstitutionTargetGenDir, /*indent=*/true);
+  }
 }
 
 void NinjaCBinaryTargetWriter::WriteLibsList(

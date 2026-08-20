@@ -42,6 +42,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e00f321_56ce51b7",
+        "filename": "src/gn/parse_tree.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-20T04:19:59Z",
+      "side": 1,
+      "message": "The copy-constructor is intentionally private, so make_unique can\u0027t see it.",
+      "parentUuid": "0a1909cf_88cc81b4",
+      "range": {
+        "startLine": 188,
+        "startChar": 35,
+        "endLine": 188,
+        "endChar": 38
+      },
+      "revId": "4b7d85f9b3170444ed359080b4abb73aa684d18e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ee760ee2_6dd1d09b",
@@ -55,6 +79,30 @@
       "writtenOn": "2026-08-20T03:29:12Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: The `value_` Token holds a `std::string_view` which may point to `shortened_value_`.\n\n`LiteralNode` is unique among AST nodes because it can own the string memory that its `Token` points to (this happens when `shortened_value_` is populated in `ShortenTarget()`).\n\nIf you just copy `value_` here, the new `LiteralNode`\u0027s token will hold a `std::string_view` pointing to the original `LiteralNode`\u0027s `shortened_value_` string buffer. If the original node is destroyed, the token inside the cloned node will become a dangling pointer.\n\nTo fix this, you should also copy `shortened_value_` and update the token to point to the new string if it\u0027s not empty:\n\n```cpp\n  auto node \u003d std::make_unique\u003cLiteralNode\u003e(value_);\n  if (!shortened_value_.empty()) {\n    node-\u003eshortened_value_ \u003d shortened_value_;\n    node-\u003evalue_ \u003d Token(value_.location(), value_.type(), node-\u003eshortened_value_);\n  }\n  return node;\n```",
+      "range": {
+        "startLine": 1298,
+        "startChar": 0,
+        "endLine": 1298,
+        "endChar": 0
+      },
+      "revId": "4b7d85f9b3170444ed359080b4abb73aa684d18e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2e8b882_723ed6f8",
+        "filename": "src/gn/parse_tree.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1298,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-20T04:19:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee760ee2_6dd1d09b",
       "range": {
         "startLine": 1298,
         "startChar": 0,

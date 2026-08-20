@@ -382,6 +382,10 @@ extern const char kWriteOutputConversion[];
 extern const char kWriteOutputConversion_HelpShort[];
 extern const char kWriteOutputConversion_Help[];
 
+extern const char kWriteLinkerInputs[];
+extern const char kWriteLinkerInputs_HelpShort[];
+extern const char kWriteLinkerInputs_Help[];
+
 extern const char kWriteRuntimeDeps[];
 extern const char kWriteRuntimeDeps_HelpShort[];
 extern const char kWriteRuntimeDeps_Help[];

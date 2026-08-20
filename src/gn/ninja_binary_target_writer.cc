@@ -223,18 +223,25 @@ NinjaBinaryTargetWriter::WriteInputsStampOrPhonyAndGetDep(
 
 NinjaBinaryTargetWriter::ClassifiedDeps
 NinjaBinaryTargetWriter::GetClassifiedDeps() const {
+  return GetClassifiedDeps(target_, resolved());
+}
+
+// static
+NinjaBinaryTargetWriter::ClassifiedDeps
+NinjaBinaryTargetWriter::GetClassifiedDeps(const Target* target,
+                                           const ResolvedTargetData& resolved) {
   ClassifiedDeps classified_deps;
 
-  const auto& target_deps = resolved().GetTargetDeps(target_);
+  const auto& target_deps = resolved.GetTargetDeps(target);
 
   // Normal public/private deps.
   for (const Target* dep : target_deps.linked_deps()) {
-    ClassifyDependency(dep, &classified_deps);
+    ClassifyDependency(target, dep, &classified_deps);
   }
 
   // Inherited libraries.
-  for (const auto& inherited : resolved().GetInheritedLibraries(target_)) {
-    ClassifyDependency(inherited.target(), &classified_deps);
+  for (const auto& inherited : resolved.GetInheritedLibraries(target)) {
+    ClassifyDependency(target, inherited.target(), &classified_deps);
   }
 
   // Data deps.
@@ -244,9 +251,11 @@ NinjaBinaryTargetWriter::GetClassifiedDeps() const {
   return classified_deps;
 }
 
+// static
 void NinjaBinaryTargetWriter::ClassifyDependency(
+    const Target* target,
     const Target* dep,
-    ClassifiedDeps* classified_deps) const {
+    ClassifiedDeps* classified_deps) {
   // Only the following types of outputs have libraries linked into them:
   //  EXECUTABLE
   //  SHARED_LIBRARY
@@ -255,14 +264,14 @@ void NinjaBinaryTargetWriter::ClassifyDependency(
   // Child deps of intermediate static libraries get pushed up the
   // dependency tree until one of these is reached, and source sets
   // don't link at all.
-  bool can_link_libs = target_->IsFinal();
+  bool can_link_libs = target->IsFinal();
 
   if (can_link_libs && dep->builds_swift_module())
     classified_deps->swiftmodule_deps.push_back(dep);
 
-  if (target_->source_types_used().RustSourceUsed() &&
-      (target_->output_type() == Target::RUST_LIBRARY ||
-       target_->output_type() == Target::STATIC_LIBRARY) &&
+  if (target->source_types_used().RustSourceUsed() &&
+      (target->output_type() == Target::RUST_LIBRARY ||
+       target->output_type() == Target::STATIC_LIBRARY) &&
       dep->IsLinkable()) {
     // Rust libraries and static libraries aren't final, but need to have the
     // link lines of all transitive deps specified.
@@ -273,7 +282,7 @@ void NinjaBinaryTargetWriter::ClassifyDependency(
              // library as if it were a source set. This avoids problems with
              // braindead tools such as ar which don't properly link dependent
              // static libraries.
-             (target_->complete_static_lib() &&
+             (target->complete_static_lib() &&
               (dep->output_type() == Target::STATIC_LIBRARY &&
                !dep->complete_static_lib()))) {
     // Source sets have their object files linked into final targets
@@ -291,7 +300,7 @@ void NinjaBinaryTargetWriter::ClassifyDependency(
     // can be complete. Otherwise, these will be skipped since this target
     // will depend only on the source set's object files.
     classified_deps->non_linkable_deps.push_back(dep);
-  } else if (target_->complete_static_lib() && dep->IsFinal()) {
+  } else if (target->complete_static_lib() && dep->IsFinal()) {
     classified_deps->non_linkable_deps.push_back(dep);
   } else if (can_link_libs && dep->IsLinkable()) {
     classified_deps->linkable_deps.push_back(dep);
@@ -303,9 +312,10 @@ void NinjaBinaryTargetWriter::ClassifyDependency(
   }
 }
 
+// static
 void NinjaBinaryTargetWriter::AddSourceSetFiles(
     const Target* source_set,
-    UniqueVector<OutputFile>* obj_files) const {
+    UniqueVector<OutputFile>* obj_files) {
   std::vector<OutputFile> tool_outputs;  // Prevent allocation in loop.
 
   // Compute object files for all sources. Only link the first output from

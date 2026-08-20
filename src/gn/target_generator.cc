@@ -75,6 +75,9 @@ void TargetGenerator::Run() {
   if (!Visibility::FillItemVisibility(target_, scope_, err_))
     return;
 
+  if (!FillWriteLinkerInputs())
+    return;
+
   if (!FillWriteRuntimeDeps())
     return;
 
@@ -454,6 +457,35 @@ bool TargetGenerator::FillGenericDeps(const char* var_name,
                         dest, err_);
   }
   return !err_->has_error();
+}
+
+bool TargetGenerator::FillWriteLinkerInputs() {
+  const Value* value = scope_->GetValue(variables::kWriteLinkerInputs, true);
+  if (!value)
+    return true;
+
+  if (target_->output_type() != Target::EXECUTABLE &&
+      target_->output_type() != Target::SHARED_LIBRARY &&
+      target_->output_type() != Target::LOADABLE_MODULE) {
+    *err_ = Err(
+        value->origin(),
+        "write_linker_inputs is only supported for final binary targets.",
+        "This target is not an executable, shared_library, or loadable_module.");
+    return false;
+  }
+
+  // Compute the file name and make sure it's in the output dir.
+  SourceFile source_file = scope_->GetSourceDir().ResolveRelativeFile(
+      *value, err_, GetBuildSettings()->root_path_utf8());
+  if (err_->has_error())
+    return false;
+  if (!EnsureStringIsInOutputDir(GetBuildSettings()->build_dir(),
+                                 source_file.value(), value->origin(), err_))
+    return false;
+  OutputFile output_file(GetBuildSettings(), source_file);
+  target_->set_write_linker_inputs_output(output_file);
+
+  return true;
 }
 
 bool TargetGenerator::FillWriteRuntimeDeps() {

@@ -1,0 +1,131 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "112ba70e_cd39f966",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T07:22:19Z",
+      "side": 1,
+      "message": "Better to have configs too?",
+      "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ad1e98b_0584edb2",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T07:22:19Z",
+      "side": 1,
+      "message": "Can we explain why we cannot suppor this?",
+      "range": {
+        "startLine": 323,
+        "startChar": 51,
+        "endLine": 323,
+        "endChar": 75
+      },
+      "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "916082de_9b3eec83",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T07:22:19Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `path` doesn\u0027t have an extension but contains a dot in the directory path (e.g., `src/my.folder/my_file`), `rfind(\u0027.\u0027)` will match the dot in the directory name, improperly truncating the path.\n\nYou should ensure the dot is after the last slash:\n```cpp\n  size_t last_slash \u003d path.find_last_of(\"/\\\\\");\n  size_t last_dot \u003d path.rfind(\u0027.\u0027);\n  if (last_dot !\u003d std::string_view::npos \u0026\u0026\n      (last_slash \u003d\u003d std::string_view::npos || last_dot \u003e last_slash)) {\n    path \u003d path.substr(0, last_dot);\n  }\n```",
+      "range": {
+        "startLine": 330,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 0
+      },
+      "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a61baa40_51f7bd12",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T07:22:19Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `testonly` or `visibility` are defined inside a conditional block (e.g. `if (is_win) { visibility \u003d ... }`), this logic will pull the assignment out and apply it unconditionally to the `group` target.\n\nThis could break builds by applying test-only restrictions or visibility limits unconditionally. Consider checking `assign.is_conditional()` and either adding a warning or preserving the conditional.",
+      "range": {
+        "startLine": 422,
+        "startChar": 0,
+        "endLine": 422,
+        "endChar": 0
+      },
+      "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eeda4544_6c9160c1",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-20T07:22:19Z",
+      "side": 1,
+      "message": "This is redundant?",
+      "range": {
+        "startLine": 536,
+        "startChar": 48,
+        "endLine": 536,
+        "endChar": 63
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "a47f27c0_16729bf9",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/edit_subcommands.cc",
+              "range": {
+                "startLine": 536,
+                "startChar": 0,
+                "endLine": 537,
+                "endChar": 0
+              },
+              "replacement": "    std::optional\u003cstd::string\u003e shard_target_type;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

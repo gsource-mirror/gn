@@ -35,7 +35,6 @@ TEST(NinjaCopyTargetWriter, Run) {
   const char expected_linux[] =
       "build input1.out: copy ../../foo/input1.txt\n"
       "build input2.out: copy ../../foo/input2.txt\n"
-      "\n"
       "build phony/foo/bar: phony input1.out input2.out\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected_linux, out_str);
@@ -63,7 +62,6 @@ TEST(NinjaCopyTargetWriter, ToolchainDeps) {
 
   const char expected_linux[] =
       "build output.out: copy ../../foo/input1.txt\n"
-      "\n"
       "build phony/foo/bar: phony output.out\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected_linux, out_str);
@@ -88,7 +86,6 @@ TEST(NinjaCopyTargetWriter, OrderOnlyDeps) {
 
   const char expected_linux[] =
       "build input1.out: copy ../../foo/input1.txt || ../../foo/script.py\n"
-      "\n"
       "build phony/foo/bar: phony input1.out\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected_linux, out_str);
@@ -120,7 +117,6 @@ TEST(NinjaCopyTargetWriter, DataDeps) {
 
   const char expected_linux[] =
       "build input1.out: copy ../../foo/input1.txt || phony/foo/datadep\n"
-      "\n"
       "build phony/foo/bar: phony input1.out\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected_linux, out_str);
@@ -159,7 +155,6 @@ TEST(NinjaCopyTargetWriter, NoSourcesInOutputs) {
 
     const char expected_linux[] =
         "build action1.copy: copy action1.out || phony/foo/action1\n"
-        "\n"
         "build phony/foo/bar: phony action1.copy\n";
     std::string out_str = out.str();
     EXPECT_EQ(expected_linux, out_str);
@@ -212,7 +207,6 @@ TEST(NinjaCopyTargetWriter, NoSourcesInOutputs) {
         "phony/foo/action2\n"
         "build action1.copy: copy action1.out | phony/foo/bar.inputdeps\n"
         "build action2.copy: copy action2.out | phony/foo/bar.inputdeps\n"
-        "\n"
         "build phony/foo/bar: phony action1.copy action2.copy\n";
     std::string out_str = out.str();
     EXPECT_EQ(expected_linux, out_str);
@@ -253,7 +247,6 @@ TEST(NinjaCopyTargetWriter, CopyWithValidations) {
 
   const char expected_linux[] =
       "build input1.out: copy ../../foo/input1.txt |@ phony/foo/val\n"
-      "\n"
       "build phony/foo/bar: phony input1.out |@ phony/foo/val\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected_linux, out_str);

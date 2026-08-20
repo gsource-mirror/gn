@@ -7,7 +7,6 @@ target_output_name = hello
 build obj/hello.hello.o: cxx ../hello.cc
   source_file_part = hello.cc
   source_name_part = hello
-
 build hello: link obj/hello.hello.o ./libhello_shared.so obj/libhello_static.a
   ldflags = -ldexecutable_ldconfig
   libs =

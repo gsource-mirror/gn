@@ -54,10 +54,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RustExecutable) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -109,10 +110,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = privatecrate\n"
         "crate_type = rlib\n"
         "output_extension = .rlib\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -151,10 +153,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = farcrate\n"
         "crate_type = rlib\n"
         "output_extension = .rlib\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -193,10 +196,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = publiccrate\n"
         "crate_type = rlib\n"
         "output_extension = .rlib\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -249,10 +253,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = main_crate\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -266,9 +271,9 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibDeps) {
         "obj/baz/libprivatelib.rlib\n"
         "  source_file_part = main.rs\n"
         "  source_name_part = main\n"
-        "  externs = --extern direct=obj/foo/libdirect.rlib "
-        "--extern publiccrate=obj/bar/libpubliclib.rlib "
-        "--extern farcrate=obj/far/libfarlib.rlib\n"
+        "  externs = --extern direct=obj/foo/libdirect.rlib --extern "
+        "publiccrate=obj/bar/libpubliclib.rlib --extern "
+        "farcrate=obj/far/libfarlib.rlib\n"
         "  rustdeps = -Ldependency=obj/foo -Ldependency=obj/bar "
         "-Ldependency=obj/far -Ldependency=obj/baz\n"
         "  ldflags =\n"
@@ -302,10 +307,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, DylibDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = private_inside\n"
         "crate_type = rlib\n"
         "output_extension = .rlib\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -343,10 +349,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, DylibDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = inside\n"
         "crate_type = rlib\n"
         "output_extension = .rlib\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -387,10 +394,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, DylibDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = mylib\n"
         "crate_type = dylib\n"
         "output_extension = .so\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -399,12 +407,12 @@ TEST_F(NinjaRustBinaryTargetWriterTest, DylibDeps) {
         "target_output_name = libmylib\n"
         "\n"
         "build obj/bar/libmylib.so: rust_dylib ../../bar/lib.rs | "
-        "../../bar/mylib.rs ../../bar/lib.rs "
-        "obj/baz/libinside.rlib obj/faz/libprivate_inside.rlib\n"
+        "../../bar/mylib.rs ../../bar/lib.rs obj/baz/libinside.rlib "
+        "obj/faz/libprivate_inside.rlib\n"
         "  source_file_part = lib.rs\n"
         "  source_name_part = lib\n"
-        "  externs = --extern inside=obj/baz/libinside.rlib "
-        "--extern private_inside=obj/faz/libprivate_inside.rlib\n"
+        "  externs = --extern inside=obj/baz/libinside.rlib --extern "
+        "private_inside=obj/faz/libprivate_inside.rlib\n"
         "  rustdeps = -Ldependency=obj/baz -Ldependency=obj/faz\n"
         "  ldflags =\n"
         "  sources = ../../bar/mylib.rs ../../bar/lib.rs\n";
@@ -460,10 +468,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, DylibDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -476,9 +485,8 @@ TEST_F(NinjaRustBinaryTargetWriterTest, DylibDeps) {
         "obj/baz/libinside.rlib\n"
         "  source_file_part = main.rs\n"
         "  source_name_part = main\n"
-        "  externs = --extern direct=obj/foo/libdirect.so "
-        "--extern mylib=obj/bar/libmylib.so "
-        "--extern inside=obj/baz/libinside.rlib\n"
+        "  externs = --extern direct=obj/foo/libdirect.so --extern "
+        "mylib=obj/bar/libmylib.so --extern inside=obj/baz/libinside.rlib\n"
         "  rustdeps = -Ldependency=obj/foo -Ldependency=obj/bar "
         "-Ldependency=obj/baz -Ldependency=obj/faz "
         "-Ldependency=obj/private_dylib\n"
@@ -512,10 +520,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibDepsAcrossGroups) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = mymacro\n"
         "crate_type = proc-macro\n"
         "output_extension = .so\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -572,10 +581,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibDepsAcrossGroups) {
     // when changed, so we expect an implicit dependency (appearing after `|` on
     // the build line) from libmylib.rlib to libmymacro.so.
     const char expected[] =
+
         "crate_name = mylib\n"
         "crate_type = rlib\n"
         "output_extension = .rlib\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -615,10 +625,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibDepsAcrossGroups) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -626,13 +637,12 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibDepsAcrossGroups) {
         "target_out_dir = obj/foo\n"
         "target_output_name = bar\n"
         "\n"
-        "build ./foo_bar: rust_bin ../../foo/main.rs | "
-        "../../foo/source.rs ../../foo/main.rs "
-        "obj/bar/libmylib.rlib obj/bar/libmymacro.so\n"
+        "build ./foo_bar: rust_bin ../../foo/main.rs | ../../foo/source.rs "
+        "../../foo/main.rs obj/bar/libmylib.rlib obj/bar/libmymacro.so\n"
         "  source_file_part = main.rs\n"
         "  source_name_part = main\n"
-        "  externs = --extern mylib=obj/bar/libmylib.rlib "
-        "--extern mymacro=obj/bar/libmymacro.so\n"
+        "  externs = --extern mylib=obj/bar/libmylib.rlib --extern "
+        "mymacro=obj/bar/libmymacro.so\n"
         "  rustdeps = -Ldependency=obj/bar\n"
         "  ldflags =\n"
         "  sources = ../../foo/source.rs ../../foo/main.rs\n";
@@ -700,10 +710,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, GroupOrderOnlyDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = f_crate\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -790,10 +801,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RenamedDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -806,9 +818,9 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RenamedDeps) {
         "obj/faz/libtransitive.rlib\n"
         "  source_file_part = main.rs\n"
         "  source_name_part = main\n"
-        "  externs = --extern direct_renamed=obj/bar/libdirect.rlib "
-        "--extern mylib=obj/baz/libmylib.rlib "
-        "--extern transitive_renamed=obj/faz/libtransitive.rlib\n"
+        "  externs = --extern direct_renamed=obj/bar/libdirect.rlib --extern "
+        "mylib=obj/baz/libmylib.rlib --extern "
+        "transitive_renamed=obj/faz/libtransitive.rlib\n"
         "  rustdeps = -Ldependency=obj/bar -Ldependency=obj/baz "
         "-Ldependency=obj/faz\n"
         "  ldflags =\n"
@@ -893,10 +905,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, NonRustDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -906,9 +919,8 @@ TEST_F(NinjaRustBinaryTargetWriterTest, NonRustDeps) {
         "\n"
         "build ./foo_bar: rust_bin ../../foo/main.rs | ../../foo/source.rs "
         "../../foo/main.rs obj/baz/sourceset.csourceset.o "
-        "obj/bar/libmylib.rlib "
-        "obj/foo/libstatic.a ./libshared.so ./libshared_with_toc.so.TOC "
-        "|| phony/baz/sourceset.linkdeps\n"
+        "obj/bar/libmylib.rlib obj/foo/libstatic.a ./libshared.so "
+        "./libshared_with_toc.so.TOC || phony/baz/sourceset.linkdeps\n"
         "  source_file_part = main.rs\n"
         "  source_name_part = main\n"
         "  externs = --extern mylib=obj/bar/libmylib.rlib\n"
@@ -940,10 +952,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, NonRustDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -981,10 +994,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, NonRustDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = baz\n"
         "crate_type = staticlib\n"
         "output_extension = .a\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -993,8 +1007,7 @@ TEST_F(NinjaRustBinaryTargetWriterTest, NonRustDeps) {
         "target_output_name = libbaz\n"
         "\n"
         "build obj/baz/libbaz.a: rust_staticlib ../../baz/lib.rs | "
-        "../../baz/lib.rs "
-        "obj/foo/libstatic.a\n"
+        "../../baz/lib.rs obj/foo/libstatic.a\n"
         "  source_file_part = lib.rs\n"
         "  source_name_part = lib\n"
         "  externs =\n"
@@ -1153,10 +1166,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibInLibrary) {
   writer.Run();
 
   const char expected[] =
+
       "crate_name = exe\n"
       "crate_type = bin\n"
-      "output_extension = \n"
-      "output_dir = \n"
+      "output_extension =\n"
+      "output_dir =\n"
       "rustflags =\n"
       "rustenv =\n"
       "root_out_dir = .\n"
@@ -1164,12 +1178,10 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibInLibrary) {
       "target_out_dir = obj/exe\n"
       "target_output_name = exe\n"
       "\n"
-      "build ./exe: rust_bin ../../exe/main.rs | "
-      "../../exe/main.rs "
+      "build ./exe: rust_bin ../../exe/main.rs | ../../exe/main.rs "
       "obj/pub_sset_in_staticlib/pub_sset_in_staticlib.lib.o "
       "obj/priv_sset_in_staticlib/priv_sset_in_staticlib.lib.o "
-      "obj/staticlib/libstaticlib.a "
-      "obj/dylib/libdylib.so "
+      "obj/staticlib/libstaticlib.a obj/dylib/libdylib.so "
       "obj/pub_in_staticlib/libpub_in_staticlib.rlib "
       "obj/priv_in_staticlib/libpriv_in_staticlib.rlib "
       "obj/pub_in_dylib/libpub_in_dylib.rlib || "
@@ -1177,10 +1189,10 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibInLibrary) {
       "phony/priv_sset_in_staticlib/priv_sset_in_staticlib.linkdeps\n"
       "  source_file_part = main.rs\n"
       "  source_name_part = main\n"
-      "  externs = "
-      "--extern pub_in_staticlib=obj/pub_in_staticlib/libpub_in_staticlib.rlib "
-      "--extern dylib=obj/dylib/libdylib.so "
-      "--extern pub_in_dylib=obj/pub_in_dylib/libpub_in_dylib.rlib\n"
+      "  externs = --extern "
+      "pub_in_staticlib=obj/pub_in_staticlib/libpub_in_staticlib.rlib --extern "
+      "dylib=obj/dylib/libdylib.so --extern "
+      "pub_in_dylib=obj/pub_in_dylib/libpub_in_dylib.rlib\n"
       "  rustdeps = -Ldependency=obj/pub_in_staticlib "
       "-Ldependency=obj/priv_in_staticlib -Ldependency=obj/dylib "
       "-Ldependency=obj/pub_in_dylib -Ldependency=obj/priv_in_dylib "
@@ -1287,9 +1299,10 @@ TEST_F(NinjaRustBinaryTargetWriterTest, LibsAndLibDirs) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
+        "output_extension =\n"
         "output_dir = foo\n"
         "rustflags =\n"
         "rustenv =\n"
@@ -1387,10 +1400,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibWithLibDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = rlibcrate\n"
         "crate_type = rlib\n"
         "output_extension = .rlib\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1404,9 +1418,8 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RlibWithLibDeps) {
         "  source_name_part = input\n"
         "  externs = --extern publiccrate=obj/bar/libpubliclib.rlib\n"
         "  rustdeps = -Ldependency=obj/bar -Clink-arg=-Bdynamic "
-        "-Clink-arg=obj/clib/libstatic.a "
-        "-Lnative=../../baz -Lframework=../../fwdir -Clink-arg=../../dir1/ar.a "
-        "-lquux\n"
+        "-Clink-arg=obj/clib/libstatic.a -Lnative=../../baz "
+        "-Lframework=../../fwdir -Clink-arg=../../dir1/ar.a -lquux\n"
         "  ldflags =\n"
         "  sources = ../../foo/input.rs\n";
     std::string out_str = out.str();
@@ -1471,10 +1484,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RustProcMacro) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = mymacro\n"
         "crate_type = proc-macro\n"
         "output_extension = .so\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1488,9 +1502,9 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RustProcMacro) {
         "obj/baz/private/libmymacroprivatedep.rlib\n"
         "  source_file_part = lib.rs\n"
         "  source_name_part = lib\n"
-        "  externs = "
-        "--extern publicdep=obj/baz/public/libmymacropublicdep.rlib "
-        "--extern privatedep=obj/baz/private/libmymacroprivatedep.rlib\n"
+        "  externs = --extern "
+        "publicdep=obj/baz/public/libmymacropublicdep.rlib --extern "
+        "privatedep=obj/baz/private/libmymacroprivatedep.rlib\n"
         "  rustdeps = -Ldependency=obj/baz/public "
         "-Ldependency=obj/baz/private\n"
         "  ldflags =\n"
@@ -1518,10 +1532,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, RustProcMacro) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1564,10 +1579,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, GroupDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = mylib\n"
         "crate_type = rlib\n"
         "output_extension = .rlib\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1613,10 +1629,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, GroupDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1624,9 +1641,8 @@ TEST_F(NinjaRustBinaryTargetWriterTest, GroupDeps) {
         "target_out_dir = obj/foo\n"
         "target_output_name = bar\n"
         "\n"
-        "build ./foo_bar: rust_bin ../../foo/main.rs | "
-        "../../foo/source.rs ../../foo/main.rs obj/bar/libmylib.rlib || "
-        "obj/bar/libmylib.rlib\n"
+        "build ./foo_bar: rust_bin ../../foo/main.rs | ../../foo/source.rs "
+        "../../foo/main.rs obj/bar/libmylib.rlib || obj/bar/libmylib.rlib\n"
         "  source_file_part = main.rs\n"
         "  source_name_part = main\n"
         "  externs = --extern mylib=obj/bar/libmylib.rlib\n"
@@ -1668,10 +1684,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, Externs) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1717,12 +1734,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, Inputs) {
     writer.Run();
 
     const char expected[] =
-        "build phony/foo/bar.inputs: phony ../../foo/config.json "
-        "../../foo/template.h\n"
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1730,9 +1746,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, Inputs) {
         "target_out_dir = obj/foo\n"
         "target_output_name = bar\n"
         "\n"
+        "build phony/foo/bar.inputs: phony ../../foo/config.json "
+        "../../foo/template.h\n"
         "build ./foo_bar: rust_bin ../../foo/main.rs | ../../foo/source.rs "
-        "../../foo/main.rs ../../foo/config.json ../../foo/template.h "
-        "|| phony/foo/bar.inputs\n"
+        "../../foo/main.rs ../../foo/config.json ../../foo/template.h || "
+        "phony/foo/bar.inputs\n"
         "  source_file_part = main.rs\n"
         "  source_name_part = main\n"
         "  externs =\n"
@@ -1764,10 +1782,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, CdylibDeps) {
     NinjaRustBinaryTargetWriter writer(&cdylib, out);
     writer.Run();
     const char expected[] =
+
         "crate_name = mylib\n"
         "crate_type = cdylib\n"
         "output_extension = .so\n"
-        "output_dir = \n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1805,10 +1824,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, CdylibDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1882,10 +1902,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, TransitivePublicNonRustDeps) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = foo_bar\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1976,10 +1997,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, TransitiveRustDepsThroughSourceSet) {
     writer.Run();
 
     const char expected[] =
+
         "crate_name = exe\n"
         "crate_type = bin\n"
-        "output_extension = \n"
-        "output_dir = \n"
+        "output_extension =\n"
+        "output_dir =\n"
         "rustflags =\n"
         "rustenv =\n"
         "root_out_dir = .\n"
@@ -1990,15 +2012,13 @@ TEST_F(NinjaRustBinaryTargetWriterTest, TransitiveRustDepsThroughSourceSet) {
         "build ./exe: rust_bin ../../linked/exe.rs | ../../linked/exe.rs "
         "obj/sset/bar.input1.o obj/public/libbehind_sourceset_public.rlib "
         "obj/private/libbehind_sourceset_private.rlib || "
-        "phony/sset/bar.linkdeps "
-        "phony/sset/module.linkdeps\n"
+        "phony/sset/bar.linkdeps phony/sset/module.linkdeps\n"
         "  source_file_part = exe.rs\n"
         "  source_name_part = exe\n"
         "  externs = --extern "
         "behind_sourceset_public=obj/public/libbehind_sourceset_public.rlib\n"
         "  rustdeps = -Ldependency=obj/public -Ldependency=obj/private "
-        "-Clink-arg=-Bdynamic "
-        "-Clink-arg=obj/sset/bar.input1.o "
+        "-Clink-arg=-Bdynamic -Clink-arg=obj/sset/bar.input1.o "
         "-Clink-arg=obj/private/libbehind_sourceset_private.rlib\n"
         "  ldflags =\n"
         "  sources = ../../linked/exe.rs\n";
@@ -2033,10 +2053,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, Pool) {
   writer.Run();
 
   const char expected[] =
+
       "crate_name = bar\n"
       "crate_type = bin\n"
-      "output_extension = \n"
-      "output_dir = \n"
+      "output_extension =\n"
+      "output_dir =\n"
       "rustflags =\n"
       "rustenv =\n"
       "root_out_dir = .\n"
@@ -2047,11 +2068,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, Pool) {
       "build ./bar: rust_bin ../../foo/source.rs | ../../foo/source.rs\n"
       "  source_file_part = source.rs\n"
       "  source_name_part = source\n"
+      "  pool = foo_pool\n"
       "  externs =\n"
       "  rustdeps =\n"
       "  ldflags =\n"
-      "  sources = ../../foo/source.rs\n"
-      "  pool = foo_pool\n";
+      "  sources = ../../foo/source.rs\n";
   std::string out_str = out.str();
   EXPECT_EQ(expected, out_str);
 }
@@ -2106,10 +2127,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, FrameworksAndFrameworkDirs) {
   writer.Run();
 
   const char expected[] =
+
       "crate_name = exe\n"
       "crate_type = bin\n"
-      "output_extension = \n"
-      "output_dir = \n"
+      "output_extension =\n"
+      "output_dir =\n"
       "rustflags =\n"
       "rustenv =\n"
       "root_out_dir = .\n"
@@ -2164,10 +2186,11 @@ TEST_F(NinjaRustBinaryTargetWriterTest, SwiftModule) {
   writer.Run();
 
   const char expected[] =
+
       "crate_name = exe\n"
       "crate_type = bin\n"
-      "output_extension = \n"
-      "output_dir = \n"
+      "output_extension =\n"
+      "output_dir =\n"
       "rustflags =\n"
       "rustenv =\n"
       "root_out_dir = .\n"
@@ -2176,13 +2199,13 @@ TEST_F(NinjaRustBinaryTargetWriterTest, SwiftModule) {
       "target_output_name = exe\n"
       "\n"
       "build ./exe: rust_bin ../../linked/exe.rs | ../../linked/exe.rs "
-      "obj/foo/file1.o obj/foo/file2.o || "
-      "phony/foo/foo obj/foo/Foo.swiftmodule phony/foo/foo.linkdeps\n"
+      "obj/foo/file1.o obj/foo/file2.o || phony/foo/foo "
+      "obj/foo/Foo.swiftmodule phony/foo/foo.linkdeps\n"
       "  source_file_part = exe.rs\n"
       "  source_name_part = exe\n"
       "  externs =\n"
-      "  rustdeps = -Clink-arg=-Bdynamic "
-      "-Clink-arg=obj/foo/file1.o -Clink-arg=obj/foo/file2.o "
+      "  rustdeps = -Clink-arg=-Bdynamic -Clink-arg=obj/foo/file1.o "
+      "-Clink-arg=obj/foo/file2.o "
       "-Clink-arg=-swiftmodule=obj/foo/Foo.swiftmodule\n"
       "  ldflags =\n"
       "  sources = ../../linked/exe.rs\n";

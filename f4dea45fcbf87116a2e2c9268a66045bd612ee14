@@ -40,6 +40,30 @@
       ],
       "revId": "f4dea45fcbf87116a2e2c9268a66045bd612ee14",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9b233b5_c45a9e6d",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T03:46:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85987a14_fd4a19f7",
+      "range": {
+        "startLine": 322,
+        "startChar": 22,
+        "endLine": 322,
+        "endChar": 47
+      },
+      "revId": "f4dea45fcbf87116a2e2c9268a66045bd612ee14",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

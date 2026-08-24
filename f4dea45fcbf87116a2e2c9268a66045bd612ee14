@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85987a14_fd4a19f7",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-24T03:09:52Z",
+      "side": 1,
+      "message": "This is not necessary if we check \"/\"?",
+      "range": {
+        "startLine": 322,
+        "startChar": 22,
+        "endLine": 322,
+        "endChar": 47
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "73b9fc47_4948f599",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/edit_subcommands.cc",
+              "range": {
+                "startLine": 322,
+                "startChar": 0,
+                "endLine": 323,
+                "endChar": 0
+              },
+              "replacement": "  if (path.empty() || path.starts_with(\"/\")) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "f4dea45fcbf87116a2e2c9268a66045bd612ee14",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

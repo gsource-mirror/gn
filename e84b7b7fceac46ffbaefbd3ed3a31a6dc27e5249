@@ -85,6 +85,137 @@
       "message": "I think we can disable enable_resource_allowlist_generation on Windows for a bit instead (https://issues.chromium.org/issues/542981236#comment15).",
       "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "307b8cd2_86b641e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:13:20Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "46deec7a_e171fb7f",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c2badcb_d7401c37",
+        "filename": "src/gn/linker_inputs.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:13:20Z",
+      "side": 1,
+      "message": "I don\u0027t really like the use of the word \"release\" here, because due to unique pointer, I associate \"release\" with leaking memory. I understand that this is an existing use case, but could we perhaps write an implicit move cast that wraps it?\n\n```\noperator Vector() \u0026\u0026 {\n  release()\n}\n```\n\nThen we can just `return std::move(inputs)`",
+      "fixSuggestions": [
+        {
+          "fixId": "58c031bc_15a5a4da",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/linker_inputs.cc",
+              "range": {
+                "startLine": 25,
+                "startChar": 0,
+                "endLine": 26,
+                "endChar": 0
+              },
+              "replacement": "    return std::move(inputs);\n"
+            },
+            {
+              "path": "src/gn/linker_inputs.cc",
+              "range": {
+                "startLine": 67,
+                "startChar": 0,
+                "endLine": 68,
+                "endChar": 0
+              },
+              "replacement": "  return std::move(inputs);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e01bd99b_0356117d",
+        "filename": "src/gn/linker_inputs.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:13:20Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5355c0e0_2e8894f2",
+        "filename": "src/gn/linker_inputs.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:13:20Z",
+      "side": 1,
+      "message": "if (Err err \u003d ...; err) {...}",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ccf57529_b97ff371",
+        "filename": "src/gn/linker_inputs.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:13:20Z",
+      "side": 1,
+      "message": "For new code, can we just have it return Err instead of bool?",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5fa0f6a_72cd106b",
+        "filename": "src/gn/ninja_binary_target_writer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:13:20Z",
+      "side": 1,
+      "message": "You just made a *lot* of things public. Can you limit it to only the things you explicitly used in this CL",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

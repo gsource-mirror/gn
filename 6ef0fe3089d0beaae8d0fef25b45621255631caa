@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dc8cc90_6ec7d7d2",
+        "filename": "src/gn/edit_command_unittest.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:58:39Z",
+      "side": 1,
+      "message": "No, configs is not treated specially, so `defines` is sufficient (since it\u0027s treated the same way)",
+      "parentUuid": "112ba70e_cd39f966",
+      "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8ad1e98b_0584edb2",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-08-20T07:22:19Z",
       "side": 1,
       "message": "Can we explain why we cannot suppor this?",
+      "range": {
+        "startLine": 323,
+        "startChar": 51,
+        "endLine": 323,
+        "endChar": 75
+      },
+      "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b860fda0_a2e15bec",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:58:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ad1e98b_0584edb2",
       "range": {
         "startLine": 323,
         "startChar": 51,
@@ -64,6 +106,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "15a38994_75ad21a7",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:58:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "916082de_9b3eec83",
+      "range": {
+        "startLine": 330,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 0
+      },
+      "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a61baa40_51f7bd12",
@@ -77,6 +143,30 @@
       "writtenOn": "2026-08-20T07:22:19Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If `testonly` or `visibility` are defined inside a conditional block (e.g. `if (is_win) { visibility \u003d ... }`), this logic will pull the assignment out and apply it unconditionally to the `group` target.\n\nThis could break builds by applying test-only restrictions or visibility limits unconditionally. Consider checking `assign.is_conditional()` and either adding a warning or preserving the conditional.",
+      "range": {
+        "startLine": 422,
+        "startChar": 0,
+        "endLine": 422,
+        "endChar": 0
+      },
+      "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64d95c6a_90394fa8",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:58:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a61baa40_51f7bd12",
       "range": {
         "startLine": 422,
         "startChar": 0,
@@ -124,6 +214,30 @@
           ]
         }
       ],
+      "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9f60254_bcf2f6ae",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-24T01:58:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eeda4544_6c9160c1",
+      "range": {
+        "startLine": 536,
+        "startChar": 48,
+        "endLine": 536,
+        "endChar": 63
+      },
       "revId": "6ef0fe3089d0beaae8d0fef25b45621255631caa",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

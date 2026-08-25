@@ -6,6 +6,7 @@
 
 #include <memory>
 
+#include "gn/args.h"
 #include "gn/filesystem_utils.h"
 #include "gn/settings.h"
 #include "gn/source_file.h"
@@ -28,9 +29,14 @@ const Value* ScopePerFileProvider::GetProgrammaticValue(
   if (ident == variables::kGnVersion)
     return GetGnVersion();
 
-  // In the dotfile scope, gn_version is the only thing defined.
-  if (dotfile_scope_)
+  // In the dotfile scope, only gn_version, host_cpu, and host_os are defined.
+  if (dotfile_scope_) {
+    if (ident == variables::kHostCpu)
+      return GetHostCpu();
+    if (ident == variables::kHostOs)
+      return GetHostOs();
     return nullptr;
+  }
 
   if (ident == variables::kCurrentToolchain)
     return GetCurrentToolchain();
@@ -80,6 +86,20 @@ const Value* ScopePerFileProvider::GetGnVersion() {
         nullptr, static_cast<int64_t>(LAST_COMMIT_POSITION_NUM));
   }
   return gn_version_.get();
+}
+
+const Value* ScopePerFileProvider::GetHostCpu() {
+  if (!host_cpu_) {
+    host_cpu_ = std::make_unique<Value>(nullptr, Args::GetHostCpu());
+  }
+  return host_cpu_.get();
+}
+
+const Value* ScopePerFileProvider::GetHostOs() {
+  if (!host_os_) {
+    host_os_ = std::make_unique<Value>(nullptr, Args::GetHostOs());
+  }
+  return host_os_.get();
 }
 
 const Value* ScopePerFileProvider::GetPythonPath() {

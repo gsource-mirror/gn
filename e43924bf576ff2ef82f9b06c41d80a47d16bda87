@@ -1,0 +1,68 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7b575c9_ddf11c9c",
+        "filename": "build/gen.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-25T04:49:36Z",
+      "side": 1,
+      "message": "Follow\nhttps://google.github.io/styleguide/pyguide.html#s3.2-line-length",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 127
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "1f9daa15_54a4d809",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "build/gen.py",
+              "range": {
+                "startLine": 222,
+                "startChar": 0,
+                "endLine": 224,
+                "endChar": 0
+              },
+              "replacement": "                    help\u003d(\u0027Generate Ninja targets `gen` and `gen.json` to \u0027\n                          \u0027run gn gen and siso dump in an external \u0027\n                          \u0027repository. Format: \u003csrc_dir\u003e\u003d\u003cout_dir\u003e \u0027\n                          \u0027(e.g. ~/chromium/src\u003dout/Default)\u0027))\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e43924bf576ff2ef82f9b06c41d80a47d16bda87",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bca345ff_27eb6bda",
+        "filename": "build/ninja_file.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-25T04:49:36Z",
+      "side": 1,
+      "message": "siso doesn\u0027t have this subcommand?",
+      "range": {
+        "startLine": 252,
+        "startChar": 15,
+        "endLine": 252,
+        "endChar": 23
+      },
+      "revId": "e43924bf576ff2ef82f9b06c41d80a47d16bda87",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

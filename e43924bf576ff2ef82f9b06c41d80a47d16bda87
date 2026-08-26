@@ -42,6 +42,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b950b29_9fe9b4e4",
+        "filename": "build/gen.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-26T03:27:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e7b575c9_ddf11c9c",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 127
+      },
+      "revId": "e43924bf576ff2ef82f9b06c41d80a47d16bda87",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bca345ff_27eb6bda",
@@ -55,6 +79,30 @@
       "writtenOn": "2026-08-25T04:49:36Z",
       "side": 1,
       "message": "siso doesn\u0027t have this subcommand?",
+      "range": {
+        "startLine": 252,
+        "startChar": 15,
+        "endLine": 252,
+        "endChar": 23
+      },
+      "revId": "e43924bf576ff2ef82f9b06c41d80a47d16bda87",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a8c01fb_380e9c89",
+        "filename": "build/ninja_file.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-26T03:27:08Z",
+      "side": 1,
+      "message": "I\u0027ve implemented it, but it hasn\u0027t yet been submitted. crrev.com/c/8275910\n\nI\u0027ll split this part into a seperate commit",
+      "parentUuid": "bca345ff_27eb6bda",
       "range": {
         "startLine": 252,
         "startChar": 15,

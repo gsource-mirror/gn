@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6fc1b8a0_1ed84d8c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-26T02:09:05Z",
+      "side": 1,
+      "message": "Could you write such explanation in description then?",
+      "parentUuid": "e62f51f5_c7124ab7",
+      "revId": "55551259c5313cd2d7f2435390b4ee4f0407c1f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "72d6a090_f62e7925",
         "filename": "tools/compare_traces.py",
         "patchSetId": 4

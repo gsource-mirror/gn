@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fdf0460f_9c29405a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-26T03:14:18Z",
+      "side": 1,
+      "message": "Can we show that this is generated from this script?\nhttps://gn.googlesource.com/gn/+/refs/heads/main/tools/compare_traces.py",
+      "revId": "914af7d51d16dad4ed2428bca6055a2c867c08b3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

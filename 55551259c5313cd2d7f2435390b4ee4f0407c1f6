@@ -34,6 +34,75 @@
       "parentUuid": "4f0d921d_902806b1",
       "revId": "55551259c5313cd2d7f2435390b4ee4f0407c1f6",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72d6a090_f62e7925",
+        "filename": "tools/compare_traces.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-26T02:08:01Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `p_val` is exactly `0.0` (which can happen due to float underflow for highly significant differences with large effect sizes), the `p_val \u003e 0` check fails, falling through to `certainty \u003d 1.0`. This gives the *most* significant changes a lower certainty multiplier than a marginally significant change (e.g., `p_val \u003d 1e-4` gets `certainty \u003d 4.0`).\n\nYou can safely change this to `if p_val is not None:` since `max(p_val, 1e-4)` below already protects against `math.log10(0)`.",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 208,
+        "endChar": 0
+      },
+      "revId": "55551259c5313cd2d7f2435390b4ee4f0407c1f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab812f4f_b86a541c",
+        "filename": "tools/compare_traces.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-26T02:08:01Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If any trace timestamps happen to be negative (which can occur depending on the trace clock\u0027s zero-point synchronization), initializing `last \u003d 0` will incorrectly clip valid execution intervals.\n\nIt should be initialized to `float(\u0027-inf\u0027)` to safely merge intervals regardless of the timestamp\u0027s absolute offset.",
+      "range": {
+        "startLine": 282,
+        "startChar": 0,
+        "endLine": 282,
+        "endChar": 0
+      },
+      "revId": "55551259c5313cd2d7f2435390b4ee4f0407c1f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b8d542a_35290540",
+        "filename": "tools/compare_traces.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-26T02:08:01Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If a file or category is present in the `before` traces but completely removed in the `after` traces (or newly added), it will be missing from `a_map` (or `b_map`). This fallback creates a `Stat` with `n\u003d1` (`Stat([0.0])`). If `has_multi_run` is True, `compute_p_value` will return `None` because `n \u003c 2`, and this item will be silently excluded from the statistical test and the final report instead of being flagged as a major change.\n\nConsider passing `b_run_count` and `a_run_count` to this function and using `Stat([0.0] * b_run_count)` and `Stat([0.0] * a_run_count)` respectively so these items correctly participate in the p-value calculation.",
+      "range": {
+        "startLine": 350,
+        "startChar": 0,
+        "endLine": 350,
+        "endChar": 0
+      },
+      "revId": "55551259c5313cd2d7f2435390b4ee4f0407c1f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

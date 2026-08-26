@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f0d921d_902806b1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-26T02:00:36Z",
+      "side": 1,
+      "message": "Do you have some context that you want to have this script?",
+      "revId": "55551259c5313cd2d7f2435390b4ee4f0407c1f6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

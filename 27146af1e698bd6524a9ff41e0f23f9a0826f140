@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ab36195_ed7a999d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-08-27T15:27:35Z",
+      "side": 1,
+      "message": "That looks like a nice feature to have :-)",
+      "revId": "27146af1e698bd6524a9ff41e0f23f9a0826f140",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

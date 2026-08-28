@@ -16,6 +16,42 @@
       "message": "It is better to keep this line for readability.",
       "revId": "a6473d48ff816bb67b2a24de15a93ec4f2974f40",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63949ace_364b8c80",
+        "filename": "integration_tests/simple/goldens/obj/hello.ninja",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-28T00:18:57Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "8dfd83af_f3fb5dee",
+      "revId": "a6473d48ff816bb67b2a24de15a93ec4f2974f40",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a08f080_ff8db39d",
+        "filename": "integration_tests/simple/goldens/obj/hello.ninja",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-28T00:18:57Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "8dfd83af_f3fb5dee",
+      "revId": "a6473d48ff816bb67b2a24de15a93ec4f2974f40",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

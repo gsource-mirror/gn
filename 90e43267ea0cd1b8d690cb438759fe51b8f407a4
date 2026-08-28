@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a902ad8c_b36866cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-08-28T13:47:31Z",
+      "side": 1,
+      "message": "So it looks like infra/recipes/gn.py sets the `CLANG_FORMAT` environment variable to `$CIPD_DIR/bin/clang-format`, though I don\u0027t see how that path is populated at all from the recipe.\n\nI assume that the CIPD tag used in `tools/run_formatter.sh` doesn\u0027t match what the recipe uses. Which one should we fix?",
+      "revId": "90e43267ea0cd1b8d690cb438759fe51b8f407a4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

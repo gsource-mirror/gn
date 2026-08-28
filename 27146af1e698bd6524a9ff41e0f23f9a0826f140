@@ -33,6 +33,24 @@
       "message": "Is there any particular reason to limit it to group targets? We support `inputs` for any target, right? So why not `public_inputs` for any target?",
       "revId": "27146af1e698bd6524a9ff41e0f23f9a0826f140",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1146620d_fc0109f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-28T01:55:17Z",
+      "side": 1,
+      "message": "I\u0027d like to expand this to other targets when we have use case for that to reduce maintance cost.",
+      "parentUuid": "19572160_43f2af6f",
+      "revId": "27146af1e698bd6524a9ff41e0f23f9a0826f140",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

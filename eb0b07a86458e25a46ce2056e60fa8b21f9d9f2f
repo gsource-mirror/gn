@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f36796b_337da080",
+        "filename": "src/gn/starlark/crates/ffi/src/eval_context.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-28T03:11:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1c31062_45d14c6a",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 0
+      },
+      "revId": "eb0b07a86458e25a46ce2056e60fa8b21f9d9f2f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b9512696_231cd42b",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-08-28T02:27:18Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Since `Target` is already imported at the top of the file via `use crate::{errors::Error, target::Target};`, you can simplify this to just `Target` here.\n\nThe same applies to line 80 and line 137.",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 0
+      },
+      "revId": "eb0b07a86458e25a46ce2056e60fa8b21f9d9f2f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4e75576_276bae6d",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-28T03:11:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9512696_231cd42b",
       "range": {
         "startLine": 74,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d687b01_9f2aa268",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-28T03:11:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3379326_210be426",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 0
+      },
+      "revId": "eb0b07a86458e25a46ce2056e60fa8b21f9d9f2f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a925da8b_84f43b4a",
@@ -83,6 +155,30 @@
       "writtenOn": "2026-08-28T02:27:18Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Using `.as_mut()` here relies on the `AsMut` trait implementation for `Box` from the standard prelude. While it works, it can be slightly confusing since `Box` doesn\u0027t have an inherent `as_mut` method. \n\nIt might be clearer to explicitly dereference the box:\n```rust\n        let target_ref \u003d unsafe { \u0026mut *(\u0026mut **targets.last_mut().unwrap() as *mut FakeTarget) };\n```",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 0
+      },
+      "revId": "eb0b07a86458e25a46ce2056e60fa8b21f9d9f2f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a12190f4_6da78dd0",
+        "filename": "src/gn/starlark/crates/testutils/src/eval_context.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-28T03:11:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a925da8b_84f43b4a",
       "range": {
         "startLine": 155,
         "startChar": 0,

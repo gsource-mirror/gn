@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f989b81_137a1c63",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-28T04:31:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0fe4c1ac_cfc236cb",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 0
+      },
+      "revId": "7232c0692fc85bddf03c267494164f63af37eca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7bc2da6b_5cc9146b",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-08-28T04:18:24Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: You can avoid `targets_under_construction` entirely and fix a strict aliasing/UB issue (holding a `\u0027static mut` reference to an item inside a `RefCell\u003cVec\u003e` that is later mutably borrowed and moved) by simply leaking the `Box` and then reconstructing it in `register_target`:\n```rust\nlet target_ref: \u0026\u0027static mut FakeTarget \u003d Box::leak(Box::new(target));\nOk(std::pin::Pin::new(target_ref))\n```",
+      "range": {
+        "startLine": 151,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 0
+      },
+      "revId": "7232c0692fc85bddf03c267494164f63af37eca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e5b1335_05ee10e5",
+        "filename": "src/gn/starlark/crates/testutils/src/eval_context.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-28T04:31:39Z",
+      "side": 1,
+      "message": "Intentionally leaking memory seems worse than the current solution.",
+      "parentUuid": "7bc2da6b_5cc9146b",
       "range": {
         "startLine": 151,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "98f72dab_57478bdb",
+        "filename": "src/gn/starlark/crates/testutils/src/eval_context.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-28T04:31:39Z",
+      "side": 1,
+      "message": "See above",
+      "parentUuid": "78b1be24_c444ed71",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 0
+      },
+      "revId": "7232c0692fc85bddf03c267494164f63af37eca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "04f93661_775ca477",
@@ -83,6 +155,30 @@
       "writtenOn": "2026-08-28T04:18:24Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If you leak the `Box` between `create_target` and `register_target` (as suggested in `eval_context.rs`), you don\u0027t need this temporary storage field at all.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 0
+      },
+      "revId": "7232c0692fc85bddf03c267494164f63af37eca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d851d0cc_27b02231",
+        "filename": "src/gn/starlark/crates/testutils/src/session.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-28T04:31:39Z",
+      "side": 1,
+      "message": "See above",
+      "parentUuid": "04f93661_775ca477",
       "range": {
         "startLine": 19,
         "startChar": 0,

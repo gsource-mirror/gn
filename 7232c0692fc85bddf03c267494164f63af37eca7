@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0fe4c1ac_cfc236cb",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-28T04:18:24Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If a target is registered twice with the same label and toolchain, `insert` will overwrite the old entry, causing the old `Pin\u003cBox\u003cTarget\u003e\u003e` to be dropped. This would invalidate the `\u0026\u0027static Target` previously handed out to `TargetRef`, resulting in a dangling pointer. Consider asserting that the entry does not already exist:\n```rust\nlet old \u003d targets.insert((label, toolchain), pinned);\nassert!(old.is_none(), \"Target already registered\");\n```",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 0
+      },
+      "revId": "7232c0692fc85bddf03c267494164f63af37eca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7bc2da6b_5cc9146b",
+        "filename": "src/gn/starlark/crates/testutils/src/eval_context.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-28T04:18:24Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: You can avoid `targets_under_construction` entirely and fix a strict aliasing/UB issue (holding a `\u0027static mut` reference to an item inside a `RefCell\u003cVec\u003e` that is later mutably borrowed and moved) by simply leaking the `Box` and then reconstructing it in `register_target`:\n```rust\nlet target_ref: \u0026\u0027static mut FakeTarget \u003d Box::leak(Box::new(target));\nOk(std::pin::Pin::new(target_ref))\n```",
+      "range": {
+        "startLine": 151,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 0
+      },
+      "revId": "7232c0692fc85bddf03c267494164f63af37eca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78b1be24_c444ed71",
+        "filename": "src/gn/starlark/crates/testutils/src/eval_context.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-28T04:18:24Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If you leaked the `Box` in `create_target`, you can simply reconstruct it here without looking it up in `targets_under_construction`:\n```rust\nlet target_ptr \u003d std::pin::Pin::into_inner(cxx_target) as *mut FakeTarget;\nlet mut target \u003d unsafe { Box::from_raw(target_ptr) };\n```",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 0
+      },
+      "revId": "7232c0692fc85bddf03c267494164f63af37eca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04f93661_775ca477",
+        "filename": "src/gn/starlark/crates/testutils/src/session.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-28T04:18:24Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If you leak the `Box` between `create_target` and `register_target` (as suggested in `eval_context.rs`), you don\u0027t need this temporary storage field at all.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 0
+      },
+      "revId": "7232c0692fc85bddf03c267494164f63af37eca7",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

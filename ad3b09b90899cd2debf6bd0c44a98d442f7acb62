@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aeeee90f_3e2578da",
+        "filename": "src/gn/starlark/crates/ffi/src/eval_context.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T01:56:33Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: The commit message mentions adding support for the `\"starlark\"` output type in the C++ `TargetGenerator`, but here `\"noop\"` is used as the default value when `target_type` is `None`. Should this be `\"starlark\"`?",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 0
+      },
+      "revId": "ad3b09b90899cd2debf6bd0c44a98d442f7acb62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

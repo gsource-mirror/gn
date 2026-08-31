@@ -33,6 +33,7 @@ class DepsIteratorRange;
 class Settings;
 class Target;
 class Toolchain;
+struct RustTarget;
 
 using TargetSet = PointerSet<const Target>;
 
@@ -367,6 +368,11 @@ class Target : public Item {
   const RustValues& rust_values() const;
   bool has_rust_values() const { return rust_values_.get(); }
 
+  const RustTarget* rust_target() const { return rust_target_; }
+  void set_rust_target(const RustTarget& rust_target) const {
+    rust_target_ = &rust_target;
+  }
+
   std::vector<LabelPattern>& friends() { return friends_; }
   const std::vector<LabelPattern>& friends() const { return friends_; }
 
@@ -630,6 +636,10 @@ class Target : public Item {
 
   // GeneratedFile as metadata collection values.
   std::unique_ptr<GeneratedFile> generated_file_;
+
+  // The RustTarget associated with this target is created lazily.
+  // This caches it when it gets created.
+  mutable const RustTarget* rust_target_ = nullptr;
 
   Target(const Target&) = delete;
   Target& operator=(const Target&) = delete;

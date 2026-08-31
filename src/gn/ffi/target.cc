@@ -9,7 +9,10 @@
 #include "gn/ffi/bridge.h"
 #include "gn/label.h"
 #include "gn/label_ptr.h"
+#include "gn/output_file.h"
+#include "gn/settings.h"
 #include "gn/source_dir.h"
+#include "gn/source_file.h"
 #include "gn/target.h"
 #include "gn/target_generator.h"
 
@@ -36,7 +39,6 @@ void register_dependency(Target& target,
             SourceDir(std::string_view(toolchain_package)),
             std::string_view(toolchain_name))));
 }
-
 const RustTarget& Target::rust_target(const Session& session) const {
   const RustTarget* target = rust_target_.load(std::memory_order_acquire);
   if (target) {
@@ -45,4 +47,15 @@ const RustTarget& Target::rust_target(const Session& session) const {
   // register_cxx_target calls set_rust_target, so we don't need to bother
   // caching it ourselves.
   return session.register_cxx_target(*this);
+}
+
+rust::Str source_file_to_output_path(const Settings& settings,
+                                     const SourceFile& file) {
+  OutputFile output_file(settings.build_settings(), file);
+  return rust::Str(output_file.value());
+}
+
+const Target& label_target_pair_target(const LabelTargetPair& pair) {
+  DCHECK(pair.ptr);
+  return *pair.ptr;
 }

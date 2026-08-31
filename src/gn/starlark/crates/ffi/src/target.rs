@@ -4,7 +4,7 @@
 
 use starlark::values::FrozenValueTyped;
 
-use crate::eval_context::EvalContext;
+use crate::{eval_context::EvalContext, TargetRef};
 
 pub(crate) struct StarlarkTarget {
     pub(crate) rule: FrozenValueTyped<'static, rule::FrozenRule<EvalContext>>,
@@ -56,5 +56,13 @@ impl crate::bridge::CxxTarget {
     /// Returns the toolchain label for the target.
     pub fn toolchain(&self) -> types::LabelRef<'_> {
         self.settings().toolchain_label().as_ref()
+    }
+
+    /// Returns a reference to the associated Rust Target, registering it with
+    /// the session if it doesn't exist yet.
+    pub fn to_rust(&self, session: &crate::Session) -> TargetRef {
+        // Safety: Target references in the session map are permanent for the session
+        // duration.
+        TargetRef(unsafe { types::util::extend_lifetime(self.rust_target(session)) })
     }
 }

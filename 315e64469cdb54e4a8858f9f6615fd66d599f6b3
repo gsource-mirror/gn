@@ -1,0 +1,68 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ef43c44_b15f59f6",
+        "filename": "src/gn/starlark/crates/rule/src/frozen_rule.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T07:36:55Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: `self.implementation.is_some()` is generally preferred and more idiomatic than `!self.implementation.is_none()`.",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 0
+      },
+      "revId": "315e64469cdb54e4a8858f9f6615fd66d599f6b3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0fcc4501_ce477c03",
+        "filename": "src/gn/starlark/crates/testutils/src/eval_context.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T07:36:55Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If tests pass a Starlark `None` value for `rule` (which the previous `if rule.is_none()` logic safely handled), this `unwrap()` will panic.\\n\\nYou can avoid the panic and simplify this block by using `Option::and_then`:\n```rust\n        let typed \u003d FrozenValueTyped::\u003crule::FrozenRule\u003cFakeEvalContext\u003e\u003e::new(rule);\n        target.rule \u003d typed.and_then(|t| t.has_implementation().then(|| t.as_ref()));\n```",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 0
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "7ddb2ae5_399f9c1c",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/starlark/crates/testutils/src/eval_context.rs",
+              "range": {
+                "startLine": 178,
+                "startChar": 0,
+                "endLine": 180,
+                "endChar": 0
+              },
+              "replacement": "        let typed \u003d FrozenValueTyped::\u003crule::FrozenRule\u003cFakeEvalContext\u003e\u003e::new(rule);\n        target.rule \u003d typed.and_then(|t| t.has_implementation().then(|| t.as_ref()));\n"
+            }
+          ]
+        }
+      ],
+      "revId": "315e64469cdb54e4a8858f9f6615fd66d599f6b3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

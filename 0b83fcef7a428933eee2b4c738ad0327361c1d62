@@ -22,6 +22,30 @@
       },
       "revId": "0b83fcef7a428933eee2b4c738ad0327361c1d62",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6421f718_35c7a531",
+        "filename": "src/gn/ffi/target.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-31T06:12:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "177a43f5_bb3b5e28",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 0
+      },
+      "revId": "0b83fcef7a428933eee2b4c738ad0327361c1d62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

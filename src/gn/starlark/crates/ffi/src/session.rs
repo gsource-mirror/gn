@@ -2,7 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::{collections::HashMap, pin::Pin, sync::RwLock};
+use std::{
+    collections::{hash_map::Entry, HashMap},
+    pin::Pin,
+    sync::RwLock,
+};
 
 use loader::FileLoader;
 use starlark::environment::{FrozenModule, Globals};
@@ -79,15 +83,22 @@ impl Session {
         let label = target.label().as_ref().to_owned();
         let toolchain = target.toolchain().to_owned();
 
-        let pinned = Box::pin(target);
-        // Safety: A target object can never be deleted.
-        let static_ref: &'static Target = unsafe { extend_lifetime(&*pinned) };
-
         let mut targets = self.targets.write().unwrap();
-        assert!(
-            targets.insert((label, toolchain), pinned).is_none(),
-            "Target already registered"
-        );
+        let static_ref: &'static Target = match targets.entry((label, toolchain)) {
+            Entry::Vacant(e) => {
+                let pinned = Box::pin(target);
+                // Safety: A target object in the map is never deleted and lives for the
+                // session.
+                let static_ref: &'static Target = unsafe { extend_lifetime(&*pinned) };
+                e.insert(pinned);
+                static_ref
+            },
+            Entry::Occupied(e) => {
+                // Safety: A target object in the map is never deleted and lives for the
+                // session.
+                unsafe { extend_lifetime(&**e.get()) }
+            },
+        };
 
         crate::TargetRef(static_ref)
     }

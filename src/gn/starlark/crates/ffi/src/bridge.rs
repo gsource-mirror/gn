@@ -15,7 +15,7 @@ use types::EvaluatorContextExt as _;
 ///   * This allows for C++ code to #include rust types
 /// * The `cxxbridge` command generates shims to allow us to use C++ types in
 ///   rust.
-use crate::session::Session;
+use crate::{session::Session, target::Target};
 
 pub struct OwnedFrozenValue(pub starlark::values::OwnedFrozenValue);
 
@@ -151,10 +151,12 @@ mod dummy {
         include!("gn/ffi/test_with_scope.h");
         include!("gn/ffi/value.h");
         include!("gn/label.h");
+        include!("gn/label_ptr.h");
         include!("gn/output_file.h");
         include!("gn/scope.h");
         include!("gn/settings.h");
         include!("gn/source_dir.h");
+        include!("gn/source_file.h");
         include!("gn/target.h");
         include!("gn/test_with_scope.h");
         include!("gn/value.h");
@@ -209,6 +211,10 @@ mod dummy {
         type Target;
         pub(in crate::target) fn label(self: &CxxTarget) -> &Label;
         pub(in crate::target) fn output_type_u8(target: &CxxTarget) -> u8;
+        #[rust_name = "rust_target_cxx"]
+        pub(in crate::target) fn rust_target(self: &CxxTarget) -> *const Target;
+        pub(crate) fn set_rust_target(self: &CxxTarget, rust_target: &Target);
+
         #[rust_name = "settings_cxx"]
         pub(in crate::target) fn settings(self: &CxxTarget) -> *const Settings;
         pub(crate) fn create_target(
@@ -306,6 +312,9 @@ mod dummy {
     }
 
     extern "Rust" {
+        #[cxx_name = "RustTarget"]
+        type Target;
+
         type Session;
 
         #[Self = "Session"]

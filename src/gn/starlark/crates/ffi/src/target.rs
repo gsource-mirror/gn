@@ -57,4 +57,21 @@ impl crate::bridge::CxxTarget {
     pub fn toolchain(&self) -> types::LabelRef<'_> {
         self.settings().toolchain_label().as_ref()
     }
+
+    /// Returns a reference to the associated Rust Target, registering it with
+    /// the session if it doesn't exist yet.
+    pub fn rust_target(&self, session: &crate::Session) -> &'static Target {
+        if let Some(target) = unsafe { self.rust_target_cxx().as_ref() } {
+            target
+        } else {
+            // Safety: Target pointers in GN live for the static session.
+            let static_cxx = unsafe { types::util::extend_lifetime(self) };
+            let target_ref = session.register_target(Target {
+                cxx: static_cxx,
+                starlark: None,
+            });
+            self.set_rust_target(target_ref.0);
+            target_ref.0
+        }
+    }
 }

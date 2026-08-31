@@ -150,16 +150,19 @@ impl attr::traits::EvalContextAttrExt for EvalContext {
         rule: starlark::values::FrozenValue,
         attrs: Vec<attr::Attr>,
     ) -> starlark::Result<<Self::Session as types::Session>::TargetRef> {
+        let static_cxx: &'static crate::bridge::CxxTarget = ;
         let typed_rule =
             starlark::values::FrozenValueTyped::<rule::FrozenRule<Self>>::new_err(rule)?;
-        Ok(self.session.register_target(crate::target::Target {
-            cxx: cxx_target.into_ref().get_ref(),
+        let target_ref = self.session.register_target(crate::target::Target {
+            cxx: static_cxx,
             starlark: typed_rule
                 .has_implementation()
                 .then(|| crate::target::StarlarkTarget {
                     rule: typed_rule,
                     attrs,
                 }),
-        }))
+        });
+        static_cxx.set_rust_target(target_ref.0);
+        Ok(target_ref)
     }
 }

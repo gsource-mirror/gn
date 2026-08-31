@@ -7,10 +7,12 @@
 #include "gn/ffi/test_with_scope.h"
 #include "gn/ffi/value.h"
 #include "gn/label.h"
+#include "gn/label_ptr.h"
 #include "gn/output_file.h"
 #include "gn/scope.h"
 #include "gn/settings.h"
 #include "gn/source_dir.h"
+#include "gn/source_file.h"
 #include "gn/target.h"
 #include "gn/test_with_scope.h"
 #include "gn/value.h"
@@ -819,6 +821,7 @@ using Scope = ::Scope;
 using TestWithScope = ::TestWithScope;
 using Value = ::Value;
 using ParseNode = ::ParseNode;
+struct RustTarget;
 struct Session;
 struct OwnedFrozenValue;
 
@@ -872,6 +875,20 @@ enum class ValueType : ::std::uint8_t {
   StarlarkValue = 6,
 };
 #endif // CXXBRIDGE1_ENUM_ValueType
+
+#ifndef CXXBRIDGE1_STRUCT_RustTarget
+#define CXXBRIDGE1_STRUCT_RustTarget
+struct RustTarget final : public ::rust::Opaque {
+  ~RustTarget() = delete;
+
+private:
+  friend ::rust::layout;
+  struct layout {
+    static ::std::size_t size() noexcept;
+    static ::std::size_t align() noexcept;
+  };
+};
+#endif // CXXBRIDGE1_STRUCT_RustTarget
 
 #ifndef CXXBRIDGE1_STRUCT_Session
 #define CXXBRIDGE1_STRUCT_Session
@@ -977,6 +994,16 @@ void cxxbridge1$196$Target$label(::Target const &self, ::Label const **return$) 
 ::std::uint8_t cxxbridge1$196$output_type_u8(::Target const &target) noexcept {
   ::std::uint8_t (*output_type_u8$)(::Target const &) = ::output_type_u8;
   return output_type_u8$(target);
+}
+
+::RustTarget const *cxxbridge1$196$Target$rust_target_cxx(::Target const &self) noexcept {
+  ::RustTarget const *(::Target::*rust_target_cxx$)() const = &::Target::rust_target;
+  return (self.*rust_target_cxx$)();
+}
+
+void cxxbridge1$196$Target$set_rust_target(::Target const &self, ::RustTarget const &rust_target) noexcept {
+  void (::Target::*set_rust_target$)(::RustTarget const &) const = &::Target::set_rust_target;
+  (self.*set_rust_target$)(rust_target);
 }
 
 ::Settings const *cxxbridge1$196$Target$settings_cxx(::Target const &self) noexcept {
@@ -1128,6 +1155,8 @@ void cxxbridge1$196$Value$starlark_value(::Value const &self, ::OwnedFrozenValue
   ::OwnedFrozenValue const &(::Value::*starlark_value$)() const = &::Value::starlark_value;
   new (return$) ::OwnedFrozenValue const *(&(self.*starlark_value$)());
 }
+::std::size_t cxxbridge1$196$RustTarget$operator$sizeof() noexcept;
+::std::size_t cxxbridge1$196$RustTarget$operator$alignof() noexcept;
 ::std::size_t cxxbridge1$196$Session$operator$sizeof() noexcept;
 ::std::size_t cxxbridge1$196$Session$operator$alignof() noexcept;
 
@@ -1147,6 +1176,14 @@ bool cxxbridge1$196$OwnedFrozenValue$eq_cxx(::OwnedFrozenValue const &self, ::Ow
 
 void cxxbridge1$196$OwnedFrozenValue$invoke(::OwnedFrozenValue const &self, ::Session const &session, ::std::vector<::Value> const &args, ::Scope const &kwargs, ::Value &out_val, ::Scope &scope, ::ParseNodePtr *origin, ::Err &err) noexcept;
 } // extern "C"
+
+::std::size_t RustTarget::layout::size() noexcept {
+  return cxxbridge1$196$RustTarget$operator$sizeof();
+}
+
+::std::size_t RustTarget::layout::align() noexcept {
+  return cxxbridge1$196$RustTarget$operator$alignof();
+}
 
 ::std::size_t Session::layout::size() noexcept {
   return cxxbridge1$196$Session$operator$sizeof();

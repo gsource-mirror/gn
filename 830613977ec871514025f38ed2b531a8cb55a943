@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a5344d1_ec2de23d",
+        "filename": "src/gn/starlark/crates/types/src/output_type.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T07:33:16Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Since `OutputType` implements `Copy`, taking `self` by value here is idiomatic. However, `attrs` currently takes `\u0026self`. Consider changing `attrs` to `pub const fn attrs(self)` so all these methods consistently take `self` by value.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 0
+      },
+      "revId": "830613977ec871514025f38ed2b531a8cb55a943",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b86887c_fe7685c5",
+        "filename": "src/gn/starlark/crates/types/src/output_type.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T07:33:16Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Consider adding assertions for the other new methods (`has_sources`, `has_public`, `has_public_deps`) to ensure they behave as expected for different `OutputType` variants.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 0
+      },
+      "revId": "830613977ec871514025f38ed2b531a8cb55a943",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

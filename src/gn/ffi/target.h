@@ -5,11 +5,17 @@
 #ifndef TOOLS_GN_FFI_TARGET_H_
 #define TOOLS_GN_FFI_TARGET_H_
 
+#include <stdint.h>
+
 #include "cxx.h"
+#include "gn/target.h"
 
 class Err;
 class Scope;
 class Target;
+
+// Returns the output type of the target as a uint8_t discriminant.
+uint8_t output_type_u8(const Target& target);
 
 // Creates and generates a new target in the given scope.
 Target* create_target(Scope& scope,

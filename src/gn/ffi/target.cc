@@ -9,7 +9,10 @@
 #include "gn/ffi/bridge.h"
 #include "gn/label.h"
 #include "gn/label_ptr.h"
+#include "gn/output_file.h"
+#include "gn/settings.h"
 #include "gn/source_dir.h"
+#include "gn/source_file.h"
 #include "gn/target.h"
 #include "gn/target_generator.h"
 
@@ -45,4 +48,10 @@ const RustTarget& Target::rust_target(const Session& session) const {
   // register_cxx_target calls set_rust_target, so we don't need to bother
   // caching it ourselves.
   return session.register_cxx_target(*this);
+}
+
+rust::Str source_file_to_output_path(const Settings& settings,
+                                     const SourceFile& file) {
+  OutputFile output_file(settings.build_settings(), file);
+  return rust::Str(output_file.value());
 }

@@ -11,6 +11,7 @@
 #include "gn/scope.h"
 #include "gn/settings.h"
 #include "gn/source_dir.h"
+#include "gn/source_file.h"
 #include "gn/target.h"
 #include "gn/test_with_scope.h"
 #include "gn/value.h"
@@ -740,6 +741,10 @@ std::size_t align_of() {
 }
 #endif // CXXBRIDGE1_LAYOUT
 
+namespace repr {
+using Fat = ::std::array<::std::uintptr_t, 2>;
+} // namespace repr
+
 namespace detail {
 template <typename T, typename = void *>
 struct operator_new {
@@ -768,6 +773,14 @@ union MaybeUninit {
 };
 
 namespace {
+template <>
+class impl<Str> final {
+public:
+  static repr::Fat repr(Str str) noexcept {
+    return str.repr;
+  }
+};
+
 template <typename T>
 void destroy(T *ptr) {
   ptr->~T();
@@ -813,6 +826,7 @@ using InputFile = ::InputFile;
 using OutputFile = ::OutputFile;
 using SourceDir = ::SourceDir;
 using Label = ::Label;
+using SourceFile = ::SourceFile;
 using Target = ::Target;
 using Settings = ::Settings;
 using Scope = ::Scope;
@@ -983,6 +997,16 @@ void cxxbridge1$196$Label$dir(::Label const &self, ::SourceDir const **return$) 
 void cxxbridge1$196$Label$name(::Label const &self, ::rust::Str *return$) noexcept {
   const std::string& (::Label::*name$)() const = &::Label::name;
   new (return$) ::rust::Str(::rust::cxx_to_rust((self.*name$)()));
+}
+
+bool cxxbridge1$196$SourceFile$is_header(::SourceFile const &self) noexcept {
+  bool (::SourceFile::*is_header$)() const = &::SourceFile::IsHeaderType;
+  return (self.*is_header$)();
+}
+
+::rust::repr::Fat cxxbridge1$196$source_file_to_output_path(::Settings const &settings, ::SourceFile const &file) noexcept {
+  ::rust::Str (*source_file_to_output_path$)(::Settings const &, ::SourceFile const &) = ::source_file_to_output_path;
+  return ::rust::impl<::rust::Str>::repr(source_file_to_output_path$(settings, file));
 }
 
 void cxxbridge1$196$Target$label(::Target const &self, ::Label const **return$) noexcept {

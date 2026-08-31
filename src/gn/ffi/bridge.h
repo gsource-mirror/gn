@@ -12,6 +12,7 @@
 #include "gn/scope.h"
 #include "gn/settings.h"
 #include "gn/source_dir.h"
+#include "gn/source_file.h"
 #include "gn/target.h"
 #include "gn/test_with_scope.h"
 #include "gn/value.h"
@@ -751,6 +752,7 @@ using InputFile = ::InputFile;
 using OutputFile = ::OutputFile;
 using SourceDir = ::SourceDir;
 using Label = ::Label;
+using SourceFile = ::SourceFile;
 using Target = ::Target;
 using Settings = ::Settings;
 using Scope = ::Scope;

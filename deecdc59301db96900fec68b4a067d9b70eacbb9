@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d0af0cd_46c47570",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 0,
+      "message": "This change is not relevant to this CL?",
+      "revId": "deecdc59301db96900fec68b4a067d9b70eacbb9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15f96717_ed578029",
+        "filename": "src/gn/ninja_rust_binary_target_writer_unittest.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 0,
+      "message": "Can we fix this format difference separately?",
+      "revId": "deecdc59301db96900fec68b4a067d9b70eacbb9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

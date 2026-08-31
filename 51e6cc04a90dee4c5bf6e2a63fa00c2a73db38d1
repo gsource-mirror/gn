@@ -1,0 +1,358 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7202f3e0_46c40761",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "As siso dump doesn\u0027t exist, could you leave link to reference for this subcommand?",
+      "range": {
+        "startLine": 14,
+        "startChar": 18,
+        "endLine": 14,
+        "endChar": 27
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d702ea9e_f00494d9",
+        "filename": "integration_tests/simple/goldens/obj/hello.ninja",
+        "patchSetId": 12
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "Can we avoid this format diff?",
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c4cdc02_89bde251",
+        "filename": "src/gn/ninja_action_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "This function is unused now?",
+      "fixSuggestions": [
+        {
+          "fixId": "d6250d6f_80051b4e",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_action_target_writer.cc",
+              "range": {
+                "startLine": 269,
+                "startChar": 0,
+                "endLine": 284,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f1effd7_737cd75d",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "Better to use pass by value for this?",
+      "range": {
+        "startLine": 374,
+        "startChar": 44,
+        "endLine": 374,
+        "endChar": 54
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63e8430e_53def78b",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "We can use pass by value and move for this?",
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a94a60e1_62042c97",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "We can use pass by value and move for this?",
+      "range": {
+        "startLine": 385,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 43
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1c96de5_4859cd39",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "This can be moved?",
+      "range": {
+        "startLine": 593,
+        "startChar": 17,
+        "endLine": 593,
+        "endChar": 29
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b9b3c93_d4fb597a",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "Better to use pass by value and move?",
+      "range": {
+        "startLine": 599,
+        "startChar": 25,
+        "endLine": 599,
+        "endChar": 37
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42d22660_bb5d08dd",
+        "filename": "src/gn/ninja_file.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: This outputs two newlines, but the last variable in `file_vars` already ends with a newline, resulting in 3 newlines in the output (and two blank lines). \n\nIf you change this to `out \u003c\u003c \u0027\\n\u0027;` (and similarly for the target separation and `WriteRules` where `rule` already includes a newline), you\u0027ll restore the original formatting and likely won\u0027t need to add the extra `\\n` to all the test expectations.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 0
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05a1302c_cf3d428d",
+        "filename": "src/gn/ninja_file.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "Initialization is redundant for these members.",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 44
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "d5488631_11b79bc4",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_file.h",
+              "range": {
+                "startLine": 28,
+                "startChar": 0,
+                "endLine": 31,
+                "endChar": 0
+              },
+              "replacement": "  std::string rule;\n  std::vector\u003cOutputFile\u003e outputs;\n  std::vector\u003cOutputFile\u003e implicit_outputs;\n"
+            },
+            {
+              "path": "src/gn/ninja_file.h",
+              "range": {
+                "startLine": 32,
+                "startChar": 0,
+                "endLine": 36,
+                "endChar": 0
+              },
+              "replacement": "  std::vector\u003cOutputFile\u003e explicit_inputs;\n  std::vector\u003cOutputFile\u003e implicit_inputs;\n  std::vector\u003cOutputFile\u003e order_only_inputs;\n  std::vector\u003cOutputFile\u003e validation_inputs;\n"
+            },
+            {
+              "path": "src/gn/ninja_file.h",
+              "range": {
+                "startLine": 38,
+                "startChar": 0,
+                "endLine": 39,
+                "endChar": 0
+              },
+              "replacement": "  std::vector\u003cNinjaVariable\u003e edge_vars;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ea8b8ae_b7ec6a2e",
+        "filename": "src/gn/ninja_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: The old code did `WriteOutput(partial_info_plist)` in `NinjaCreateBundleTargetWriter::WriteCompileAssetsCatalogStep` which was an `implicit_output`. To match the original behavior and collect implicit outputs that should be target outputs, we also need to append `edge.implicit_outputs` to `ninja_outputs_` here.",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 0
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cfffbc0_c5eaec14",
+        "filename": "src/gn/ninja_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Same here. `edge.implicit_outputs` should also be appended to `ninja_outputs`.",
+      "range": {
+        "startLine": 199,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 0
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22e11869_2284aaf1",
+        "filename": "src/gn/ninja_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: It looks like `WritePublicInputsStampOrPhony` still writes to the stream directly, bypassing the `NinjaTargetGroup` / `NinjaFile` API. This defeats the goal of standardizing the ninja file writing.\n\nYou can change `WritePublicInputsStampOrPhony` to take a `NinjaTargetGroup\u0026` and append a `NinjaBuildEdge` to it. Then you can call it before `file.AddTargetGroup(std::move(group));`. (Note: you probably want to set `is_target_output \u003d false` on that edge, as the old code didn\u0027t use `WriteOutput()` for it).",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 0
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a85e06e_5169e542",
+        "filename": "src/gn/ninja_target_writer_unittest.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T11:08:21Z",
+      "side": 1,
+      "message": "This and below changes for comments are unnecessary?",
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -11,6 +11,8 @@
 
 class Err;
 class Scope;
+class Settings;
+class SourceFile;
 class Target;
 
 // Returns the output type of the target as a uint8_t discriminant.
@@ -29,5 +31,10 @@ void register_dependency(Target& target,
                          rust::Str name,
                          rust::Str toolchain_package,
                          rust::Str toolchain_name);
+
+// Converts a source file to an output file relative to the build settings and
+// returns its path.
+rust::Str source_file_to_output_path(const Settings& settings,
+                                     const SourceFile& file);
 
 #endif  // TOOLS_GN_FFI_TARGET_H_

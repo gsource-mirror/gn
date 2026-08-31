@@ -15,7 +15,7 @@ use types::EvaluatorContextExt as _;
 ///   * This allows for C++ code to #include rust types
 /// * The `cxxbridge` command generates shims to allow us to use C++ types in
 ///   rust.
-use crate::session::Session;
+use crate::{session::Session, target::Target};
 
 pub struct OwnedFrozenValue(pub starlark::values::OwnedFrozenValue);
 
@@ -209,6 +209,12 @@ mod dummy {
         type Target;
         pub(in crate::target) fn label(self: &CxxTarget) -> &Label;
         pub(in crate::target) fn output_type_u8(target: &CxxTarget) -> u8;
+        pub(in crate::target) fn rust_target<'a>(
+            self: &'a CxxTarget,
+            session: &'a Session,
+        ) -> &'static Target;
+        pub(in crate::session) fn set_rust_target(self: &CxxTarget, rust_target: &Target);
+
         #[rust_name = "settings_cxx"]
         pub(in crate::target) fn settings(self: &CxxTarget) -> *const Settings;
         pub(crate) fn create_target(
@@ -306,6 +312,9 @@ mod dummy {
     }
 
     extern "Rust" {
+        #[cxx_name = "RustTarget"]
+        type Target;
+
         type Session;
 
         #[Self = "Session"]
@@ -314,6 +323,11 @@ mod dummy {
 
         #[Self = "Session"]
         fn new_for_testing() -> Box<Session>;
+
+        fn register_cxx_target(
+            self: &'static Session,
+            target: &'static CxxTarget,
+        ) -> &'static Target;
 
         fn load_values(
             self: &'static Session,

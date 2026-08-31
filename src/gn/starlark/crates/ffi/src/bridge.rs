@@ -151,6 +151,7 @@ mod dummy {
         include!("gn/ffi/test_with_scope.h");
         include!("gn/ffi/value.h");
         include!("gn/label.h");
+        include!("gn/label_ptr.h");
         include!("gn/output_file.h");
         include!("gn/scope.h");
         include!("gn/settings.h");
@@ -214,16 +215,23 @@ mod dummy {
             file: &'a SourceFile,
         ) -> &'a str;
 
+        type LabelTargetPair;
+        pub(in crate::target) fn label_target_pair_target(pair: &LabelTargetPair) -> &CxxTarget;
+
         #[rust_name = "CxxTarget"]
         type Target;
         pub(in crate::target) fn label(self: &CxxTarget) -> &Label;
         pub(in crate::target) fn output_type_u8(target: &CxxTarget) -> u8;
+        pub(in crate::target) fn private_deps(self: &CxxTarget) -> &CxxVector<LabelTargetPair>;
+        pub(in crate::target) fn public_deps(self: &CxxTarget) -> &CxxVector<LabelTargetPair>;
+        pub(in crate::target) fn all_headers_public(self: &CxxTarget) -> bool;
+        pub(in crate::target) fn sources(self: &CxxTarget) -> &CxxVector<SourceFile>;
+        pub(in crate::target) fn public_headers(self: &CxxTarget) -> &CxxVector<SourceFile>;
         pub(in crate::target) fn rust_target<'a>(
             self: &'a CxxTarget,
             session: &'a Session,
         ) -> &'static Target;
         pub(in crate::session) fn set_rust_target(self: &CxxTarget, rust_target: &Target);
-
         #[rust_name = "settings_cxx"]
         pub(in crate::target) fn settings(self: &CxxTarget) -> *const Settings;
         pub(crate) fn create_target(

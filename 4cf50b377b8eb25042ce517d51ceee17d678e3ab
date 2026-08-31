@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54ea0241_c38eaa9e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-08-31T15:34:00Z",
+      "side": 1,
+      "message": "Matt, this CL has broken the `EditCommandTest.ShardSubcommand` unit-test for me when building GN locally on my workstation. I have no idea why this is not triggered on CQ/CI.\n\nThe error message\u0027s diff shows that the command did *not* insert blank lines before `static_library(\"a\")`, `static_library(\"c_win\")`, `static_library(\"foo_foo\")` and `stastic_library(\"utils_foo_bar\")`.\n\nShould we revert of fix this?",
+      "revId": "4cf50b377b8eb25042ce517d51ceee17d678e3ab",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -150,11 +150,11 @@ impl attr::traits::EvalContextAttrExt for EvalContext {
         rule: starlark::values::FrozenValue,
         attrs: Vec<attr::Attr>,
     ) -> starlark::Result<<Self::Session as types::Session>::TargetRef> {
-        let ffi_target = std::ptr::NonNull::from(&*cxx_target);
+        let static_cxx: &'static crate::bridge::CxxTarget = cxx_target.into_ref().get_ref();
         let typed_rule =
             starlark::values::FrozenValueTyped::<rule::FrozenRule<Self>>::new_err(rule)?;
         Ok(self.session.register_target(crate::target::Target {
-            cxx: ffi_target,
+            cxx: static_cxx,
             starlark: typed_rule
                 .has_implementation()
                 .then(|| crate::target::StarlarkTarget {

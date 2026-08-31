@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include "cxx.h"
+#include "gn/label_ptr.h"
 
 class Err;
 class Scope;
@@ -36,5 +37,9 @@ void register_dependency(Target& target,
 // returns its path.
 rust::Str source_file_to_output_path(const Settings& settings,
                                      const SourceFile& file);
+
+// Returns the resolved target from a LabelTargetPair.
+// Must only be called if the target is already resolved.
+const Target& label_target_pair_target(const LabelTargetPair& pair);
 
 #endif  // TOOLS_GN_FFI_TARGET_H_

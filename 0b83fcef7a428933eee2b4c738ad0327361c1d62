@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "177a43f5_bb3b5e28",
+        "filename": "src/gn/ffi/target.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-08-31T04:47:45Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: `class Target;` is already forward-declared on line 15, and `output_type_u8` only needs it by reference. Consider removing this `#include` to reduce compilation dependencies.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 0
+      },
+      "revId": "0b83fcef7a428933eee2b4c738ad0327361c1d62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

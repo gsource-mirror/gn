@@ -64,3 +64,18 @@ impl crate::bridge::CxxTarget {
         TargetRef(self.rust_target(session))
     }
 }
+
+impl crate::bridge::LabelTargetPair {
+    /// Returns the resolved target.
+    ///
+    /// Must only be called if the target is already resolved.
+    pub fn target(&self) -> &crate::bridge::CxxTarget {
+        crate::bridge::label_target_pair_target(self)
+    }
+
+    /// Returns a reference to the associated Rust Target, registering it with
+    /// the session if it doesn't exist yet.
+    pub fn to_rust(&self, session: &crate::Session) -> TargetRef {
+        self.target().to_rust(session)
+    }
+}

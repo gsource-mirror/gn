@@ -55,3 +55,8 @@ rust::Str source_file_to_output_path(const Settings& settings,
   OutputFile output_file(settings.build_settings(), file);
   return rust::Str(output_file.value());
 }
+
+const Target& label_target_pair_target(const LabelTargetPair& pair) {
+  DCHECK(pair.ptr);
+  return *pair.ptr;
+}

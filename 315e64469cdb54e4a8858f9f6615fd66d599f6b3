@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c29e6abd_0619dadb",
+        "filename": "src/gn/starlark/crates/rule/src/frozen_rule.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-31T23:47:21Z",
+      "side": 1,
+      "message": "implementation isn\u0027t an Option. It has no is_some",
+      "parentUuid": "2ef43c44_b15f59f6",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 0
+      },
+      "revId": "315e64469cdb54e4a8858f9f6615fd66d599f6b3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0fcc4501_ce477c03",
@@ -61,6 +85,30 @@
           ]
         }
       ],
+      "revId": "315e64469cdb54e4a8858f9f6615fd66d599f6b3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "153be1ae_95366d9d",
+        "filename": "src/gn/starlark/crates/testutils/src/eval_context.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-08-31T23:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0fcc4501_ce477c03",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 0
+      },
       "revId": "315e64469cdb54e4a8858f9f6615fd66d599f6b3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

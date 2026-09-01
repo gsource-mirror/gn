@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "793e441e_6763a52c",
+        "filename": "src/gn/ffi/target.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T05:45:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74b5c35f_52bb5ed0",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 0
+      },
+      "revId": "41336a126cb9ee9870170b366e65d5d99f87d195",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "718bf573_c57bb04e",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-09-01T05:36:59Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: NIT: The safety comment refers to `OutputFile` which is an implementation detail inside `source_file_to_output_path`. It might be clearer to phrase this as: `// Safety: source_file_to_output_path returns a string backed by an interned StringAtom and is static.`",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 0
+      },
+      "revId": "41336a126cb9ee9870170b366e65d5d99f87d195",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6997229e_55e58dfe",
+        "filename": "src/gn/starlark/crates/ffi/src/source_file.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T05:45:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "718bf573_c57bb04e",
       "range": {
         "startLine": 11,
         "startChar": 0,

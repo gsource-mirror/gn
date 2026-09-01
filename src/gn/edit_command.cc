@@ -83,15 +83,22 @@ const char kEdit_Help[] =
     "      Example:\n"
     "        gn edit \"rename srcs sources\" //src/tools:*\n"
     "\n"
-    "  set <attribute>[:list] <value(s)>\n"
+    "  set <attribute>[:list|:expr] <value(s)>\n"
     "      Sets or overwrites the target's <attribute> to <value(s)>.\n"
     "      If multiple values are provided, or if the \":list\" suffix is\n"
     "      appended to the attribute, <value(s)> is interpreted as a list.\n"
+    "      If the \":expr\" suffix is appended to the attribute, <value(s)>\n"
+    "      is parsed as a raw GN expression (e.g. variable, list of "
+    "variables,\n"
+    "      or expression).\n"
     "\n"
     "      Examples:\n"
     "        gn edit \"set testonly true\" //src/tools:*\n"
     "        gn edit \"set srcs:list foo.cc\" //:foo\n"
     "        gn edit \"set deps :bar :baz\" //:foo\n"
+    "        gn edit \"set deps:expr default_deps\" //:foo\n"
+    "        gn edit \"set deps:expr [ default_deps, \\\":custom\\\" ]\" "
+    "//:foo\n"
     "\n"
     "  shard [sharded_target_type] [group_type]\n"
     "      Splits the target's sources into fine-grained shard targets,\n"
@@ -126,6 +133,16 @@ Result<std::pair<std::vector<SourceFile>, EditState>> RunEditImpl(
       return Err(Location(), "Unclosed quote in command string.");
     }
     command_tokens.push_back(std::move(token));
+
+    // When calling set on an expression, we don't want to use std::quoted,
+    // we want to load the string raw.
+    if (command_tokens.size() == 2 && command_tokens[0] == "set" &&
+        command_tokens[1].ends_with(":expr")) {
+      if (!(ss >> std::ws).eof()) {
+        command_tokens.emplace_back(ss.view().substr(ss.tellg()));
+      }
+      break;
+    }
   }
   if (command_tokens.empty()) {
     return Err(Location(), "Empty command string.");

@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c75cc22_6723303e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7202f3e0_46c40761",
+      "range": {
+        "startLine": 14,
+        "startChar": 18,
+        "endLine": 14,
+        "endChar": 27
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d702ea9e_f00494d9",
@@ -37,6 +61,24 @@
       "writtenOn": "2026-08-31T11:08:21Z",
       "side": 1,
       "message": "Can we avoid this format diff?",
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6418d471_1240f091",
+        "filename": "integration_tests/simple/goldens/obj/hello.ninja",
+        "patchSetId": 12
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Adding newlines was previously done on a case-by-case basis. This method requires us to standardize this behaviour. So no matter what, we will get diffs, it\u0027s just a question of which ones.\n\nEg. IIRC, rust targets would previously produce newlines between build actions, while C++ targets would not, or something along the lines of that.",
+      "parentUuid": "d702ea9e_f00494d9",
       "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -76,6 +118,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "304f1b97_381705e9",
+        "filename": "src/gn/ninja_action_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c4cdc02_89bde251",
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f1effd7_737cd75d",
@@ -89,6 +149,30 @@
       "writtenOn": "2026-08-31T11:08:21Z",
       "side": 1,
       "message": "Better to use pass by value for this?",
+      "range": {
+        "startLine": 374,
+        "startChar": 44,
+        "endLine": 374,
+        "endChar": 54
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "956780cb_6905c4bd",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f1effd7_737cd75d",
       "range": {
         "startLine": 374,
         "startChar": 44,
@@ -116,6 +200,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ce79a3a_cd47d923",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63e8430e_53def78b",
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a94a60e1_62042c97",
@@ -129,6 +231,30 @@
       "writtenOn": "2026-08-31T11:08:21Z",
       "side": 1,
       "message": "We can use pass by value and move for this?",
+      "range": {
+        "startLine": 385,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 43
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4fc69a8_3c1c0e0e",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a94a60e1_62042c97",
       "range": {
         "startLine": 385,
         "startChar": 0,
@@ -162,6 +288,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2da4f0e9_2404ccf9",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1c96de5_4859cd39",
+      "range": {
+        "startLine": 593,
+        "startChar": 17,
+        "endLine": 593,
+        "endChar": 29
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6b9b3c93_d4fb597a",
@@ -185,6 +335,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3fb41f5d_94e327de",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b9b3c93_d4fb597a",
+      "range": {
+        "startLine": 599,
+        "startChar": 25,
+        "endLine": 599,
+        "endChar": 37
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42d22660_bb5d08dd",
@@ -198,6 +372,30 @@
       "writtenOn": "2026-08-31T11:08:21Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: This outputs two newlines, but the last variable in `file_vars` already ends with a newline, resulting in 3 newlines in the output (and two blank lines). \n\nIf you change this to `out \u003c\u003c \u0027\\n\u0027;` (and similarly for the target separation and `WriteRules` where `rule` already includes a newline), you\u0027ll restore the original formatting and likely won\u0027t need to add the extra `\\n` to all the test expectations.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 0
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19752891_1451ff5d",
+        "filename": "src/gn/ninja_file.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "This was by design to come up with a consistent layout.\n\n1 blank line between actions within a target, and 2 blank lines between targets.",
+      "parentUuid": "42d22660_bb5d08dd",
       "range": {
         "startLine": 72,
         "startChar": 0,
@@ -269,6 +467,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1cfdaeb8_dda4f42b",
+        "filename": "src/gn/ninja_file.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "It\u0027s not, because if you do `NinjaBuildEdge{.rule \u003d \"cxx}`, for example, it will complain about any field without an explicit initializer.\n\nI\u0027ve removed the initializers now for mandatory fields (rule and outputs)",
+      "parentUuid": "05a1302c_cf3d428d",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 44
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5ea8b8ae_b7ec6a2e",
@@ -282,6 +504,30 @@
       "writtenOn": "2026-08-31T11:08:21Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: The old code did `WriteOutput(partial_info_plist)` in `NinjaCreateBundleTargetWriter::WriteCompileAssetsCatalogStep` which was an `implicit_output`. To match the original behavior and collect implicit outputs that should be target outputs, we also need to append `edge.implicit_outputs` to `ninja_outputs_` here.",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 0
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57581930_79c02669",
+        "filename": "src/gn/ninja_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ea8b8ae_b7ec6a2e",
       "range": {
         "startLine": 67,
         "startChar": 0,
@@ -315,6 +561,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7b26b08_c0241342",
+        "filename": "src/gn/ninja_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cfffbc0_c5eaec14",
+      "range": {
+        "startLine": 199,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 0
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "22e11869_2284aaf1",
@@ -338,6 +608,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd34a2a4_619422b8",
+        "filename": "src/gn/ninja_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22e11869_2284aaf1",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 0
+      },
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a85e06e_5169e542",
@@ -351,6 +645,24 @@
       "writtenOn": "2026-08-31T11:08:21Z",
       "side": 1,
       "message": "This and below changes for comments are unnecessary?",
+      "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3855158_9d6da202",
+        "filename": "src/gn/ninja_target_writer_unittest.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a85e06e_5169e542",
       "revId": "51e6cc04a90dee4c5bf6e2a63fa00c2a73db38d1",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "75f740dc_3f19f6ef",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 0,
+      "message": "It is - out and out_ were previously two different references to the same variable, but now they point to two different things",
+      "parentUuid": "7d0af0cd_46c47570",
+      "revId": "deecdc59301db96900fec68b4a067d9b70eacbb9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "15f96717_ed578029",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-08-31T11:08:21Z",
       "side": 0,
       "message": "Can we fix this format difference separately?",
+      "revId": "deecdc59301db96900fec68b4a067d9b70eacbb9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8568e93_d23451fc",
+        "filename": "src/gn/ninja_rust_binary_target_writer_unittest.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T00:18:03Z",
+      "side": 0,
+      "message": "If we did that it\u0027d be adding code that would immediately be deleted in the next commit.",
+      "parentUuid": "15f96717_ed578029",
       "revId": "deecdc59301db96900fec68b4a067d9b70eacbb9",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

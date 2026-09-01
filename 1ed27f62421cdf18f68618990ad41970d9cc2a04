@@ -1,0 +1,68 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83c6c527_3a58ac3b",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T06:16:39Z",
+      "side": 1,
+      "message": "This is reundant paren?",
+      "range": {
+        "startLine": 784,
+        "startChar": 7,
+        "endLine": 784,
+        "endChar": 11
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "02762c1c_fddc36b4",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 784,
+                "startChar": 0,
+                "endLine": 785,
+                "endChar": 0
+              },
+              "replacement": "          std::string_view(dep_field) \u003d\u003d \"public_deps\" \u0026\u0026\n"
+            }
+          ]
+        }
+      ],
+      "revId": "1ed27f62421cdf18f68618990ad41970d9cc2a04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4e04e65_4d8f938f",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T06:16:39Z",
+      "side": 1,
+      "message": "Can we change type of dep_field to string_view?",
+      "range": {
+        "startLine": 784,
+        "startChar": 28,
+        "endLine": 784,
+        "endChar": 37
+      },
+      "revId": "1ed27f62421cdf18f68618990ad41970d9cc2a04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

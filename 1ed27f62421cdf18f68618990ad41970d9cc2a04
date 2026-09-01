@@ -63,6 +63,29 @@
       },
       "revId": "1ed27f62421cdf18f68618990ad41970d9cc2a04",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06a1f7e4_34082bad",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-09-01T06:17:59Z",
+      "side": 1,
+      "message": "Do we expect `deps` to be removed if it becomes empty?",
+      "range": {
+        "startLine": 711,
+        "startChar": 0,
+        "endLine": 711,
+        "endChar": 11
+      },
+      "revId": "1ed27f62421cdf18f68618990ad41970d9cc2a04",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

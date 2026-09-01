@@ -16,6 +16,24 @@
       "message": "Matt, this CL has broken the `EditCommandTest.ShardSubcommand` unit-test for me when building GN locally on my workstation. I have no idea why this is not triggered on CQ/CI.\n\nThe error message\u0027s diff shows that the command did *not* insert blank lines before `static_library(\"a\")`, `static_library(\"c_win\")`, `static_library(\"foo_foo\")` and `stastic_library(\"utils_foo_bar\")`.\n\nShould we revert of fix this?",
       "revId": "4cf50b377b8eb25042ce517d51ceee17d678e3ab",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "396b09f8_31c38acf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-01T02:29:49Z",
+      "side": 1,
+      "message": "Investigated, this is WAI, just comes from a CQ timing mismatch. I wrote the commit and ran CQ+1 before that test was added, so it didn\u0027t catch it. Since it\u0027s WAI, I\u0027ll just fix-forward\n\ngn-review.git.corp.google.com/c/gn/+/26040 should fix it",
+      "parentUuid": "54ea0241_c38eaa9e",
+      "revId": "4cf50b377b8eb25042ce517d51ceee17d678e3ab",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

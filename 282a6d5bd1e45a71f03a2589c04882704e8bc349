@@ -1,0 +1,68 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2350d3dd_dc9769f9",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T05:52:02Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If an unknown type is provided (e.g. `deps:foo`) but `values.size() \u003e 1`, this condition evaluates to true. It will incorrectly fall through to list behavior and bypass the unknown type error checking at the bottom of the function. You should probably validate that `kind` is a known type before these checks.",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 0
+      },
+      "revId": "282a6d5bd1e45a71f03a2589c04882704e8bc349",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad5d8f0c_708e101e",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T05:52:02Z",
+      "side": 1,
+      "message": "move this?",
+      "range": {
+        "startLine": 342,
+        "startChar": 28,
+        "endLine": 342,
+        "endChar": 37
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "5b3d5259_031f35ed",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/edit_subcommands.cc",
+              "range": {
+                "startLine": 342,
+                "startChar": 0,
+                "endLine": 343,
+                "endChar": 0
+              },
+              "replacement": "  return EditTargetCommand([attribute \u003d std::move(attribute),\n                            generator \u003d std::move(generator)](\n"
+            }
+          ]
+        }
+      ],
+      "revId": "282a6d5bd1e45a71f03a2589c04882704e8bc349",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

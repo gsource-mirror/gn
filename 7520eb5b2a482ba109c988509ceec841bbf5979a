@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa5003c3_6dcf990b",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T09:03:15Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Consider setting `.is_target_output \u003d false` here as well. \n\nIn `NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep`, it was explicitly excluded from `ninja_outputs_` due to [crbug.com/448860851](https://crbug.com/448860851). Although the old code in `NinjaBinaryTargetWriter` used `WriteOutput` (which was likely an oversight), fixing it here keeps it consistent with `NinjaTargetWriter`.",
+      "range": {
+        "startLine": 212,
+        "startChar": 0,
+        "endLine": 212,
+        "endChar": 0
+      },
+      "revId": "7520eb5b2a482ba109c988509ceec841bbf5979a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "002ff186_1c2bbe77",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T09:03:15Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: In the previous version, `path_output_.WriteFile` was used directly to write this target rather than `WriteOutput`. As a result, it was not added to `ninja_outputs_`. \n\nYou should consider adding `.is_target_output \u003d false` here to preserve the exact same behavior and avoid exposing intermediate stamp files as target outputs.",
+      "range": {
+        "startLine": 563,
+        "startChar": 0,
+        "endLine": 563,
+        "endChar": 0
+      },
+      "revId": "7520eb5b2a482ba109c988509ceec841bbf5979a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9a356e1_f8d3f609",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T09:03:15Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Same here, consider adding `.is_target_output \u003d false`.",
+      "range": {
+        "startLine": 572,
+        "startChar": 0,
+        "endLine": 572,
+        "endChar": 0
+      },
+      "revId": "7520eb5b2a482ba109c988509ceec841bbf5979a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e0da7c2_6280685f",
+        "filename": "src/gn/ninja_file.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T09:03:15Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: `std::move` leaves the source vector in a valid but unspecified state. To be safe against potential use later during serialization, it\u0027s good practice to clear the vector explicitly:\n```cpp\nfile_vars \u003d std::move(targets.front().target_vars);\ntargets.front().target_vars.clear();\n```",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 0
+      },
+      "revId": "7520eb5b2a482ba109c988509ceec841bbf5979a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

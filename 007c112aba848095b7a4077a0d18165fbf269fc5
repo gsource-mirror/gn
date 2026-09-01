@@ -1,0 +1,121 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6782e08_2976c158",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T02:59:14Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: We should assert that the new `target` being discarded does not contain Starlark metadata. If it does, we are silently dropping it (which could happen if a Starlark target was accessed via `to_rust` prior to its registration, or if it is accidentally registered twice).\n\n```rust\n            Entry::Occupied(e) \u003d\u003e {\n                assert!(\n                    target.starlark.is_none(),\n                    \"Target already registered, or accessed via to_rust before registration\"\n                );\n                // Safety: A target object in the map is never deleted and lives for the\n                // session.\n                unsafe { extend_lifetime(\u0026**e.get()) }\n            },\n```",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 0
+      },
+      "revId": "007c112aba848095b7a4077a0d18165fbf269fc5",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5125052_b3a3cc6b",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T02:59:14Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Since `register_cxx_target` is declared in `bridge.rs` as taking `target: \u0026\u0027static CxxTarget`, you can change the signature here to accept `\u0026\u0027static CxxTarget` directly. This allows you to remove the `unsafe` block and let the compiler enforce the lifetime.\n\n```rust\n    pub(crate) fn register_cxx_target(\u0026self, cxx: \u0026\u0027static crate::bridge::CxxTarget) -\u003e \u0026\u0027static Target {\n        self.register_target(Target {\n            cxx,\n            starlark: None,\n        })\n        .0\n    }\n```",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 0
+      },
+      "revId": "007c112aba848095b7a4077a0d18165fbf269fc5",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01b1504c_e0a72a7c",
+        "filename": "src/gn/target.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-01T02:59:14Z",
+      "side": 1,
+      "message": "I prefer to use mutex and avoid atomic if this is not performance critical.",
+      "range": {
+        "startLine": 643,
+        "startChar": 15,
+        "endLine": 643,
+        "endChar": 21
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "8c093f84_632f7e66",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/target.h",
+              "range": {
+                "startLine": 8,
+                "startChar": 0,
+                "endLine": 9,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "src/gn/target.h",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "#include \u003cmutex\u003e\n"
+            },
+            {
+              "path": "src/gn/target.h",
+              "range": {
+                "startLine": 375,
+                "startChar": 0,
+                "endLine": 376,
+                "endChar": 0
+              },
+              "replacement": "    std::lock_guard\u003cstd::mutex\u003e lock(rust_target_mutex_);\n    rust_target_ \u003d \u0026rust_target;\n"
+            },
+            {
+              "path": "src/gn/target.h",
+              "range": {
+                "startLine": 643,
+                "startChar": 0,
+                "endLine": 644,
+                "endChar": 0
+              },
+              "replacement": "  mutable std::mutex rust_target_mutex_;\n  mutable const RustTarget* rust_target_ \u003d nullptr;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "007c112aba848095b7a4077a0d18165fbf269fc5",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

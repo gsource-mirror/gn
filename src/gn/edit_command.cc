@@ -83,15 +83,20 @@ const char kEdit_Help[] =
     "      Example:\n"
     "        gn edit \"rename srcs sources\" //src/tools:*\n"
     "\n"
-    "  set <attribute>[:list] <value(s)>\n"
+    "  set <attribute>[:list|:expr] <value(s)>\n"
     "      Sets or overwrites the target's <attribute> to <value(s)>.\n"
     "      If multiple values are provided, or if the \":list\" suffix is\n"
     "      appended to the attribute, <value(s)> is interpreted as a list.\n"
+    "      If the \":expr\" suffix is appended to the attribute, <value(s)>\n"
+    "      is parsed as a raw GN expression (e.g. variable, list of variables,\n"
+    "      or expression).\n"
     "\n"
     "      Examples:\n"
     "        gn edit \"set testonly true\" //src/tools:*\n"
     "        gn edit \"set srcs:list foo.cc\" //:foo\n"
     "        gn edit \"set deps :bar :baz\" //:foo\n"
+    "        gn edit \"set deps:expr default_deps\" //:foo\n"
+    "        gn edit \"set deps:expr [ default_deps, \\\":custom\\\" ]\" //:foo\n"
     "\n"
     "  shard [sharded_target_type] [group_type]\n"
     "      Splits the target's sources into fine-grained shard targets,\n"
@@ -129,6 +134,23 @@ Result<std::pair<std::vector<SourceFile>, EditState>> RunEditImpl(
   }
   if (command_tokens.empty()) {
     return Err(Location(), "Empty command string.");
+  }
+
+  if (command_tokens[0] == "set" && command_tokens.size() >= 2 &&
+      command_tokens[1].ends_with(":expr")) {
+    size_t first_token_pos = args[0].find(command_tokens[0]);
+    size_t second_token_pos = args[0].find(
+        command_tokens[1], first_token_pos + command_tokens[0].size());
+    if (second_token_pos != std::string::npos) {
+      std::string_view expr_raw = std::string_view(args[0]).substr(
+          second_token_pos + command_tokens[1].size());
+      size_t first_non_ws = expr_raw.find_first_not_of(" \t\n\r");
+      if (first_non_ws != std::string_view::npos) {
+        expr_raw = expr_raw.substr(first_non_ws);
+        command_tokens.resize(2);
+        command_tokens.push_back(std::string(expr_raw));
+      }
+    }
   }
 
   ASSIGN_OR_RETURN(EditCommand command,

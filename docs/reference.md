@@ -778,15 +778,20 @@
       Example:
         gn edit "rename srcs sources" //src/tools:*
 
-  set <attribute>[:list] <value(s)>
+  set <attribute>[:list|:expr] <value(s)>
       Sets or overwrites the target's <attribute> to <value(s)>.
       If multiple values are provided, or if the ":list" suffix is
       appended to the attribute, <value(s)> is interpreted as a list.
+      If the ":expr" suffix is appended to the attribute, <value(s)>
+      is parsed as a raw GN expression (e.g. variable, list of variables,
+      or expression).
 
       Examples:
         gn edit "set testonly true" //src/tools:*
         gn edit "set srcs:list foo.cc" //:foo
         gn edit "set deps :bar :baz" //:foo
+        gn edit "set deps:expr default_deps" //:foo
+        gn edit "set deps:expr [ default_deps, \":custom\" ]" //:foo
 
   shard [sharded_target_type] [group_type]
       Splits the target's sources into fine-grained shard targets,

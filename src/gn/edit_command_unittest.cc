@@ -623,6 +623,19 @@ executable("foo") {
 }
 )",
                      EditState({Label(SourceDir("//"), "foo")})));
+
+  // Custom Expressions
+  EXPECT_SUCCESS(DoEdit("set deps:expr default_deps + custom_deps",
+                        R"(
+executable("foo") {
+}
+)"),
+                 Edited(R"(
+executable("foo") {
+  deps = default_deps + custom_deps
+}
+)"));
+
 }
 
 TEST_F(EditCommandTest, ShardSubcommand) {

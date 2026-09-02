@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "485d193f_4e9a370d",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-02T06:07:05Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `next` is a `-\u003d` operation, `is_modification()` will return `true` (it\u0027s true for both `+\u003d` and `-\u003d`). This means a `-\u003d` would be incorrectly converted into `\u003d`, changing the semantics from removing items to assigning them. \n\nAdditionally, if `next` is `-\u003d`, we shouldn\u0027t remove the preceding `a \u003d []` either, because `-\u003d` requires the variable to be already initialized. \n\nConsider explicitly checking for `Token::MINUS_EQUALS` to avoid breaking `-\u003d` assignments:\n\n```cpp\n        } else if (next \u0026\u0026 !assign.is_conditional() \u0026\u0026\n                   (!next-\u003eis_conditional() || assignments.size() \u003d\u003d 2)) {\n          auto* next_op \u003d next-\u003enode()-\u003eAsBinaryOpMut();\n          if (next_op-\u003eop().type() \u003d\u003d Token::MINUS_EQUALS) {\n            // Cannot safely remove the initial `a \u003d []` if the next operation is `-\u003d`\n            // because `a -\u003d ...` requires `a` to be initialized, and we cannot convert\n            // `-\u003d` to `\u003d`.\n          } else {\n            if (next-\u003eis_modification() \u0026\u0026 !assign.is_modification()) {\n              next_op-\u003eset_op(Token(next_op-\u003eop().location(), Token::EQUAL, \"\u003d\"));\n            }\n            assign.RemoveSelfUnconditionally();\n          }\n        }\n```",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 0
+      },
+      "revId": "863bd9eabecbea1bcd7ccaffe73fe2ca5b5a40ca",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

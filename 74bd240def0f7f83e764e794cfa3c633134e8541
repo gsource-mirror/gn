@@ -72,6 +72,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c19451f1_4cf75750",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-02T06:55:35Z",
+      "side": 1,
+      "message": "I resolved it in a different way - it turned out removing the +1 worked just fine, and it was just introducing issues.",
+      "parentUuid": "40defe54_234fdba6",
+      "range": {
+        "startLine": 252,
+        "startChar": 0,
+        "endLine": 252,
+        "endChar": 0
+      },
+      "revId": "74bd240def0f7f83e764e794cfa3c633134e8541",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f9ccdb9b_5b687535",

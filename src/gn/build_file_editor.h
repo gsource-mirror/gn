@@ -149,6 +149,14 @@ std::vector<TreeNode> FindListElementInAssignment(const EditTarget& target,
 // Finds the first list node within an assignment expression.
 std::optional<ListNode*> FindListInAssignment(const TreeNode& assignment);
 
+// Returns whether the node represents an empty list (either an empty ListNode,
+// a BinaryOpNode '+' whose operands are empty lists, or an assignment to an
+// empty list).
+bool IsEmptyList(const ParseNode* node);
+
+// Simplifies binary expressions by removing empty lists (e.g. "[] + a" -> "a").
+std::unique_ptr<ParseNode> SimplifyExpression(std::unique_ptr<ParseNode> expr);
+
 // Represents a set of patterns within a build file.
 class LabelMatcher {
  public:

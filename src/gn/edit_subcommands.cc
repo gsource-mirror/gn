@@ -175,8 +175,8 @@ void AddToTarget(BuildFile& build_file,
       target_list->append_item(build_file.to_node(value));
     }
   } else if (!assignments.empty()) {
-    // Case B: attr is only defined conditionally -> add attr = [value] at the
-    // start of the block, change all other assignments to "+=".
+    // Case B: attr is only defined conditionally -> add attr = [value] right
+    // before the conditional statement, change all other assignments to "+=".
     for (auto& assignment : assignments) {
       if (auto* op = assignment->AsBinaryOpMut()) {
         if (op->op().type() == Token::EQUAL) {
@@ -184,17 +184,25 @@ void AddToTarget(BuildFile& build_file,
         }
       }
     }
-    target.block->statements().insert(
-        target.block->statements().begin(),
-        build_file.create_assignment(
-            attribute,
-            build_file.to_node(Value(nullptr, std::vector<Value>(to_add)))));
-  } else {
-    // Case C: attr is not defined -> add attr = [value] at the end of the
-    // block.
-    target.block->append_statement(build_file.create_assignment(
+
+    auto stack = assignments[0].stack();
+    while (stack[stack.size() - 2] != target.block)
+      stack.pop_back();
+
+    build_file.assign_in_block(
+        target.block,
+        std::find_if(
+            target.block->statements().begin(),
+            target.block->statements().end(),
+            [node = stack.back()](const auto& s) { return s.get() == node; }),
         attribute,
-        build_file.to_node(Value(nullptr, std::vector<Value>(to_add)))));
+        build_file.to_node(Value(nullptr, std::vector<Value>(to_add))));
+  } else {
+    // Case C: attr is not defined -> insert attr = [value] at the canonically
+    // sorted position.
+    build_file.assign_in_block(
+        target.block, attribute,
+        build_file.to_node(Value(nullptr, std::vector<Value>(to_add))));
   }
 }
 
@@ -335,8 +343,8 @@ EditCommand SetCommand(std::string attribute, Value value) {
     if (first) {
       (*first)->AsBinaryOpMut()->set_right(build_file.to_node(value));
     } else {
-      target.block->append_statement(
-          build_file.create_assignment(attribute, build_file.to_node(value)));
+      build_file.assign_in_block(target.block, attribute,
+                                 build_file.to_node(value));
     }
 
     return Ok();

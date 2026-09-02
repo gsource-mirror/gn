@@ -42,6 +42,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdea0f58_baeab6f4",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-02T05:21:26Z",
+      "side": 1,
+      "message": "Fixed, but not in the way it suggested",
+      "parentUuid": "26e83732_887376a1",
+      "range": {
+        "startLine": 250,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 0
+      },
+      "revId": "7383b268270119ec79e03a5f66255069be21d239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "22cc7742_12f537d7",
@@ -59,6 +83,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba069aca_7d03d5f0",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-02T05:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22cc7742_12f537d7",
+      "revId": "7383b268270119ec79e03a5f66255069be21d239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9a98ca5_9bb5d8c0",
@@ -72,6 +114,30 @@
       "writtenOn": "2026-09-02T04:54:08Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If `stack.size()` is less than 2, `stack.size() - 2` will underflow. It\u0027s safer to add a bounds check here to prevent out-of-bounds access in case of unexpected AST structures.\n```suggestion\n    while (stack.size() \u003e\u003d 2 \u0026\u0026 stack[stack.size() - 2] !\u003d target.block)\n```",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 0
+      },
+      "revId": "7383b268270119ec79e03a5f66255069be21d239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7d98af5_bd490b0f",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-02T05:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9a98ca5_9bb5d8c0",
       "range": {
         "startLine": 189,
         "startChar": 0,

@@ -820,6 +820,7 @@ enum class ValueType : ::std::uint8_t {
 #ifndef CXXBRIDGE1_STRUCT_RustTarget
 #define CXXBRIDGE1_STRUCT_RustTarget
 struct RustTarget final : public ::rust::Opaque {
+  ::rust::Str execute_rule_impl(::Session const &session, ::Err &err) const noexcept;
   ~RustTarget() = delete;
 
 private:

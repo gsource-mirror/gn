@@ -1,0 +1,85 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26e83732_887376a1",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-02T04:54:08Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If an `if` block contains multiple attributes with different orders (e.g., `sources` and `deps`), this returns `std::nullopt`. Consequently, `assign_in_block` will skip over this `if` block when looking for an insertion point, defaulting to placing the new assignment at the end of the block.\n\nThis means that if we try to add `visibility` (which should be at the top), it will be placed at the very end of the target just because an `if` block happened to contain both `sources` and `deps`.\n\nConsider returning the minimum order found inside the conditional instead of `std::nullopt`. This ensures that attributes that logically belong before the conditional are correctly placed above it.\n\n```cpp\n    std::optional\u003cint\u003e result \u003d std::nullopt;\n    for (const auto\u0026 order : orders) {\n      if (order) {\n        if (!result || *order \u003c *result) {\n          result \u003d order;\n        }\n      }\n    }\n```",
+      "range": {
+        "startLine": 250,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 0
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "03320ab5_cd4618a6",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/build_file_editor.cc",
+              "range": {
+                "startLine": 248,
+                "startChar": 0,
+                "endLine": 253,
+                "endChar": 0
+              },
+              "replacement": "      if (order) {\n        if (!result || *order \u003c *result) {\n          result \u003d order;\n        }\n"
+            }
+          ]
+        }
+      ],
+      "revId": "7383b268270119ec79e03a5f66255069be21d239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22cc7742_12f537d7",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-02T04:54:08Z",
+      "side": 1,
+      "message": "Could you add comment explaining intention of this plus one?",
+      "revId": "7383b268270119ec79e03a5f66255069be21d239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9a98ca5_9bb5d8c0",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-02T04:54:08Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `stack.size()` is less than 2, `stack.size() - 2` will underflow. It\u0027s safer to add a bounds check here to prevent out-of-bounds access in case of unexpected AST structures.\n```suggestion\n    while (stack.size() \u003e\u003d 2 \u0026\u0026 stack[stack.size() - 2] !\u003d target.block)\n```",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 0
+      },
+      "revId": "7383b268270119ec79e03a5f66255069be21d239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b88b1ba_15eca335",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-02T03:53:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b76b0cd_6f6389fc",
+      "range": {
+        "startLine": 225,
+        "startChar": 0,
+        "endLine": 225,
+        "endChar": 0
+      },
+      "revId": "58127487c53195d11e1326ed9f673a7a9fede3cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "839f4db9_e8da1316",
@@ -47,6 +71,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "65928380_912325e5",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-02T03:53:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "839f4db9_e8da1316",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 0
+      },
+      "revId": "58127487c53195d11e1326ed9f673a7a9fede3cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2b1a9d5f_a2e52230",
@@ -60,6 +108,30 @@
       "writtenOn": "2026-09-02T02:55:43Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Similarly, if `next` is conditional, changing it to `\u003d` and deleting `assign` is only safe if there are no previous assignments to fall back on when the condition is false. So we must ensure `i \u003d\u003d 0` here too.\n\n```suggestion\n                   (!next-\u003eis_conditional() || (i \u003d\u003d 0 \u0026\u0026 i + 2 \u003d\u003d assignments.size()))) {\n```",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 0
+      },
+      "revId": "58127487c53195d11e1326ed9f673a7a9fede3cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad5b7131_1a7f0018",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-02T03:53:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b1a9d5f_a2e52230",
       "range": {
         "startLine": 106,
         "startChar": 0,

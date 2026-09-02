@@ -33,7 +33,9 @@ inline std::unique_ptr<TestWithScope> NewTestWithScope() {
   // test process. This ensures g_scheduler is always set and never cleared
   // between tests.
   static Scheduler scheduler;
-  return std::make_unique<TestWithScope>();
+  auto setup = std::make_unique<TestWithScope>();
+  setup->scope()->set_source_dir(SourceDir("//"));
+  return setup;
 }
 
 #endif  // TOOLS_GN_FFI_TEST_WITH_SCOPE_H_

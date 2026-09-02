@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd954356_8a416d8a",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-02T06:09:39Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: BUG: If an `if` block modifies `deps` (order 410) and has an `else if` that also modifies `deps` (order 411), `order !\u003d result` will evaluate to true, causing the entire block to be pushed to the bottom (order `MAX`). \n\nSince base attribute orders are multiples of 10, you can compare `*order / 10 !\u003d *result / 10` to correctly group assignments and simple conditions modifying the same variable.",
+      "range": {
+        "startLine": 252,
+        "startChar": 0,
+        "endLine": 252,
+        "endChar": 0
+      },
+      "revId": "74bd240def0f7f83e764e794cfa3c633134e8541",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9ccdb9b_5b687535",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-02T06:09:39Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If you update the check above to divide by 10, you\u0027ll also want to anchor the result to the base attribute order and handle `MAX` correctly. For example:\n```cpp\n    if (result \u0026\u0026 *result !\u003d std::numeric_limits\u003cint\u003e::max()) {\n      // Affects a single variable, add a +1 to put it just below that variable.\n      return (*result / 10 * 10) + 1;\n    }\n    return result;\n```",
+      "range": {
+        "startLine": 261,
+        "startChar": 0,
+        "endLine": 261,
+        "endChar": 0
+      },
+      "revId": "74bd240def0f7f83e764e794cfa3c633134e8541",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

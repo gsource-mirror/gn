@@ -52,6 +52,24 @@
       "parentUuid": "1f0bbded_eacaa691",
       "revId": "8e99cccde6c2b7e4e9a2076baf68b45d40f15613",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5234b8d_99b90ce2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-02T04:00:08Z",
+      "side": 1,
+      "message": "Let\u0027s rollback then. I think compile step failure like this is highly related to GN change.",
+      "parentUuid": "1f0bbded_eacaa691",
+      "revId": "8e99cccde6c2b7e4e9a2076baf68b45d40f15613",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

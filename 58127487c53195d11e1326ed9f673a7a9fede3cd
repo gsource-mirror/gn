@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b76b0cd_6f6389fc",
+        "filename": "src/gn/build_file_editor.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-02T02:55:43Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: It might be worth recursing into other binary operations like `-` as well, even if we don\u0027t simplify them, so that `+` expressions inside them can still be simplified.\n\n```suggestion\n  if (auto op \u003d expr-\u003eAsBinaryOpMut()) {\n    op-\u003eset_left(SimplifyExpression(op-\u003etake_left()));\n    op-\u003eset_right(SimplifyExpression(op-\u003etake_right()));\n    if (op-\u003eop().type() \u003d\u003d Token::PLUS) {\n      if (IsEmptyList(op-\u003eleft())) {\n        return op-\u003etake_right();\n      } else if (IsEmptyList(op-\u003eright())) {\n        return op-\u003etake_left();\n      }\n    }\n  }\n```",
+      "range": {
+        "startLine": 225,
+        "startChar": 0,
+        "endLine": 225,
+        "endChar": 0
+      },
+      "revId": "58127487c53195d11e1326ed9f673a7a9fede3cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "839f4db9_e8da1316",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-02T02:55:43Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `i \u003e 0`, removing an `\u003d` assignment will cause the value to fall back to the assignment from `i - 1`, which is incorrect if the intention was to clear the list. So we should only remove it unconditionally if `i \u003d\u003d 0`.\n\n```suggestion\n        if (assign.is_modification() || (!next \u0026\u0026 i \u003d\u003d 0)) {\n```",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 0
+      },
+      "revId": "58127487c53195d11e1326ed9f673a7a9fede3cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b1a9d5f_a2e52230",
+        "filename": "src/gn/edit_subcommands.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-02T02:55:43Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Similarly, if `next` is conditional, changing it to `\u003d` and deleting `assign` is only safe if there are no previous assignments to fall back on when the condition is false. So we must ensure `i \u003d\u003d 0` here too.\n\n```suggestion\n                   (!next-\u003eis_conditional() || (i \u003d\u003d 0 \u0026\u0026 i + 2 \u003d\u003d assignments.size()))) {\n```",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 0
+      },
+      "revId": "58127487c53195d11e1326ed9f673a7a9fede3cd",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

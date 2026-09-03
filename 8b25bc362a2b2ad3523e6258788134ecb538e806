@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc19c606_a91cda5b",
+        "filename": "build/gen.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-03T03:06:36Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `sys.executable` contains spaces (which is very common on Windows, e.g., `C:\\Program Files\\Python310\\python.exe`), this new code will cause a regression on Windows.\n\nPreviously, Ninja executed this unquoted command string via `CreateProcessA`, which has a special fallback to magically handle unquoted executable paths with spaces. However, the new code passes the command to `cmd.exe /s /c` (on line 325), which does not have this fallback. `cmd.exe` will split the unquoted executable path at the first space and fail (e.g. `\u0027C:\\Program\u0027 is not recognized as an internal or external command`).\n\nTo fix this, you should quote `sys.executable`. For example:\n```python\n  sys_exec \u003d f\u0027\"{sys.executable}\"\u0027 if host.is_windows() else shlex.quote(sys.executable)\n  cmd \u003d \u0027%s %s%s\u0027 % (sys_exec, rel_self, args)\n```",
+      "range": {
+        "startLine": 320,
+        "startChar": 0,
+        "endLine": 320,
+        "endChar": 0
+      },
+      "revId": "8b25bc362a2b2ad3523e6258788134ecb538e806",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06211fe5_9b6034f7",
+        "filename": "build/gen.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-03T03:06:36Z",
+      "side": 1,
+      "message": "This is not necessary as USED_ENV_VARS is sorted?",
+      "range": {
+        "startLine": 324,
+        "startChar": 81,
+        "endLine": 324,
+        "endChar": 87
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "4c1cb691_4bc18583",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "build/gen.py",
+              "range": {
+                "startLine": 324,
+                "startChar": 0,
+                "endLine": 325,
+                "endChar": 0
+              },
+              "replacement": "      set_cmds \u003d [\u0027set \"%s\u003d%s\"\u0027 % (k, os.environ[k].replace(\u0027$\u0027, \u0027$$\u0027)) for k in explicit_env]\n"
+            },
+            {
+              "path": "build/gen.py",
+              "range": {
+                "startLine": 329,
+                "startChar": 0,
+                "endLine": 330,
+                "endChar": 0
+              },
+              "replacement": "          for k in explicit_env\n"
+            }
+          ]
+        }
+      ],
+      "revId": "8b25bc362a2b2ad3523e6258788134ecb538e806",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

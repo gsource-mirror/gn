@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "205fd996_99f3a093",
+        "filename": "build/gen.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-03T03:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc19c606_a91cda5b",
+      "range": {
+        "startLine": 320,
+        "startChar": 0,
+        "endLine": 320,
+        "endChar": 0
+      },
+      "revId": "8b25bc362a2b2ad3523e6258788134ecb538e806",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "06211fe5_9b6034f7",
@@ -71,6 +95,30 @@
           ]
         }
       ],
+      "revId": "8b25bc362a2b2ad3523e6258788134ecb538e806",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bacc204_f6ecd607",
+        "filename": "build/gen.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-03T03:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06211fe5_9b6034f7",
+      "range": {
+        "startLine": 324,
+        "startChar": 81,
+        "endLine": 324,
+        "endChar": 87
+      },
       "revId": "8b25bc362a2b2ad3523e6258788134ecb538e806",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

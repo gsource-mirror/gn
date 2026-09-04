@@ -7,9 +7,11 @@
 
 #include <functional>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 #include "base/values.h"
@@ -119,12 +121,42 @@ enum class SuggestResult {
   kUnapplied = 2,
 };
 
+enum class ApiScope {
+  kPublic,
+  kPrivate,
+  kOutput,
+};
+
+// Caches the mapping of SourceFile -> target(s) to accelerate suggestion
+// resolution.
+// May potentially be used in the future to cache other properties of the build graph.
+class TargetResolutionCache {
+ public:
+  TargetResolutionCache();
+  ~TargetResolutionCache();
+
+  // Returns reference to vector of (Target*, ApiScope) for the given file.
+  // If the file is not in any target, returns an empty vector.
+  const std::vector<std::pair<const Target*, ApiScope>>& GetTargetsForFile(
+      const SourceFile& file,
+      const std::vector<const Target*>& all_targets);
+
+ private:
+  std::optional<
+      std::unordered_map<SourceFile,
+                         std::vector<std::pair<const Target*, ApiScope>>>>
+      file_to_targets_;
+  // Never mutated. Used when a file is not in any target.
+  std::vector<std::pair<const Target*, ApiScope>> empty_targets_;
+};
+
 SuggestResult OutputSuggestions(const std::vector<const Target*>& all_targets,
                                 const BuildSettings* build_settings,
                                 const Label& default_toolchain,
                                 std::string_view includer_name,
                                 std::string_view included_name,
                                 OutputStringFunc output_fn,
+                                TargetResolutionCache& cache,
                                 bool apply = false,
                                 Setup* setup = nullptr);
 
@@ -295,12 +327,6 @@ const Target* ResolveTargetFromCommandLineString(
     Setup* setup,
     const std::string& label_string);
 
-enum class ApiScope {
-  kPublic,
-  kPrivate,
-  kOutput,
-};
-
 // Resolves an input to a list of targets for suggestion.
 // Specifically also decides whether it resolves to the public or private API
 // of the target.
@@ -309,6 +335,7 @@ ResolveSuggestionToTarget(const BuildSettings* build_settings,
                           const std::vector<const Target*>& all_targets,
                           const Label& current_toolchain,
                           std::string_view input,
+                          TargetResolutionCache& cache,
                           const Target* includer = nullptr);
 
 // Resolves a vector of command line inputs and figures out the full set of

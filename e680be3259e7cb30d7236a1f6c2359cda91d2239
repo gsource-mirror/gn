@@ -36,6 +36,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e11ffe0a_fd0381c0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-07T06:47:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05298085_a22d6b5f",
+      "revId": "e680be3259e7cb30d7236a1f6c2359cda91d2239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "96a50004_82eec2cb",
@@ -59,6 +77,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "869f3f3d_7de5cfdb",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-07T06:47:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96a50004_82eec2cb",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 297,
+        "endChar": 0
+      },
+      "revId": "e680be3259e7cb30d7236a1f6c2359cda91d2239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9f7cbb3e_ebf75606",
@@ -72,6 +114,30 @@
       "writtenOn": "2026-09-07T05:07:35Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: `std::unique_ptr` requires `\u003cmemory\u003e`. Please add `#include \u003cmemory\u003e` to the includes at the top of the file.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 0
+      },
+      "revId": "e680be3259e7cb30d7236a1f6c2359cda91d2239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f8be1b4_feb41795",
+        "filename": "src/gn/commands.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-07T06:47:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f7cbb3e_ebf75606",
       "range": {
         "startLine": 172,
         "startChar": 0,

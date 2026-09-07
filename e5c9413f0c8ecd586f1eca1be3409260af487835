@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "32aea958_87f93069",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-07T06:48:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c8dff42_5c5ab7ac",
+      "revId": "e5c9413f0c8ecd586f1eca1be3409260af487835",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "33b44bba_1e8251b3",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-09-07T04:53:37Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If a file is in both `public_headers()` and `sources()`, and `target-\u003eall_headers_public()` is true, it will be added to `file_to_targets_` twice (once in the `public_headers` loop above, and once in this `sources` loop because the first `if` branch doesn\u0027t check if it was already added).\n\nThis causes `ResolveSuggestionToTarget` to return the same target multiple times, leading `OutputSuggestions` to erroneously treat it as ambiguous.\n\nYou can avoid this and simplify the logic by checking if it\u0027s in `public_headers` first:\n```cpp\n      for (const auto\u0026 source : target-\u003esources()) {\n        if (std::ranges::find(target-\u003epublic_headers(), source) !\u003d\n            target-\u003epublic_headers().end()) {\n          continue; // Already added as kPublic in the loop above.\n        }\n\n        if (target-\u003eall_headers_public() \u0026\u0026\n            source.GetType() \u003d\u003d SourceFile::SOURCE_H) {\n          file_to_targets_[source].emplace_back(target, ApiScope::kPublic);\n        } else {\n          file_to_targets_[source].emplace_back(target, ApiScope::kPrivate);\n        }\n      }\n```",
+      "range": {
+        "startLine": 286,
+        "startChar": 0,
+        "endLine": 286,
+        "endChar": 0
+      },
+      "revId": "e5c9413f0c8ecd586f1eca1be3409260af487835",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93ec56b3_7048c536",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-07T06:48:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33b44bba_1e8251b3",
       "range": {
         "startLine": 286,
         "startChar": 0,
@@ -78,6 +120,30 @@
           ]
         }
       ],
+      "revId": "e5c9413f0c8ecd586f1eca1be3409260af487835",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ecbdfe9_e1274146",
+        "filename": "src/gn/commands.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-07T06:48:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "421553eb_ac301008",
+      "range": {
+        "startLine": 151,
+        "startChar": 5,
+        "endLine": 151,
+        "endChar": 18
+      },
       "revId": "e5c9413f0c8ecd586f1eca1be3409260af487835",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

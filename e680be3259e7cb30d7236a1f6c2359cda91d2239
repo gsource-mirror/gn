@@ -16,6 +16,24 @@
       "message": "Could you include benchmark result to show how much improvement we can have by this CL?",
       "revId": "e680be3259e7cb30d7236a1f6c2359cda91d2239",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05298085_a22d6b5f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-07T04:48:40Z",
+      "side": 1,
+      "message": "Do you need benchmarks for each CL in the chain individually? All together, they make `gn check` run in 22 seconds, producing 295k errors, while previously, it was outputting ~2-3 errors per second, but I don\u0027t currently have benchmarks for each individual commit.",
+      "parentUuid": "e20e2b14_965d70f4",
+      "revId": "e680be3259e7cb30d7236a1f6c2359cda91d2239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

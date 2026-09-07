@@ -1,0 +1,86 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f07d9bbe_d49af1f2",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-07T05:06:43Z",
+      "side": 1,
+      "message": "This function doesn\u0027t return boolean?",
+      "range": {
+        "startLine": 274,
+        "startChar": 11,
+        "endLine": 274,
+        "endChar": 15
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "7cd2b175_f2d910dc",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 274,
+                "startChar": 0,
+                "endLine": 275,
+                "endChar": 0
+              },
+              "replacement": "// Returns targets where depending on a candidate gives access to everything in\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e4273bad5bbe1d98daa98f5287c0a492685296de",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83845f67_1b057b1f",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-07T05:06:43Z",
+      "side": 1,
+      "message": "Use contains?",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 305,
+        "endChar": 40
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "db90fc2e_ab9686b0",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 304,
+                "startChar": 0,
+                "endLine": 306,
+                "endChar": 0
+              },
+              "replacement": "  if (!forwarding_parents_.contains(\u0026target)) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e4273bad5bbe1d98daa98f5287c0a492685296de",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

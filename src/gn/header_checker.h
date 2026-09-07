@@ -190,6 +190,7 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
     }
   };
 
+ public:
   // Store the shortest-dependency-path information for all BFS walks starting
   // from a given `search_from` target.
   //
@@ -241,6 +242,7 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
     std::atomic<bool> any_complete_ = false;
   };
 
+ private:
   struct TargetInfo {
     TargetInfo() : target(nullptr), is_public(false), is_generated(false) {}
     TargetInfo(const Target* t, bool is_pub, bool is_gen)

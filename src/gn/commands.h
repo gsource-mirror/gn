@@ -142,6 +142,12 @@ class TargetResolutionCache {
       const SourceFile& file,
       const std::vector<const Target*>& all_targets);
 
+  // Returns reference to vector of targets that expose the given target
+  // (e.g. forwarding groups or header-less source sets that depend on it).
+  const std::vector<const Target*>& GetTargetsExposing(
+      const Target& target,
+      const std::vector<const Target*>& all_targets);
+
  private:
   std::optional<
       std::unordered_map<SourceFile,
@@ -149,6 +155,13 @@ class TargetResolutionCache {
       file_to_targets_;
   // Never mutated. Used when a file is not in any target.
   std::vector<std::pair<const Target*, ApiScope>> empty_targets_;
+
+  // Maps a Target to the list of forwarding targets that directly depend on it.
+  std::optional<std::unordered_map<const Target*, std::vector<const Target*>>>
+      forwarding_parents_;
+  // Memoized cache of all targets that transitively expose a given target.
+  std::unordered_map<const Target*, std::vector<const Target*>>
+      transitive_exposers_;
 };
 
 SuggestResult OutputSuggestions(const std::vector<const Target*>& all_targets,

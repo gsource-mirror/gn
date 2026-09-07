@@ -186,38 +186,6 @@ SourceFile ResolveFilePath(const BuildSettings* build_settings,
   return SourceFile();
 }
 
-// Returns true if depending on target is supposed to give you access to
-// everything in the underlying target.
-bool Exposes(const Target& target, const Target& underlying) {
-  std::vector<const Target*> stack = {&target};
-  std::unordered_set<const Target*> visited;
-  while (!stack.empty()) {
-    const Target* current = stack.back();
-    stack.pop_back();
-    if (visited.insert(current).second) {
-      if (current == &underlying) {
-        return true;
-      }
-      // If we have no headers and no sources, then the only use of depending
-      // on this target is to gain access to its dependencies.
-      if (current->sources().empty() && current->public_headers().empty()) {
-        for (const auto& dep : current->public_deps()) {
-          stack.push_back(dep.ptr);
-        }
-        // If you declare `public_deps = ...` on a group, it shows up as a
-        // private dep. Probably because groups don't distinguish between
-        // public and private deps.
-        if (current->output_type() == Target::GROUP) {
-          for (const auto& dep : current->private_deps()) {
-            stack.push_back(dep.ptr);
-          }
-        }
-      }
-    }
-  }
-  return false;
-}
-
 // Finds the shortest dependency path from `from` to `to`.
 // Returns a vector where the first element is `from` and the last is `to`.
 // Returns the empty vector if no path was found.
@@ -303,6 +271,70 @@ TargetResolutionCache::GetTargetsForFile(
     return empty_targets_;
   }
   return it->second;
+}
+
+// Returns true if depending on a candidate gives access to everything in
+// target (i.e. all targets that forward target through groups or header-less
+// source sets).
+const std::vector<const Target*>& TargetResolutionCache::GetTargetsExposing(
+    const Target& target,
+    const std::vector<const Target*>& all_targets) {
+  if (!forwarding_parents_.has_value()) {
+    forwarding_parents_.emplace();
+    auto& parents = *forwarding_parents_;
+
+    for (const Target* t : all_targets) {
+      // If we have no headers and no sources, then the only use of depending
+      // on this target is to gain access to its dependencies.
+      if (t->sources().empty() && t->public_headers().empty()) {
+        for (const auto& dep : t->public_deps()) {
+          if (dep.ptr) {
+            parents[dep.ptr].push_back(t);
+          }
+        }
+        // If you declare `public_deps = ...` on a group, it shows up as a
+        // private dep. Probably because groups don't distinguish between
+        // public and private deps.
+        if (t->output_type() == Target::GROUP) {
+          for (const auto& dep : t->private_deps()) {
+            if (dep.ptr) {
+              parents[dep.ptr].push_back(t);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  auto it = transitive_exposers_.find(&target);
+  if (it != transitive_exposers_.end()) {
+    return it->second;
+  }
+
+  std::vector<const Target*> results;
+  std::vector<const Target*> stack = {&target};
+  std::unordered_set<const Target*> visited = {&target};
+
+  while (!stack.empty()) {
+    const Target* cur = stack.back();
+    stack.pop_back();
+
+    auto parent_it = forwarding_parents_->find(cur);
+    if (parent_it != forwarding_parents_->end()) {
+      for (const Target* parent : parent_it->second) {
+        if (visited.insert(parent).second) {
+          results.push_back(parent);
+          stack.push_back(parent);
+        }
+      }
+    }
+  }
+
+  std::sort(
+      results.begin(), results.end(),
+      [](const Target* a, const Target* b) { return a->label() < b->label(); });
+
+  return transitive_exposers_.emplace(&target, std::move(results)).first->second;
 }
 
 // Resolves an input to a list of targets, and whether each are private.
@@ -864,13 +896,13 @@ SuggestResult OutputSuggestions(const std::vector<const Target*>& all_targets,
   std::vector<const Target*> visible_candidates;
   std::vector<const Target*> nonpublic_candidates;
   std::vector<const Target*> all_candidates;
-  for (const Target* candidate : all_targets) {
+  for (const Target* candidate :
+       cache.GetTargetsExposing(*included, all_targets)) {
     if (candidate == included)
       continue;
     // Check that the toolchains are the same to avoid picking up both //:foo
     // and //:foo(other_toolchain).
-    if (candidate->label().ToolchainsEqual(includer->label()) &&
-        Exposes(*candidate, *included)) {
+    if (candidate->label().ToolchainsEqual(includer->label())) {
       all_candidates.push_back(candidate);
       if (candidate->visibility().CanSeeMe(includer->label())) {
         visible_candidates.push_back(candidate);

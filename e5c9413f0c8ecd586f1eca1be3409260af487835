@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c8dff42_5c5ab7ac",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-07T04:42:29Z",
+      "side": 1,
+      "message": "How much performance improvement do we get by this CL? If this is for optimization, could you include benchmark results in description?",
+      "revId": "e5c9413f0c8ecd586f1eca1be3409260af487835",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

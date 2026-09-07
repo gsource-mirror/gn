@@ -34,6 +34,52 @@
       "parentUuid": "e20e2b14_965d70f4",
       "revId": "e680be3259e7cb30d7236a1f6c2359cda91d2239",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96a50004_82eec2cb",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-07T05:07:35Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: `std::make_unique` requires `\u003cmemory\u003e`, which is not explicitly included in this file. Please add `#include \u003cmemory\u003e` at the top of the file to adhere to Include What You Use.",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 297,
+        "endChar": 0
+      },
+      "revId": "e680be3259e7cb30d7236a1f6c2359cda91d2239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f7cbb3e_ebf75606",
+        "filename": "src/gn/commands.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-07T05:07:35Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: `std::unique_ptr` requires `\u003cmemory\u003e`. Please add `#include \u003cmemory\u003e` to the includes at the top of the file.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 0
+      },
+      "revId": "e680be3259e7cb30d7236a1f6c2359cda91d2239",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

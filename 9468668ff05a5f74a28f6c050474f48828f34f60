@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04b69110_18062401",
+        "filename": "src/gn/header_checker.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-08T23:54:06Z",
+      "side": 1,
+      "message": "The worker pool should never be null, right? So it should probably be a reference rather than pointer",
+      "fixSuggestions": [
+        {
+          "fixId": "7b8d3aff_a274cfd5",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker.h",
+              "range": {
+                "startLine": 293,
+                "startChar": 0,
+                "endLine": 294,
+                "endChar": 0
+              },
+              "replacement": "  void RunChunkedTasks(WorkerPool\u0026 pool,\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9468668ff05a5f74a28f6c050474f48828f34f60",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21f7380b_41b75566",
+        "filename": "src/gn/header_checker.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-08T23:54:06Z",
+      "side": 1,
+      "message": "For consistency with GN, should we rename this to DoWorkChunked?",
+      "fixSuggestions": [
+        {
+          "fixId": "0f5deb3d_2bb39915",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker.h",
+              "range": {
+                "startLine": 293,
+                "startChar": 0,
+                "endLine": 297,
+                "endChar": 0
+              },
+              "replacement": "  void DoWorkChunked(WorkerPool\u0026 pool,\n                    size_t count,\n                    size_t chunk_size,\n                    const std::function\u003cvoid(size_t, size_t)\u003e\u0026 work);\n"
+            },
+            {
+              "path": "src/gn/header_checker.h",
+              "range": {
+                "startLine": 368,
+                "startChar": 0,
+                "endLine": 369,
+                "endChar": 0
+              },
+              "replacement": "  // Number of tasks posted by DoWorkChunked() that haven\u0027t completed their\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9468668ff05a5f74a28f6c050474f48828f34f60",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1d64285_ec77edb1",
+        "filename": "src/gn/header_checker.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-08T23:54:06Z",
+      "side": 1,
+      "message": "The `size_t` all over the place seems a little convoluted. Could we do something like:\n```\nDoWorkChunked(\n  pool,\n  const std::vector\u003cTarget*\u003e\u0026 targets,\n  size_t chunk_size,\n  const std::function\u003cvoid(std::vector\u003cTarget*\u003e::iterator, std::vector\u003cTarget*\u003e::iterator)\u003e\u0026 work);\n```\n\nIt\u0027s a little more verbose, but I think it\u0027s far more clear how it works just from looking at the signature.",
+      "revId": "9468668ff05a5f74a28f6c050474f48828f34f60",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

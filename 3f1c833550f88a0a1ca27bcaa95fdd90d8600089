@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f040d65_a74d8cb7",
+        "filename": "src/gn/header_checker.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-08T05:45:31Z",
+      "side": 1,
+      "message": "It is better to have only one public and private section and follow\nhttps://google.github.io/styleguide/cppguide.html#Declaration_Order",
+      "revId": "3f1c833550f88a0a1ca27bcaa95fdd90d8600089",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -15,6 +15,7 @@
 #include <shared_mutex>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "base/atomic_ref_count.h"
@@ -256,16 +257,31 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
   };
 
   using TargetVector = std::vector<TargetInfo>;
-  using FileMap = std::map<SourceFile, TargetVector>;
+
+  struct FileInformation {
+    SourceFile file;
+    TargetVector targets;
+  };
+
+  struct StringViewHash {
+    using is_transparent = void;
+    size_t operator()(std::string_view sv) const noexcept {
+      return std::hash<std::string_view>{}(sv);
+    }
+  };
+
+  using FileMap = std::unordered_map<std::string_view,
+                                     FileInformation,
+                                     StringViewHash,
+                                     std::equal_to<>>;
   using PathExistsCallback = std::function<bool(const base::FilePath& path)>;
 
-  // Backend for Run() that takes the list of files to check. The errors_ list
-  // will be populate on failure.
-  void RunCheckOverFiles(const FileMap& files,
-                         bool force_check,
-                         WorkerPool* pool);
-
-  void DoWork(const TargetVector& targets, const SourceFile& file);
+  // Backend for Run() that takes an optional set of targets to check (or nullptr
+  // if checking all targets). The errors_ list will be populated on failure.
+  void RunCheckOverFiles(
+      const std::unordered_set<const Target*>* to_check_set,
+      bool force_check,
+      WorkerPool* pool);
 
   // Adds the sources and public files from the given target to the given map.
   static void AddTargetToFileMap(const Target* target, FileMap* dest);
@@ -337,6 +353,8 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
 
   // Maps source files to targets it appears in (usually just one target).
   FileMap file_map_;
+
+  size_t targets_count_ = 0;
 
   // Number of tasks posted by RunCheckOverFiles() that haven't completed their
   // execution.

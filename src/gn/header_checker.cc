@@ -5,6 +5,7 @@
 #include "gn/header_checker.h"
 
 #include <algorithm>
+#include <atomic>
 
 #include "base/containers/queue.h"
 #include "base/files/file_util.h"
@@ -168,8 +169,10 @@ HeaderChecker::HeaderChecker(const BuildSettings* build_settings,
     : build_settings_(build_settings),
       check_generated_(check_generated),
       check_system_(check_system),
+      targets_count_(targets.size()),
       errors_lock_(),
       task_count_cv_() {
+  file_map_.reserve(targets.size() * 3);
   for (auto* target : targets)
     AddTargetToFileMap(target, &file_map_);
 }
@@ -179,34 +182,46 @@ HeaderChecker::~HeaderChecker() = default;
 bool HeaderChecker::Run(const std::vector<const Target*>& to_check,
                         bool force_check,
                         std::vector<Violation>* violations) {
-  FileMap files_to_check;
-  for (auto* check : to_check) {
-    // This function will get called with all target types, but check only
-    // applies to binary targets.
-    if (check->IsBinary())
-      AddTargetToFileMap(check, &files_to_check);
+  std::unordered_set<const Target*> to_check_set;
+  const std::unordered_set<const Target*>* to_check_set_ptr = nullptr;
+  if (to_check.size() < targets_count_) {
+    to_check_set.insert(to_check.begin(), to_check.end());
+    to_check_set_ptr = &to_check_set;
   }
 
   WorkerPool pool;
   {
     ScopedTrace precompute_trace(TraceItem::TRACE_CHECK_HEADERS,
                                  "Precompute reachability");
-    std::set<const Target*> targets_to_precompute;
-    for (const auto& file : files_to_check) {
-      for (const auto& target_info : file.second) {
-        if (target_info.target->check_includes())
-          targets_to_precompute.insert(target_info.target);
-      }
+    std::vector<const Target*> targets_to_precompute;
+    targets_to_precompute.reserve(to_check.size());
+    for (const Target* target : to_check) {
+      if (target->IsBinary() && target->check_includes())
+        targets_to_precompute.push_back(target);
     }
+    std::sort(targets_to_precompute.begin(), targets_to_precompute.end());
+    targets_to_precompute.erase(
+        std::unique(targets_to_precompute.begin(), targets_to_precompute.end()),
+        targets_to_precompute.end());
 
     if (!targets_to_precompute.empty()) {
+      const size_t kPrecomputeChunkSize = 32;
+      const size_t num_chunks =
+          (targets_to_precompute.size() + kPrecomputeChunkSize - 1) /
+          kPrecomputeChunkSize;
+
       task_count_.Increment();
-      for (const auto* target : targets_to_precompute) {
+      for (size_t chunk_idx = 0; chunk_idx < num_chunks; ++chunk_idx) {
+        size_t start = chunk_idx * kPrecomputeChunkSize;
+        size_t end =
+            std::min(start + kPrecomputeChunkSize, targets_to_precompute.size());
         task_count_.Increment();
-        pool.PostTask([this, target]() {
-          ReachabilityCache& cache = GetReachabilityCacheForTarget(target);
-          cache.PerformDependencyWalk(true);
-          cache.PerformDependencyWalk(false);
+        pool.PostTask([this, &targets_to_precompute, start, end]() {
+          for (size_t i = start; i < end; ++i) {
+            ReachabilityCache& cache =
+                GetReachabilityCacheForTarget(targets_to_precompute[i]);
+            cache.PerformDependencyWalk(true);
+          }
           if (!task_count_.Decrement()) {
             std::unique_lock<std::mutex> lock(task_count_lock_);
             task_count_cv_.notify_one();
@@ -225,7 +240,7 @@ bool HeaderChecker::Run(const std::vector<const Target*>& to_check,
     }
   }
 
-  RunCheckOverFiles(files_to_check, force_check, &pool);
+  RunCheckOverFiles(to_check_set_ptr, force_check, &pool);
 
   if (violations_.empty())
     return true;
@@ -234,42 +249,76 @@ bool HeaderChecker::Run(const std::vector<const Target*>& to_check,
   return false;
 }
 
-void HeaderChecker::RunCheckOverFiles(const FileMap& files,
-                                      bool force_check,
-                                      WorkerPool* pool) {
-  task_count_.Increment();
+void HeaderChecker::RunCheckOverFiles(
+    const std::unordered_set<const Target*>* to_check_set,
+    bool force_check,
+    WorkerPool* pool) {
+  struct FileCheckTask {
+    SourceFile file;
+    TargetVector targets;
+  };
+  std::vector<FileCheckTask> tasks;
+  tasks.reserve(file_map_.size());
 
-  for (const auto& file : files) {
+  for (const auto& entry : file_map_) {
+    const SourceFile& file = entry.second.file;
     // Only check C-like source files (RC files also have includes).
-    const SourceFile::Type type = file.first.GetType();
+    const SourceFile::Type type = file.GetType();
     if (type != SourceFile::SOURCE_CPP && type != SourceFile::SOURCE_H &&
         type != SourceFile::SOURCE_C && type != SourceFile::SOURCE_M &&
         type != SourceFile::SOURCE_MM && type != SourceFile::SOURCE_RC)
       continue;
 
     if (!check_generated_) {
-      // If any target marks it as generated, don't check it. We have to check
-      // file_map_, which includes all known files; files only includes those
-      // being checked.
+      // If any target marks it as generated, don't check it.
       bool is_generated = false;
-      for (const auto& vect_i : file_map_[file.first])
+      for (const auto& vect_i : entry.second.targets)
         is_generated |= vect_i.is_generated;
       if (is_generated)
         continue;
     }
 
     TargetVector targets_to_check;
-    for (const auto& vect_i : file.second) {
-      if (vect_i.target->check_includes()) {
+    for (const auto& vect_i : entry.second.targets) {
+      if (vect_i.target->IsBinary() &&
+          (!to_check_set || to_check_set->contains(vect_i.target)) &&
+          vect_i.target->check_includes()) {
         targets_to_check.push_back(vect_i);
       }
     }
     if (targets_to_check.empty())
       continue;
 
+    tasks.push_back({file, std::move(targets_to_check)});
+  }
+
+  if (tasks.empty())
+    return;
+
+  const size_t kChunkSize = 64;
+  const size_t num_chunks = (tasks.size() + kChunkSize - 1) / kChunkSize;
+  task_count_.Increment();
+
+  for (size_t chunk_idx = 0; chunk_idx < num_chunks; ++chunk_idx) {
+    size_t start = chunk_idx * kChunkSize;
+    size_t end = std::min(start + kChunkSize, tasks.size());
     task_count_.Increment();
-    pool->PostTask([this, targets = std::move(targets_to_check),
-                    file = file.first]() { DoWork(targets, file); });
+    pool->PostTask([this, &tasks, start, end]() {
+      std::vector<Violation> local_violations;
+      for (size_t i = start; i < end; ++i) {
+        CheckFile(tasks[i].targets, tasks[i].file, &local_violations);
+      }
+      if (!local_violations.empty()) {
+        std::lock_guard<std::mutex> lock(errors_lock_);
+        violations_.insert(violations_.end(),
+                           std::make_move_iterator(local_violations.begin()),
+                           std::make_move_iterator(local_violations.end()));
+      }
+      if (!task_count_.Decrement()) {
+        std::unique_lock<std::mutex> lock(task_count_lock_);
+        task_count_cv_.notify_one();
+      }
+    });
   }
 
   if (!task_count_.Decrement()) {
@@ -283,29 +332,27 @@ void HeaderChecker::RunCheckOverFiles(const FileMap& files,
     task_count_cv_.wait(auto_lock);
 }
 
-void HeaderChecker::DoWork(const TargetVector& targets,
-                           const SourceFile& file) {
-  std::vector<Violation> violations;
-  if (!CheckFile(targets, file, &violations)) {
-    std::lock_guard<std::mutex> lock(errors_lock_);
-    violations_.insert(violations_.end(),
-                       std::make_move_iterator(violations.begin()),
-                       std::make_move_iterator(violations.end()));
-  }
-
-  if (!task_count_.Decrement()) {
-    // Signal |task_count_cv_| when |task_count_| becomes zero.
-    std::unique_lock<std::mutex> auto_lock(task_count_lock_);
-    task_count_cv_.notify_one();
-  }
-}
-
 // static
 void HeaderChecker::AddTargetToFileMap(const Target* target, FileMap* dest) {
   // Files in the sources have this public bit by default.
   bool default_public = target->all_headers_public();
 
-  std::map<SourceFile, PublicGeneratedPair> files_to_public;
+  // Fast path: all headers public (default), no swift, no action outputs.
+  // This is true for the vast majority of targets.
+  if (default_public && !target->builds_swift_module() &&
+      !target->has_action_values()) {
+    DCHECK(target->public_headers().empty());
+    for (const auto& source : target->sources()) {
+      auto it = dest->find(source.value());
+      if (it == dest->end()) {
+        it = dest->emplace(source.value(), FileInformation{source, {}}).first;
+      }
+      it->second.targets.push_back(TargetInfo(target, true, false));
+    }
+    return;
+  }
+
+  std::unordered_map<SourceFile, PublicGeneratedPair> files_to_public;
 
   // First collect the normal files, they get the default visibility. If you
   // depend on the compiled target, it should be enough to be able to include
@@ -355,14 +402,18 @@ void HeaderChecker::AddTargetToFileMap(const Target* target, FileMap* dest) {
 
   // Add the merged list to the master list of all files.
   for (const auto& cur : files_to_public) {
-    (*dest)[cur.first].push_back(
+    auto it = dest->find(cur.first.value());
+    if (it == dest->end()) {
+      it = dest->emplace(cur.first.value(), FileInformation{cur.first, {}}).first;
+    }
+    it->second.targets.push_back(
         TargetInfo(target, cur.second.is_public, cur.second.is_generated));
   }
 }
 
 bool HeaderChecker::IsFileInOuputDir(const SourceFile& file) const {
   const std::string& build_dir = build_settings_->build_dir().value();
-  return file.value().compare(0, build_dir.size(), build_dir) == 0;
+  return file.value().starts_with(build_dir);
 }
 
 SourceFile HeaderChecker::SourceFileForInclude(
@@ -370,27 +421,57 @@ SourceFile HeaderChecker::SourceFileForInclude(
     const std::vector<SourceDir>& include_dirs,
     const InputFile& source_file,
     Err* err) const {
-  using base::FilePath;
+  std::string_view inc = include.contents;
+  if (inc.empty())
+    return SourceFile();
 
-  Value relative_file_value(nullptr, std::string(include.contents));
+  if (inc.size() >= 2 && inc[0] == '/' && inc[1] == '/') {
+    std::string path(inc);
+    NormalizePath(&path);
+    auto it = file_map_.find(path);
+    if (it != file_map_.end())
+      return it->second.file;
+    return SourceFile();
+  }
 
-  auto find_predicate = [relative_file_value, err,
-                         this](const SourceDir& dir) -> bool {
-    SourceFile include_file = dir.ResolveRelativeFile(relative_file_value, err);
-    return file_map_.find(include_file) != file_map_.end();
+  if (IsPathAbsolute(inc)) {
+    std::string path;
+#if defined(OS_WIN)
+    if (inc[0] != '/')
+      path = "/";
+#endif
+    path.append(inc.data(), inc.size());
+    NormalizePath(&path);
+    auto it = file_map_.find(path);
+    if (it != file_map_.end())
+      return it->second.file;
+    return SourceFile();
+  }
+
+  std::string buffer;
+  buffer.reserve(128);
+
+  auto check_dir = [this, inc, &buffer](const SourceDir& dir) -> const SourceFile* {
+    buffer.assign(dir.value());
+    buffer.append(inc.data(), inc.size());
+    NormalizePath(&buffer);
+    auto it = file_map_.find(buffer);
+    if (it != file_map_.end())
+      return &it->second.file;
+    return nullptr;
   };
+
   if (!include.system_style_include) {
-    const SourceDir& file_dir = source_file.dir();
-    if (find_predicate(file_dir)) {
-      return file_dir.ResolveRelativeFile(relative_file_value, err);
+    if (const SourceFile* sf = check_dir(source_file.dir())) {
+      return *sf;
     }
   }
 
-  auto it =
-      std::find_if(include_dirs.begin(), include_dirs.end(), find_predicate);
-
-  if (it != include_dirs.end())
-    return it->ResolveRelativeFile(relative_file_value, err);
+  for (const auto& dir : include_dirs) {
+    if (const SourceFile* sf = check_dir(dir)) {
+      return *sf;
+    }
+  }
 
   return SourceFile();
 }
@@ -591,11 +672,11 @@ void HeaderChecker::CheckInclude(ReachabilityCache& from_target_cache,
   // our include finder is too primitive and returns all includes, even if
   // they're in a #if not executed in the current build. In that case, it's
   // not unusual for the buildfiles to not specify that header at all.
-  FileMap::const_iterator found = file_map_.find(include_file);
+  FileMap::const_iterator found = file_map_.find(include_file.value());
   if (found == file_map_.end())
     return;
 
-  const TargetVector& targets = found->second;
+  const TargetVector& targets = found->second.targets;
   Chain chain;  // Prevent reallocating in the loop.
 
   const Target* from_target = from_target_cache.source_target();
@@ -627,16 +708,41 @@ void HeaderChecker::CheckInclude(ReachabilityCache& from_target_cache,
   if (!present_in_current_toolchain)
     return;
 
-  // For all targets containing this file, we require that at least one be
-  // a direct or public dependency of the current target, and either (1) the
-  // header is public within the target, or (2) there is a friend definition
-  // allowlisting the includor.
-  //
-  // If there is more than one target containing this header, we may encounter
-  // some error cases before finding a good one. This error stores the previous
-  // one encountered, which we may or may not throw away.
-  Err last_error;
+  // Fast path: check if any target containing this header allows the include
+  // via a permitted (public) dependency. If so, the include is valid.
+  for (const auto& target : targets) {
+    const Target* to_target = target.target;
+    if (to_target == from_target) {
+      if (from_target->check_includes_strict() && is_public_header &&
+          !target.is_public) {
+        break;  // Strict violation on same target, fall through to slow path.
+      }
+      return;
+    }
 
+    if (to_target->allow_circular_includes_from().find(
+            from_target->label()) !=
+        to_target->allow_circular_includes_from().end()) {
+      return;
+    }
+
+    bool effectively_public =
+        target.is_public || FriendMatches(to_target, from_target);
+    if (!effectively_public)
+      continue;
+
+    if (from_target_cache.SearchForDependencyTo(to_target, true, &chain)) {
+      if (from_target->check_includes_strict() && is_public_header &&
+          !chain[chain.size() - 2].is_public) {
+        continue;
+      }
+      return;
+    }
+  }
+
+  // Slow path: no valid permitted dependency was found. Walk dependencies
+  // (including private dependencies) to diagnose the error.
+  Err last_error;
   bool found_dependency = false;
   for (const auto& target : targets) {
     // We always allow source files in a target to include headers also in that
@@ -749,7 +855,13 @@ HeaderChecker::ReachabilityCache& HeaderChecker::GetReachabilityCacheForTarget(
     const Target* target) const {
   size_t shard_index = target->label().hash() % kNumShards;
   auto& shard = dependency_cache_[shard_index];
-  std::unique_lock<std::shared_mutex> lock(shard.lock);
+  {
+    std::shared_lock<std::shared_mutex> read_lock(shard.lock);
+    auto it = shard.cache.find(target);
+    if (it != shard.cache.end())
+      return *it->second;
+  }
+  std::unique_lock<std::shared_mutex> write_lock(shard.lock);
   auto it = shard.cache.find(target);
   if (it == shard.cache.end()) {
     it =

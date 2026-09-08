@@ -196,30 +196,16 @@ bool HeaderChecker::Run(const std::vector<const Target*>& to_check,
           targets_to_precompute.push_back(info.target);
       }
     }
-    if (!targets_to_precompute.empty()) {
-      task_count_.Increment();
-      for (const auto* target : targets_to_precompute) {
-        task_count_.Increment();
-        pool.PostTask([this, target]() {
-          ReachabilityCache& cache = GetReachabilityCacheForTarget(target);
-          cache.PerformDependencyWalk(true);
-          cache.PerformDependencyWalk(false);
-          if (!task_count_.Decrement()) {
-            std::unique_lock<std::mutex> lock(task_count_lock_);
-            task_count_cv_.notify_one();
+    RunChunkedTasks(
+        &pool, targets_to_precompute.size(), 32,
+        [this, &targets_to_precompute](size_t begin, size_t end) {
+          for (size_t i = begin; i < end; ++i) {
+            ReachabilityCache& cache =
+                GetReachabilityCacheForTarget(targets_to_precompute[i]);
+            cache.PerformDependencyWalk(true);
+            cache.PerformDependencyWalk(false);
           }
         });
-      }
-
-      if (!task_count_.Decrement()) {
-        std::unique_lock<std::mutex> lock(task_count_lock_);
-        task_count_cv_.notify_one();
-      }
-
-      std::unique_lock<std::mutex> lock(task_count_lock_);
-      while (!task_count_.IsZero())
-        task_count_cv_.wait(lock);
-    }
   }
 
   RunCheckOverFiles(files, &pool);
@@ -271,39 +257,47 @@ std::vector<HeaderChecker::FileInformation> HeaderChecker::FilesToCheck(
 
 void HeaderChecker::RunCheckOverFiles(const std::vector<FileInformation>& files,
                                       WorkerPool* pool) {
+  RunChunkedTasks(
+      pool, files.size(), 64, [this, &files](size_t begin, size_t end) {
+        std::vector<Violation> local_violations;
+        for (size_t i = begin; i < end; ++i)
+          CheckFile(files[i].targets, files[i].file, &local_violations);
+        if (local_violations.empty())
+          return;
+        std::lock_guard<std::mutex> lock(errors_lock_);
+        violations_.insert(violations_.end(),
+                           std::make_move_iterator(local_violations.begin()),
+                           std::make_move_iterator(local_violations.end()));
+      });
+}
+
+void HeaderChecker::RunChunkedTasks(
+    WorkerPool* pool,
+    size_t count,
+    size_t chunk_size,
+    const std::function<void(size_t, size_t)>& work) {
+  // Hold one extra reference while posting so the count can't reach zero
+  // before all chunks are posted.
   task_count_.Increment();
-
-  for (const FileInformation& file : files) {
+  for (size_t begin = 0; begin < count; begin += chunk_size) {
+    size_t end = std::min(begin + chunk_size, count);
     task_count_.Increment();
-    pool->PostTask([this, &file]() { DoWork(file.targets, file.file); });
+    pool->PostTask([this, &work, begin, end]() {
+      work(begin, end);
+      if (!task_count_.Decrement()) {
+        std::unique_lock<std::mutex> lock(task_count_lock_);
+        task_count_cv_.notify_one();
+      }
+    });
   }
-
   if (!task_count_.Decrement()) {
     std::unique_lock<std::mutex> lock(task_count_lock_);
     task_count_cv_.notify_one();
   }
 
-  // Wait for all tasks posted by this method to complete.
-  std::unique_lock<std::mutex> auto_lock(task_count_lock_);
+  std::unique_lock<std::mutex> lock(task_count_lock_);
   while (!task_count_.IsZero())
-    task_count_cv_.wait(auto_lock);
-}
-
-void HeaderChecker::DoWork(const TargetVector& targets,
-                           const SourceFile& file) {
-  std::vector<Violation> violations;
-  if (!CheckFile(targets, file, &violations)) {
-    std::lock_guard<std::mutex> lock(errors_lock_);
-    violations_.insert(violations_.end(),
-                       std::make_move_iterator(violations.begin()),
-                       std::make_move_iterator(violations.end()));
-  }
-
-  if (!task_count_.Decrement()) {
-    // Signal |task_count_cv_| when |task_count_| becomes zero.
-    std::unique_lock<std::mutex> auto_lock(task_count_lock_);
-    task_count_cv_.notify_one();
-  }
+    task_count_cv_.wait(lock);
 }
 
 // static

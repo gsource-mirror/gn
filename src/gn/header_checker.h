@@ -288,7 +288,12 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
   void RunCheckOverFiles(const std::vector<FileInformation>& files,
                          WorkerPool* pool);
 
-  void DoWork(const TargetVector& targets, const SourceFile& file);
+  // Runs work(begin, end) over the index range [0, count) in chunks on the
+  // pool and waits for all chunks to complete.
+  void RunChunkedTasks(WorkerPool* pool,
+                       size_t count,
+                       size_t chunk_size,
+                       const std::function<void(size_t, size_t)>& work);
 
   // Adds the sources and public files from the given target to the given map.
   static void AddTargetToFileMap(const Target* target, FileMap* dest);
@@ -360,7 +365,7 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
   // Maps source files to targets it appears in (usually just one target).
   FileMap file_map_;
 
-  // Number of tasks posted by RunCheckOverFiles() that haven't completed their
+  // Number of tasks posted by RunChunkedTasks() that haven't completed their
   // execution.
   base::AtomicRefCount task_count_;
 

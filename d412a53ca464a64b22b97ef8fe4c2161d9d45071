@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a26829f_41776cb7",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-08T23:36:04Z",
+      "side": 1,
+      "message": "targets.size() * 3 seems rather arbitrary. Can you add a comment on why this particular number",
+      "revId": "d412a53ca464a64b22b97ef8fe4c2161d9d45071",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

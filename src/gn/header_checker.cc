@@ -196,16 +196,13 @@ bool HeaderChecker::Run(const std::vector<const Target*>& to_check,
           targets_to_precompute.push_back(info.target);
       }
     }
-    RunChunkedTasks(
-        &pool, targets_to_precompute.size(), 32,
-        [this, &targets_to_precompute](size_t begin, size_t end) {
-          for (size_t i = begin; i < end; ++i) {
-            ReachabilityCache& cache =
-                GetReachabilityCacheForTarget(targets_to_precompute[i]);
-            cache.PerformDependencyWalk(true);
-            cache.PerformDependencyWalk(false);
-          }
-        });
+    RunChunkedTasks(&pool, targets_to_precompute.size(), 32,
+                    [this, &targets_to_precompute](size_t begin, size_t end) {
+                      for (size_t i = begin; i < end; ++i) {
+                        GetReachabilityCacheForTarget(targets_to_precompute[i])
+                            .PerformDependencyWalk(true);
+                      }
+                    });
   }
 
   RunCheckOverFiles(files, &pool);
@@ -758,7 +755,13 @@ HeaderChecker::ReachabilityCache& HeaderChecker::GetReachabilityCacheForTarget(
     const Target* target) const {
   size_t shard_index = target->label().hash() % kNumShards;
   auto& shard = dependency_cache_[shard_index];
-  std::unique_lock<std::shared_mutex> lock(shard.lock);
+  {
+    std::shared_lock<std::shared_mutex> read_lock(shard.lock);
+    auto it = shard.cache.find(target);
+    if (it != shard.cache.end())
+      return *it->second;
+  }
+  std::unique_lock<std::shared_mutex> write_lock(shard.lock);
   auto it = shard.cache.find(target);
   if (it == shard.cache.end()) {
     it =

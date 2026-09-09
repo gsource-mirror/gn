@@ -34,6 +34,24 @@
       ],
       "revId": "7907523262f1b15d868dda0866614508fdf50997",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8ff731f_c064f9ab",
+        "filename": "src/gn/header_checker.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-09T03:09:36Z",
+      "side": 1,
+      "message": "I explicitly don\u0027t want to initialize - by not initializing you force users to explicitly initialize with aggregate initialization, and nullptr is an invalid value",
+      "parentUuid": "3b12b1f7_39650950",
+      "revId": "7907523262f1b15d868dda0866614508fdf50997",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

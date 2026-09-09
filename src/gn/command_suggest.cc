@@ -692,6 +692,60 @@ SuggestResult OutputSuggestions(const std::vector<const Target*>& all_targets,
                            ? "$HEADER"
                            : RebasePath(file.value(), included->label().dir(),
                                         build_settings->root_path_utf8());
+    if (includer == included) {
+      SourceFile includer_file = ResolveFilePath(
+          build_settings, all_targets, includer_name, cache, includer);
+      if (includer_file.is_null()) {
+        std::vector<SourceFile> candidates;
+        for (const auto& header : included->public_headers()) {
+          if (header.GetType() == SourceFile::SOURCE_H) {
+            candidates.push_back(header);
+          }
+        }
+        if (candidates.size() == 1) {
+          includer_file = candidates.front();
+        }
+      }
+      std::string includer_path =
+          includer_file.is_null()
+              ? "$HEADER"
+              : RebasePath(includer_file.value(), included->label().dir(),
+                           build_settings->root_path_utf8());
+
+      SetAmbiguous();
+      StartSuggestion();
+      OutputString(
+          "Choose one of the following to resolve the intra-target include:\n");
+      OutputString("* Create a new source_set for ");
+      OutputQuoted(path);
+      OutputString(" and add it to public_deps in ");
+      OutputTarget(included);
+      OutputString(" (preferred)\n");
+
+      EditCommand move_to_public{
+          .command = {"move", "sources", "public", path},
+          .target = included->label().GetUserVisibleName(current_toolchain),
+      };
+      OutputString("* Move ");
+      OutputQuoted(path);
+      OutputString(" from `sources` to `public` in ");
+      OutputDefinition(included);
+      OutputString("\n");
+      OutputString("  (`" + move_to_public.ToString() + "`)\n");
+
+      EditCommand move_to_sources{
+          .command = {"move", "public", "sources", std::move(includer_path)},
+          .target = included->label().GetUserVisibleName(current_toolchain),
+      };
+      OutputString("* Move ");
+      OutputQuoted(move_to_sources.command[3]);
+      OutputString(" from `public` to `sources` in ");
+      OutputDefinition(included);
+      OutputString("\n");
+      OutputString("  (`" + move_to_sources.ToString() + "`)\n");
+      return result;
+    }
+
     EditCommand edit{
         .command = {"move", "sources", "public", std::move(path)},
         .target = included->label().GetUserVisibleName(current_toolchain),

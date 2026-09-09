@@ -16,6 +16,24 @@
       "message": "I\u0027m very hesitant about this. Doing two dependency walks feels like it was done for a reason. I want to make sure there\u0027s no edge case we\u0027re not aware of.\n\n@tikuta@google.com Please take a close look at this and see if you think it\u0027s ok",
       "revId": "75b5e1fe5d6affa997b4efc830a256cf4fb1d4c8",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dced6e7b_1166f90b",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-09T04:48:16Z",
+      "side": 1,
+      "message": "I think `PerformDependencyWalk` is still called in\nhttps://source.chromium.org/gn/gn/+/main:src/gn/header_checker.cc;l\u003d462;drc\u003dc0e4aae6d809a08cd402432a7d23494fc3b2a776\nBut if calling `permitted\u003dtrue` case only is better, can we leave comment about that here?",
+      "parentUuid": "8c5a91dc_c855f19c",
+      "revId": "75b5e1fe5d6affa997b4efc830a256cf4fb1d4c8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

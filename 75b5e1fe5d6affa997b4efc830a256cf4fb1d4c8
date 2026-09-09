@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c5a91dc_c855f19c",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-09T00:02:40Z",
+      "side": 1,
+      "message": "I\u0027m very hesitant about this. Doing two dependency walks feels like it was done for a reason. I want to make sure there\u0027s no edge case we\u0027re not aware of.\n\n@tikuta@google.com Please take a close look at this and see if you think it\u0027s ok",
+      "revId": "75b5e1fe5d6affa997b4efc830a256cf4fb1d4c8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

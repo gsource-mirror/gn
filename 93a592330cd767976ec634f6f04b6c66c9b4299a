@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f5a38b0_e4f4be77",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-09T05:44:08Z",
+      "side": 0,
+      "message": "Better to keep this comment?",
+      "revId": "93a592330cd767976ec634f6f04b6c66c9b4299a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

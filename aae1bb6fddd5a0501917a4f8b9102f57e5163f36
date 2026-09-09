@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2131498_37b66bf7",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-09T07:24:51Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If `includer_name` is a target label rather than a specific file path, `includer_file.is_null()` will be true, and `includer_file.value()` will return an empty string. \n\nYou should check `is_null()` and fallback to `\"$HEADER\"` here, similar to how it\u0027s handled for `path` on line 691.\n\n```suggestion\n      std::string includer_path \u003d includer_file.is_null()\n          ? \"$HEADER\"\n          : RebasePath(includer_file.value(), included-\u003elabel().dir(),\n                       build_settings-\u003eroot_path_utf8());\n```",
+      "range": {
+        "startLine": 700,
+        "startChar": 0,
+        "endLine": 700,
+        "endChar": 0
+      },
+      "revId": "aae1bb6fddd5a0501917a4f8b9102f57e5163f36",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6dd3776e_1f665047",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-09T07:24:51Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Accessing the moved string via a hardcoded index `[3]` is a bit confusing and fragile. \n\nConsider reordering the instantiation of `move_to_sources` to be *after* the `OutputString` calls so you can just use `includer_path` directly, or simply don\u0027t `std::move` the string (like what is done with `path` above).",
+      "range": {
+        "startLine": 730,
+        "startChar": 0,
+        "endLine": 730,
+        "endChar": 0
+      },
+      "revId": "aae1bb6fddd5a0501917a4f8b9102f57e5163f36",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2531bcb9_a9011e1e",
+        "filename": "src/gn/command_suggest_unittest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-09T07:24:51Z",
+      "side": 1,
+      "message": "Can we use raw string literal?",
+      "revId": "aae1bb6fddd5a0501917a4f8b9102f57e5163f36",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

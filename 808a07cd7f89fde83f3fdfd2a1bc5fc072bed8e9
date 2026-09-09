@@ -1,0 +1,80 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0848137_43bbd168",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-09T03:58:15Z",
+      "side": 1,
+      "message": "Can we use contains?",
+      "range": {
+        "startLine": 667,
+        "startChar": 8,
+        "endLine": 668,
+        "endChar": 58
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "d5345890_f8fec124",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 667,
+                "startChar": 0,
+                "endLine": 669,
+                "endChar": 0
+              },
+              "replacement": "    if (to_target-\u003eallow_circular_includes_from().contains(from_target-\u003elabel())) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "808a07cd7f89fde83f3fdfd2a1bc5fc072bed8e9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90d45576_83391102",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-09T03:58:15Z",
+      "side": 1,
+      "message": "Better to have size check for this.",
+      "fixSuggestions": [
+        {
+          "fixId": "86344d06_20a0680f",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 679,
+                "startChar": 0,
+                "endLine": 680,
+                "endChar": 0
+              },
+              "replacement": "        chain.size() \u003e\u003d 2 \u0026\u0026 !chain[chain.size() - 2].is_public) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "808a07cd7f89fde83f3fdfd2a1bc5fc072bed8e9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

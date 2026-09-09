@@ -16,6 +16,70 @@
       "message": "targets.size() * 3 seems rather arbitrary. Can you add a comment on why this particular number",
       "revId": "d412a53ca464a64b22b97ef8fe4c2161d9d45071",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63091064_1dbec742",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-09T01:56:29Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Consider checking if `find()` returns `file_map_.end()` before accessing `-\u003esecond` (e.g., using an `auto it \u003d ...` and a `DCHECK(it !\u003d file_map_.end());`). Even though `file.first` is guaranteed to be present in `file_map_` (as `files` is a subset of it), a missing element would lead to undefined behavior. The old `operator[]` would have safely (though perhaps unintentionally) default-constructed an empty vector.",
+      "range": {
+        "startLine": 256,
+        "startChar": 0,
+        "endLine": 256,
+        "endChar": 0
+      },
+      "revId": "d412a53ca464a64b22b97ef8fe4c2161d9d45071",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "665f8496_2c0305b7",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-09T01:56:29Z",
+      "side": 1,
+      "message": "Better to pass string_view?",
+      "range": {
+        "startLine": 378,
+        "startChar": 37,
+        "endLine": 378,
+        "endChar": 43
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "b2e0909a_db9c0265",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 378,
+                "startChar": 0,
+                "endLine": 379,
+                "endChar": 0
+              },
+              "replacement": "  auto find_file \u003d [this](std::string_view path) -\u003e const SourceFile* {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "d412a53ca464a64b22b97ef8fe4c2161d9d45071",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

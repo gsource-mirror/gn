@@ -1,0 +1,68 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "156045d7_5869f471",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 937,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-10T02:52:48Z",
+      "side": 1,
+      "message": "Cna we use string_view for these variables?",
+      "range": {
+        "startLine": 935,
+        "startChar": 0,
+        "endLine": 937,
+        "endChar": 25
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "21b9273f_aaabd7e5",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/command_suggest.cc",
+              "range": {
+                "startLine": 935,
+                "startChar": 0,
+                "endLine": 938,
+                "endChar": 0
+              },
+              "replacement": "      std::string_view cand_dir \u003d candidate-\u003elabel().dir().value();\n      std::string_view includer_dir \u003d includer-\u003elabel().dir().value();\n      std::string_view included_dir \u003d included-\u003elabel().dir().value();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "78f700916eb395fa92a5d92705321d6383697650",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1611ae25_1ca1f49f",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 961,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-10T02:52:48Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: If the first two candidates have the same score, this check evaluates to false, meaning `resize(1)` will not be called. However, there might be a third candidate with a strictly worse score which will be kept in `visible_candidates` instead of being filtered out. This means the worse candidate will incorrectly appear alongside the tied best candidates in the ambiguity warning.\n\nTo ensure we only keep the candidates that tie for the best score, we can count how many share the maximum score and resize to that count:\n\n```cpp\n    size_t best_count \u003d 1;\n    while (best_count \u003c visible_candidates.size() \u0026\u0026\n           ClosenessHeuristic(visible_candidates[best_count]) \u003d\u003d\n               ClosenessHeuristic(visible_candidates[0])) {\n      best_count++;\n    }\n    visible_candidates.resize(best_count);\n```",
+      "range": {
+        "startLine": 961,
+        "startChar": 0,
+        "endLine": 961,
+        "endChar": 0
+      },
+      "revId": "78f700916eb395fa92a5d92705321d6383697650",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

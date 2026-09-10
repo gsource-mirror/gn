@@ -42,6 +42,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "48f8a6da_cf2f7568",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 937,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-10T07:18:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "156045d7_5869f471",
+      "range": {
+        "startLine": 935,
+        "startChar": 0,
+        "endLine": 937,
+        "endChar": 25
+      },
+      "revId": "78f700916eb395fa92a5d92705321d6383697650",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1611ae25_1ca1f49f",
@@ -55,6 +79,30 @@
       "writtenOn": "2026-09-10T02:52:48Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If the first two candidates have the same score, this check evaluates to false, meaning `resize(1)` will not be called. However, there might be a third candidate with a strictly worse score which will be kept in `visible_candidates` instead of being filtered out. This means the worse candidate will incorrectly appear alongside the tied best candidates in the ambiguity warning.\n\nTo ensure we only keep the candidates that tie for the best score, we can count how many share the maximum score and resize to that count:\n\n```cpp\n    size_t best_count \u003d 1;\n    while (best_count \u003c visible_candidates.size() \u0026\u0026\n           ClosenessHeuristic(visible_candidates[best_count]) \u003d\u003d\n               ClosenessHeuristic(visible_candidates[0])) {\n      best_count++;\n    }\n    visible_candidates.resize(best_count);\n```",
+      "range": {
+        "startLine": 961,
+        "startChar": 0,
+        "endLine": 961,
+        "endChar": 0
+      },
+      "revId": "78f700916eb395fa92a5d92705321d6383697650",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23f55f06_0c3c04ca",
+        "filename": "src/gn/command_suggest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 961,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-10T07:18:06Z",
+      "side": 1,
+      "message": "No, this is intentional. If there\u0027s a candidate with a worse score, we still want to show the option, but put it later on the list.",
+      "parentUuid": "1611ae25_1ca1f49f",
       "range": {
         "startLine": 961,
         "startChar": 0,

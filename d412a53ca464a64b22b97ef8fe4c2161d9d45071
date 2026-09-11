@@ -18,6 +18,25 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c8fc4bb_eaaea32f",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-09-11T10:05:18Z",
+      "side": 1,
+      "message": "Thanks for calling that out. 😅\n\nI did an instrumented run to figure out the actually correct factor, which resulted in ~7.6 file map entries per target on Chromium. I then re-ran the benchmarks on my c4d-384 VM again: 1) with the reserve using factor `3`, 2) completely without it, and 3) with an exact count computed from sources plus public headers.\n\nAs it turned out, this particular optimization did exactly... nothing.\n\nMedians of 10 round-robin rounds of `gn gen --check`: 3.98 s, 4.05 s, 4.00 s. That is within noise, so I just dropped the line.",
+      "parentUuid": "8a26829f_41776cb7",
+      "isAi": true,
+      "revId": "d412a53ca464a64b22b97ef8fe4c2161d9d45071",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "63091064_1dbec742",
@@ -37,6 +56,31 @@
         "endLine": 256,
         "endChar": 0
       },
+      "revId": "d412a53ca464a64b22b97ef8fe4c2161d9d45071",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36449e2c_a7504f1c",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-09-11T10:05:18Z",
+      "side": 1,
+      "message": "Done. The iterator is bound and DCHECKed now. The next CL (26340) removes this loop altogether, since FilesToCheck iterates file_map_ directly.",
+      "parentUuid": "63091064_1dbec742",
+      "range": {
+        "startLine": 256,
+        "startChar": 0,
+        "endLine": 256,
+        "endChar": 0
+      },
+      "isAi": true,
       "revId": "d412a53ca464a64b22b97ef8fe4c2161d9d45071",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -78,6 +122,31 @@
           ]
         }
       ],
+      "revId": "d412a53ca464a64b22b97ef8fe4c2161d9d45071",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e05687d_1513a52f",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-09-11T10:05:18Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "665f8496_2c0305b7",
+      "range": {
+        "startLine": 378,
+        "startChar": 37,
+        "endLine": 378,
+        "endChar": 43
+      },
+      "isAi": true,
       "revId": "d412a53ca464a64b22b97ef8fe4c2161d9d45071",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

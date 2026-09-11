@@ -176,6 +176,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "04f9cf53_d673f84e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-09-11T12:52:02Z",
+      "side": 1,
+      "message": "If resource ID generation is only for official builds, I agree! TBH, I wasn\u0027t sure where the resource id generation is needed.",
+      "parentUuid": "2a35cc9a_980eb1b0",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c2badcb_d7401c37",

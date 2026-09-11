@@ -160,6 +160,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2a35cc9a_980eb1b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000019
+      },
+      "writtenOn": "2026-09-11T11:34:12Z",
+      "side": 1,
+      "message": "Maybe we should try to move the non-windows path to an approach that looks at debug info too?\n\nNot having to wait is nice, but resource generation is pretty fast and only happens in official builds, so the build speed isn\u0027t *that* important, right?",
+      "parentUuid": "0aeb41e6_9199c280",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4c2badcb_d7401c37",
         "filename": "src/gn/linker_inputs.cc",
         "patchSetId": 4

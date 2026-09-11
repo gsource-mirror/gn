@@ -81,6 +81,44 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e0beb7a_4a21985a",
+        "filename": "src/gn/header_checker.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-09-11T10:08:25Z",
+      "side": 1,
+      "message": "Done, it is DoWorkChunked now (see the longer reply on the signature comment below).",
+      "parentUuid": "21f7380b_41b75566",
+      "isAi": true,
+      "revId": "9468668ff05a5f74a28f6c050474f48828f34f60",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2182992_45f8c946",
+        "filename": "src/gn/header_checker.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-09-11T10:08:25Z",
+      "side": 1,
+      "message": "Done. DoWorkChunked and RunCheckOverFiles both take WorkerPool\u0026 now.",
+      "parentUuid": "04b69110_18062401",
+      "isAi": true,
+      "revId": "9468668ff05a5f74a28f6c050474f48828f34f60",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1d64285_ec77edb1",
@@ -94,6 +132,25 @@
       "writtenOn": "2026-09-08T23:54:06Z",
       "side": 1,
       "message": "The `size_t` all over the place seems a little convoluted. Could we do something like:\n```\nDoWorkChunked(\n  pool,\n  const std::vector\u003cTarget*\u003e\u0026 targets,\n  size_t chunk_size,\n  const std::function\u003cvoid(std::vector\u003cTarget*\u003e::iterator, std::vector\u003cTarget*\u003e::iterator)\u003e\u0026 work);\n```\n\nIt\u0027s a little more verbose, but I think it\u0027s far more clear how it works just from looking at the signature.",
+      "revId": "9468668ff05a5f74a28f6c050474f48828f34f60",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b768b08e_43956a39",
+        "filename": "src/gn/header_checker.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-09-11T10:08:25Z",
+      "side": 1,
+      "message": "Thanks, all three comments taken together led to a nicer shape! :)\n\nThe helper is now `DoWorkChunked`, a free function template in the anonymous namespace of header_checker.cc.\n\nIt takes `WorkerPool\u0026` and a `const std::vector\u003cT\u003e\u0026`, and hands each chunk to the callback as `std::span\u003cconst T\u003e`, so the two callers iterate over targets and files directly with no index arithmetic. The completion counter, mutex and condition variable are locals of the function (the caller waits for all chunks before returning), which removes the three `task_count_` members from the class.\n\nBecause they are locals now, the helper takes the completion mutex before decrementing the counter, so the waiter cannot return before the last worker\u0027s notification is done. I did not use the iterator-pair form from your suggestion because the same helper serves both element types.\n\nWDYT?",
+      "parentUuid": "d1d64285_ec77edb1",
+      "isAi": true,
       "revId": "9468668ff05a5f74a28f6c050474f48828f34f60",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

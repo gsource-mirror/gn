@@ -107,6 +107,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7826f5e8_7737f2ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-09-11T03:38:37Z",
+      "side": 1,
+      "message": "\u003e This is not necessary after https://crrev.com/c/8275653 for now.\n\nEven though the Windows issue was resolved, I think this feature is still desired to improve the generate resource list pipeline.\n\nIt seems there are two strategies to get a list of resource IDs.\n\n1) Android\n- Runs a pseudo link step just to list up link inputs from rspfile.\n- Runs",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4c2badcb_d7401c37",
         "filename": "src/gn/linker_inputs.cc",
         "patchSetId": 4

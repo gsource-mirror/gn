@@ -142,6 +142,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0aeb41e6_9199c280",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-09-11T03:44:50Z",
+      "side": 1,
+      "message": "\u003e This is not necessary after https://crrev.com/c/8275653 for now.\n\nEven though the Windows issue was resolved, I think this feature is still desired to improve the generate resource list pipeline.\n\nIt seems there are two strategies to get a list of resource IDs.\n\n1) Android\n- Runs a pseudo link step just to list up link inputs from rspfile.\n- Runs generate_resource_allowlist.py which inspects all .o files to collect resource IDs.\n\n2) Windows\n- Runs a link step, which produced a PDB.\n- Runs generate_resource_allowlist.py which inspects the PDB file to collect resource IDs.\n\nThe benefit of the Android approach is that it doesn\u0027t need to wait for the link step to complete. But the downside is that it runs a pseudo link step (either locally or remotely) unnecessarily. The write_linker_inputs eliminates that pseudo link step.\nIf this feature is landed,\n- Android build can get rid of the pseudo step -\u003e build speed up.\n- Windows can also switch to the Android approach. -\u003e this should help reduce the build time, too.\n- Other platforms also can benefit from it. See https://crrev.com/c/8360559",
+      "parentUuid": "722c8b68_8058c100",
+      "revId": "e84b7b7fceac46ffbaefbd3ed3a31a6dc27e5249",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4c2badcb_d7401c37",
         "filename": "src/gn/linker_inputs.cc",
         "patchSetId": 4

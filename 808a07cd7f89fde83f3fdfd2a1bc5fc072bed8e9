@@ -42,6 +42,31 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c966c7ff_a2d95efd",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-09-11T10:29:33Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "b0848137_43bbd168",
+      "range": {
+        "startLine": 667,
+        "startChar": 8,
+        "endLine": 668,
+        "endChar": 58
+      },
+      "isAi": true,
+      "revId": "808a07cd7f89fde83f3fdfd2a1bc5fc072bed8e9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90d45576_83391102",
@@ -73,6 +98,25 @@
           ]
         }
       ],
+      "revId": "808a07cd7f89fde83f3fdfd2a1bc5fc072bed8e9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15c4bd73_cfb0d7c2",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-09-11T10:29:33Z",
+      "side": 1,
+      "message": "Added DCHECK(chain.size() \u003e\u003d 2), matching the slow path below. The invariant holds because the same-target case returns before the search, so a found chain always has both endpoints.",
+      "parentUuid": "90d45576_83391102",
+      "isAi": true,
       "revId": "808a07cd7f89fde83f3fdfd2a1bc5fc072bed8e9",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

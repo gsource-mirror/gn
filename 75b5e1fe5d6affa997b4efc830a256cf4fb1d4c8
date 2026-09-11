@@ -34,6 +34,25 @@
       "parentUuid": "8c5a91dc_c855f19c",
       "revId": "75b5e1fe5d6affa997b4efc830a256cf4fb1d4c8",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fef76a16_7d3441b3",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2026-09-11T10:12:27Z",
+      "side": 1,
+      "message": "The unrestricted walk never decides whether an include is accepted: In `IsDependencyOf` a chain found only by the unrestricted search sets `is_permitted` to false, and `CheckInclude` reports such a chain as an error in every case.\n\nSo the eager `PerformDependencyWalk(false)` in the precompute was only warming the cache for the error path. `SearchForDependencyTo` still performs that walk on demand under the cache\u0027s exclusive lock when the table is not complete, which is the call Takuto linked.\n\nThe results are identical; only the time at which the walk runs changes, and it now runs only for includes that are rejected. To make sure I\u0027m not missing anything, I ran `gn gen --check\u003dsystem` on Chromium and compared the sorted output. It is identical between GN built from `main` and from the tip of this series on my Mac, a Fedora Linux VM, and my Arch Linux PC.\n\nI agree that having a comment is good, I added one. Let me know what you think!",
+      "parentUuid": "dced6e7b_1166f90b",
+      "isAi": true,
+      "revId": "75b5e1fe5d6affa997b4efc830a256cf4fb1d4c8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

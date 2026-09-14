@@ -5,6 +5,7 @@
 #ifndef TOOLS_GN_TARGET_H_
 #define TOOLS_GN_TARGET_H_
 
+#include <atomic>
 #include <bitset>
 #include <set>
 #include <string>
@@ -30,6 +31,7 @@
 #include "gn/unique_vector.h"
 
 class DepsIteratorRange;
+class ResolvedTargetData;
 class Settings;
 class Target;
 class Toolchain;
@@ -621,6 +623,35 @@ class Target : public Item {
 
   // GeneratedFile as metadata collection values.
   std::unique_ptr<GeneratedFile> generated_file_;
+
+  friend class ResolvedTargetData;
+
+  // Cached pointer to ResolvedTargetData::TargetInfo and its generation ID
+  // for fast, lock-free, O(1) lookups during the write phase of 'gn gen'.
+  //
+  // Because Target and ResolvedTargetData may have differing lifetimes (e.g.
+  // in unit tests where Target objects on the stack can be destroyed before
+  // or after ResolvedTargetData, or where multiple ResolvedTargetData instances
+  // are created sequentially at the same stack/heap address):
+  // 1. We use a monotonically increasing 64-bit generation ID rather than a
+  //    pointer to the ResolvedTargetData instance. A pointer comparison is
+  //    vulnerable to address reuse (ABA problem): if a previous
+  //    ResolvedTargetData is destroyed and a subsequent one is allocated at the
+  //    exact same address, checking 'owner == this' would falsely succeed and
+  //    return a dangling pointer to freed TargetInfo from the previous instance.
+  // 2. ResolvedTargetData does not modify or reset Target pointers in its
+  //    destructor, eliminating Use-After-Scope/Free when a Target is destroyed
+  //    before ResolvedTargetData.
+  // 3. Thread-safety and memory ordering:
+  //    - In GetTargetInfoSlow(), 'resolved_target_data_info_' is stored with
+  //      memory_order_relaxed, followed by 'resolved_target_data_generation_'
+  //      with memory_order_release.
+  //    - In GetTargetInfo(), 'resolved_target_data_generation_' is loaded with
+  //      memory_order_acquire. If it matches the current instance's generation,
+  //      the corresponding 'resolved_target_data_info_' pointer is guaranteed to
+  //      be visible, valid, and owned by this instance.
+  mutable std::atomic<uint64_t> resolved_target_data_generation_{0};
+  mutable std::atomic<void*> resolved_target_data_info_{nullptr};
 
   Target(const Target&) = delete;
   Target& operator=(const Target&) = delete;

@@ -46,6 +46,9 @@
 //
 class ResolvedTargetData {
  public:
+  ResolvedTargetData();
+  ~ResolvedTargetData();
+
   // Return the public/private/data/dependencies of a given target
   // as a ResolvedTargetDeps instance.
   const ResolvedTargetDeps& GetTargetDeps(const Target* target) const {
@@ -375,29 +378,9 @@ class ResolvedTargetData {
                           bool is_public,
                           RustLibsBuilder* rust_libs) const;
 
-  // A { Target* -> TargetInfo } map that will create entries
-  // on demand (hence the mutable qualifier). Implemented with a
-  // UniqueVector<> and a parallel vector of unique TargetInfo
-  // instances for best performance.
-  // We shard the TargetInfo map to reduce lock contention under the
-  // high-concurrency parallel writing phase of 'gn gen'. 128 shards is chosen
-  // as the sweet spot based on benchmarking, providing optimal scaling for
-  // high-core workstation counts (up to 128 threads) with negligible memory
-  // overhead from empty shards.
-  static constexpr size_t kNumShards = 128;
-  struct Shard {
-    mutable std::shared_mutex mutex;
-    UniqueVector<const Target*> targets;
-    std::vector<std::unique_ptr<TargetInfo>> infos;
-  };
-
-  // We use std::hash to distribute targets evenly across shards and avoid
-  // pointer alignment biases.
-  size_t GetShardIndex(const Target* target) const {
-    return std::hash<const Target*>()(target) % kNumShards;
-  }
-
-  mutable Shard shards_[kNumShards];
+  // Storage for all created TargetInfo instances.
+  mutable std::mutex infos_mutex_;
+  mutable std::vector<std::unique_ptr<TargetInfo>> infos_;
 };
 
 #endif  // TOOLS_GN_RESOLVED_TARGET_DATA_H_

@@ -5,6 +5,7 @@
 #ifndef TOOLS_GN_TARGET_H_
 #define TOOLS_GN_TARGET_H_
 
+#include <atomic>
 #include <bitset>
 #include <set>
 #include <string>
@@ -30,6 +31,7 @@
 #include "gn/unique_vector.h"
 
 class DepsIteratorRange;
+class ResolvedTargetData;
 class Settings;
 class Target;
 class Toolchain;
@@ -621,6 +623,11 @@ class Target : public Item {
 
   // GeneratedFile as metadata collection values.
   std::unique_ptr<GeneratedFile> generated_file_;
+
+  friend class ResolvedTargetData;
+
+  // Cached pointer to ResolvedTargetData::TargetInfo for fast lock-free lookup.
+  mutable std::atomic<void*> resolved_target_data_info_{nullptr};
 
   Target(const Target&) = delete;
   Target& operator=(const Target&) = delete;

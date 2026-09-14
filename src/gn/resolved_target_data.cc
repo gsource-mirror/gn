@@ -6,24 +6,34 @@
 
 #include "gn/config_values_extractors.h"
 
+ResolvedTargetData::ResolvedTargetData() = default;
+
+ResolvedTargetData::~ResolvedTargetData() {
+  for (const auto& info : infos_) {
+    info->target->resolved_target_data_info_.store(nullptr,
+                                                   std::memory_order_relaxed);
+  }
+}
+
 ResolvedTargetData::TargetInfo* ResolvedTargetData::GetTargetInfo(
     const Target* target) const {
-  size_t shard_idx = GetShardIndex(target);
-  Shard& shard = shards_[shard_idx];
-  {
-    std::shared_lock<std::shared_mutex> lock(shard.mutex);
-    size_t index = shard.targets.IndexOf(target);
-    if (index != UniqueVector<const Target*>::kIndexNone) {
-      return shard.infos[index].get();
-    }
+  void* ptr =
+      target->resolved_target_data_info_.load(std::memory_order_acquire);
+  if (ptr) {
+    return static_cast<TargetInfo*>(ptr);
   }
 
-  std::unique_lock<std::shared_mutex> lock(shard.mutex);
-  auto ret = shard.targets.PushBackWithIndex(target);
-  if (ret.first) {
-    shard.infos.push_back(std::make_unique<TargetInfo>(target));
+  auto new_info = std::make_unique<TargetInfo>(target);
+  void* expected = nullptr;
+  if (target->resolved_target_data_info_.compare_exchange_strong(
+          expected, new_info.get(), std::memory_order_release,
+          std::memory_order_acquire)) {
+    TargetInfo* result = new_info.get();
+    std::lock_guard<std::mutex> lock(infos_mutex_);
+    infos_.push_back(std::move(new_info));
+    return result;
   }
-  return shard.infos[ret.second].get();
+  return static_cast<TargetInfo*>(expected);
 }
 
 void ResolvedTargetData::ComputeLibInfo(TargetInfo* info) const {

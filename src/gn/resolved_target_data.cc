@@ -6,24 +6,36 @@
 
 #include "gn/config_values_extractors.h"
 
+ResolvedTargetData::ResolvedTargetData() = default;
+
+ResolvedTargetData::~ResolvedTargetData() = default;
+
 ResolvedTargetData::TargetInfo* ResolvedTargetData::GetTargetInfo(
     const Target* target) const {
-  size_t shard_idx = GetShardIndex(target);
-  Shard& shard = shards_[shard_idx];
-  {
-    std::shared_lock<std::shared_mutex> lock(shard.mutex);
-    size_t index = shard.targets.IndexOf(target);
-    if (index != UniqueVector<const Target*>::kIndexNone) {
-      return shard.infos[index].get();
-    }
+  if (target->resolved_target_data_owner_.load(std::memory_order_acquire) ==
+      this) {
+    return static_cast<TargetInfo*>(
+        target->resolved_target_data_info_.load(std::memory_order_relaxed));
+  }
+  return GetTargetInfoSlow(target);
+}
+
+ResolvedTargetData::TargetInfo* ResolvedTargetData::GetTargetInfoSlow(
+    const Target* target) const {
+  std::lock_guard<std::mutex> lock(infos_mutex_);
+  if (target->resolved_target_data_owner_.load(std::memory_order_relaxed) ==
+      this) {
+    return static_cast<TargetInfo*>(
+        target->resolved_target_data_info_.load(std::memory_order_relaxed));
   }
 
-  std::unique_lock<std::shared_mutex> lock(shard.mutex);
-  auto ret = shard.targets.PushBackWithIndex(target);
-  if (ret.first) {
-    shard.infos.push_back(std::make_unique<TargetInfo>(target));
-  }
-  return shard.infos[ret.second].get();
+  auto new_info = std::make_unique<TargetInfo>(target);
+  TargetInfo* result = new_info.get();
+  infos_.push_back(std::move(new_info));
+
+  target->resolved_target_data_info_.store(result, std::memory_order_relaxed);
+  target->resolved_target_data_owner_.store(this, std::memory_order_release);
+  return result;
 }
 
 void ResolvedTargetData::ComputeLibInfo(TargetInfo* info) const {

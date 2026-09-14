@@ -5,6 +5,7 @@
 #ifndef TOOLS_GN_TARGET_H_
 #define TOOLS_GN_TARGET_H_
 
+#include <atomic>
 #include <bitset>
 #include <set>
 #include <string>
@@ -30,6 +31,7 @@
 #include "gn/unique_vector.h"
 
 class DepsIteratorRange;
+class ResolvedTargetData;
 class Settings;
 class Target;
 class Toolchain;
@@ -621,6 +623,24 @@ class Target : public Item {
 
   // GeneratedFile as metadata collection values.
   std::unique_ptr<GeneratedFile> generated_file_;
+
+  friend class ResolvedTargetData;
+
+  // Cached pointer to ResolvedTargetData::TargetInfo and its owner instance
+  // for fast, lock-free, O(1) lookups during the write phase of 'gn gen'.
+  //
+  // Because Target and ResolvedTargetData may have differing lifetimes (e.g.
+  // in unit tests where Target objects on the stack can be destroyed before
+  // or after ResolvedTargetData), ResolvedTargetData does not modify or reset
+  // these pointers in its destructor. Instead, GetTargetInfo() verifies that
+  // 'resolved_target_data_owner_' matches 'this' with memory_order_acquire.
+  // If the owner matches, 'resolved_target_data_info_' is guaranteed to be
+  // valid and owned by the calling ResolvedTargetData. If not (e.g. on first
+  // access or if another ResolvedTargetData instance was previously used),
+  // it takes the slow path to allocate and register a new TargetInfo.
+  mutable std::atomic<const ResolvedTargetData*> resolved_target_data_owner_{
+      nullptr};
+  mutable std::atomic<void*> resolved_target_data_info_{nullptr};
 
   Target(const Target&) = delete;
   Target& operator=(const Target&) = delete;

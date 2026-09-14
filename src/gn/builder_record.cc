@@ -229,7 +229,7 @@ std::vector<const BuilderRecord*> BuilderRecord::GetSortedUnresolvedDeps()
   std::vector<const BuilderRecord*> result;
   for (auto it = all_deps_.begin(); it.valid(); ++it) {
     const BuilderRecord* dep = *it;
-    auto wait_it = dep->waiting_map_.find(this);
+    auto wait_it = dep->waiting_map_.find(const_cast<BuilderRecord*>(this));
     if (wait_it == dep->waiting_map_.end())
       continue;
     if (wait_it->second.wait_resolved ||

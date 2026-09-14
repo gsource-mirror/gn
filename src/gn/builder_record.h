@@ -6,6 +6,7 @@
 #define TOOLS_GN_BUILDER_RECORD_H_
 
 #include <memory>
+#include <unordered_map>
 #include <utility>
 
 #include "base/containers/flat_map.h"
@@ -327,7 +328,7 @@ class BuilderRecord {
     bool wait_validation_defined = false;
     bool wait_validation_resolved = false;
   };
-  base::flat_map<BuilderRecord*, WaitInfo> waiting_map_;
+  std::unordered_map<BuilderRecord*, WaitInfo> waiting_map_;
 
   // Called by NotifyDependentsOfStateChange() when a dependency
   // of the current record has changed its state. Must return

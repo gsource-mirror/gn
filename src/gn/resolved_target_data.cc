@@ -6,24 +6,62 @@
 
 #include "gn/config_values_extractors.h"
 
+namespace {
+
+// Monotonically increasing generation counter to uniquely identify each
+// ResolvedTargetData instance across the entire lifetime of the process.
+// Using a 64-bit generation prevents ABA / address reuse issues when a
+// previous ResolvedTargetData instance is destroyed and a new one is allocated
+// at the exact same address (e.g. on the stack).
+std::atomic<uint64_t> g_resolved_target_data_generation{1};
+
+}  // namespace
+
+ResolvedTargetData::ResolvedTargetData()
+    : generation_(g_resolved_target_data_generation.fetch_add(
+          1,
+          std::memory_order_relaxed)) {}
+
+ResolvedTargetData::~ResolvedTargetData() = default;
+
 ResolvedTargetData::TargetInfo* ResolvedTargetData::GetTargetInfo(
     const Target* target) const {
-  size_t shard_idx = GetShardIndex(target);
-  Shard& shard = shards_[shard_idx];
-  {
-    std::shared_lock<std::shared_mutex> lock(shard.mutex);
-    size_t index = shard.targets.IndexOf(target);
-    if (index != UniqueVector<const Target*>::kIndexNone) {
-      return shard.infos[index].get();
-    }
+  // Fast lock-free path: verify whether the target's cached TargetInfo belongs
+  // to this ResolvedTargetData instance's generation. If it matches, the
+  // pointer is valid and we can return it directly without taking locks or
+  // computing hashes.
+  if (target->resolved_target_data_generation_.load(
+          std::memory_order_acquire) == generation_) {
+    return static_cast<TargetInfo*>(
+        target->resolved_target_data_info_.load(std::memory_order_relaxed));
+  }
+  return GetTargetInfoSlow(target);
+}
+
+ResolvedTargetData::TargetInfo* ResolvedTargetData::GetTargetInfoSlow(
+    const Target* target) const {
+  // Cache miss path: multiple threads may attempt to query the same target
+  // concurrently, so serialize under infos_mutex_ and double-check the
+  // generation.
+  std::lock_guard<std::mutex> lock(infos_mutex_);
+  if (target->resolved_target_data_generation_.load(
+          std::memory_order_relaxed) == generation_) {
+    return static_cast<TargetInfo*>(
+        target->resolved_target_data_info_.load(std::memory_order_relaxed));
   }
 
-  std::unique_lock<std::shared_mutex> lock(shard.mutex);
-  auto ret = shard.targets.PushBackWithIndex(target);
-  if (ret.first) {
-    shard.infos.push_back(std::make_unique<TargetInfo>(target));
-  }
-  return shard.infos[ret.second].get();
+  auto new_info = std::make_unique<TargetInfo>(target);
+  TargetInfo* result = new_info.get();
+  infos_.push_back(std::move(new_info));
+
+  // Store the info pointer first, then publish it by storing this instance's
+  // generation ID with memory_order_release. This ensures any subsequent load
+  // with memory_order_acquire that sees 'generation == generation_' will
+  // observe the valid result pointer.
+  target->resolved_target_data_info_.store(result, std::memory_order_relaxed);
+  target->resolved_target_data_generation_.store(generation_,
+                                                 std::memory_order_release);
+  return result;
 }
 
 void ResolvedTargetData::ComputeLibInfo(TargetInfo* info) const {

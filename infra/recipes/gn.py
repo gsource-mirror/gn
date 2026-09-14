@@ -241,6 +241,7 @@ def RunSteps(api, repository):
               '--enable-static',
               '--disable-syscall',
               '--disable-stats',
+              '--with-malloc-conf=thp:always',
             ]
             if platform == 'linux-arm64':
               configure_args.append('--with-lg-page=16')

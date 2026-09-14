@@ -1,0 +1,99 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "343c6338_eb9a0f51",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-14T04:00:35Z",
+      "side": 1,
+      "message": "I think we can get rid of all three of these and just use std::latch?\n\nhttps://en.cppreference.com/cpp/thread/latch",
+      "fixSuggestions": [
+        {
+          "fixId": "16424a26_161c3a23",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 8,
+                "startChar": 0,
+                "endLine": 9,
+                "endChar": 0
+              },
+              "replacement": "#include \u003clatch\u003e\n"
+            },
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 12,
+                "startChar": 0,
+                "endLine": 13,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 173,
+                "startChar": 0,
+                "endLine": 189,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "  if (all.empty())\n    return;\n\n  size_t num_chunks \u003d (all.size() + chunk_size - 1) / chunk_size;\n  std::latch latch(num_chunks);\n\n"
+            },
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 193,
+                "startChar": 0,
+                "endLine": 195,
+                "endChar": 0
+              },
+              "replacement": "    pool.PostTask([\u0026work, \u0026latch, chunk]() {\n"
+            },
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 196,
+                "startChar": 0,
+                "endLine": 197,
+                "endChar": 0
+              },
+              "replacement": "      latch.count_down();\n"
+            },
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 199,
+                "startChar": 0,
+                "endLine": 205,
+                "endChar": 0
+              },
+              "replacement": "  latch.wait();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9ff482b36180bc87b4c85187f4724792c612f447",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

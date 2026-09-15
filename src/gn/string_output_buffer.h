@@ -6,6 +6,7 @@
 #define TOOLS_GN_STRING_OUTPUT_BUFFER_H_
 
 #include <array>
+#include <cstring>
 #include <memory>
 #include <streambuf>
 #include <string>
@@ -48,12 +49,33 @@ class StringOutputBuffer : public std::streambuf {
   std::string str() const;
 
   // Return the number of characters stored in this instance.
-  size_t size() const { return (pages_.size() - 1u) * kPageSize + pos_; }
+  size_t size() const {
+    if (pages_.empty())
+      return 0;
+    return (pages_.size() - 1u) * kPageSize +
+           static_cast<size_t>(pptr() - pbase());
+  }
 
   // Append string to this instance.
-  void Append(const char* str, size_t len);
-  void Append(std::string_view str);
-  void Append(char c);
+  void Append(const char* str, size_t len) {
+    if (len <= static_cast<size_t>(epptr() - pptr())) {
+      if (len > 0) {
+        memcpy(pptr(), str, len);
+        pbump(static_cast<int>(len));
+      }
+      return;
+    }
+    AppendSlow(str, len);
+  }
+  void Append(std::string_view str) { Append(str.data(), str.size()); }
+  void Append(char c) {
+    if (pptr() < epptr()) {
+      *pptr() = c;
+      pbump(1);
+      return;
+    }
+    AppendCharSlow(c);
+  }
 
   StringOutputBuffer& operator<<(std::string_view str) {
     Append(str);
@@ -81,18 +103,19 @@ class StringOutputBuffer : public std::streambuf {
 
   // Called by std::ostream to write a single character.
   int_type overflow(int_type ch) override {
-    Append(static_cast<char>(ch));
-    return 1;
+    if (ch != traits_type::eof()) {
+      AppendCharSlow(static_cast<char>(ch));
+    }
+    return ch;
   }
 
  private:
-  // Return the number of free bytes in the current page.
-  size_t page_free_size() const { return kPageSize - pos_; }
+  void AppendSlow(const char* str, size_t len);
+  void AppendCharSlow(char c);
 
   static constexpr size_t kPageSize = 65536;
   using Page = std::array<char, kPageSize>;
 
-  size_t pos_ = kPageSize;
   std::vector<std::unique_ptr<Page>> pages_;
 };
 

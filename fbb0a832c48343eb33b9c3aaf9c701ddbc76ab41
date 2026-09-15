@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2b3ec4c_acb2370e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-09-15T08:36:36Z",
+      "side": 1,
+      "message": "Just to confirm, you don\u0027t get a better result with more shards?",
+      "range": {
+        "startLine": 20,
+        "startChar": 38,
+        "endLine": 20,
+        "endChar": 53
+      },
+      "revId": "fbb0a832c48343eb33b9c3aaf9c701ddbc76ab41",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2643e7c5_13f9acee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-09-15T08:36:36Z",
+      "side": 1,
+      "message": "Oh, nice improvement!",
+      "revId": "fbb0a832c48343eb33b9c3aaf9c701ddbc76ab41",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

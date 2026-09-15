@@ -653,38 +653,39 @@ class Target : public Item {
     ResolvedTargetDeps deps;
     mutable std::mutex mutex;
 
-    std::atomic<bool> has_lib_info = false;
-    std::atomic<bool> has_framework_info = false;
-    std::atomic<bool> has_hard_deps = false;
-    std::atomic<bool> has_inherited_libs = false;
-    std::atomic<bool> has_module_deps_information = false;
-    std::atomic<bool> has_rust_libs = false;
-    std::atomic<bool> has_swift_values = false;
-    std::atomic<bool> has_order_only_deps = false;
-    std::atomic<LazyBool> does_export_public_inputs = LazyBool::kUnknown;
+    mutable std::atomic<bool> has_lib_info = false;
+    mutable std::atomic<bool> has_framework_info = false;
+    mutable std::atomic<bool> has_hard_deps = false;
+    mutable std::atomic<bool> has_inherited_libs = false;
+    mutable std::atomic<bool> has_module_deps_information = false;
+    mutable std::atomic<bool> has_rust_libs = false;
+    mutable std::atomic<bool> has_swift_values = false;
+    mutable std::atomic<bool> has_order_only_deps = false;
+    mutable std::atomic<LazyBool> does_export_public_inputs =
+        LazyBool::kUnknown;
 
     // Only valid if |has_lib_info| is true.
-    std::vector<SourceDir> lib_dirs;
-    std::vector<LibFile> libs;
+    mutable std::vector<SourceDir> lib_dirs;
+    mutable std::vector<LibFile> libs;
 
     // Only valid if |has_framework_info| is true.
-    std::vector<SourceDir> framework_dirs;
-    std::vector<std::string> frameworks;
-    std::vector<std::string> weak_frameworks;
-    std::vector<std::string> weak_libraries;
+    mutable std::vector<SourceDir> framework_dirs;
+    mutable std::vector<std::string> frameworks;
+    mutable std::vector<std::string> weak_frameworks;
+    mutable std::vector<std::string> weak_libraries;
 
     // Only valid if |has_hard_deps| is true.
-    TargetSet hard_deps;
+    mutable TargetSet hard_deps;
 
     // Only valid if |has_inherited_libs| is true.
-    std::vector<TargetPublicPair> inherited_libs;
+    mutable std::vector<TargetPublicPair> inherited_libs;
 
     // Only valid if |has_module_deps_information| is true.
-    std::vector<TargetPublicPair> module_deps_information;
+    mutable std::vector<TargetPublicPair> module_deps_information;
 
     // Only valid if |has_rust_libs| is true.
-    std::vector<TargetPublicPair> rust_inherited_libs;
-    std::vector<TargetPublicPair> rust_inheritable_libs;
+    mutable std::vector<TargetPublicPair> rust_inherited_libs;
+    mutable std::vector<TargetPublicPair> rust_inheritable_libs;
 
     // Only valid if |has_swift_values| is true.
     // Most targets will not have Swift dependencies, so only
@@ -699,20 +700,18 @@ class Target : public Item {
           : modules(std::move(modules)),
             public_modules(std::move(public_modules)) {}
     };
-    std::unique_ptr<SwiftValues> swift_values;
+    mutable std::unique_ptr<SwiftValues> swift_values;
 
     // Only valid if |has_order_only_deps| is true.
-    std::vector<OutputFile> order_only_deps;
+    mutable std::vector<OutputFile> order_only_deps;
   };
 
-  TargetInfo& info() const {
-    if (!info_.has_value()) {
-      info_.emplace(this);
-    }
+  const TargetInfo& info() const {
+    DCHECK(info_.has_value());
     return *info_;
   }
 
-  mutable std::optional<TargetInfo> info_;
+  std::optional<TargetInfo> info_;
 
   Target(const Target&) = delete;
   Target& operator=(const Target&) = delete;

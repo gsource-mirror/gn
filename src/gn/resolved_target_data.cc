@@ -6,7 +6,7 @@
 
 #include "gn/config_values_extractors.h"
 
-void ResolvedTargetData::ComputeLibInfo(TargetInfo* info) const {
+void ResolvedTargetData::ComputeLibInfo(const TargetInfo* info) const {
   UniqueVector<SourceDir> all_lib_dirs;
   UniqueVector<LibFile> all_libs;
 
@@ -28,7 +28,7 @@ void ResolvedTargetData::ComputeLibInfo(TargetInfo* info) const {
   info->has_lib_info = true;
 }
 
-void ResolvedTargetData::ComputeFrameworkInfo(TargetInfo* info) const {
+void ResolvedTargetData::ComputeFrameworkInfo(const TargetInfo* info) const {
   UniqueVector<SourceDir> all_framework_dirs;
   UniqueVector<std::string> all_frameworks;
   UniqueVector<std::string> all_weak_frameworks;
@@ -58,7 +58,7 @@ void ResolvedTargetData::ComputeFrameworkInfo(TargetInfo* info) const {
   info->has_framework_info = true;
 }
 
-void ResolvedTargetData::ComputeHardDeps(TargetInfo* info) const {
+void ResolvedTargetData::ComputeHardDeps(const TargetInfo* info) const {
   TargetSet all_hard_deps;
   for (const Target* dep : info->deps.linked_deps()) {
     // Direct hard dependencies
@@ -84,7 +84,7 @@ void ResolvedTargetData::ComputeHardDeps(TargetInfo* info) const {
   info->has_hard_deps = true;
 }
 
-void ResolvedTargetData::ComputeInheritedLibs(TargetInfo* info) const {
+void ResolvedTargetData::ComputeInheritedLibs(const TargetInfo* info) const {
   TargetPublicPairListBuilder inherited_libraries;
 
   ComputeInheritedLibsFor(info->deps.public_deps(), true, &inherited_libraries);
@@ -168,7 +168,8 @@ void ResolvedTargetData::ComputeInheritedLibsFor(
   }
 }
 
-void ResolvedTargetData::ComputeModuleDepsInformation(TargetInfo* info) const {
+void ResolvedTargetData::ComputeModuleDepsInformation(
+    const TargetInfo* info) const {
   TargetPublicPairListBuilder module_deps_information;
 
   ComputeModuleDepsInformationFor(info->deps.public_deps(), true,
@@ -202,7 +203,7 @@ void ResolvedTargetData::ComputeModuleDepsInformationFor(
   }
 }
 
-void ResolvedTargetData::ComputeRustLibs(TargetInfo* info) const {
+void ResolvedTargetData::ComputeRustLibs(const TargetInfo* info) const {
   RustLibsBuilder rust_libs;
 
   ComputeRustLibsFor(info->deps.public_deps(), true, &rust_libs);
@@ -254,7 +255,7 @@ void ResolvedTargetData::ComputeRustLibsFor(base::span<const Target*> deps,
   }
 }
 
-void ResolvedTargetData::ComputeSwiftValues(TargetInfo* info) const {
+void ResolvedTargetData::ComputeSwiftValues(const TargetInfo* info) const {
   UniqueVector<const Target*> modules;
   UniqueVector<const Target*> public_modules;
   const Target* target = info->target;
@@ -294,7 +295,7 @@ void ResolvedTargetData::ComputeSwiftValues(TargetInfo* info) const {
   info->has_swift_values = true;
 }
 
-void ResolvedTargetData::ComputeOrderOnlyDeps(TargetInfo* info) const {
+void ResolvedTargetData::ComputeOrderOnlyDeps(const TargetInfo* info) const {
   UniqueVector<OutputFile> all_order_only_deps;
   const Target* target = info->target;
 

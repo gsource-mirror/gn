@@ -16,6 +16,42 @@
       "message": "Remove?",
       "revId": "0e831f80ba0a67a1105de633aef17601c0dc8edf",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e835ce5_d0352c3e",
+        "filename": "src/gn/builder_record.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-15T05:54:08Z",
+      "side": 1,
+      "message": "Fix applied.",
+      "parentUuid": "45ffb1e7_2c06d2d0",
+      "fixSuggestions": [
+        {
+          "fixId": "91b0f02e_139e00d7",
+          "description": "GET_AI_FIX_FOR_COMMENT prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/builder_record.h",
+              "range": {
+                "startLine": 12,
+                "startChar": 0,
+                "endLine": 13,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "0e831f80ba0a67a1105de633aef17601c0dc8edf",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

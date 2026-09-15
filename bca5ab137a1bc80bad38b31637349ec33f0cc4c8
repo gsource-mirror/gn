@@ -16,6 +16,24 @@
       "message": "The original code seems rather convoluted and complex. Your change here doesn\u0027t make it worse, but they don\u0027t really simplify it either. I feel we can make it much much simpler, and wanted your thoughts on whether my proposal is feasible.\n\nWhy can\u0027t we simply have:\n* Every target contains a std::optional\u003cTargetInfo\u003e\n* It can be safely initialized in Builder::OnDefined (the constructor only cares that dependencies have been added)\n\nThen we don\u0027t need to synchronize anything or worry about these use-after-free things. We know that the lifetime perfectly matches.\n\n```\nResolvedTargetData::TargetInfo* ResolvedTargetData::GetTargetInfo(\n    const Target* target) const {\n  return \u0026target-\u003einfo();\n}\n```",
       "revId": "bca5ab137a1bc80bad38b31637349ec33f0cc4c8",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89c70a88_b6b6d101",
+        "filename": "src/gn/target.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-15T01:00:16Z",
+      "side": 1,
+      "message": "Also, here\u0027s what I asked the AI about potential concerns I saw with my approach:\nSometimes, for example, in unit tests, Target can be destroyed before ResolvedTargetData. Is that true? Would that cause a problem here? Would it ever happen in production code? Could it be mitigated?\n\nIs it true in unit tests? Yes. Stack-allocated TestTarget instances in unit test blocks can be destroyed while an outer-scoped ResolvedTargetData remains alive.\nWould that cause a problem with the alternative design? No. In fact, it is strictly safer than the current sharded map:\nIn the current design, a dead Target* remains as a dangling key in shards_.targets, leading to potential cache pollution if a new target reuses the same memory address.\nIn the alternative design, Target owns its TargetInfo, so the cached data is destroyed cleanly with the target, eliminating address-reuse bugs. \n\nResolvedTargetData retains no internal state.\n\nDoes it ever happen in production? No. In production commands (gn gen, gn desc, etc.), all Target instances are owned by BuilderRecord in Builder and live for the entire process duration.\nMitigations: Natural co-location in Target handles this automatically; debug assertions can guard against stale pointer queries if desired.",
+      "parentUuid": "84579bb0_3d284c8a",
+      "revId": "bca5ab137a1bc80bad38b31637349ec33f0cc4c8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

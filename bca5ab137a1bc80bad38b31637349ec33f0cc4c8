@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84579bb0_3d284c8a",
+        "filename": "src/gn/target.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-15T00:47:49Z",
+      "side": 1,
+      "message": "The original code seems rather convoluted and complex. Your change here doesn\u0027t make it worse, but they don\u0027t really simplify it either. I feel we can make it much much simpler, and wanted your thoughts on whether my proposal is feasible.\n\nWhy can\u0027t we simply have:\n* Every target contains a std::optional\u003cTargetInfo\u003e\n* It can be safely initialized in Builder::OnDefined (the constructor only cares that dependencies have been added)\n\nThen we don\u0027t need to synchronize anything or worry about these use-after-free things. We know that the lifetime perfectly matches.\n\n```\nResolvedTargetData::TargetInfo* ResolvedTargetData::GetTargetInfo(\n    const Target* target) const {\n  return \u0026target-\u003einfo();\n}\n```",
+      "revId": "bca5ab137a1bc80bad38b31637349ec33f0cc4c8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

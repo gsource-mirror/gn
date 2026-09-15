@@ -154,7 +154,7 @@ class ResolvedTargetData {
   // Returns true if this target exports public inputs, either directly or from
   // public dependencies which do.
   bool ExportsPublicInputs(const Target* target) const {
-    TargetInfo* info = GetTargetInfo(target);
+    const TargetInfo* info = GetTargetInfo(target);
     LazyBool value =
         info->does_export_public_inputs.load(std::memory_order_acquire);
     if (value == LazyBool::kUnknown) {
@@ -170,12 +170,12 @@ class ResolvedTargetData {
   using TargetInfo = Target::TargetInfo;
 
   // Retrieve TargetInfo value associated with |target|.
-  TargetInfo* GetTargetInfo(const Target* target) const {
+  const TargetInfo* GetTargetInfo(const Target* target) const {
     return &target->info();
   }
 
   const TargetInfo* GetTargetLibInfo(const Target* target) const {
-    TargetInfo* info = GetTargetInfo(target);
+    const TargetInfo* info = GetTargetInfo(target);
     if (!info->has_lib_info.load(std::memory_order_acquire)) {
       std::lock_guard<std::mutex> lock(info->mutex);
       if (!info->has_lib_info.load(std::memory_order_relaxed)) {
@@ -187,7 +187,7 @@ class ResolvedTargetData {
   }
 
   const TargetInfo* GetTargetFrameworkInfo(const Target* target) const {
-    TargetInfo* info = GetTargetInfo(target);
+    const TargetInfo* info = GetTargetInfo(target);
     if (!info->has_framework_info.load(std::memory_order_acquire)) {
       std::lock_guard<std::mutex> lock(info->mutex);
       if (!info->has_framework_info.load(std::memory_order_relaxed)) {
@@ -199,7 +199,7 @@ class ResolvedTargetData {
   }
 
   const TargetInfo* GetTargetHardDeps(const Target* target) const {
-    TargetInfo* info = GetTargetInfo(target);
+    const TargetInfo* info = GetTargetInfo(target);
     if (!info->has_hard_deps.load(std::memory_order_acquire)) {
       std::lock_guard<std::mutex> lock(info->mutex);
       if (!info->has_hard_deps.load(std::memory_order_relaxed)) {
@@ -211,7 +211,7 @@ class ResolvedTargetData {
   }
 
   const TargetInfo* GetTargetInheritedLibs(const Target* target) const {
-    TargetInfo* info = GetTargetInfo(target);
+    const TargetInfo* info = GetTargetInfo(target);
     if (!info->has_inherited_libs.load(std::memory_order_acquire)) {
       std::lock_guard<std::mutex> lock(info->mutex);
       if (!info->has_inherited_libs.load(std::memory_order_relaxed)) {
@@ -223,7 +223,7 @@ class ResolvedTargetData {
   }
 
   const TargetInfo* GetTargetModuleDepsInformation(const Target* target) const {
-    TargetInfo* info = GetTargetInfo(target);
+    const TargetInfo* info = GetTargetInfo(target);
     if (!info->has_module_deps_information.load(std::memory_order_acquire)) {
       std::lock_guard<std::mutex> lock(info->mutex);
       if (!info->has_module_deps_information.load(std::memory_order_relaxed)) {
@@ -236,7 +236,7 @@ class ResolvedTargetData {
   }
 
   const TargetInfo* GetTargetRustLibs(const Target* target) const {
-    TargetInfo* info = GetTargetInfo(target);
+    const TargetInfo* info = GetTargetInfo(target);
     if (!info->has_rust_libs.load(std::memory_order_acquire)) {
       std::lock_guard<std::mutex> lock(info->mutex);
       if (!info->has_rust_libs.load(std::memory_order_relaxed)) {
@@ -248,7 +248,7 @@ class ResolvedTargetData {
   }
 
   const TargetInfo* GetTargetSwiftValues(const Target* target) const {
-    TargetInfo* info = GetTargetInfo(target);
+    const TargetInfo* info = GetTargetInfo(target);
     if (!info->has_swift_values.load(std::memory_order_acquire)) {
       std::lock_guard<std::mutex> lock(info->mutex);
       if (!info->has_swift_values.load(std::memory_order_relaxed)) {
@@ -260,7 +260,7 @@ class ResolvedTargetData {
   }
 
   const TargetInfo* GetTargetOrderOnlyDeps(const Target* target) const {
-    TargetInfo* info = GetTargetInfo(target);
+    const TargetInfo* info = GetTargetInfo(target);
     if (!info->has_order_only_deps.load(std::memory_order_acquire)) {
       std::lock_guard<std::mutex> lock(info->mutex);
       if (!info->has_order_only_deps.load(std::memory_order_relaxed)) {
@@ -274,14 +274,14 @@ class ResolvedTargetData {
   // Compute the portion of TargetInfo guarded by one of the |has_xxx|
   // booleans. This performs recursive and expensive computations and
   // should only be called once per TargetInfo instance.
-  void ComputeLibInfo(TargetInfo* info) const;
-  void ComputeFrameworkInfo(TargetInfo* info) const;
-  void ComputeHardDeps(TargetInfo* info) const;
-  void ComputeInheritedLibs(TargetInfo* info) const;
-  void ComputeModuleDepsInformation(TargetInfo* info) const;
-  void ComputeRustLibs(TargetInfo* info) const;
-  void ComputeSwiftValues(TargetInfo* info) const;
-  void ComputeOrderOnlyDeps(TargetInfo* info) const;
+  void ComputeLibInfo(const TargetInfo* info) const;
+  void ComputeFrameworkInfo(const TargetInfo* info) const;
+  void ComputeHardDeps(const TargetInfo* info) const;
+  void ComputeInheritedLibs(const TargetInfo* info) const;
+  void ComputeModuleDepsInformation(const TargetInfo* info) const;
+  void ComputeRustLibs(const TargetInfo* info) const;
+  void ComputeSwiftValues(const TargetInfo* info) const;
+  void ComputeOrderOnlyDeps(const TargetInfo* info) const;
   bool ComputeExportsPublicInputs(const TargetInfo* info) const;
 
   // Helper function used by ComputeInheritedLibs().

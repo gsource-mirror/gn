@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1acfc8e_286fe308",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-15T09:00:34Z",
+      "side": 1,
+      "message": "This is build config used for GN release builder. Not chromium build config.",
+      "parentUuid": "196948c7_2379bcb9",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 5
+      },
+      "revId": "fbb0a832c48343eb33b9c3aaf9c701ddbc76ab41",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a2b3ec4c_acb2370e",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-09-15T08:36:36Z",
       "side": 1,
       "message": "Just to confirm, you don\u0027t get a better result with more shards?",
+      "range": {
+        "startLine": 20,
+        "startChar": 38,
+        "endLine": 20,
+        "endChar": 53
+      },
+      "revId": "fbb0a832c48343eb33b9c3aaf9c701ddbc76ab41",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7b25fde_a4a85bf9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-15T09:00:34Z",
+      "side": 1,
+      "message": "Yes, I don\u0027t see much difference with other numbers. Also this global cache shard is used only when thread local cache isn\u0027t used.\n\n```\nSummary\n  256 shards (kShardBits\u003d8, current) ran\n    1.01 ± 0.02 times faster than 16 shards (kShardBits\u003d4)\n    1.01 ± 0.02 times faster than 64 shards (kShardBits\u003d6)\n    1.01 ± 0.02 times faster than 512 shards (kShardBits\u003d9)\n    1.02 ± 0.02 times faster than 1024 shards (kShardBits\u003d10)\n```",
+      "parentUuid": "a2b3ec4c_acb2370e",
       "range": {
         "startLine": 20,
         "startChar": 38,

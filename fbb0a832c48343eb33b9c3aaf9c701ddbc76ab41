@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "196948c7_2379bcb9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-09-15T08:38:23Z",
+      "side": 1,
+      "message": "This doesn\u0027t look like a standard \"default\" config set. Do you have any context on why this particular configs are chosen to benchmark this improvement?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 5
+      },
+      "revId": "fbb0a832c48343eb33b9c3aaf9c701ddbc76ab41",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a2b3ec4c_acb2370e",
         "filename": "/COMMIT_MSG",
         "patchSetId": 11

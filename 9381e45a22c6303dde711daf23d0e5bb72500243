@@ -1,0 +1,83 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed2a8430_b5ee6b4c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-15T06:25:29Z",
+      "side": 1,
+      "message": "Generally LGTM, just a minor nit",
+      "revId": "9381e45a22c6303dde711daf23d0e5bb72500243",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be3b89be_7add86bc",
+        "filename": "src/gn/string_atom.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-15T06:25:29Z",
+      "side": 1,
+      "message": "It might be better if StringAtomSet\u0027s constructor simply inserted the empty string the same way any other entry would be inserted, and then set the global kEmptyString to it. That way we don\u0027t have an additional conditional here in the hot path, and the StringAtom default constructor can just do `StringAtom(): value_(kEmptyString) {}`.\n\nThat way we get the performance for the default constructor and we can avoid this check.",
+      "fixSuggestions": [
+        {
+          "fixId": "93e57c30_83efccec",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/string_atom.cc",
+              "range": {
+                "startLine": 118,
+                "startChar": 0,
+                "endLine": 124,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "src/gn/string_atom.cc",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "    // Ensure find(\"\") always returns \u0026kEmptyString without a table lookup or\n    // slab allocation. This allows the StringAtom() default initializer to use\n    // the same address directly.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9381e45a22c6303dde711daf23d0e5bb72500243",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f13582c_89c7ac52",
+        "filename": "src/gn/string_atom.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-15T06:25:29Z",
+      "side": 1,
+      "message": "Same here",
+      "revId": "9381e45a22c6303dde711daf23d0e5bb72500243",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

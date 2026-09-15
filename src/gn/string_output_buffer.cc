@@ -23,32 +23,29 @@ std::string StringOutputBuffer::str() const {
   return result;
 }
 
-void StringOutputBuffer::Append(const char* str, size_t len) {
-  Append(std::string_view(str, len));
-}
-
-void StringOutputBuffer::Append(std::string_view str) {
-  while (str.size() > 0) {
-    if (page_free_size() == 0) {
-      // Allocate a new page.
+void StringOutputBuffer::AppendSlow(const char* str, size_t len) {
+  while (len > 0) {
+    size_t free_size = static_cast<size_t>(epptr() - pptr());
+    if (free_size == 0) {
       pages_.push_back(std::make_unique<Page>());
-      pos_ = 0;
+      char* base = pages_.back()->data();
+      setp(base, base + kPageSize);
+      free_size = kPageSize;
     }
-    size_t size = std::min(page_free_size(), str.size());
-    memcpy(pages_.back()->data() + pos_, str.data(), size);
-    pos_ += size;
-    str.remove_prefix(size);
+    size_t to_copy = std::min(free_size, len);
+    memcpy(pptr(), str, to_copy);
+    pbump(static_cast<int>(to_copy));
+    str += to_copy;
+    len -= to_copy;
   }
 }
 
-void StringOutputBuffer::Append(char c) {
-  if (page_free_size() == 0) {
-    // Allocate a new page.
-    pages_.push_back(std::make_unique<Page>());
-    pos_ = 0;
-  }
-  pages_.back()->data()[pos_] = c;
-  pos_ += 1;
+void StringOutputBuffer::AppendCharSlow(char c) {
+  pages_.push_back(std::make_unique<Page>());
+  char* base = pages_.back()->data();
+  setp(base, base + kPageSize);
+  *pptr() = c;
+  pbump(1);
 }
 
 bool StringOutputBuffer::ContentsEqual(const base::FilePath& file_path) const {

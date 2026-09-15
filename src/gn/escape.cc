@@ -7,6 +7,12 @@
 #include <stddef.h>
 
 #include <memory>
+#include <string_view>
+
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || \
+    defined(_M_IX86)
+#include <emmintrin.h>
+#endif
 
 #include "base/compiler_specific.h"
 #include "base/json/string_escape.h"
@@ -246,7 +252,7 @@ size_t EscapeStringToString(std::string_view str,
                             bool* needed_quoting) {
   switch (options.mode) {
     case ESCAPE_NONE:
-      strncpy(dest, str.data(), str.size());
+      memcpy(dest, str.data(), str.size());
       return str.size();
     case ESCAPE_SPACE:
       return EscapeStringToString_Space(str, options, dest, needed_quoting);
@@ -286,17 +292,53 @@ size_t EscapeStringToString(std::string_view str,
 
 }  // namespace
 
+namespace internal {
+
+bool NeedsEscapeSlow(std::string_view str, const EscapeOptions& options) {
+  switch (options.mode) {
+    case ESCAPE_NONE:
+      return false;
+    case ESCAPE_SPACE:
+      return str.find(' ') != std::string_view::npos;
+    case ESCAPE_NINJA:
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || \
+    defined(_M_IX86)
+      return NeedsEscapeNinjaSIMD(str);
+#else
+      return NeedsEscapeNinjaScalar(str);
+#endif
+    case ESCAPE_DEPFILE:
+      for (char c : str) {
+        if (c == ' ' || c == '\\' || c == '#' || c == '*' || c == '[' ||
+            c == '|' || c == ']' || c == '$')
+          return true;
+      }
+      return false;
+    case ESCAPE_NINJA_PREFORMATTED_COMMAND:
+      return str.find('$') != std::string_view::npos;
+    case ESCAPE_COMPILATION_DATABASE:
+    case ESCAPE_NINJA_COMMAND:
+    default:
+      return true;
+  }
+}
+
+}  // namespace internal
+
 std::string EscapeString(std::string_view str,
                          const EscapeOptions& options,
                          bool* needed_quoting) {
+  if (!internal::NeedsEscape(str, options)) {
+    return std::string(str);
+  }
   StackOrHeapBuffer dest(str.size() * kMaxEscapedCharsPerChar);
   return std::string(dest,
                      EscapeStringToString(str, options, dest, needed_quoting));
 }
 
-void EscapeStringToStream(std::ostream& out,
-                          std::string_view str,
-                          const EscapeOptions& options) {
+void EscapeStringToStreamSlow(std::ostream& out,
+                              std::string_view str,
+                              const EscapeOptions& options) {
   StackOrHeapBuffer dest(str.size() * kMaxEscapedCharsPerChar);
   out.write(dest, EscapeStringToString(str, options, dest, nullptr));
 }

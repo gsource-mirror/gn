@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25ba1b80_4a2c6971",
+        "filename": "src/gn/target.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-15T02:52:10Z",
+      "side": 1,
+      "message": "Sorry, I only just realized after the code submitted, but could this be a problem:\n```\n  TargetInfo\u0026 info() const {\n    if (!info_.has_value()) {\n      info_.emplace(this);\n    }\n    return *info_;\n  }\n```\n\n\nIf info is called in a multithreaded context, in theory it could be mutated by multiple threads at the same time. I think we might need to make it:\n```\n  TargetInfo\u0026 info() const {\n    DCHECK(info_.has_value())\n    return *info_;\n  }\n```\n\nAnd initialize it in the builder. Or maybe your initialization in OnResolvedWithoutChecks already makes this safe, but we should remove the emplace and replace it with a DCHECK instead?",
+      "fixSuggestions": [
+        {
+          "fixId": "e414517d_a9caeef9",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/target.h",
+              "range": {
+                "startLine": 709,
+                "startChar": 0,
+                "endLine": 712,
+                "endChar": 0
+              },
+              "replacement": "    DCHECK(info_.has_value());\n"
+            }
+          ]
+        }
+      ],
+      "revId": "b98227b7c386f0c0434758588ae577a7dbdf838a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ceebeff_49cd0bd2",
+        "filename": "src/gn/target.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-15T02:52:10Z",
+      "side": 1,
+      "message": "Also if we do it that way, info_ doesn\u0027t need to be mutable anymore",
+      "revId": "b98227b7c386f0c0434758588ae577a7dbdf838a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

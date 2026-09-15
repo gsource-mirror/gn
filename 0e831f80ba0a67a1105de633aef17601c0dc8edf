@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45ffb1e7_2c06d2d0",
+        "filename": "src/gn/builder_record.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-15T05:52:05Z",
+      "side": 1,
+      "message": "Remove?",
+      "revId": "0e831f80ba0a67a1105de633aef17601c0dc8edf",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

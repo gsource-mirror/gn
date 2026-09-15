@@ -76,24 +76,61 @@ void PathOutput::WriteFile(std::ostream& out, const OutputFile& file) const {
 
 void PathOutput::WriteFiles(std::ostream& out,
                             const std::vector<SourceFile>& files) const {
+  auto* buf = static_cast<internal::StreambufFastWriter*>(out.rdbuf());
   for (const auto& file : files) {
-    out << " ";
+    buf->sputc(' ');
     WriteFile(out, file);
   }
 }
 
 void PathOutput::WriteFiles(std::ostream& out,
                             const std::vector<OutputFile>& files) const {
+  auto* buf = static_cast<internal::StreambufFastWriter*>(out.rdbuf());
+  if (options_.mode == ESCAPE_NINJA) {
+    for (const auto& file : files) {
+      std::string_view str = file.value();
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || \
+    defined(_M_IX86)
+      if (!internal::NeedsEscapeNinjaSIMD(str)) {
+#else
+      if (!internal::NeedsEscapeNinjaScalar(str)) {
+#endif
+        buf->WriteCharAndString(' ', str);
+      } else {
+        buf->sputc(' ');
+        EscapeStringToStreamSlow(out, str, options_);
+      }
+    }
+    return;
+  }
   for (const auto& file : files) {
-    out << " ";
+    buf->sputc(' ');
     WriteFile(out, file);
   }
 }
 
 void PathOutput::WriteFiles(std::ostream& out,
                             const UniqueVector<OutputFile>& files) const {
+  auto* buf = static_cast<internal::StreambufFastWriter*>(out.rdbuf());
+  if (options_.mode == ESCAPE_NINJA) {
+    for (const auto& file : files) {
+      std::string_view str = file.value();
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || \
+    defined(_M_IX86)
+      if (!internal::NeedsEscapeNinjaSIMD(str)) {
+#else
+      if (!internal::NeedsEscapeNinjaScalar(str)) {
+#endif
+        buf->WriteCharAndString(' ', str);
+      } else {
+        buf->sputc(' ');
+        EscapeStringToStreamSlow(out, str, options_);
+      }
+    }
+    return;
+  }
   for (const auto& file : files) {
-    out << " ";
+    buf->sputc(' ');
     WriteFile(out, file);
   }
 }

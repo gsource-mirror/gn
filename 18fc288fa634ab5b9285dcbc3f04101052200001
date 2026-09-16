@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f4c7091_ea547f9d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 4474488
+      },
+      "writtenOn": "2026-09-16T07:26:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "befbe173_e8f7af9b",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 3
+      },
+      "revId": "18fc288fa634ab5b9285dcbc3f04101052200001",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "664cdfdf_d0a07507",
@@ -47,6 +71,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12acb04d_a544d11f",
+        "filename": "src/gn/rust_project_writer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 4474488
+      },
+      "writtenOn": "2026-09-16T07:26:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "664cdfdf_d0a07507",
+      "range": {
+        "startLine": 286,
+        "startChar": 0,
+        "endLine": 286,
+        "endChar": 0
+      },
+      "revId": "18fc288fa634ab5b9285dcbc3f04101052200001",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "83b20aec_6d05f072",
@@ -60,6 +108,24 @@
       "writtenOn": "2026-09-16T07:10:33Z",
       "side": 1,
       "message": "Could you use raw string literal?",
+      "revId": "18fc288fa634ab5b9285dcbc3f04101052200001",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5faf9857_df8a3e16",
+        "filename": "src/gn/rust_project_writer_unittest.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 739,
+      "author": {
+        "id": 4474488
+      },
+      "writtenOn": "2026-09-16T07:26:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83b20aec_6d05f072",
       "revId": "18fc288fa634ab5b9285dcbc3f04101052200001",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

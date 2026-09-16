@@ -154,12 +154,13 @@ std::string NinjaActionTargetWriter::WriteRuleDefinition() {
 
   out_ << "rule " << custom_rule_name << std::endl;
 
+  std::string rspfile;
   if (target_->action_values().uses_rsp_file()) {
     // Needs a response file. The unique_name part is for action_foreach so
     // each invocation of the rule gets a different response file. This isn't
     // strictly necessary for regular one-shot actions, but it's easier to
     // just always define unique_name.
-    std::string rspfile = custom_rule_name;
+    rspfile = custom_rule_name;
     if (!target_->sources().empty())
       rspfile += ".$unique_name";
     rspfile += ".rsp";
@@ -171,7 +172,7 @@ std::string NinjaActionTargetWriter::WriteRuleDefinition() {
          target_->action_values().rsp_file_contents().list()) {
       out_ << " ";
       SubstitutionWriter::WriteWithNinjaVariables(arg, args_escape_options,
-                                                  out_);
+                                                  out_, "");
     }
     out_ << std::endl;
   }
@@ -188,7 +189,8 @@ std::string NinjaActionTargetWriter::WriteRuleDefinition() {
   command_output.WriteFile(out_, target_->action_values().script());
   for (const auto& arg : args.list()) {
     out_ << " ";
-    SubstitutionWriter::WriteWithNinjaVariables(arg, args_escape_options, out_);
+    SubstitutionWriter::WriteWithNinjaVariables(arg, args_escape_options, out_,
+                                                rspfile);
   }
   out_ << std::endl;
   auto mnemonic = target_->action_values().mnemonic();

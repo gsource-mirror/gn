@@ -16,6 +16,24 @@
       "message": "To utilize this, I think we need to make it is easy to avoid allow_circular_includes_from, but that is currently not easy to do for normal chromium developers?\n\nAnd in that case, this doesn\u0027t have good enforcement to avoid allow_circular_includes_from and developers just adds target to allow_circular_includes_from_allowlist.\n\nHow will you rollout this to chromium?",
       "revId": "d244f74218b5159704e5b402bfb4ddd2bd131e45",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c731e3f_096f7dfc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-16T02:06:11Z",
+      "side": 1,
+      "message": "Since this has been resolved with `gn check --fix` and the process approved in the LSC, can we submit this now?",
+      "parentUuid": "98124b05_6b8d27c2",
+      "revId": "d244f74218b5159704e5b402bfb4ddd2bd131e45",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0a00a2a_b83ab0e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-09-16T06:40:33Z",
+      "side": 1,
+      "message": "FYI @tikuta@google.com I switched it from a list of source files to a list of label patterns.",
+      "revId": "eea0bb980100712e7fca3f0479d4ec45386837d9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

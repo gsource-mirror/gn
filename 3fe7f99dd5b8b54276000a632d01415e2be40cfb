@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4234d064_a7ba6d0f",
+        "filename": "src/gn/binary_target_generator.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-16T03:47:49Z",
+      "side": 1,
+      "message": "Can we recommend to use `gn check --fix` to resolve this error from here now?",
+      "range": {
+        "startLine": 219,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 0
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "2eea7d77_bf14dab0",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/binary_target_generator.cc",
+              "range": {
+                "startLine": 219,
+                "startChar": 0,
+                "endLine": 223,
+                "endChar": 0
+              },
+              "replacement": "                \"You can run \\\"gn check --fix\\\" to automatically fix this.\");\n"
+            }
+          ]
+        }
+      ],
+      "revId": "3fe7f99dd5b8b54276000a632d01415e2be40cfb",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

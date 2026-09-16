@@ -34,6 +34,24 @@
       "parentUuid": "98124b05_6b8d27c2",
       "revId": "d244f74218b5159704e5b402bfb4ddd2bd131e45",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01e5a546_430fe8aa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-16T02:26:01Z",
+      "side": 1,
+      "message": "Could you associate this with the issue tracking the LSC process?",
+      "parentUuid": "8c731e3f_096f7dfc",
+      "revId": "d244f74218b5159704e5b402bfb4ddd2bd131e45",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -48,6 +48,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5b8bcf2_8cff7b5a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-09-16T00:38:40Z",
+      "side": 1,
+      "message": "Ah, I misunderstood that. I didn\u0027t know that Fuchsia clang is used to build official GN binary. Thank you.",
+      "parentUuid": "f1acfc8e_286fe308",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 5
+      },
+      "revId": "fbb0a832c48343eb33b9c3aaf9c701ddbc76ab41",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a2b3ec4c_acb2370e",

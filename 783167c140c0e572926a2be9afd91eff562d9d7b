@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86df9532_daa3911f",
+        "filename": "src/gn/setup.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-09-16T04:21:34Z",
+      "side": 1,
+      "message": "Could you update document for this variable?",
+      "range": {
+        "startLine": 1213,
+        "startChar": 31,
+        "endLine": 1213,
+        "endChar": 69
+      },
+      "revId": "783167c140c0e572926a2be9afd91eff562d9d7b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

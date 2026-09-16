@@ -150,7 +150,8 @@ Examples
 void SubstitutionWriter::WriteWithNinjaVariables(
     const SubstitutionPattern& pattern,
     const EscapeOptions& escape_options,
-    std::ostream& out) {
+    std::ostream& out,
+    const std::string& rspfile) {
   // The result needs to be quoted as if it was one string, but the $ for
   // the inserted Ninja variables can't be escaped. So write to a buffer with
   // no quoting, and then quote the whole thing if necessary.
@@ -162,6 +163,9 @@ void SubstitutionWriter::WriteWithNinjaVariables(
   for (const auto& range : pattern.ranges()) {
     if (range.type == &SubstitutionLiteral) {
       result.append(EscapeString(range.literal, no_quoting, &needs_quotes));
+    } else if (range.type == &SubstitutionRspFileName) {
+      CHECK(!rspfile.empty());
+      result.append(rspfile);
     } else {
       result.append("${");
       result.append(range.type->ninja_name);

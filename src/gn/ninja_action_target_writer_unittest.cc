@@ -406,7 +406,7 @@ TEST(NinjaActionTargetWriter, ForEachWithResponseFile) {
       "  rspfile_content = -j ${source_name_part}\n"
       // These come from the args.
       "  command = /usr/bin/python ../../foo/script.py ${in} "
-      "${source_file_part} ${rspfile}\n"
+      "${source_file_part} __foo_bar___rule.$unique_name.rsp\n"
       "  description = ACTION //foo:bar()\n"
       "  restat = 1\n"
       "\n"

@@ -101,7 +101,7 @@ TEST(SubstitutionWriter, WriteWithNinjaVariables) {
   options.mode = ESCAPE_NONE;
 
   std::ostringstream out;
-  SubstitutionWriter::WriteWithNinjaVariables(pattern, options, out);
+  SubstitutionWriter::WriteWithNinjaVariables(pattern, options, out, "");
 
   EXPECT_EQ("-i ${in} --out=bar\"${source_name_part}\".o", out.str());
 }

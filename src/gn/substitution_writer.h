@@ -62,7 +62,8 @@ class SubstitutionWriter {
   // Ninja variables replacing the patterns.
   static void WriteWithNinjaVariables(const SubstitutionPattern& pattern,
                                       const EscapeOptions& escape_options,
-                                      std::ostream& out);
+                                      std::ostream& out,
+                                      const std::string& rspfile);
 
   // NOP substitutions ---------------------------------------------------------
 

@@ -94,6 +94,24 @@
       ],
       "revId": "9ff482b36180bc87b4c85187f4724792c612f447",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "545f4304_32557168",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1003023
+      },
+      "writtenOn": "2026-09-16T12:00:39Z",
+      "side": 1,
+      "message": "Ohhh, I didn\u0027t know `std::latch`! That\u0027s very cool. Thank you for the suggestion. I\u0027ll send you a follow-up CL for this, so I don\u0027t lose the votes on the current chain.",
+      "parentUuid": "343c6338_eb9a0f51",
+      "revId": "9ff482b36180bc87b4c85187f4724792c612f447",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

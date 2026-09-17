@@ -10,9 +10,11 @@
 
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
+#include "gn/build_file_editor.h"
 #include "gn/err.h"
 #include "gn/filesystem_utils.h"
 #include "gn/setup.h"
+#include "gn/string_atom.h"
 #include "gn/test_with_scheduler.h"
 #include "util/test/test.h"
 
@@ -963,6 +965,106 @@ static_library("foo") {
   ]
 }
 )"));
+}
+
+TEST_F(EditCommandTest, ExtractTargetSourcesConditions) {
+  base::ScopedTempDir temp_dir;
+  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
+  base::FilePath root_path = base::MakeAbsoluteFilePath(temp_dir.GetPath());
+
+  base::FilePath build_gn_path = root_path.AppendASCII("BUILD.gn");
+  std::string content = R"(
+source_set("my_target") {
+  sources = [ "uncond.cc" ]
+
+  if (is_win) {
+    sources += [ "win.cc" ]
+  }
+
+  if (is_linux) {
+    if (use_x11) {
+      sources += [ "x11.cc" ]
+    }
+  }
+
+  if (is_mac) {
+    sources += [ "mac.cc" ]
+  } else {
+    sources += [ "posix.cc" ]
+  }
+
+  if (is_ios) {
+    sources += [ "ios.cc" ]
+  } else if (is_android) {
+    sources += [ "android.cc" ]
+  }
+
+  if (is_fuchsia) {
+    public += [ "fuchsia.h" ]
+  }
+}
+)";
+  ASSERT_TRUE(WriteFile(build_gn_path, content, nullptr));
+
+  Setup setup;
+  setup.build_settings().SetRootPath(root_path);
+
+  auto build_file =
+      BuildFile::Create(&setup.build_settings(), SourceFile("//BUILD.gn"), {});
+  ASSERT_TRUE(build_file.has_value());
+
+  TargetSourcesMap target_sources = GetSourcesForTargets(*build_file);
+  ASSERT_TRUE(target_sources.contains(StringAtom("my_target")));
+
+  const auto& sources = target_sources[StringAtom("my_target")];
+
+  // Unconditional source has no condition
+  auto uncond_it = sources.find(SourceFile("//uncond.cc"));
+  ASSERT_TRUE(uncond_it != sources.end());
+  EXPECT_FALSE(uncond_it->second.has_value());
+
+  // Single condition
+  auto win_it = sources.find(SourceFile("//win.cc"));
+  ASSERT_TRUE(win_it != sources.end());
+  ASSERT_TRUE(win_it->second.has_value());
+  EXPECT_EQ(*win_it->second, StringAtom("if (is_win)"));
+
+  // Nested condition
+  auto x11_it = sources.find(SourceFile("//x11.cc"));
+  ASSERT_TRUE(x11_it != sources.end());
+  ASSERT_TRUE(x11_it->second.has_value());
+  EXPECT_EQ(*x11_it->second, StringAtom("if (is_linux) -> if (use_x11)"));
+
+  // Mac true branch
+  auto mac_it = sources.find(SourceFile("//mac.cc"));
+  ASSERT_TRUE(mac_it != sources.end());
+  ASSERT_TRUE(mac_it->second.has_value());
+  EXPECT_EQ(*mac_it->second, StringAtom("if (is_mac)"));
+
+  // Posix else branch
+  auto posix_it = sources.find(SourceFile("//posix.cc"));
+  ASSERT_TRUE(posix_it != sources.end());
+  ASSERT_TRUE(posix_it->second.has_value());
+  EXPECT_EQ(*posix_it->second, StringAtom("if (is_mac)'s else"));
+
+  // iOS branch
+  auto ios_it = sources.find(SourceFile("//ios.cc"));
+  ASSERT_TRUE(ios_it != sources.end());
+  ASSERT_TRUE(ios_it->second.has_value());
+  EXPECT_EQ(*ios_it->second, StringAtom("if (is_ios)"));
+
+  // Android else-if branch
+  auto android_it = sources.find(SourceFile("//android.cc"));
+  ASSERT_TRUE(android_it != sources.end());
+  ASSERT_TRUE(android_it->second.has_value());
+  EXPECT_EQ(*android_it->second,
+            StringAtom("if (is_ios)'s else if (is_android)"));
+
+  // Fuchsia public header
+  auto fuchsia_it = sources.find(SourceFile("//fuchsia.h"));
+  ASSERT_TRUE(fuchsia_it != sources.end());
+  ASSERT_TRUE(fuchsia_it->second.has_value());
+  EXPECT_EQ(*fuchsia_it->second, StringAtom("if (is_fuchsia)"));
 }
 
 }  // namespace commands

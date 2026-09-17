@@ -111,7 +111,7 @@ TEST_F(SuggestTest, ResolveModuleName) {
     auto [results, ok] = commands::ResolveSuggestionToTarget(
         setup_scope.build_settings(), all_targets, default_toolchain,
         "my_module", /*must_be_file=*/false, cache);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected = {
+    std::vector<commands::ResolvedTarget> expected = {
         {&target, commands::ApiScope::kPublic}};
     EXPECT_EQ(expected, results);
     EXPECT_TRUE(ok);
@@ -122,7 +122,7 @@ TEST_F(SuggestTest, ResolveModuleName) {
     auto [results, ok] = commands::ResolveSuggestionToTarget(
         setup_scope.build_settings(), all_targets, default_toolchain,
         "my_module_Private", /*must_be_file=*/false, cache);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected = {
+    std::vector<commands::ResolvedTarget> expected = {
         {&target, commands::ApiScope::kPrivate}};
     EXPECT_EQ(expected, results);
     EXPECT_TRUE(ok);
@@ -151,7 +151,7 @@ TEST_F(SuggestTest, ResolveTargetName) {
       setup_scope.toolchain()->label(), "//:hello", /*must_be_file=*/false,
       cache);
 
-  std::vector<std::pair<const Target*, commands::ApiScope>> expected_label = {
+  std::vector<commands::ResolvedTarget> expected_label = {
       {&target, commands::ApiScope::kPublic}};
   EXPECT_EQ(expected_label, results_label);
   EXPECT_TRUE(ok_label);
@@ -161,8 +161,8 @@ TEST_F(SuggestTest, ResolveTargetName) {
       setup_scope.build_settings(), all_targets, default_toolchain,
       "//:hello(//build/toolchain:gcc)", /*must_be_file=*/false, cache);
 
-  std::vector<std::pair<const Target*, commands::ApiScope>> expected_toolchain =
-      {{&target_gcc, commands::ApiScope::kPublic}};
+  std::vector<commands::ResolvedTarget> expected_toolchain = {
+      {&target_gcc, commands::ApiScope::kPublic}};
   EXPECT_EQ(expected_toolchain, results_toolchain);
   EXPECT_TRUE(ok_toolchain);
 }
@@ -269,7 +269,7 @@ TEST_F(SuggestTest, ResolveFileName) {
     auto [results, ok] = commands::ResolveSuggestionToTarget(
         setup_scope.build_settings(), all_targets, current_toolchain,
         "//public.h", /*must_be_file=*/true, cache);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected = {
+    std::vector<commands::ResolvedTarget> expected = {
         {&explicit_target, commands::ApiScope::kPublic}};
     EXPECT_TRUE(ok);
     EXPECT_EQ(expected, results);
@@ -279,7 +279,7 @@ TEST_F(SuggestTest, ResolveFileName) {
     auto [results, ok] = commands::ResolveSuggestionToTarget(
         setup_scope.build_settings(), all_targets, current_toolchain,
         "../../private.h", /*must_be_file=*/true, cache);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected = {
+    std::vector<commands::ResolvedTarget> expected = {
         {&explicit_target, commands::ApiScope::kPrivate}};
     EXPECT_TRUE(ok);
     EXPECT_EQ(expected, results);
@@ -289,7 +289,7 @@ TEST_F(SuggestTest, ResolveFileName) {
     auto [results, ok] = commands::ResolveSuggestionToTarget(
         setup_scope.build_settings(), all_targets, current_toolchain,
         "//implicit_public.h", /*must_be_file=*/true, cache);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected = {
+    std::vector<commands::ResolvedTarget> expected = {
         {&implicit_target, commands::ApiScope::kPublic}};
     EXPECT_TRUE(ok);
     EXPECT_EQ(expected, results);
@@ -306,7 +306,7 @@ TEST_F(SuggestTest, ResolveFileName) {
     auto [results, ok] = commands::ResolveSuggestionToTarget(
         setup_scope.build_settings(), all_targets, current_toolchain,
         "//out/Debug/generated_file.h", /*must_be_file=*/true, cache);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected = {
+    std::vector<commands::ResolvedTarget> expected = {
         {&generated, commands::ApiScope::kPublic}};
     EXPECT_TRUE(ok);
     EXPECT_EQ(expected, results);
@@ -318,7 +318,7 @@ TEST_F(SuggestTest, ResolveFileName) {
     auto [results, ok] = commands::ResolveSuggestionToTarget(
         setup_scope.build_settings(), all_targets, current_toolchain,
         "//out/Debug/generated_file.h", /*must_be_file=*/true, consumer_cache);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected = {
+    std::vector<commands::ResolvedTarget> expected = {
         {&consumer, commands::ApiScope::kPublic}};
     EXPECT_TRUE(ok);
     EXPECT_EQ(expected, results);
@@ -328,7 +328,7 @@ TEST_F(SuggestTest, ResolveFileName) {
     auto [results, ok] = commands::ResolveSuggestionToTarget(
         setup_scope.build_settings(), all_targets, current_toolchain,
         "//no_target.h", /*must_be_file=*/true, consumer_cache);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected_targets;
+    std::vector<commands::ResolvedTarget> expected_targets;
     EXPECT_TRUE(ok);
     EXPECT_EQ(expected_targets, results);
   }
@@ -337,10 +337,9 @@ TEST_F(SuggestTest, ResolveFileName) {
     auto [results, ok] = commands::ResolveSuggestionToTarget(
         setup_scope.build_settings(), all_targets, current_toolchain,
         "//default_toolchain.h", /*must_be_file=*/true, consumer_cache);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected_targets =
-        {
-            {&simple_secondary, commands::ApiScope::kPublic},
-            {&simple_default, commands::ApiScope::kPublic},
+    std::vector<commands::ResolvedTarget> expected_targets = {
+        {&simple_secondary, commands::ApiScope::kPublic},
+        {&simple_default, commands::ApiScope::kPublic},
     };
     EXPECT_TRUE(ok);
     EXPECT_EQ(expected_targets, results);
@@ -350,8 +349,8 @@ TEST_F(SuggestTest, ResolveFileName) {
     auto [results, ok] = commands::ResolveSuggestionToTarget(
         setup_scope.build_settings(), all_targets, current_toolchain,
         "//secondary_toolchain.h", /*must_be_file=*/true, consumer_cache);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected_targets =
-        {{{&simple_secondary, commands::ApiScope::kPublic}}};
+    std::vector<commands::ResolvedTarget> expected_targets = {
+        {&simple_secondary, commands::ApiScope::kPublic}};
     EXPECT_TRUE(ok);
     EXPECT_EQ(expected_targets, results);
   }
@@ -361,8 +360,8 @@ TEST_F(SuggestTest, ResolveFileName) {
         setup_scope.build_settings(), all_targets, current_toolchain,
         "my_header.h", /*must_be_file=*/true, consumer_cache, &consumer);
     EXPECT_TRUE(ok);
-    std::vector<std::pair<const Target*, commands::ApiScope>> expected_targets =
-        {{{&included_target, commands::ApiScope::kPublic}}};
+    std::vector<commands::ResolvedTarget> expected_targets = {
+        {&included_target, commands::ApiScope::kPublic}};
     EXPECT_EQ(expected_targets, results);
   }
 }

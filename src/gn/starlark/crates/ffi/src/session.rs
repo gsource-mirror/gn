@@ -9,6 +9,7 @@ use std::{
 };
 
 use loader::FileLoader;
+use providers::BuiltinProviders;
 use starlark::environment::{FrozenModule, Globals};
 use types::{
     util::extend_lifetime, Label, LabelRef, PackageRef, PathResolver, Session as TypesSession,
@@ -25,6 +26,9 @@ pub struct Session {
     globals: Globals,
     targets: RwLock<TargetMap>,
     builtin_rules: Vec<&'static rule::Rule<'static, crate::eval_context::EvalContext>>,
+    // Never None. Only an Option because this contains references to other fields in session, so
+    // we first need to construct a session object and mutate it before returning.
+    builtin_providers: Option<BuiltinProviders>,
 }
 
 fn make_attr_schema<'v>(
@@ -43,30 +47,33 @@ fn make_attr_schema<'v>(
     )
 }
 
-fn build_globals() -> Globals {
-    let mut builder = starlark::environment::GlobalsBuilder::standard();
-    builder.set("attr", attr::AttrModule { make_attr_schema });
-    providers::globals::register_providers(&mut builder);
-    depset::depset_globals!(&mut builder, crate::eval_context::EvalContext);
-    rule::register_rule_globals!(&mut builder, crate::eval_context::EvalContext);
-    builder.build()
-}
-
 impl Session {
     /// Creates a new `Session`.
     pub fn from_resolver(path_resolver: PathResolver) -> Self {
+        let mut builder = starlark::environment::GlobalsBuilder::standard();
+        builder.set("attr", attr::AttrModule { make_attr_schema });
+        providers::globals::register_providers(&mut builder);
+        depset::depset_globals!(&mut builder, crate::eval_context::EvalContext);
+        rule::register_rule_globals!(&mut builder, crate::eval_context::EvalContext);
         let mut s = Self {
             loader: Default::default(),
             path_resolver,
-            globals: build_globals(),
-            targets: Default::default(),
+            globals: builder.build(),
+            builtin_providers: None,
             builtin_rules: Vec::new(),
+            targets: Default::default(),
         };
         s.as_static_mut().builtin_rules =
             rule::extract_builtin_rules(s.as_static_mut().loader.preload(
                 Label::parse("//builtins:rules.scl", PackageRef::root()).unwrap(),
                 rule::register_builtin_rules::<crate::eval_context::EvalContext>(),
             ));
+        s.as_static_mut().loader.preload(
+            Label::parse("//builtins:providers.scl", PackageRef::root()).unwrap(),
+            providers::builtin_providers_module(),
+        );
+        s.as_static_mut().builtin_providers =
+            Some(providers::BuiltinProviders::new(&s.as_static_mut().globals));
         s
     }
 

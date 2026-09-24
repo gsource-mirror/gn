@@ -46,3 +46,53 @@ child_rule(
     assert_eq!(items[0].to_repr(), r#"ParentInfo(parent = "parent_val")"#);
     assert_eq!(items[1].to_repr(), r#"ChildInfo(child = "child_val")"#);
 }
+
+#[test]
+fn test_load_builtin_providers() {
+    let mut assert = Assert::new_rule_assert();
+    assert.module(
+        "//rules:providers_rule.scl",
+        r#"
+load("//builtins:providers.scl", "GnInputsInfo", "GnSubstitutionsInfo")
+
+def _rule_impl(ctx):
+    return [
+        DefaultInfo(),
+        GnInputsInfo(files = []),
+        GnSubstitutionsInfo(substitutions = struct(flag = ["--opt"])),
+    ]
+
+my_rule = rule(
+    implementation = _rule_impl,
+)
+"#,
+    );
+    assert.pass(
+        r#"
+load("//rules:providers_rule.scl", "my_rule")
+
+my_rule(
+    name = "target_with_builtin_providers",
+)
+"#,
+    );
+
+    let context = assert.context();
+    let label = Label::new(
+        PackageRef::root().to_owned(),
+        "target_with_builtin_providers".to_owned(),
+    );
+    let target = context
+        .session
+        .get_target(label.as_ref(), context.session.default_toolchain.as_ref());
+
+    let session = assert.session();
+    let res = run(&target, move |t: &testutils::FakeTargetRef| {
+        testutils::FakeEvalContext::rule_impl(session.clone(), t.clone())
+    })
+    .unwrap();
+
+    let list = ListRef::from_value(res.as_ref().value()).unwrap();
+    let items: Vec<starlark::values::Value<'_>> = list.iter().collect();
+    assert_eq!(items.len(), 3);
+}

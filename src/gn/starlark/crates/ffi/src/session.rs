@@ -9,6 +9,7 @@ use std::{
 };
 
 use loader::FileLoader;
+use providers::BuiltinProviders;
 use starlark::environment::{FrozenModule, Globals};
 use types::{
     util::extend_lifetime, Label, LabelRef, PackageRef, PathResolver, Session as TypesSession,
@@ -25,6 +26,9 @@ pub struct Session {
     globals: Globals,
     targets: RwLock<TargetMap>,
     builtin_rules: Vec<&'static rule::Rule<'static, crate::eval_context::EvalContext>>,
+    // Never None. Only an Option because this contains references to other fields in session, so
+    // we first need to construct a session object and mutate it before returning.
+    builtin_providers: Option<BuiltinProviders>,
 }
 
 fn make_attr_schema<'v>(
@@ -57,13 +61,24 @@ impl Session {
             globals: builder.build(),
             targets: Default::default(),
             builtin_rules: Vec::new(),
+            builtin_providers: None,
         };
         s.as_static_mut().builtin_rules =
             rule::extract_builtin_rules(s.as_static_mut().loader.preload(
                 Label::parse("//builtins:rules.scl", PackageRef::root()).unwrap(),
                 rule::register_builtin_rules::<crate::eval_context::EvalContext>(),
             ));
+        s.as_static_mut().loader.preload(
+            Label::parse("//builtins:providers.scl", PackageRef::root()).unwrap(),
+            providers::builtin_providers_module(),
+        );
+        s.as_static_mut().builtin_providers =
+            Some(providers::BuiltinProviders::new(&s.as_static_mut().globals));
         s
+    }
+
+    fn builtin_providers(&self) -> &BuiltinProviders {
+        self.builtin_providers.as_ref().unwrap()
     }
 
     /// Associated function for C++ constructor.
@@ -194,5 +209,26 @@ impl TypesSession for Session {
         // Safety: A target object can never be deleted.
         let static_ref: &'static Target = unsafe { extend_lifetime(&**target_pin) };
         crate::TargetRef(static_ref)
+    }
+
+    fn run_builtin_rule<'v>(
+        &self,
+        heap: &starlark::values::Heap<'v>,
+        target: &Self::TargetRef,
+        state: &mut types::CtxState<Self::TargetRef>,
+    ) -> starlark::values::Value<'v> {
+        let outputs = target
+            .0
+            .cxx
+            .computed_outputs()
+            .iter()
+            .map(|f| f.to_rust())
+            .collect();
+        let default_info = self.builtin_providers().new_defaultinfo(
+            heap.alloc(depset::Depset::new_file_depset(outputs, heap, state)),
+            None,
+            heap,
+        );
+        heap.alloc(vec![default_info])
     }
 }

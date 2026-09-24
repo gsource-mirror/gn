@@ -77,6 +77,10 @@ impl Session {
         s
     }
 
+    fn builtin_providers(&self) -> &BuiltinProviders {
+        self.builtin_providers.as_ref().unwrap()
+    }
+
     /// Associated function for C++ constructor.
     pub fn new(source_root: &str, build_root: &str, source_root_rel: &str) -> Box<Self> {
         Box::new(Self::from_resolver(PathResolver::new(
@@ -205,5 +209,26 @@ impl TypesSession for Session {
         // Safety: A target object can never be deleted.
         let static_ref: &'static Target = unsafe { extend_lifetime(&**target_pin) };
         crate::TargetRef(static_ref)
+    }
+
+    fn run_builtin_rule<'v>(
+        &self,
+        heap: &starlark::values::Heap<'v>,
+        target: &Self::TargetRef,
+        state: &mut types::CtxState<Self::TargetRef>,
+    ) -> starlark::values::Value<'v> {
+        let outputs = target
+            .0
+            .cxx
+            .computed_outputs()
+            .iter()
+            .map(|f| f.to_rust())
+            .collect();
+        let default_info = self.builtin_providers().new_defaultinfo(
+            heap.alloc(depset::Depset::new_file_depset(outputs, heap, state)),
+            None,
+            heap,
+        );
+        heap.alloc(vec![default_info])
     }
 }

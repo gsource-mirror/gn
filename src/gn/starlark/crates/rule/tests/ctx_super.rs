@@ -46,3 +46,75 @@ child_rule(
     assert_eq!(items[0].to_repr(), r#"ParentInfo(parent = "parent_val")"#);
     assert_eq!(items[1].to_repr(), r#"ChildInfo(child = "child_val")"#);
 }
+
+#[test]
+fn test_run_builtin_target() {
+    let mut assert = Assert::new_rule_assert();
+    assert.pass(
+        r#"
+load("//builtins:rules.scl", "static_library")
+
+static_library(
+    name = "native_target",
+)
+"#,
+    );
+
+    let context = assert.context();
+    let label = Label::new(PackageRef::root().to_owned(), "native_target".to_owned());
+    let target = context
+        .session
+        .get_target(label.as_ref(), context.session.default_toolchain.as_ref());
+
+    let session = assert.session();
+    let res = run(&target, move |t: &testutils::FakeTargetRef| {
+        testutils::FakeEvalContext::rule_impl(session.clone(), t.clone())
+    })
+    .unwrap();
+
+    let list = ListRef::from_value(res.as_ref().value()).unwrap();
+    assert_eq!(list.len(), 0);
+}
+
+#[test]
+fn test_ctx_super_builtin() {
+    let mut assert = Assert::new_rule_assert();
+    assert.module(
+        "//rules:custom.scl",
+        r#"
+load("//builtins:rules.scl", "static_library")
+
+def _child_impl(ctx):
+    return ctx.super()
+
+child_rule = rule(
+    implementation = _child_impl,
+    parent = static_library,
+)
+"#,
+    );
+    assert.pass(
+        r#"
+load("//rules:custom.scl", "child_rule")
+
+child_rule(
+    name = "target",
+)
+"#,
+    );
+
+    let context = assert.context();
+    let label = Label::new(PackageRef::root().to_owned(), "target".to_owned());
+    let target = context
+        .session
+        .get_target(label.as_ref(), context.session.default_toolchain.as_ref());
+
+    let session = assert.session();
+    let res = run(&target, move |t: &testutils::FakeTargetRef| {
+        testutils::FakeEvalContext::rule_impl(session.clone(), t.clone())
+    })
+    .unwrap();
+
+    let list = ListRef::from_value(res.as_ref().value()).unwrap();
+    assert_eq!(list.len(), 0);
+}

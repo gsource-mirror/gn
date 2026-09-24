@@ -5,7 +5,7 @@
 use starlark::{
     environment::{FrozenModule, GlobalsBuilder, Module},
     eval::ParametersSpecParam::{Defaulted, Required},
-    values::{FrozenHeapName, OwnedFrozen, Value},
+    values::{FrozenHeapName, OwnedFrozen, Value, ValueTyped},
 };
 
 use crate::{ProviderId, ProviderInstance, ProviderType};
@@ -49,6 +49,28 @@ pub struct BuiltinProviders {
     /// This module is preloaded as `//builtins:providers.scl` and can be loaded
     /// in Starlark files.
     pub module: FrozenModule,
+
+    default_info: ValueTyped<'static, ProviderType>,
+}
+
+impl BuiltinProviders {
+    /// Creates a new `DefaultInfo` instance with the given files and optional
+    /// executable.
+    pub fn new_defaultinfo<'v>(
+        &self,
+        files: starlark::values::Value<'v>,
+        executable: Option<starlark::values::Value<'v>>,
+        heap: &starlark::values::Heap<'v>,
+    ) -> starlark::values::Value<'v> {
+        let provider_type = starlark::values::HeapEdge::immortal().rebrand(self.default_info);
+        heap.alloc_complex(ProviderInstance {
+            provider_type,
+            values: Box::new([
+                Some(files),
+                Some(executable.unwrap_or_else(Value::new_none)),
+            ]),
+        })
+    }
 }
 
 pub(crate) fn register_builtin_providers(builder: &mut GlobalsBuilder) -> BuiltinProviders {
@@ -69,6 +91,7 @@ pub(crate) fn register_builtin_providers(builder: &mut GlobalsBuilder) -> Builti
             );
             builder.set("DefaultInfo", default_info.clone());
             let default_info_value = heap.alloc_typed(default_info);
+            module.set("DefaultInfo", edge.rebrand(default_info_value.to_value()));
 
             let inputs =
                 ProviderType::new_builtin(INPUTS_INFO_ID, "GnInputsInfo", &[("files", Required)]);
@@ -108,8 +131,15 @@ pub(crate) fn register_builtin_providers(builder: &mut GlobalsBuilder) -> Builti
     // heap will never disappear while the builder is active.
     builder.frozen_heap(|fh| fh.add_reference(module.frozen_heap()));
 
+    let default_info_val = module.get("DefaultInfo").unwrap();
+    let default_info: ValueTyped<'static, ProviderType> = default_info_val.by_ref(|v| {
+        // Safety: The module is kept alive in BuiltinProviders and outlives all evaluations.
+        unsafe { std::mem::transmute(ValueTyped::<ProviderType>::new_err(*v).unwrap()) }
+    });
+
     BuiltinProviders {
         default_defaultinfo,
         module,
+        default_info,
     }
 }

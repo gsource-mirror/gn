@@ -5,10 +5,10 @@
 use starlark::{
     environment::{FrozenModule, GlobalsBuilder, Module},
     eval::ParametersSpecParam::{Defaulted, Required},
-    values::{FrozenHeapName, OwnedFrozen, Value},
+    values::{FrozenHeapName, OwnedFrozen},
 };
 
-use crate::{ProviderId, ProviderInstance, ProviderType};
+use crate::{ProviderId, ProviderType};
 
 // Stable IDs for built-in providers.
 pub(crate) const DEFAULT_INFO_ID: ProviderId = ProviderId::builtin(1);
@@ -39,37 +39,35 @@ pub(crate) const SUBSTITUTIONS_INFO_ID: ProviderId = ProviderId::builtin(3);
 ///   ```
 ///   * Adds "foo = --foo path/to/foo" to the ninja file
 ///   * Adding command = "... {{foo}}" to your GN tool will allow you to use this in GN.
-pub struct BuiltinProviders {
-    /// Default instance of `DefaultInfo`.
-    /// Targets that do not return an explicit DefaultInfo provider will have
-    /// target[DefaultInfo] return this.
-    pub default_defaultinfo: OwnedFrozen<Value<'static>>,
+pub struct BuiltinProviders {}
 
-    /// A frozen Starlark module containing the built-in provider definitions.
-    /// This module is preloaded as `//builtins:providers.scl` and can be loaded
-    /// in Starlark files.
-    pub module: FrozenModule,
+impl BuiltinProviders {}
+
+pub(crate) fn register_builtin_providers_globals(builder: &mut GlobalsBuilder) {
+    builder.set(
+        "DefaultInfo",
+        ProviderType::new_builtin(
+            DEFAULT_INFO_ID,
+            "DefaultInfo",
+            &[
+                (
+                    "files",
+                    Defaulted(Some(OwnedFrozen::build(
+                        FrozenHeapName::user("//builtins:empty_depset"),
+                        |heap| heap.alloc(depset::Depset::default()),
+                    ))),
+                ),
+                ("executable", Defaulted(None)),
+            ],
+        ),
+    );
 }
 
-pub(crate) fn register_builtin_providers(builder: &mut GlobalsBuilder) -> BuiltinProviders {
-    let empty_depset: OwnedFrozen<Value<'static>> =
-        OwnedFrozen::build(FrozenHeapName::user("//builtins:empty_depset"), |heap| {
-            heap.alloc(depset::Depset::default())
-        });
-
-    let (module, default_defaultinfo) = Module::with_temp_heap(|module: Module| {
+/// Registers and returns the built-in provider types as a frozen module.
+/// Preloaded as `//builtins:providers.scl`.
+pub fn builtin_providers_module() -> FrozenModule {
+    Module::with_temp_heap(|module: Module| {
         module.frozen_heap(|heap, edge| {
-            let default_info = ProviderType::new_builtin(
-                DEFAULT_INFO_ID,
-                "DefaultInfo",
-                &[
-                    ("files", Defaulted(Some(empty_depset.clone()))),
-                    ("executable", Defaulted(None)),
-                ],
-            );
-            builder.set("DefaultInfo", default_info.clone());
-            let default_info_value = heap.alloc_typed(default_info);
-
             let inputs =
                 ProviderType::new_builtin(INPUTS_INFO_ID, "GnInputsInfo", &[("files", Required)]);
 
@@ -87,29 +85,10 @@ pub(crate) fn register_builtin_providers(builder: &mut GlobalsBuilder) -> Builti
                 "GnSubstitutionsInfo",
                 edge.rebrand(substitutions_value.to_value()),
             );
-
-            let defaultinfo_instance = heap.alloc(ProviderInstance {
-                provider_type: default_info_value,
-                values: Box::new([
-                    Some(empty_depset.as_ref().add_to_frozen_heap(heap)),
-                    Some(Value::new_none()),
-                ]),
-            });
-            module.set("default_defaultinfo", edge.rebrand(defaultinfo_instance));
         });
 
-        let frozen = module
+        module
             .freeze_named(FrozenHeapName::user("//builtins:providers.scl"))
-            .unwrap();
-        let default_defaultinfo = frozen.get("default_defaultinfo").unwrap();
-        (frozen, default_defaultinfo)
-    });
-    // DefaultInfo is allocated in the module's heap, so we ensure that the module's
-    // heap will never disappear while the builder is active.
-    builder.frozen_heap(|fh| fh.add_reference(module.frozen_heap()));
-
-    BuiltinProviders {
-        default_defaultinfo,
-        module,
-    }
+            .unwrap()
+    })
 }

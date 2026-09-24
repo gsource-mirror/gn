@@ -44,6 +44,8 @@ pub struct BuiltinProviders {
     /// Targets that do not return an explicit DefaultInfo provider will have
     /// target[DefaultInfo] return this.
     pub default_defaultinfo: OwnedFrozen<Value<'static>>,
+
+    default_info: ValueTyped<'static, ProviderType>,
 }
 
 impl BuiltinProviders {
@@ -68,7 +70,26 @@ impl BuiltinProviders {
 
         Self {
             default_defaultinfo,
+            default_info,
         }
+    }
+
+    /// Creates a new `DefaultInfo` instance with the given files and optional
+    /// executable.
+    pub fn new_defaultinfo<'v>(
+        &self,
+        files: starlark::values::Value<'v>,
+        executable: Option<starlark::values::Value<'v>>,
+        heap: &starlark::values::Heap<'v>,
+    ) -> starlark::values::Value<'v> {
+        let provider_type = starlark::values::HeapEdge::immortal().rebrand(self.default_info);
+        heap.alloc_complex(ProviderInstance {
+            provider_type,
+            values: Box::new([
+                Some(files),
+                Some(executable.unwrap_or_else(Value::new_none)),
+            ]),
+        })
     }
 }
 

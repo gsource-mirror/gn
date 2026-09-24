@@ -20,24 +20,41 @@ use crate::{OutputType, Rule};
 ///   sources = [...],
 ///   ...
 /// )
-pub fn register_builtin_rules<C: EvalContextAttrExt>() -> FrozenModule
+pub fn register_builtin_rules<C: EvalContextAttrExt>(
+) -> (FrozenModule, Vec<&'static Rule<'static, C>>)
 where
     <C::Session as types::Session>::TargetRef: TargetAttrExt,
 {
-    Module::with_temp_heap(|module| {
-        module.frozen_heap(|heap, edge| {
-            for output_type in OutputType::iter() {
-                let name = output_type.to_string();
-                let rule = Rule::<C>::new_builtin(output_type, &heap);
-                let frozen_value = heap.alloc(rule);
-                module.set(&name, edge.rebrand(frozen_value.to_value()));
-            }
+    let mut rules = Vec::new();
+    // Safety: Placeholder at index 0 because OutputType starts from 1.
+    // Never Dereferenced, and validated by assert below.
+    rules.push(unsafe { std::ptr::NonNull::dangling().as_ref() });
+    let module = Module::with_temp_heap(|module| {
+        let created_rules: Vec<_> = module.frozen_heap(|heap, edge| {
+            OutputType::iter()
+                .map(|output_type| {
+                    let name = output_type.to_string();
+                    let rule = Rule::<C>::new_builtin(output_type, &heap);
+                    let frozen_value = heap.alloc(rule);
+                    let static_rule: &'static Rule<'static, C> = unsafe {
+                        std::mem::transmute(frozen_value.downcast_ref::<Rule<'_, C>>().unwrap())
+                    };
+                    module.set(&name, edge.rebrand(frozen_value.to_value()));
+                    (output_type, static_rule)
+                })
+                .collect()
         });
+
+        for (output_type, static_rule) in created_rules {
+            assert!(rules.len() == usize::from(output_type));
+            rules.push(static_rule);
+        }
 
         module
             .freeze_named(FrozenHeapName::user("//builtins:rules.scl"))
             .unwrap()
-    })
+    });
+    (module, rules)
 }
 
 /// Registers standard target rules in the session.

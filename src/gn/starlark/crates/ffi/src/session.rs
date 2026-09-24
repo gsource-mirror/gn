@@ -24,6 +24,7 @@ pub struct Session {
     pub(crate) path_resolver: PathResolver,
     globals: Globals,
     targets: RwLock<TargetMap>,
+    pub(crate) builtin_rules: Vec<&'static rule::Rule<'static, crate::eval_context::EvalContext>>,
 }
 
 fn make_attr_schema<'v>(
@@ -55,16 +56,24 @@ impl Session {
     /// Creates a new `Session`.
     pub fn from_resolver(path_resolver: PathResolver) -> Self {
         let mut loader = FileLoader::default();
+        let builtin_rules_label = Label::parse("//builtins:rules.scl", PackageRef::root()).unwrap();
         loader.preload(
-            Label::parse("//builtins:rules.scl", PackageRef::root()).unwrap(),
+            builtin_rules_label.clone(),
             rule::register_builtin_rules::<crate::eval_context::EvalContext>(),
         );
-        Self {
+        let mut s = Self {
             loader,
             path_resolver,
             globals: build_globals(),
             targets: Default::default(),
-        }
+            builtin_rules: Vec::new(),
+        };
+        s.as_static_mut().builtin_rules = rule::extract_builtin_rules(
+            s.as_static_mut()
+                .load(builtin_rules_label.as_ref())
+                .unwrap(),
+        );
+        s
     }
 
     /// Associated function for C++ constructor.
@@ -79,6 +88,11 @@ impl Session {
     /// Associated function for C++ constructor.
     pub fn new_for_testing() -> Box<Self> {
         Box::new(Self::from_resolver(PathResolver::new_for_testing()))
+    }
+
+    fn as_static_mut(&mut self) -> &'static mut Self {
+        // Safety: The session's lifetime is tied to the build session and thus lives forever.
+        unsafe { std::mem::transmute(self) }
     }
 
     pub fn loaded(&self) -> Vec<&'static str> {
@@ -112,7 +126,7 @@ impl Session {
             // rust_target from a C++ target at the same time.
             Entry::Occupied(e) => {
                 assert!(
-                    target.starlark.is_none(),
+                    target.rule.is_builtin(),
                     "Target already registered, or accessed via to_rust before registration"
                 );
                 // Safety: A target object in the map is never deleted and lives for the
@@ -128,13 +142,17 @@ impl Session {
     ) -> &'static Target {
         self.register_target(Target {
             cxx,
-            starlark: None,
+            rule: self.builtin_rules[cxx.output_type() as usize],
+            attrs: Vec::new(),
             evaluated: Default::default(),
         })
         .0
     }
 
-    pub(crate) fn load(&'static self, label: LabelRef<'_>) -> starlark::Result<FrozenModule> {
+    pub(crate) fn load(
+        &'static self,
+        label: LabelRef<'_>,
+    ) -> starlark::Result<&'static FrozenModule> {
         self.loader
             .load(label, &self.path_resolver, &self.globals, &|pkg| {
                 // Safety: The package reference is guaranteed to live as long as the

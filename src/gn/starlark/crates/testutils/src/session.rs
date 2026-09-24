@@ -17,6 +17,11 @@ pub struct FakeSession {
     pub targets: RefCell<HashSet<FakeTargetRef>>,
     /// Temporary storage for targets being constructed.
     pub targets_under_construction: RefCell<Vec<Box<FakeTarget>>>,
+    /// The default rule for empty targets.
+    pub default_rule: &'static rule::Rule<'static, crate::FakeEvalContext>,
+    /// The module associated with the default rules.
+    /// Never used, just an RAII guard for default_rule.
+    _module: starlark::environment::FrozenModule,
 }
 
 impl Default for FakeSession {
@@ -29,16 +34,28 @@ impl FakeSession {
     /// Creates a new `FakeSession` instance with empty targets and a
     /// preconfigured default toolchain.
     pub fn new() -> Self {
-        let this = Self {
+        let module = rule::register_builtin_rules::<crate::FakeEvalContext>();
+        let mut this = Self {
             default_toolchain: Label::new(
                 PackageRef::root().to_owned(),
                 "default_toolchain".to_owned(),
             ),
             targets: RefCell::new(HashSet::new()),
             targets_under_construction: RefCell::new(Vec::new()),
+            default_rule: unsafe { std::ptr::NonNull::dangling().as_ref() },
+            _module: module,
         };
+        let this_mut = this.as_static_mut();
+        let rules = rule::extract_builtin_rules(&this_mut._module);
+        this_mut.default_rule = rules[types::OutputType::SourceSet as usize];
         this.insert_empty_target(PackageRef::root(), "default");
         this
+    }
+
+    pub(crate) fn as_static_mut(&mut self) -> &'static mut Self {
+        // Safety: The session's lifetime is tied to the test session and outlives
+        // all rule executions.
+        unsafe { std::mem::transmute(self) }
     }
 
     pub fn default_target(&self) -> FakeTargetRef {
@@ -67,7 +84,7 @@ impl FakeSession {
             outputs: Default::default(),
             attrs: Default::default(),
             output_type: Default::default(),
-            rule: Default::default(),
+            rule: self.default_rule,
             cxx_attrs: Default::default(),
             dependencies: Default::default(),
         }

@@ -35,7 +35,8 @@ pub struct Rule<'v, C: EvalContextAttrExt + 'static> {
     // Contains the name of the rule, and the signature required to call it.
     #[trace(static)]
     pub(crate) once_named: OnceCell<(String, ParametersSpec<Value<'static>>)>,
-    pub(crate) builtin: Option<OutputType>,
+    pub(crate) output_type: Option<OutputType>,
+    pub(crate) builtin: bool,
     pub(crate) implementation: Value<'v>,
     pub(crate) parent: Option<ValueTyped<'v, Self>>,
     pub(crate) _phantom: PhantomData<C>,
@@ -113,7 +114,7 @@ impl<'v, C: EvalContextAttrExt> Rule<'v, C> {
         let parent_schema = match parent {
             Some(parent_rule) => {
                 if builtin.is_none() {
-                    builtin = parent_rule.builtin;
+                    builtin = parent_rule.output_type;
                 }
                 Some(&parent_rule.as_ref().schema)
             },
@@ -129,7 +130,8 @@ impl<'v, C: EvalContextAttrExt> Rule<'v, C> {
         Ok(Self {
             schema,
             once_named: Default::default(),
-            builtin,
+            output_type: builtin,
+            builtin: false,
             implementation,
             parent,
             _phantom: PhantomData,
@@ -146,11 +148,20 @@ impl<'v, C: EvalContextAttrExt> Rule<'v, C> {
         Self {
             schema,
             once_named,
-            builtin: Some(builtin),
+            output_type: Some(builtin),
+            builtin: true,
             implementation: Value::new_none(),
             parent: None,
             _phantom: PhantomData,
         }
+    }
+
+    pub fn is_builtin(&self) -> bool {
+        self.builtin
+    }
+
+    pub fn output_type(&self) -> Option<OutputType> {
+        self.output_type
     }
 
     pub fn has_implementation(&self) -> bool {
@@ -187,7 +198,7 @@ where
         variable_name: &str,
         _eval: &mut Evaluator<'v, '_, '_>,
     ) -> starlark::Result<()> {
-        let signature = build_signature(variable_name, &self.schema, self.builtin.is_some());
+        let signature = build_signature(variable_name, &self.schema, self.output_type.is_some());
         drop(self.once_named.set((variable_name.to_owned(), signature)));
         Ok(())
     }
@@ -238,7 +249,7 @@ where
                 })
                 .collect::<Result<Vec<_>, _>>()?;
 
-            let mut cxx_target = if let Some(builtin) = self.builtin {
+            let mut cxx_target = if let Some(builtin) = self.output_type {
                 // Collect all the arguments we don't recognise and pass them to the native
                 // implementation.
                 let kwargs: SmallMap<String, Value<'v>> = param_parser.next()?;
@@ -278,6 +289,7 @@ impl<'v, C: EvalContextAttrExt> Freeze<'v> for Rule<'v, C> {
         Ok(Rule {
             schema: self.schema.freeze(freezer)?,
             once_named: self.once_named,
+            output_type: self.output_type,
             builtin: self.builtin,
             implementation: self.implementation.freeze(freezer)?,
             parent: self.parent.freeze(freezer)?,

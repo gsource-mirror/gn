@@ -40,6 +40,28 @@ where
     })
 }
 
+pub fn extract_builtin_rules<C: EvalContextAttrExt>(
+    module: &'static FrozenModule,
+) -> Vec<&'static Rule<'static, C>> {
+    let mut rules = Vec::new();
+    // Safety: Placeholder at index 0 because OutputType starts from 1.
+    // Never Dereferenced, and validated by assert below.
+    rules.push(unsafe { std::ptr::NonNull::dangling().as_ref() });
+    for output_type in OutputType::iter() {
+        assert!(rules.len() == output_type as usize);
+        rules.push(
+            module
+                .get_option_ref(&output_type.to_string())
+                .unwrap()
+                .unwrap()
+                .value()
+                .downcast_ref::<Rule<'static, C>>()
+                .unwrap(),
+        );
+    }
+    rules
+}
+
 /// Registers standard target rules in the session.
 #[macro_export]
 macro_rules! register_rule_globals {

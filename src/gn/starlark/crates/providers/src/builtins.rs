@@ -3,12 +3,12 @@
 // found in the LICENSE file.
 
 use starlark::{
-    environment::{FrozenModule, GlobalsBuilder, Module},
+    environment::{FrozenModule, Globals, GlobalsBuilder, Module},
     eval::ParametersSpecParam::{Defaulted, Required},
-    values::{FrozenHeapName, OwnedFrozen},
+    values::{FrozenHeapName, OwnedFrozen, Value, ValueTyped},
 };
 
-use crate::{ProviderId, ProviderType};
+use crate::{ProviderId, ProviderInstance, ProviderType};
 
 // Stable IDs for built-in providers.
 pub(crate) const DEFAULT_INFO_ID: ProviderId = ProviderId::builtin(1);
@@ -39,9 +39,59 @@ pub(crate) const SUBSTITUTIONS_INFO_ID: ProviderId = ProviderId::builtin(3);
 ///   ```
 ///   * Adds "foo = --foo path/to/foo" to the ninja file
 ///   * Adding command = "... {{foo}}" to your GN tool will allow you to use this in GN.
-pub struct BuiltinProviders {}
+pub struct BuiltinProviders {
+    /// Default instance of `DefaultInfo`.
+    /// Targets that do not return an explicit DefaultInfo provider will have
+    /// target[DefaultInfo] return this.
+    pub default_defaultinfo: OwnedFrozen<Value<'static>>,
 
-impl BuiltinProviders {}
+    default_info: ValueTyped<'static, ProviderType>,
+}
+
+impl BuiltinProviders {
+    /// Creates a new `BuiltinProviders` from the session globals.
+    pub fn new(globals: &'static Globals) -> Self {
+        let default_info =
+            ValueTyped::<ProviderType>::new(globals.get_ref("DefaultInfo").unwrap().value())
+                .unwrap();
+
+        let default_defaultinfo = OwnedFrozen::build(
+            FrozenHeapName::user("//builtins:default_defaultinfo"),
+            |heap| {
+                heap.alloc(ProviderInstance {
+                    provider_type: starlark::values::HeapEdge::immortal().rebrand(default_info),
+                    values: Box::new([
+                        Some(heap.alloc(depset::Depset::default())),
+                        Some(Value::new_none()),
+                    ]),
+                })
+            },
+        );
+
+        Self {
+            default_defaultinfo,
+            default_info,
+        }
+    }
+
+    /// Creates a new `DefaultInfo` instance with the given files and optional
+    /// executable.
+    pub fn new_defaultinfo<'v>(
+        &self,
+        files: starlark::values::Value<'v>,
+        executable: Option<starlark::values::Value<'v>>,
+        heap: &starlark::values::Heap<'v>,
+    ) -> starlark::values::Value<'v> {
+        let provider_type = starlark::values::HeapEdge::immortal().rebrand(self.default_info);
+        heap.alloc_complex(ProviderInstance {
+            provider_type,
+            values: Box::new([
+                Some(files),
+                Some(executable.unwrap_or_else(Value::new_none)),
+            ]),
+        })
+    }
+}
 
 pub(crate) fn register_builtin_providers_globals(builder: &mut GlobalsBuilder) {
     builder.set(

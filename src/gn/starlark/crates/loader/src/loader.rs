@@ -16,7 +16,10 @@ use starlark::{
     syntax::{AstModule, Dialect},
     values::FrozenHeapName,
 };
-use types::{EvalContext, EvaluatorContextExt as _, Label, LabelRef, PackageRef, PathResolver};
+use types::{
+    util::extend_lifetime, EvalContext, EvaluatorContextExt as _, Label, LabelRef, PackageRef,
+    PathResolver,
+};
 
 use crate::Error;
 
@@ -71,7 +74,7 @@ impl FileLoader {
     fn wait_for_load(
         &self,
         file_status: &Arc<Mutex<FileStatus>>,
-    ) -> starlark::Result<FrozenModule> {
+    ) -> starlark::Result<&FrozenModule> {
         let mut status = file_status.lock().unwrap();
         while let FileStatus::Loading { wait, .. } = &*status {
             let wait = wait.clone();
@@ -86,7 +89,7 @@ impl FileLoader {
         &self,
         file_status: &Arc<Mutex<FileStatus>>,
         result: starlark::Result<FrozenModule>,
-    ) -> starlark::Result<FrozenModule> {
+    ) -> starlark::Result<&FrozenModule> {
         let mut status = file_status.lock().unwrap();
         if let FileStatus::Loading { wait, .. } = &*status {
             wait.notify_all();
@@ -96,12 +99,18 @@ impl FileLoader {
     }
 
     /// Gets an already loaded file.
-    fn get_loaded(&self, status: &FileStatus) -> starlark::Result<FrozenModule> {
+    fn get_loaded(&self, status: &FileStatus) -> starlark::Result<&FrozenModule> {
         match status {
             FileStatus::Loading { .. } => unreachable!(),
-            // Since `FrozenModule` is a cheap-to-clone handle around an Arc'd frozen heap,
-            // we clone and return it by value instead of using unsafe pointer casts.
-            FileStatus::Loaded(Ok(m)) => Ok(m.as_ref().get_ref().clone()),
+            FileStatus::Loaded(Ok(m)) => {
+                // Safety:
+                // * We don't allow overwriting entries in the map, so values last as long as the
+                //   map (though may move in memory).
+                // * The map value is Pin<Box<T>>, guaranteeing that the &T lives and remains valid
+                //   as long as the Pin<Box<T>> remains valid, even if the Pin<Box<T>> moves in
+                //   memory.
+                Ok(unsafe { extend_lifetime(&**m) })
+            },
             // starlark::Error doesn't implement Clone, so we do a poor man's clone.
             FileStatus::Loaded(Err(e)) => Err(starlark::Error::new_other(anyhow::anyhow!("{e}"))),
         }
@@ -115,7 +124,7 @@ impl FileLoader {
         path_resolver: &PathResolver,
         globals: &Globals,
         make_eval_context: &F,
-    ) -> starlark::Result<FrozenModule> {
+    ) -> starlark::Result<&FrozenModule> {
         let file_status = {
             let mut loader = self.files.write().unwrap();
             match loader.entry(label.to_owned()) {
@@ -154,7 +163,7 @@ impl FileLoader {
             fs::read_to_string(&absolute_path).map_err(|_| Error::ReadFailed(label.to_string()))?;
         let ast = AstModule::parse(&label.to_string(), content, &BZL_FILE_DIALECT)?;
 
-        let mut deps: Vec<(String, FrozenModule)> = Default::default();
+        let mut deps: Vec<(String, &FrozenModule)> = Default::default();
         if !ast.loads().is_empty() {
             for load in ast.loads() {
                 let dep_label = types::Label::parse(load.module_id, label.package())?;
@@ -178,7 +187,7 @@ impl FileLoader {
         }
 
         let deps_map: SmallMap<&str, &FrozenModule> =
-            deps.iter().map(|(k, v)| (k.as_str(), v)).collect();
+            deps.iter().map(|(k, v)| (k.as_str(), *v)).collect();
 
         let loader = PreloadedLoader { modules: &deps_map };
         Module::with_temp_heap(|module| {
@@ -270,7 +279,7 @@ mod tests {
         FakeEvalContext::default_rule_impl(Rc::new(FakeSession::default()))
     }
 
-    fn load(loader: &FileLoader, label_str: &str) -> starlark::Result<FrozenModule> {
+    fn load<'a>(loader: &'a FileLoader, label_str: &str) -> starlark::Result<&'a FrozenModule> {
         loader.load(
             Label::parse(label_str, PackageRef::root())
                 .unwrap()

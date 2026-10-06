@@ -397,6 +397,17 @@ bool TargetGenerator::FillCheckIncludes() {
   return true;
 }
 
+bool TargetGenerator::FillCheckIncludesGenerated() {
+  const Value* value =
+      scope_->GetValue(variables::kCheckIncludesGenerated, true);
+  if (!value)
+    return true;
+  if (!value->VerifyTypeIs(Value::BOOLEAN, err_))
+    return false;
+  target_->set_check_includes_generated(value->boolean_value());
+  return true;
+}
+
 bool TargetGenerator::FillCheckIncludesStrict() {
   const Value* value = scope_->GetValue(variables::kCheckIncludesStrict, true);
   if (!value)

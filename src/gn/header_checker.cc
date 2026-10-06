@@ -273,21 +273,28 @@ std::vector<HeaderChecker::FileInformation> HeaderChecker::FilesToCheck(
         type != SourceFile::SOURCE_MM && type != SourceFile::SOURCE_RC)
       continue;
 
-    if (!check_generated_) {
-      // If any target marks it as generated, don't check it.
-      bool is_generated = false;
-      for (const auto& vect_i : info.targets)
-        is_generated |= vect_i.is_generated;
-      if (is_generated)
-        continue;
-    }
+    // If any target marks it as generated, it's generated.
+    bool is_generated = false;
+    for (const auto& vect_i : info.targets)
+      is_generated |= vect_i.is_generated;
+    if (!check_generated_ && is_generated)
+      continue;
+
+    // Sources in the output directory are also generated, even if no target in
+    // the file map lists them as an output. CheckFile() skips these when not
+    // checking generated files.
+    is_generated |= IsFileInOuputDir(info.file);
 
     TargetVector targets_to_check;
     for (const auto& vect_i : info.targets) {
-      if (vect_i.target->IsBinary() && to_check.contains(vect_i.target) &&
-          vect_i.target->check_includes()) {
-        targets_to_check.push_back(vect_i);
-      }
+      if (!vect_i.target->IsBinary() || !to_check.contains(vect_i.target) ||
+          !vect_i.target->check_includes())
+        continue;
+      // Targets can opt their generated files out of --check-generated while
+      // keeping their handwritten files checked.
+      if (is_generated && !vect_i.target->check_includes_generated())
+        continue;
+      targets_to_check.push_back(vect_i);
     }
     if (targets_to_check.empty())
       continue;

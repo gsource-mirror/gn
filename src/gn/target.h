@@ -198,6 +198,13 @@ class Target : public Item {
   bool check_includes_strict() const { return check_includes_strict_; }
   void set_check_includes_strict(bool value) { check_includes_strict_ = value; }
 
+  // Whether this target's generated files are checked when "gn check" is run
+  // with --check-generated. Handwritten files are not affected.
+  bool check_includes_generated() const { return check_includes_generated_; }
+  void set_check_includes_generated(bool value) {
+    check_includes_generated_ = value;
+  }
+
   // Whether this static_library target should have code linked in.
   bool complete_static_lib() const { return complete_static_lib_; }
   void set_complete_static_lib(bool complete) {
@@ -576,6 +583,7 @@ class Target : public Item {
   FileList public_headers_;
   bool check_includes_ = true;
   bool check_includes_strict_ = false;
+  bool check_includes_generated_ = true;
   bool complete_static_lib_ = false;
   std::vector<std::string> data_;
   std::unique_ptr<BundleData> bundle_data_;

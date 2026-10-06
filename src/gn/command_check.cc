@@ -75,7 +75,9 @@ Command-specific switches
   --check-generated
       Generated files are normally not checked since they do not exist
       until after a build. With this flag, those generated files that
-      can be found on disk are also checked.
+      can be found on disk are also checked. Targets can exclude their
+      generated files from this with "check_includes_generated = false"
+      (see "gn help check_includes_generated").
 
   --check-system
      Check system style includes (using <angle brackets>) in addition to
@@ -107,7 +109,8 @@ What gets checked
       the top for includes.
 
     - Generated files (that might not exist yet) are ignored unless
-      the --check-generated flag is provided.
+      the --check-generated flag is provided. Even then, targets with
+      "check_includes_generated = false" have their generated files skipped.
 
     - Includes with a "nogncheck" annotation are skipped (see
       "gn help nogncheck").

@@ -116,6 +116,7 @@
     *   [cflags_objc: [string list] Flags passed to the Objective C compiler.](#var_cflags_objc)
     *   [cflags_objcc: [string list] Flags passed to the Objective C++ compiler.](#var_cflags_objcc)
     *   [check_includes: [boolean] Controls whether a target's files are checked.](#var_check_includes)
+    *   [check_includes_generated: [boolean] Controls whether a target's generated files are checked.](#var_check_includes_generated)
     *   [check_includes_strict: [boolean] Controls whether strict include checking is enforced.](#var_check_includes_strict)
     *   [complete_static_lib: [boolean] Links all deps into a static library.](#var_complete_static_lib)
     *   [configs: [label list] Configs applying to this target or config.](#var_configs)
@@ -387,7 +388,9 @@
   --check-generated
       Generated files are normally not checked since they do not exist
       until after a build. With this flag, those generated files that
-      can be found on disk are also checked.
+      can be found on disk are also checked. Targets can exclude their
+      generated files from this with "check_includes_generated = false"
+      (see "gn help check_includes_generated").
 
   --check-system
      Check system style includes (using <angle brackets>) in addition to
@@ -427,7 +430,8 @@
       the top for includes.
 
     - Generated files (that might not exist yet) are ignored unless
-      the --check-generated flag is provided.
+      the --check-generated flag is provided. Even then, targets with
+      "check_includes_generated = false" have their generated files skipped.
 
     - Includes with a "nogncheck" annotation are skipped (see
       "gn help nogncheck").
@@ -5747,6 +5751,43 @@
   source_set("busted_includes") {
     # This target's includes are messed up, exclude it from checking.
     check_includes = false
+    ...
+  }
+```
+### <a name="var_check_includes_generated"></a>**check_includes_generated**: [boolean] Controls whether generated files are checked.&nbsp;[Back to Top](#gn-reference)
+
+```
+  When true (the default), "gn check --check-generated" (as well as "gn gen"
+  with the --check and --check-generated flags) will check the includes of this
+  target's generated files, i.e. sources that live in the output directory such
+  as the outputs of an action listed in this target's sources.
+
+  When false, the generated files in this target are skipped by
+  --check-generated, as if the flag had not been passed for this target. The
+  target's handwritten files are still checked normally. This makes it possible
+  to exclude a target's generated files from checking without also turning off
+  "gn check" for the rest of the target, which is what "check_includes = false"
+  would do.
+
+  This has no effect when --check-generated is not passed, since generated files
+  are never checked in that case.
+
+  The topic "gn help check" has general information on how checking works and
+  advice on how to pass a check in problematic cases.
+```
+
+#### **Example**
+
+```
+  source_set("busted_generated_includes") {
+    # The generated sources of this target have incomplete includes, but the
+    # handwritten sources should still be checked.
+    check_includes_generated = false
+    sources = [
+      "$target_gen_dir/generated.cc",
+      "handwritten.cc",
+    ]
+    deps = [ ":generate" ]
     ...
   }
 ```

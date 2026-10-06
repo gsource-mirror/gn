@@ -948,6 +948,46 @@ Example
   }
 )";
 
+const char kCheckIncludesGenerated[] = "check_includes_generated";
+const char kCheckIncludesGenerated_HelpShort[] =
+    "check_includes_generated: [boolean] Controls whether a target's generated "
+    "files are checked.";
+const char kCheckIncludesGenerated_Help[] =
+    R"(check_includes_generated: [boolean] Controls whether generated files are checked.
+
+  When true (the default), "gn check --check-generated" (as well as "gn gen"
+  with the --check and --check-generated flags) will check the includes of this
+  target's generated files, i.e. sources that live in the output directory such
+  as the outputs of an action listed in this target's sources.
+
+  When false, the generated files in this target are skipped by
+  --check-generated, as if the flag had not been passed for this target. The
+  target's handwritten files are still checked normally. This makes it possible
+  to exclude a target's generated files from checking without also turning off
+  "gn check" for the rest of the target, which is what "check_includes = false"
+  would do.
+
+  This has no effect when --check-generated is not passed, since generated files
+  are never checked in that case.
+
+  The topic "gn help check" has general information on how checking works and
+  advice on how to pass a check in problematic cases.
+
+Example
+
+  source_set("busted_generated_includes") {
+    # The generated sources of this target have incomplete includes, but the
+    # handwritten sources should still be checked.
+    check_includes_generated = false
+    sources = [
+      "$target_gen_dir/generated.cc",
+      "handwritten.cc",
+    ]
+    deps = [ ":generate" ]
+    ...
+  }
+)";
+
 const char kCompleteStaticLib[] = "complete_static_lib";
 const char kCompleteStaticLib_HelpShort[] =
     "complete_static_lib: [boolean] Links all deps into a static library.";
@@ -2603,6 +2643,7 @@ const VariableInfoMap& GetTargetVariables() {
     INSERT_VARIABLE(CflagsObjC)
     INSERT_VARIABLE(CflagsObjCC)
     INSERT_VARIABLE(CheckIncludes)
+    INSERT_VARIABLE(CheckIncludesGenerated)
     INSERT_VARIABLE(CheckIncludesStrict)
     INSERT_VARIABLE(CompleteStaticLib)
     INSERT_VARIABLE(Configs)

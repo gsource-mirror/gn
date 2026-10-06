@@ -1,0 +1,68 @@
+# Copyright 2026 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+template("sample_toolchain") {
+  toolchain(target_name) {
+    tool("cxx") {
+      command = "c++ {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+      outputs =
+          [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o" ]
+    }
+
+    tool("stamp") {
+      command = "touch {{output}}"
+    }
+    toolchain_args = {
+      sample_arch = invoker.arch
+    }
+  }
+}
+
+if (current_toolchain == default_toolchain) {
+  sample_toolchain("host") {
+    arch = "host"
+  }
+
+  sample_toolchain("secondary") {
+    arch = "secondary"
+  }
+}
+
+config("public_flags") {
+  defines = [
+    "INHERITED=1",
+    "MESSAGE=\"quoted value\"",
+  ]
+  include_dirs = [ "include with spaces" ]
+  cflags_cc = [ "-std=c++23" ]
+}
+
+source_set("dependency") {
+  public_configs = [ ":public_flags" ]
+}
+
+source_set("library") {
+  sources = [ "library.cc" ]
+  defines = [ "ARCH_$sample_arch" ]
+  deps = [
+    ":dependency",
+    ":harvest",
+  ]
+  write_compile_flags = "$target_gen_dir/flags/library-flags.json"
+}
+
+action("harvest") {
+  script = "harvest.py"
+  gen_deps = [ ":library" ]
+  inputs = [ "$target_gen_dir/flags/library-flags.json" ]
+  outputs = [ "$target_gen_dir/harvest.json" ]
+  args = rebase_path(inputs + outputs, root_build_dir)
+}
+
+group("snapshots") {
+  deps = [
+    ":harvest",
+    ":harvest(//:secondary)",
+  ]
+}

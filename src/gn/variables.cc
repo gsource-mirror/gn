@@ -2530,6 +2530,49 @@ const char kWriteOutputConversion_Help[] =
   See `gn help io_conversion`.
 )";
 
+const char kWriteCompileFlags[] = "write_compile_flags";
+const char kWriteCompileFlags_HelpShort[] =
+    "write_compile_flags: [file name] Export resolved compiler flags as JSON.";
+const char kWriteCompileFlags_Help[] =
+    R"(write_compile_flags: Export resolved compiler flags as JSON.
+
+  On a binary target, specifies a file inside the build output directory to
+  write during generation, after the target's configs have been resolved.
+  The file is written atomically and only if its contents change.
+
+  The JSON contains schema_version (1), target and toolchain labels, and arrays
+  for defines, include_dirs, framework_dirs, asmflags, cflags, cflags_c,
+  cflags_cc, cflags_objc, and cflags_objcc. Values have the same ordering and
+  duplicate handling as gn desc. Defines are not prefixed with -D. Directory
+  entries use GN path syntax; paths embedded in flags are relative to
+  root_build_dir. Flags injected by a tool's command are not included.
+
+  Resolved JSON is also embedded in a Ninja response file rule. Missing
+  snapshots are restored by a data only helper without reevaluating build
+  files or running configuration scripts. Recovery does not depend on
+  directory timestamps. Unchanged snapshots keep their timestamps.
+
+  An action can name the snapshot in inputs without depending on compilation
+  of its producer. Use gen_deps to ensure the producer is generated if needed.
+  Each snapshot must have a unique path, including across toolchains.
+
+Example
+
+  source_set("library") {
+    sources = [ "library.cc" ]
+    write_compile_flags = "$target_gen_dir/flags/library-flags.json"
+    deps = [ ":harvest" ]
+  }
+
+  action("harvest") {
+    script = "harvest.py"
+    gen_deps = [ ":library" ]
+    inputs = [ "$target_gen_dir/flags/library-flags.json" ]
+    outputs = [ "$target_gen_dir/layouts.json" ]
+    args = rebase_path(inputs + outputs, root_build_dir)
+  }
+)";
+
 const char kWriteRuntimeDeps[] = "write_runtime_deps";
 const char kWriteRuntimeDeps_HelpShort[] =
     "write_runtime_deps: Writes the target's runtime_deps to the given path.";
@@ -2684,6 +2727,7 @@ const VariableInfoMap& GetTargetVariables() {
     INSERT_VARIABLE(WriteOutputConversion)
     INSERT_VARIABLE(WriteValueContents)
     INSERT_VARIABLE(WriteRuntimeDeps)
+    INSERT_VARIABLE(WriteCompileFlags)
     INSERT_VARIABLE(XcodeExtraAttributes)
     InsertRustVariables(&info_map);
     InsertSwiftVariables(&info_map);

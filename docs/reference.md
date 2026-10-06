@@ -16,6 +16,7 @@
     *   [gen: Generate ninja files.](#cmd_gen)
     *   [help: Does what you think.](#cmd_help)
     *   [ls: List matching targets.](#cmd_ls)
+    *   [materialize-compile-flags: Restore an exported snapshot without evaluating GN.](#cmd_materialize-compile-flags)
     *   [meta: List target metadata collection results.](#cmd_meta)
     *   [outputs: Which files a source/target make.](#cmd_outputs)
     *   [path: Find paths between two targets.](#cmd_path)
@@ -178,6 +179,7 @@
     *   [walk_keys: [string list] Key(s) for managing the metadata collection walk.](#var_walk_keys)
     *   [weak_frameworks: [name list] Name of frameworks that must be weak linked.](#var_weak_frameworks)
     *   [weak_libraries: [file list] File of libraries that must be weak linked.](#var_weak_libraries)
+    *   [write_compile_flags: [file name] Export resolved compiler flags as JSON.](#var_write_compile_flags)
     *   [write_runtime_deps: Writes the target's runtime_deps to the given path.](#var_write_runtime_deps)
     *   [xcasset_compiler_flags: [string list] Flags passed to xcassets compiler](#var_xcasset_compiler_flags)
     *   [xcode_extra_attributes: [scope] Extra attributes for Xcode projects.](#var_xcode_extra_attributes)
@@ -1237,6 +1239,13 @@
 
   gn ls out/Debug "//base/*" --as=output | xargs ninja -C out/Debug
       Builds all targets in //base and all subdirectories.
+```
+### <a name="cmd_materialize-compile-flags"></a>**gn materialize-compile-flags &lt;response-file&gt; &lt;output-file&gt;**&nbsp;[Back to Top](#gn-reference)
+
+```
+  Internal build helper. Reads resolved JSON supplied by a generated Ninja
+  response file and atomically publishes a compile flag snapshot.
+  Does not load .gn, evaluate build files, or execute configuration scripts.
 ```
 ### <a name="cmd_meta"></a>**gn meta**&nbsp;[Back to Top](#gn-reference)
 
@@ -7507,6 +7516,47 @@
 
 ```
   weak_libraries = [ rebase_path("//path/to/libOnlyOnNewerOSes.dylib") ]
+```
+### <a name="var_write_compile_flags"></a>**write_compile_flags**: Export resolved compiler flags as JSON.&nbsp;[Back to Top](#gn-reference)
+
+```
+  On a binary target, specifies a file inside the build output directory to
+  write during generation, after the target's configs have been resolved.
+  The file is written atomically and only if its contents change.
+
+  The JSON contains schema_version (1), target and toolchain labels, and arrays
+  for defines, include_dirs, framework_dirs, asmflags, cflags, cflags_c,
+  cflags_cc, cflags_objc, and cflags_objcc. Values have the same ordering and
+  duplicate handling as gn desc. Defines are not prefixed with -D. Directory
+  entries use GN path syntax; paths embedded in flags are relative to
+  root_build_dir. Flags injected by a tool's command are not included.
+
+  Resolved JSON is also embedded in a Ninja response file rule. Missing
+  snapshots are restored by a data only helper without reevaluating build
+  files or running configuration scripts. Recovery does not depend on
+  directory timestamps. Unchanged snapshots keep their timestamps.
+
+  An action can name the snapshot in inputs without depending on compilation
+  of its producer. Use gen_deps to ensure the producer is generated if needed.
+  Each snapshot must have a unique path, including across toolchains.
+```
+
+#### **Example**
+
+```
+  source_set("library") {
+    sources = [ "library.cc" ]
+    write_compile_flags = "$target_gen_dir/flags/library-flags.json"
+    deps = [ ":harvest" ]
+  }
+
+  action("harvest") {
+    script = "harvest.py"
+    gen_deps = [ ":library" ]
+    inputs = [ "$target_gen_dir/flags/library-flags.json" ]
+    outputs = [ "$target_gen_dir/layouts.json" ]
+    args = rebase_path(inputs + outputs, root_build_dir)
+  }
 ```
 ### <a name="var_write_runtime_deps"></a>**write_runtime_deps**: Writes the target's runtime_deps to the given path.&nbsp;[Back to Top](#gn-reference)
 

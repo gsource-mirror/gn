@@ -13,10 +13,13 @@
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
+#include "base/json/json_writer.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/values.h"
 #include "gn/build_settings.h"
 #include "gn/builder.h"
+#include "gn/compile_flags_writer.h"
 #include "gn/err.h"
 #include "gn/escape.h"
 #include "gn/filesystem_utils.h"
@@ -381,6 +384,40 @@ void NinjaBuildWriter::WriteNinjaRules() {
   sorter.IterateOver(item_callback);
 
   out_ << std::endl;
+
+  bool wrote_snapshot_rule = false;
+  for (const Target* target : all_targets_) {
+    const OutputFile& output = target->write_compile_flags_output();
+    if (output.value().empty()) {
+      continue;
+    }
+    if (!wrote_snapshot_rule) {
+      base::FilePath executable =
+          MakeAbsoluteFilePathRelativeIfPossible(build_path, GetExePath());
+      EscapeOptions command_escape;
+      command_escape.mode = ESCAPE_NINJA_COMMAND;
+      out_ << "rule gn_materialize_compile_flags\n  command = ";
+      EscapeStringToStream(
+          out_, FilePathToUTF8(executable.NormalizePathSeparatorsTo('/')),
+          command_escape);
+      out_ << " materialize-compile-flags \"$out.rsp\" \"$out\"\n"
+           << "  description = Restoring compile flags $out\n"
+           << "  rspfile = $out.rsp\n"
+           << "  rspfile_content = $compile_flags_json\n"
+           << "  restat = 1\n";
+      wrote_snapshot_rule = true;
+    }
+    auto flags = ComputeCompileFlags(target);
+    std::string json;
+    CHECK(base::JSONWriter::Write(*flags, &json));
+    out_ << "build ";
+    path_output_.WriteFile(out_, output);
+    out_ << ": gn_materialize_compile_flags\n  compile_flags_json = ";
+    EscapeOptions json_escape;
+    json_escape.mode = ESCAPE_NINJA_PREFORMATTED_COMMAND;
+    EscapeStringToStream(out_, json, json_escape);
+    out_ << "\n";
+  }
 }
 
 void NinjaBuildWriter::WriteAllPools() {

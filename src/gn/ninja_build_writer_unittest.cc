@@ -255,6 +255,34 @@ TEST_F(NinjaBuildWriterTest, ExtractRegenerationCommands) {
 #undef EXPECT_NO_SNIPPET
 }
 
+TEST_F(NinjaBuildWriterTest, CompileFlagsMaterializeResolvedData) {
+  TestWithScope setup;
+  Err err;
+  Target target(setup.settings(), setup.ParseLabel("//:library"));
+  target.set_output_type(Target::SOURCE_SET);
+  target.SetToolchain(setup.toolchain());
+  target.set_write_compile_flags_output(
+      OutputFile("gen/flags with spaces/library.json"));
+  ASSERT_TRUE(target.OnResolved(&err));
+
+  std::unordered_map<const Settings*, const Toolchain*> toolchains;
+  toolchains[setup.settings()] = setup.toolchain();
+  std::vector<const Target*> targets = {&target};
+  std::stringstream ninja;
+  std::ostringstream depfile;
+  NinjaBuildWriter writer(setup.build_settings(), toolchains, targets,
+                          setup.toolchain(), targets, ninja, depfile);
+  ASSERT_TRUE(writer.Run(&err));
+  EXPECT_NE(std::string::npos,
+            ninja.str().find("build build.ninja.stamp: gn\n"));
+  EXPECT_NE(std::string::npos,
+            ninja.str().find("build build.ninja: phony build.ninja.stamp\n"));
+  EXPECT_NE(std::string::npos,
+            ninja.str().find("build gen/flags$ with$ spaces/library.json: "
+                             "gn_materialize_compile_flags\n"));
+  EXPECT_EQ(std::string::npos, depfile.str().find("flags"));
+}
+
 TEST_F(NinjaBuildWriterTest, ExtractRegenerationCommands_DefaultStream) {
   std::ifstream ninja_in;
   EXPECT_EQ(NinjaBuildWriter::ExtractRegenerationCommands(ninja_in), "");

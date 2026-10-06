@@ -406,6 +406,7 @@ const CommandInfoMap& GetCommands() {
     INSERT_COMMAND(Clean)
     INSERT_COMMAND(Desc)
     INSERT_COMMAND(Gen)
+    INSERT_COMMAND(MaterializeCompileFlags)
     INSERT_COMMAND(Format)
     INSERT_COMMAND(Edit)
     INSERT_COMMAND(Help)

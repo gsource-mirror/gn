@@ -79,6 +79,9 @@ void BinaryTargetGenerator::DoRun() {
   if (!FillModuleType())
     return;
 
+  if (!FillWriteCompileFlags())
+    return;
+
   if (target_->source_types_used().RustSourceUsed()) {
     RustValuesGenerator rustgen(target_, scope_, function_call_, err_);
     rustgen.Run();
@@ -148,6 +151,35 @@ bool BinaryTargetGenerator::FillCompleteStaticLib() {
       return false;
     target_->set_complete_static_lib(value->boolean_value());
   }
+  return true;
+}
+
+bool BinaryTargetGenerator::FillWriteCompileFlags() {
+  const Value* value = scope_->GetValue(variables::kWriteCompileFlags, true);
+  if (!value) {
+    return true;
+  }
+  if (!value->VerifyTypeIs(Value::STRING, err_)) {
+    return false;
+  }
+  if (value->string_value().empty()) {
+    *err_ = Err(*value, "write_compile_flags must specify a file.");
+    return false;
+  }
+  SourceFile file = scope_->GetSourceDir().ResolveRelativeFile(
+      *value, err_, GetBuildSettings()->root_path_utf8());
+  if (err_->has_error() ||
+      !EnsureStringIsInOutputDir(GetBuildSettings()->build_dir(), file.value(),
+                                 value->origin(), err_)) {
+    return false;
+  }
+  OutputFile output(GetBuildSettings(), file);
+  if (output.value().ends_with(".ninja") || output.value() == "build.ninja.d" ||
+      output.value() == "build.ninja.stamp" || output.value() == "args.gn") {
+    *err_ = Err(*value, "write_compile_flags cannot overwrite GN metadata.");
+    return false;
+  }
+  target_->set_write_compile_flags_output(output);
   return true;
 }
 

@@ -71,6 +71,11 @@ extern const char kGen_HelpShort[];
 extern const char kGen_Help[];
 int RunGen(const std::vector<std::string>& args);
 
+extern const char kMaterializeCompileFlags[];
+extern const char kMaterializeCompileFlags_HelpShort[];
+extern const char kMaterializeCompileFlags_Help[];
+int RunMaterializeCompileFlags(const std::vector<std::string>& args);
+
 extern const char kFormat[];
 extern const char kFormat_HelpShort[];
 extern const char kFormat_Help[];

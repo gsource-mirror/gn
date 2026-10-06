@@ -16,6 +16,7 @@
 #include "gn/build_settings.h"
 #include "gn/commands.h"
 #include "gn/compile_commands_writer.h"
+#include "gn/compile_flags_writer.h"
 #include "gn/eclipse_writer.h"
 #include "gn/filesystem_utils.h"
 #include "gn/generated_file_writer.h"
@@ -453,6 +454,58 @@ bool RunCompileCommandsWriter(Setup& setup, Err* err) {
   return ok;
 }
 
+bool CollectCompileFlagsReservedOutputs(Setup& setup,
+                                        std::vector<base::FilePath>* outputs,
+                                        Err* err) {
+  const auto targets = setup.builder().GetAllResolvedTargets();
+  if (std::none_of(targets.begin(), targets.end(), [](const Target* target) {
+        return !target->write_compile_flags_output().value().empty();
+      })) {
+    return true;
+  }
+  const auto* command_line = base::CommandLine::ForCurrentProcess();
+  const BuildSettings* settings = &setup.build_settings();
+  auto add = [&](const std::string& name) {
+    SourceFile file =
+        settings->build_dir().ResolveRelativeFile(Value(nullptr, name), err);
+    if (file.is_null()) {
+      return false;
+    }
+    outputs->push_back(settings->GetFullPath(file));
+    return true;
+  };
+  for (const std::string& ide :
+       command_line->GetSwitchValueStrings(kSwitchIde)) {
+    if (ide == kSwitchIdeValueJson) {
+      std::string name =
+          command_line->GetSwitchValueString(kSwitchJsonFileName);
+      if (!add(name.empty() ? "project.json" : name)) {
+        return false;
+      }
+    }
+  }
+  if (command_line->HasSwitch(kSwitchNinjaOutputsFile) &&
+      !add(command_line->GetSwitchValueString(kSwitchNinjaOutputsFile))) {
+    return false;
+  }
+  if ((command_line->HasSwitch(kSwitchExportCompileCommands) ||
+       !setup.export_compile_commands().empty()) &&
+      !add("compile_commands.json")) {
+    return false;
+  }
+  if (command_line->HasSwitch(kSwitchExportRustProject) &&
+      !add("rust-project.json")) {
+    return false;
+  }
+  for (const Target* target : targets) {
+    if (!target->write_runtime_deps_output().value().empty()) {
+      outputs->push_back(settings->GetFullPath(
+          target->write_runtime_deps_output().AsSourceFile(settings)));
+    }
+  }
+  return true;
+}
+
 bool RunNinjaPostProcessTools(const BuildSettings* build_settings,
                               base::FilePath ninja_executable,
                               bool is_regeneration,
@@ -830,21 +883,33 @@ int RunGen(const std::vector<std::string>& args) {
   // the writes of delayed generated_file() outputs which require
   // the full resolution of all targets.
   // See https://issuetracker.google.com/566346002
-  setup->SetPostResolutionCallback([&write_info](Scheduler& scheduler) -> bool {
-    if (write_info.delayed_generated_file_targets.empty())
-      return true;
-
-    scheduler.IncrementWorkCount();
-    for (const Target* target : write_info.delayed_generated_file_targets) {
-      scheduler.ScheduleWork([target, &scheduler]() {
-        Err err;
-        if (!WriteGeneratedFileToDisk(target, &err)) {
-          scheduler.FailWithError(err);
-        }
-      });
+  setup->SetPostResolutionCallback([&write_info,
+                                    &setup](Scheduler& scheduler) -> bool {
+    if (!write_info.delayed_generated_file_targets.empty()) {
+      scheduler.IncrementWorkCount();
+      for (const Target* target : write_info.delayed_generated_file_targets) {
+        scheduler.ScheduleWork([target, &scheduler]() {
+          Err err;
+          if (!WriteGeneratedFileToDisk(target, &err)) {
+            scheduler.FailWithError(err);
+          }
+        });
+      }
+      scheduler.DecrementWorkCount();
+      if (!scheduler.Run()) {
+        return false;
+      }
     }
-    scheduler.DecrementWorkCount();
-    return scheduler.Run();
+    Err err;
+    std::vector<base::FilePath> reserved_outputs;
+    if (!CollectCompileFlagsReservedOutputs(*setup, &reserved_outputs, &err) ||
+        !WriteCompileFlagsFiles(&setup->build_settings(),
+                                setup->builder().GetAllResolvedTargets(), &err,
+                                reserved_outputs)) {
+      err.PrintToStdout();
+      return false;
+    }
+    return true;
   });
 
   // Do the actual load. This will also write out the target ninja files.

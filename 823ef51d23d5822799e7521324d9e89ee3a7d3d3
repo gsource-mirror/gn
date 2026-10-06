@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "151702d7_cb8a6b29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001342
+      },
+      "writtenOn": "2026-10-06T20:17:24Z",
+      "side": 1,
+      "message": "Starting this CL to get some early feedback and direction for the issue. Thanks!",
+      "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

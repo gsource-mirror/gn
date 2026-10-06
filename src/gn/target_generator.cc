@@ -399,8 +399,15 @@ bool TargetGenerator::FillCheckIncludes() {
 
 bool TargetGenerator::FillCheckIncludesStrict() {
   const Value* value = scope_->GetValue(variables::kCheckIncludesStrict, true);
-  if (!value)
+  if (!value) {
+    // We want to enable check_includes_strict by default *where it makes
+    // sense*. If there were no header files used, there was no `public`, and
+    // thus `public_deps` doesn't make any sense except to intentionally
+    // re-export dependencies.
+    target_->set_check_includes_strict(
+        target_->source_types_used().Get(SourceFile::SOURCE_H));
     return true;
+  }
   if (!value->VerifyTypeIs(Value::BOOLEAN, err_))
     return false;
   target_->set_check_includes_strict(value->boolean_value());

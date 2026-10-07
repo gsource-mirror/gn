@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7e8793bf_d1186d37",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-10-07T10:42:19Z",
+      "side": 1,
+      "message": "\u003e How many targets do we currently need to disable this check in chromium?\n\nIt is almost 300 targets. crrev.com/c/8371341",
+      "parentUuid": "37b4eaf8_c69e63fa",
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9ffaa77e_d8fcbe66",
         "filename": "src/gn/header_checker.cc",
         "patchSetId": 5
@@ -85,6 +103,30 @@
           ]
         }
       ],
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83da179d_d62a2578",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-10-07T10:42:19Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "9ffaa77e_d8fcbe66",
+      "range": {
+        "startLine": 286,
+        "startChar": 0,
+        "endLine": 286,
+        "endChar": 0
+      },
       "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },

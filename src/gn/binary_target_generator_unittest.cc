@@ -136,6 +136,67 @@ TEST_F(BinaryTargetGeneratorTest, CheckIncludesStrict) {
   }
 }
 
+TEST_F(BinaryTargetGeneratorTest, CheckIncludesGenerated) {
+  TestWithScope setup;
+  Scope::ItemVector items_;
+  setup.scope()->set_item_collector(&items_);
+  setup.scope()->set_source_dir(SourceDir("//test/"));
+
+  // Check default value is true.
+  {
+    TestParseInput input(
+        R"(static_library("foo") {
+             sources = [ "//foo.cc" ]
+           })");
+    ASSERT_SUCCESS(input);
+
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    ASSERT_SUCCESS(err);
+
+    ASSERT_EQ(1u, items_.size());
+    Target* target = items_[0]->AsTarget();
+    ASSERT_TRUE(target);
+    EXPECT_TRUE(target->check_includes_generated());
+    items_.clear();
+  }
+
+  // Check overriding to false.
+  {
+    TestParseInput input(
+        R"(static_library("bar") {
+             sources = [ "//bar.cc" ]
+             check_includes_generated = false
+           })");
+    ASSERT_SUCCESS(input);
+
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    ASSERT_SUCCESS(err);
+
+    ASSERT_EQ(1u, items_.size());
+    Target* target = items_[0]->AsTarget();
+    ASSERT_TRUE(target);
+    EXPECT_FALSE(target->check_includes_generated());
+    items_.clear();
+  }
+
+  // Non-boolean values are an error.
+  {
+    TestParseInput input(
+        R"(static_library("baz") {
+             sources = [ "//baz.cc" ]
+             check_includes_generated = "no"
+           })");
+    ASSERT_SUCCESS(input);
+
+    Err err;
+    input.parsed()->Execute(setup.scope(), &err);
+    EXPECT_TRUE(err.has_error());
+    items_.clear();
+  }
+}
+
 TEST_F(BinaryTargetGeneratorTest, AllowCircularIncludesAllowlist) {
   TestWithScope setup;
   Scope::ItemVector items_;

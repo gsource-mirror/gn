@@ -271,6 +271,7 @@ std::map<std::string, DescHandlerFunc> GetHandlers() {
           {variables::kMetadata, MetadataHandler},
           {variables::kTestonly, DefaultHandler},
           {variables::kCheckIncludes, DefaultHandler},
+          {variables::kCheckIncludesGenerated, DefaultHandler},
           {variables::kCheckIncludesStrict, DefaultHandler},
           {variables::kAllowCircularIncludesFrom, DefaultHandler},
           {variables::kSources, DefaultHandler},
@@ -372,6 +373,7 @@ bool PrintTarget(const Target* target,
   HandleProperty(variables::kMetadata, handler_map, v, dict);
   HandleProperty(variables::kTestonly, handler_map, v, dict);
   HandleProperty(variables::kCheckIncludes, handler_map, v, dict);
+  HandleProperty(variables::kCheckIncludesGenerated, handler_map, v, dict);
   HandleProperty(variables::kCheckIncludesStrict, handler_map, v, dict);
   HandleProperty(variables::kAllowCircularIncludesFrom, handler_map, v, dict);
   HandleProperty(variables::kSources, handler_map, v, dict);
@@ -516,6 +518,7 @@ Possibilities for <what to show>
   cflags_c [--blame]
   cflags_cc [--blame]
   check_includes
+  check_includes_generated
   collect_validations_metadata
   configs [--tree] (see below)
   data_keys

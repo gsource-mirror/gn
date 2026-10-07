@@ -1,0 +1,143 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37b4eaf8_c69e63fa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-07T09:32:55Z",
+      "side": 1,
+      "message": "How many targets do we currently need to disable this check in chromium? If the number of targets are not so large, I\u0027d like to fix all of them instead of introducing new flag controlling the behavior.",
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ffaa77e_d8fcbe66",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-07T09:32:55Z",
+      "side": 1,
+      "message": "This is not relevant to this CL itself, but could you make a separate CL for this fix?\n\n------------------------\n\nPlease fix this WARNING reported by autoreview issue finding: Nit: Looks like there is a typo in the existing function name `IsFileInOuputDir` (missing \u0027t\u0027 in \u0027Output\u0027). Consider renaming it to `IsFileInOutputDir` in `src/gn/header_checker.h` and updating its usages across the file.",
+      "range": {
+        "startLine": 286,
+        "startChar": 0,
+        "endLine": 286,
+        "endChar": 0
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "3a662ed8_bca0a21b",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 286,
+                "startChar": 0,
+                "endLine": 287,
+                "endChar": 0
+              },
+              "replacement": "    const bool in_output_dir \u003d IsFileInOutputDir(info.file);\n"
+            },
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 381,
+                "startChar": 0,
+                "endLine": 382,
+                "endChar": 0
+              },
+              "replacement": "bool HeaderChecker::IsFileInOutputDir(const SourceFile\u0026 file) const {\n"
+            },
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 528,
+                "startChar": 0,
+                "endLine": 529,
+                "endChar": 0
+              },
+              "replacement": "  if (!check_generated_ \u0026\u0026 IsFileInOutputDir(file))\n"
+            },
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 536,
+                "startChar": 0,
+                "endLine": 537,
+                "endChar": 0
+              },
+              "replacement": "    if (IsFileInOutputDir(file))\n"
+            }
+          ]
+        }
+      ],
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f398dec0_5f922b3b",
+        "filename": "src/gn/header_checker_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-07T09:32:55Z",
+      "side": 1,
+      "message": "Better to use unordered_set here?",
+      "range": {
+        "startLine": 631,
+        "startChar": 9,
+        "endLine": 631,
+        "endChar": 12
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "88bf3460_4cefc630",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker_unittest.cc",
+              "range": {
+                "startLine": 631,
+                "startChar": 0,
+                "endLine": 632,
+                "endChar": 0
+              },
+              "replacement": "    std::unordered_set\u003cstd::string\u003e result;\n"
+            },
+            {
+              "path": "src/gn/header_checker_unittest.cc",
+              "range": {
+                "startLine": 639,
+                "startChar": 0,
+                "endLine": 640,
+                "endChar": 0
+              },
+              "replacement": "  std::unordered_set\u003cstd::string\u003e files \u003d files_to_check(true);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

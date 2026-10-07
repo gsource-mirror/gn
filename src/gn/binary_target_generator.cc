@@ -58,6 +58,9 @@ void BinaryTargetGenerator::DoRun() {
   if (!FillCheckIncludes())
     return;
 
+  if (!FillCheckIncludesGenerated())
+    return;
+
   if (!FillConfigs())
     return;
 
@@ -158,6 +161,17 @@ bool BinaryTargetGenerator::FillFriends() {
                                       *value, scope_->GetSourceDir(),
                                       &target_->friends(), err_);
   }
+  return true;
+}
+
+bool BinaryTargetGenerator::FillCheckIncludesGenerated() {
+  const Value* value =
+      scope_->GetValue(variables::kCheckIncludesGenerated, true);
+  if (!value)
+    return true;
+  if (!value->VerifyTypeIs(Value::BOOLEAN, err_))
+    return false;
+  target_->set_check_includes_generated(value->boolean_value());
   return true;
 }
 

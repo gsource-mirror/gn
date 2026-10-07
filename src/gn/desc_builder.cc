@@ -390,6 +390,10 @@ class TargetDescBuilder : public BaseDescBuilder {
         res->SetKey(variables::kCheckIncludes,
                     base::Value(target_->check_includes()));
 
+      if (what(variables::kCheckIncludesGenerated))
+        res->SetKey(variables::kCheckIncludesGenerated,
+                    base::Value(target_->check_includes_generated()));
+
       if (what(variables::kAllowCircularIncludesFrom)) {
         auto labels = std::make_unique<base::ListValue>();
         for (const auto& cur : target_->allow_circular_includes_from())

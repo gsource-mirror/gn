@@ -282,10 +282,14 @@ std::vector<HeaderChecker::FileInformation> HeaderChecker::FilesToCheck(
         continue;
     }
 
+    // All generated files, including action outputs, are in the output dir.
+    const bool in_output_dir = IsFileInOuputDir(info.file);
+
     TargetVector targets_to_check;
     for (const auto& vect_i : info.targets) {
       if (vect_i.target->IsBinary() && to_check.contains(vect_i.target) &&
-          vect_i.target->check_includes()) {
+          vect_i.target->check_includes() &&
+          (!in_output_dir || vect_i.target->check_includes_generated())) {
         targets_to_check.push_back(vect_i);
       }
     }

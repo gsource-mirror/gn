@@ -313,6 +313,7 @@ TEST_F(JSONWriter, RustTarget) {
       "//foo:bar()": {
          "allow_circular_includes_from": [  ],
          "check_includes": true,
+         "check_includes_generated": true,
          "check_includes_strict": false,
          "crate_name": "foo",
          "crate_root": "//foo/lib.rs",

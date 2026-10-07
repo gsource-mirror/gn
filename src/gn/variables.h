@@ -166,6 +166,10 @@ extern const char kCheckIncludes[];
 extern const char kCheckIncludes_HelpShort[];
 extern const char kCheckIncludes_Help[];
 
+extern const char kCheckIncludesGenerated[];
+extern const char kCheckIncludesGenerated_HelpShort[];
+extern const char kCheckIncludesGenerated_Help[];
+
 extern const char kCheckIncludesStrict[];
 extern const char kCheckIncludesStrict_HelpShort[];
 extern const char kCheckIncludesStrict_Help[];

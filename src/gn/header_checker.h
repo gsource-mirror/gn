@@ -242,6 +242,7 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
                            CheckIncludesStrictPrivateInPublicHeader);
   FRIEND_TEST_ALL_PREFIXES(HeaderCheckerTest,
                            CheckIncludesStrictSameTargetPrivateHeader);
+  FRIEND_TEST_ALL_PREFIXES(HeaderCheckerTest, CheckIncludesGenerated);
 
   ~HeaderChecker();
 

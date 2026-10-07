@@ -26,6 +26,7 @@ class BinaryTargetGenerator : public TargetGenerator {
  private:
   bool FillCompleteStaticLib();
   bool FillFriends();
+  bool FillCheckIncludesGenerated();
   bool FillOutputName();
   bool FillOutputPrefixOverride();
   bool FillOutputDir();

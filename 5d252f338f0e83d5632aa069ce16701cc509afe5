@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b7d4acd_a7ca139d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-07T02:50:14Z",
+      "side": 1,
+      "message": "Add \u0027Bug: 555455099\u0027?",
+      "revId": "5d252f338f0e83d5632aa069ce16701cc509afe5",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -180,6 +180,40 @@
       ],
       "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bec19940_5a1969ed",
+        "filename": "src/gn/header_checker_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-07T22:56:49Z",
+      "side": 1,
+      "message": "unordered_set\u003cSourceFile\u003e?",
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3c0838e_d2ee4004",
+        "filename": "src/gn/header_checker_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-07T22:56:49Z",
+      "side": 1,
+      "message": "Can we not do:\n`EXPECT_EQ(files_to_check(true), std::set\u003cSourceFile\u003e{handwritten, generated})`\n\nSame below",
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

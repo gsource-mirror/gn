@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03fb0445_8e4eee08",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-10-08T05:40:38Z",
+      "side": 1,
+      "message": "Switched from modifying individual BUILD.gn files to a format where targets to be excluded from checks are listed.",
+      "revId": "1ffdd3ae280a8c4ce2d35045fc1fc7d29468f02b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

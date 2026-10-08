@@ -36,6 +36,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "70353272_32d00633",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-10-08T05:40:38Z",
+      "side": 1,
+      "message": "Discussed in person, resolved.",
+      "parentUuid": "7e8793bf_d1186d37",
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9ffaa77e_d8fcbe66",
@@ -199,6 +217,48 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8def01d7_66a92792",
+        "filename": "src/gn/header_checker_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-10-08T05:40:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f398dec0_5f922b3b",
+      "range": {
+        "startLine": 631,
+        "startChar": 9,
+        "endLine": 631,
+        "endChar": 12
+      },
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d682e82_1487732f",
+        "filename": "src/gn/header_checker_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-10-08T05:40:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bec19940_5a1969ed",
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d3c0838e_d2ee4004",
@@ -212,6 +272,24 @@
       "writtenOn": "2026-10-07T22:56:49Z",
       "side": 1,
       "message": "Can we not do:\n`EXPECT_EQ(files_to_check(true), std::set\u003cSourceFile\u003e{handwritten, generated})`\n\nSame below",
+      "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddac9364_f2fa799a",
+        "filename": "src/gn/header_checker_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-10-08T05:40:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3c0838e_d2ee4004",
       "revId": "ded8f89b5b5e26a34b925ea0c7775061b1da334b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

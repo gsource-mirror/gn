@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d438da3a_8bdc043d",
+        "filename": "src/gn/resolved_target_data.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-08T23:23:11Z",
+      "side": 1,
+      "message": "Just double checking, it\u0027s not possible to have mixed sources of both rust and C++?",
+      "revId": "bead3294ae96a1c8994352fadb28d1f625e6efff",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

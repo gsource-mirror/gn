@@ -69,23 +69,39 @@ bool ResolvedTargetData::ForwardsHardDeps(const Target* dep) {
            dep->public_headers().empty() && !dep->builds_swift_module());
 }
 
-// Keep in sync with NinjaTargetWriter::WriteHardDepsStampOrPhony().
-void ResolvedTargetData::ComputeHardDeps(TargetInfo* info) const {
-  TargetSet all_hard_deps;
+// static
+bool ResolvedTargetData::OnlyForwardsPublicHardDeps(const Target* target) {
+  if (target->hard_dep())
+    return false;
   // Normally, both public_deps and private_deps (i.e. linked_deps()) must be
   // traversed because standard `gn check` allows a target's public headers to
   // #include headers from its private deps, meaning dependents might
   // transitively include generated headers from private deps.
   //
-  // However, when `check_includes_strict` is enabled, `gn check` guarantees
-  // that public headers do not #include anything from private deps. Thus,
-  // dependents only need hard deps from `public_deps()`. The target's own
-  // compilation still needs hard deps from its `private_deps()`, which are
-  // added directly in NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep().
-  base::span<const Target*> deps =
-      info->target->check_includes_strict() && !info->target->hard_dep()
-          ? info->deps.public_deps()
-          : info->deps.linked_deps();
+  // However:
+  // - When `check_includes_strict` is enabled, `gn check` guarantees that
+  //   public headers do not #include anything from private deps.
+  // - Rust targets do not have C/C++ public headers (and downstream Rust
+  //   targets already have direct dependencies on upstream .rlib/.rmeta
+  //   files), so private deps (e.g. build scripts or bindgen actions) are only
+  //   needed to compile the Rust target itself, while any C++ bindings exposed
+  //   to dependents are placed in `public_deps`.
+  //
+  // In both cases, dependents only need hard deps from `public_deps()`. The
+  // target's own compilation still gets hard deps from its `private_deps()` in
+  // NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep().
+  return target->check_includes_strict() ||
+         target->output_type() == Target::RUST_LIBRARY ||
+         target->output_type() == Target::RUST_PROC_MACRO ||
+         target->source_types_used().RustSourceUsed();
+}
+
+// Keep in sync with NinjaTargetWriter::WriteHardDepsStampOrPhony().
+void ResolvedTargetData::ComputeHardDeps(TargetInfo* info) const {
+  TargetSet all_hard_deps;
+  base::span<const Target*> deps = OnlyForwardsPublicHardDeps(info->target)
+                                       ? info->deps.public_deps()
+                                       : info->deps.linked_deps();
   for (const Target* dep : deps) {
     // Direct hard dependencies
     if (info->target->hard_dep() || dep->hard_dep()) {

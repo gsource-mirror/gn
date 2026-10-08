@@ -5,9 +5,12 @@
 #include "gn/header_checker.h"
 
 #include <ostream>
+#include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "gn/scheduler.h"
+#include "gn/substitution_list.h"
 #include "gn/target.h"
 #include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
@@ -54,8 +57,7 @@ class HeaderCheckerTest : public TestWithScheduler {
   }
 
  protected:
-  scoped_refptr<HeaderChecker> CreateChecker() {
-    bool check_generated = false;
+  scoped_refptr<HeaderChecker> CreateChecker(bool check_generated = false) {
     bool check_system = true;
     return base::MakeRefCounted<HeaderChecker>(
         setup_.build_settings(), targets_, check_generated, check_system);
@@ -361,7 +363,7 @@ TEST_F(HeaderCheckerTest, RunPrecomputesReachabilityOnlyForCheckedFiles) {
 
   auto checker = CreateChecker();
   std::vector<HeaderChecker::Violation> violations;
-  EXPECT_TRUE(checker->Run(targets_, false, &violations));
+  EXPECT_TRUE(checker->Run(targets_, {}, false, &violations));
 
   auto has_cache = [&checker](const Target* target) {
     for (const auto& shard : checker->dependency_cache_) {
@@ -600,4 +602,59 @@ TEST_F(HeaderCheckerTest, CheckIncludesStrictSameTargetPrivateHeader) {
   errors.clear();
   checker->CheckInclude(a_cache, false, input_file, a_private, range, &errors);
   EXPECT_TRUE(errors.empty());
+}
+
+TEST_F(HeaderCheckerTest, NoCheckGenerated) {
+  // An action G that generates a source, which A lists in its sources next to
+  // a handwritten one. This mirrors generated bindings (e.g. mojom) compiled
+  // by a source_set.
+  Err err;
+  Target g(setup_.settings(), Label(SourceDir("//g/"), "g"));
+  g.set_output_type(Target::ACTION);
+  g.SetToolchain(setup_.toolchain(), &err);
+  ASSERT_SUCCESS(err);
+  g.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/gen/a/generated.cc");
+  g.visibility().SetPublic();
+  ASSERT_TRUE(g.OnResolvedWithoutChecks(&err));
+  targets_.push_back(&g);
+
+  const SourceFile handwritten("//a/handwritten.cc");
+  const SourceFile generated("//out/Debug/gen/a/generated.cc");
+  a_.sources().push_back(handwritten);
+  a_.sources().push_back(generated);
+  a_.private_deps().push_back(LabelTargetPair(&g));
+
+  std::unordered_set<const Target*> to_check(targets_.begin(), targets_.end());
+  auto files_to_check =
+      [&](bool check_generated,
+          const std::unordered_set<const Target*>& no_check_generated) {
+        std::unordered_set<std::string> result;
+        for (const auto& info :
+             CreateChecker(check_generated)
+                 ->FilesToCheck(to_check, no_check_generated))
+          result.insert(info.file.value());
+        return result;
+      };
+
+  // By default, --check-generated checks both files.
+  std::unordered_set<std::string> files = files_to_check(true, {});
+  EXPECT_TRUE(files.contains(handwritten.value()));
+  EXPECT_TRUE(files.contains(generated.value()));
+
+  // Without --check-generated, only the handwritten file is checked.
+  files = files_to_check(false, {});
+  EXPECT_TRUE(files.contains(handwritten.value()));
+  EXPECT_FALSE(files.contains(generated.value()));
+
+  // Listing A drops only its generated file from --check-generated. The
+  // handwritten file is still checked.
+  files = files_to_check(true, {&a_});
+  EXPECT_TRUE(files.contains(handwritten.value()));
+  EXPECT_FALSE(files.contains(generated.value()));
+
+  // Listing another target does not affect A.
+  files = files_to_check(true, {&b_});
+  EXPECT_TRUE(files.contains(handwritten.value()));
+  EXPECT_TRUE(files.contains(generated.value()));
 }

@@ -16,6 +16,24 @@
       "message": "Add \u0027Bug: 555455099\u0027?",
       "revId": "5d252f338f0e83d5632aa069ce16701cc509afe5",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30bb9555_1a5490e8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-08T02:35:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b7d4acd_a7ca139d",
+      "revId": "5d252f338f0e83d5632aa069ce16701cc509afe5",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

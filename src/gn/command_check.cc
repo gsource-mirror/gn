@@ -8,8 +8,11 @@
 
 #include "base/command_line.h"
 #include "base/strings/stringprintf.h"
+#include "gn/check_includes_strict_exceptions.h"
 #include "gn/commands.h"
+#include "gn/filesystem_utils.h"
 #include "gn/header_checker.h"
+#include "gn/input_file.h"
 #include "gn/setup.h"
 #include "gn/standard_out.h"
 #include "gn/switches.h"
@@ -308,8 +311,30 @@ bool CheckPublicHeaders(const BuildSettings* build_settings,
     }
   };
 
-  scoped_refptr<HeaderChecker> header_checker(new HeaderChecker(
-      build_settings, all_targets, check_generated, check_system));
+  CheckIncludesStrictExceptions exceptions;
+  const SourceFile& exceptions_file =
+      build_settings->check_includes_strict_exceptions_file();
+  if (!exceptions_file.is_null()) {
+    base::FilePath file_path = build_settings->GetFullPath(exceptions_file);
+    InputFile input_file(exceptions_file);
+    if (!input_file.Load(file_path)) {
+      Err(Location(), "Could not load check_includes_strict exceptions file.",
+          "The file \"" + FilePathToUTF8(file_path) + "\" couldn't be loaded")
+          .PrintToStdout();
+      return false;
+    }
+    g_scheduler->AddGenDependency(file_path);
+    auto result = CheckIncludesStrictExceptions::Parse(input_file);
+    if (result.has_value()) {
+      result.error().PrintToStdout();
+      return false;
+    }
+    exceptions = std::move(result.value());
+  }
+
+  scoped_refptr<HeaderChecker> header_checker(
+      new HeaderChecker(build_settings, all_targets, check_generated,
+                        check_system, std::move(exceptions)));
 
   std::vector<HeaderChecker::Violation> violations;
   header_checker->Run(to_check, no_check_generated, force_check, &violations);

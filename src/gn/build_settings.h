@@ -165,6 +165,13 @@ class BuildSettings {
     allow_circular_includes_from_allowlist_ = std::move(list);
   }
 
+  const SourceFile& check_includes_strict_exceptions_file() const {
+    return check_includes_strict_exceptions_file_;
+  }
+  void set_check_includes_strict_exceptions_file(const SourceFile& f) {
+    check_includes_strict_exceptions_file_ = f;
+  }
+
   // If true, all generated_file() metadata walks include metadata from
   // validations targets.
   bool experimental_collect_validations_metadata() const {
@@ -191,6 +198,7 @@ class BuildSettings {
 
   SourceFile build_config_file_;
   SourceFile arg_file_template_path_;
+  SourceFile check_includes_strict_exceptions_file_;
   SourceDir build_dir_;
   Args build_args_;
 

@@ -137,6 +137,15 @@ Variables
       default. They can be checked explicitly by running
       "gn check --check-system" or "gn gen --check=system"
 
+  check_includes_strict_exceptions_file [optional]
+      Path to a file containing exceptions for strict dependencies checking.
+      Each line in this file specifies a rule of the form:
+          <from_pattern> => <to_pattern>
+      which allows targets matching <from_pattern> to include headers from
+      targets matching <to_pattern>, waiving check_includes_strict violations.
+
+      Comments (lines starting with #) and empty lines are also supported.
+
   exec_script_allowlist [optional]
       A list of .gn/.gni files (not labels) that have permission to call the
       exec_script function. If this list is defined, calls to exec_script will
@@ -1238,6 +1247,21 @@ bool Setup::FillOtherConfig(const base::CommandLine& cmdline, Err* err) {
       return false;
     }
     check_system_includes_ = check_system_includes_value->boolean_value();
+  }
+
+  const Value* check_includes_strict_exceptions_file_value =
+      dotfile_scope_.GetValue("check_includes_strict_exceptions_file", true);
+  if (check_includes_strict_exceptions_file_value) {
+    if (!check_includes_strict_exceptions_file_value->VerifyTypeIs(
+            Value::STRING, err)) {
+      return false;
+    }
+    SourceFile path = current_dir.ResolveRelativeFile(
+        *check_includes_strict_exceptions_file_value, err);
+    if (err->has_error()) {
+      return false;
+    }
+    build_settings_.set_check_includes_strict_exceptions_file(path);
   }
 
   // Fill exec_script_allowlist.

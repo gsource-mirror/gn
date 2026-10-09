@@ -8,8 +8,11 @@
 
 #include "base/command_line.h"
 #include "base/strings/stringprintf.h"
+#include "gn/check_includes_strict_exceptions.h"
 #include "gn/commands.h"
+#include "gn/filesystem_utils.h"
 #include "gn/header_checker.h"
+#include "gn/input_file.h"
 #include "gn/setup.h"
 #include "gn/standard_out.h"
 #include "gn/switches.h"
@@ -309,7 +312,8 @@ bool CheckPublicHeaders(const BuildSettings* build_settings,
   };
 
   scoped_refptr<HeaderChecker> header_checker(new HeaderChecker(
-      build_settings, all_targets, check_generated, check_system));
+      build_settings, all_targets, check_generated, check_system,
+      build_settings->check_includes_strict_exceptions()));
 
   std::vector<HeaderChecker::Violation> violations;
   header_checker->Run(to_check, no_check_generated, force_check, &violations);

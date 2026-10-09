@@ -16,6 +16,24 @@
       "message": "Just double checking, it\u0027s not possible to have mixed sources of both rust and C++?",
       "revId": "bead3294ae96a1c8994352fadb28d1f625e6efff",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ace3549_3b23b456",
+        "filename": "src/gn/resolved_target_data.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-09T08:23:54Z",
+      "side": 1,
+      "message": "Ah, yes. GN doesn\u0027t allow such target in\nhttps://source.chromium.org/gn/gn/+/main:src/gn/binary_target_generator.cc;l\u003d298;drc\u003d1b0f22ec57d7b2ee354e7c59e0b6b3ba97680188",
+      "parentUuid": "d438da3a_8bdc043d",
+      "revId": "bead3294ae96a1c8994352fadb28d1f625e6efff",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -15,10 +15,15 @@ use crate::{Ctx, Rule};
 /// Runs the rule implementation function for a given target.
 /// This matches the execution phase where rule implementation is run
 /// synchronously.
+// Allow the type complexity because refactoring it makes it more complex rather than less.
+#[allow(clippy::type_complexity)]
 pub fn run<C: EvalContextAttrExt + crate::CtxMethods>(
     target: &<C::Session as Session>::TargetRef,
     create_context: impl FnOnce(&<C::Session as Session>::TargetRef) -> C,
-) -> starlark::Result<OwnedFrozen<Value<'static>>>
+) -> starlark::Result<(
+    types::CtxState<<C::Session as Session>::TargetRef>,
+    OwnedFrozen<Value<'static>>,
+)>
 where
     <C::Session as Session>::TargetRef:
         TargetAttrExt<Rule = Rule<'static, C>, Session = C::Session>,
@@ -27,51 +32,45 @@ where
     let rule_context = create_context(target);
 
     Module::with_temp_heap(|module| {
-        if rule.is_builtin() {
+        let res = if rule.is_builtin() {
             // The other branch would also work, but this allows us to skip several
             // allocations (eg. ctx.attr.*) and spinning up a starlark
             // interpreter.
             let eval = Evaluator::new(&module);
             let heap = eval.heap();
-            let state_cell = rule_context.require_rule_impl()?;
-            let res = {
-                let mut state = state_cell.borrow_mut();
-                rule_context
-                    .session()
-                    .run_builtin_rule(&heap, target, &mut state)
-            };
-            state_cell.borrow().rule_impl_complete()?;
-            module.set_extra_value(res);
+            let mut state = rule_context.require_rule_impl()?.borrow_mut();
+            rule_context
+                .session()
+                .run_builtin_rule(&heap, target, &mut state)
         } else {
             // When the module is frozen, only things transitively required by extra_value
             // are kept.
-            module.set_extra_value({
-                let mut eval = Evaluator::new(&module);
-                eval.set_context(&rule_context);
-                let rule = HeapEdge::immortal().rebrand_ref(rule);
-                let ctx = eval.heap().alloc(Ctx::<C>::new(
-                    rule.schema.create_ctx_fields(
-                        target.attrs(),
-                        rule_context.session(),
-                        &rule_context.current_toolchain(),
-                        rule.output_type,
-                        target.builtin_attrs(rule_context.session(), &eval.heap()),
-                        &eval.heap(),
-                    )?,
-                    rule,
-                    eval.heap().alloc(target.label().to_owned()),
-                    eval.heap().alloc(crate::actions::Actions::<C>::default()),
-                ));
-                let res = eval.eval_function(rule.implementation, &[ctx], &[])?;
-                rule_context
-                    .require_rule_impl()?
-                    .borrow()
-                    .rule_impl_complete()?;
-                res
-            });
-        }
+            let mut eval = Evaluator::new(&module);
+            eval.set_context(&rule_context);
+            let rule = HeapEdge::immortal().rebrand_ref(rule);
+            let ctx = eval.heap().alloc(Ctx::<C>::new(
+                rule.schema.create_ctx_fields(
+                    target.attrs(),
+                    rule_context.session(),
+                    &rule_context.current_toolchain(),
+                    rule.output_type,
+                    target.builtin_attrs(rule_context.session(), &eval.heap()),
+                    &eval.heap(),
+                )?,
+                rule,
+                eval.heap().alloc(target.label().to_owned()),
+                eval.heap().alloc(crate::actions::Actions::<C>::default()),
+            ));
+            eval.eval_function(rule.implementation, &[ctx], &[])?
+        };
+
+        let state = rule_context
+            .require_rule_impl()?
+            .borrow_mut()
+            .rule_impl_complete()?;
+        module.set_extra_value(res);
 
         let frozen = module.freeze()?;
-        Ok(frozen.extra_value().unwrap())
+        Ok((state, frozen.extra_value().unwrap()))
     })
 }

@@ -8,10 +8,13 @@ use providers::Providers;
 
 use crate::{eval_context::EvalContext, TargetRef};
 
+pub(crate) type Phony = types::File;
+
 /// The results of running the rule implementation on a target.
 #[derive(Debug)]
 pub(crate) struct EvaluatedTarget {
     pub(crate) providers: Providers,
+    pub(crate) phonies: Vec<(Phony, Vec<Phony>)>,
 }
 
 pub struct Target {
@@ -35,8 +38,15 @@ impl Target {
         // Safety: Targets in GN are pinned in the session and outlive rule execution.
         let static_self: &'static Self = unsafe { types::util::extend_lifetime(self) };
         let target_ref = TargetRef(static_self);
-        let res = rule::run(&target_ref, |t| {
-            crate::eval_context::EvalContext::new_rule_impl(session, *t)
+        let package = target_ref.0.label().package();
+        let state = std::rc::Rc::new(std::cell::RefCell::new(types::CtxState::new(target_ref)));
+        let state_clone = state.clone();
+        let res = rule::run(&target_ref, move |_| {
+            crate::eval_context::EvalContext::new_rule_impl_with_state(
+                session,
+                package,
+                state_clone,
+            )
         })
         .and_then(providers::Providers::try_from);
         if let Some(providers) = err.handle(res) {
@@ -45,12 +55,29 @@ impl Target {
                 .as_ref()
                 .map(|f| f.as_str())
                 .unwrap_or_default();
+            let phonies = std::mem::take(&mut state.borrow_mut().phonies);
             self.evaluated
-                .set(EvaluatedTarget { providers })
+                .set(EvaluatedTarget { providers, phonies })
                 .expect("Rules can only be executed once");
             phony
         } else {
             ""
+        }
+    }
+
+    /// Writes out Ninja phony rules declared by this target into the provided buffer.
+    pub fn write_phonies(&self, mut buffer: std::pin::Pin<&mut crate::bridge::StringOutputBuffer>) {
+        if let Some(evaluated) = self.evaluated.get() {
+            for (phony, deps) in &evaluated.phonies {
+                buffer.as_mut().write("build ");
+                buffer.as_mut().write(&phony.ninja_escaped_path());
+                buffer.as_mut().write(": phony");
+                for dep in deps {
+                    buffer.as_mut().write(" ");
+                    buffer.as_mut().write(&dep.ninja_escaped_path());
+                }
+                buffer.as_mut().write("\n");
+            }
         }
     }
 

@@ -160,6 +160,7 @@ mod dummy {
         include!("gn/settings.h");
         include!("gn/source_dir.h");
         include!("gn/source_file.h");
+        include!("gn/string_output_buffer.h");
         include!("gn/target.h");
         include!("gn/test_with_scope.h");
         include!("gn/value.h");
@@ -285,6 +286,11 @@ mod dummy {
         #[rust_name = "scope_cxx"]
         fn scope(self: Pin<&mut TestWithScope>) -> *mut Scope;
 
+        type StringOutputBuffer;
+        #[cxx_name = "AppendRust"]
+        #[rust_name = "write"]
+        fn AppendRust(self: Pin<&mut StringOutputBuffer>, str: &str);
+
         type Value;
         type ParseNode;
         // We allow dead code because this isn't used in production and we
@@ -327,6 +333,7 @@ mod dummy {
             session: &'static Session,
             err: Pin<&mut Err>,
         ) -> &'static str;
+        fn write_phonies(self: &Target, buffer: Pin<&mut StringOutputBuffer>);
 
         type Session;
 

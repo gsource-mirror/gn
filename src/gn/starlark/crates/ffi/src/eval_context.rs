@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::{cell::RefCell, ptr::NonNull};
+use std::{cell::RefCell, ptr::NonNull, rc::Rc};
 
 use allocative::Allocative;
 use starlark::values::ProvidesStaticType;
@@ -18,7 +18,7 @@ enum EvalContextKind {
         err: NonNull<crate::bridge::Err>,
     },
     RuleImpl {
-        state: RefCell<CtxState<TargetRef>>,
+        state: Rc<RefCell<CtxState<TargetRef>>>,
     },
 }
 
@@ -69,12 +69,23 @@ impl EvalContext {
 
     /// Creates a new `EvalContext` for rule implementation execution.
     pub fn new_rule_impl(session: &'static crate::session::Session, target: TargetRef) -> Self {
+        Self::new_rule_impl_with_state(
+            session,
+            target.0.label().package(),
+            Rc::new(RefCell::new(CtxState::new(target))),
+        )
+    }
+
+    /// Creates a new `EvalContext` for rule implementation execution with existing state.
+    pub fn new_rule_impl_with_state(
+        session: &'static crate::session::Session,
+        package: &'static PackageRef,
+        state: Rc<RefCell<CtxState<TargetRef>>>,
+    ) -> Self {
         Self {
             session,
-            package: target.0.label().package(),
-            kind: EvalContextKind::RuleImpl {
-                state: RefCell::new(CtxState::new(target)),
-            },
+            package,
+            kind: EvalContextKind::RuleImpl { state },
         }
     }
 }
@@ -133,7 +144,7 @@ impl types::EvalContext for EvalContext {
 
     fn require_rule_impl(&self) -> starlark::Result<&RefCell<CtxState<TargetRef>>> {
         match &self.kind {
-            EvalContextKind::RuleImpl { state, .. } => Ok(state),
+            EvalContextKind::RuleImpl { state, .. } => Ok(state.as_ref()),
             _ => Err(Error::RequiresRuleImpl.into()),
         }
     }

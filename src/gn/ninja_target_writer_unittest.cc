@@ -7,6 +7,7 @@
 #include "gn/ninja_action_target_writer.h"
 #include "gn/ninja_group_target_writer.h"
 #include "gn/ninja_target_writer.h"
+#include "gn/substitution_list.h"
 #include "gn/target.h"
 #include "gn/test_with_scope.h"
 #include "util/test/test.h"
@@ -894,4 +895,26 @@ TEST(NinjaTargetWriter, HardDeps) {
       "build phony/foo/action4.harddeps: phony phony/foo/action3 "
       "phony/foo/mid\n",
       hard_deps_rule(&action4));
+}
+
+TEST(NinjaTargetWriter, StarlarkPhonies) {
+  Err err;
+  TestWithScope setup;
+  setup.build_settings()->SetRootPath(base::FilePath("/foo/bar"));
+
+  Target target(setup.settings(), Label(SourceDir("//foo/"), "bar"));
+  target.set_output_type(Target::ACTION);
+  target.action_values().set_script(SourceFile("//foo/script.py"));
+  target.action_values().outputs() = SubstitutionList::MakeForTest(
+      "//out/Debug/foo.out", "//out/Debug/bar.out");
+  target.SetToolchain(setup.toolchain());
+
+  target.rust_target(setup.build_settings()->starlark_session());
+  ASSERT_TRUE(target.OnResolved(&err));
+
+  ResolvedTargetData resolved;
+  std::string out = NinjaTargetWriter::RunAndWriteFile(&target, &resolved);
+  EXPECT_TRUE(out.find("build phony/foo$:bar_0: phony foo.out bar.out\n") !=
+              std::string::npos)
+      << out;
 }

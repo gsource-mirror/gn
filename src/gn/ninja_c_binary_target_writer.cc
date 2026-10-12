@@ -18,6 +18,7 @@
 #include "gn/deps_iterator.h"
 #include "gn/err.h"
 #include "gn/escape.h"
+#include "gn/ffi/bridge.h"
 #include "gn/filesystem_utils.h"
 #include "gn/general_tool.h"
 #include "gn/ninja_module_writer_util.h"
@@ -716,6 +717,15 @@ void NinjaCBinaryTargetWriter::WriteLinkerStuff(
   if (!implicit_deps.empty()) {
     out_ << " |";
     path_output_.WriteFiles(out_, implicit_deps);
+  }
+
+  bool has_inputs = !implicit_deps.empty();
+  if (const auto* rust = target_->rust_target()) {
+    for (const auto& output : output_files) {
+      has_inputs = rust->write_input(
+          rust::Str(output.value().data(), output.value().size()), has_inputs,
+          out_);
+    }
   }
 
   // Append data dependencies as order-only dependencies.

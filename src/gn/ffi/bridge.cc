@@ -1153,6 +1153,7 @@ enum class ValueType : ::std::uint8_t {
 struct RustTarget final : public ::rust::Opaque {
   ::rust::Str execute_rule_impl(::Session const &session, ::Err &err) const noexcept;
   void write_phonies(::Ostream &stream) const noexcept;
+  bool write_input(::rust::Str file, bool has_inputs, ::Ostream &stream) const noexcept;
   ~RustTarget() = delete;
 
 private:
@@ -1487,6 +1488,8 @@ void cxxbridge1$196$Value$starlark_value(::Value const &self, ::OwnedFrozenValue
 ::rust::repr::Fat cxxbridge1$196$RustTarget$execute_rule_impl(::RustTarget const &self, ::Session const &session, ::Err &err) noexcept;
 
 void cxxbridge1$196$RustTarget$write_phonies(::RustTarget const &self, ::Ostream &stream) noexcept;
+
+bool cxxbridge1$196$RustTarget$write_input(::RustTarget const &self, ::rust::Str file, bool has_inputs, ::Ostream &stream) noexcept;
 ::std::size_t cxxbridge1$196$Session$operator$sizeof() noexcept;
 ::std::size_t cxxbridge1$196$Session$operator$alignof() noexcept;
 
@@ -1525,6 +1528,10 @@ void cxxbridge1$196$OwnedFrozenValue$invoke(::OwnedFrozenValue const &self, ::Se
 
 void RustTarget::write_phonies(::Ostream &stream) const noexcept {
   cxxbridge1$196$RustTarget$write_phonies(*this, stream);
+}
+
+bool RustTarget::write_input(::rust::Str file, bool has_inputs, ::Ostream &stream) const noexcept {
+  return cxxbridge1$196$RustTarget$write_input(*this, file, has_inputs, stream);
 }
 
 ::std::size_t Session::layout::size() noexcept {

@@ -12,6 +12,8 @@
 #include <string_view>
 #include <vector>
 
+#include "cxx.h"
+
 namespace base {
 class FilePath;
 }  // namespace base
@@ -54,6 +56,8 @@ class StringOutputBuffer : public std::streambuf {
   void Append(const char* str, size_t len);
   void Append(std::string_view str);
   void Append(char c);
+  // Rust doesn't support overloads
+  void AppendRust(rust::Str str) { Append(std::string_view(str)); }
 
   StringOutputBuffer& operator<<(std::string_view str) {
     Append(str);

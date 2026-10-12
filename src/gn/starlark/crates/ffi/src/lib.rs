@@ -36,7 +36,7 @@ mod value;
 
 pub use bridge::{
     CxxTarget, Err, KeyValue, Label, OutputFile, OwnedFrozenValue, Scope, Settings, SourceDir,
-    SourceFile, Value, ValueType,
+    SourceFile, StringOutputBuffer, Value, ValueType,
 };
 pub use mutability::Immutable;
 pub use opaque::{NonOpaque, OpaqueSized};

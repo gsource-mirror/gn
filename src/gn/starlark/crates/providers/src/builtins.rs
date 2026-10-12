@@ -25,11 +25,13 @@ pub(crate) const SUBSTITUTIONS_INFO_ID: ProviderId = ProviderId::builtin(3);
 /// rather than just being metadata passed between targets, GN does something
 /// special with them.
 /// * DefaultInfo(files=depset(...)) (https://bazel.build/rules/lib/providers/DefaultInfo)
-///   * The "outputs" of a rule. Building the alias for the target builds all files in DefaultInfo.
+///   * The "outputs" of a rule. Building the alias for the target builds all
+///     files in DefaultInfo.
 ///   * Unlike all other providers, available globally without calling
-/// * GnInputsInfo(files=depset(...))
-///   * When the target is a mixed C++/starlark target, this adds the specified inputs as implicit
-///     inputs to all ninja actions C++ generates for this target.
+/// * GnInputsInfo(files={"*.o": depset(...)})
+///   * When the target is a mixed C++/starlark target, this adds the specified
+///     inputs as implicit inputs to ninja actions C++ generates for this target
+///     matching the given path suffix.
 /// * GnSubstitutionsInfo:
 ///
 ///   ```rust
@@ -38,7 +40,8 @@ pub(crate) const SUBSTITUTIONS_INFO_ID: ProviderId = ProviderId::builtin(3);
 ///   ))
 ///   ```
 ///   * Adds "foo = --foo path/to/foo" to the ninja file
-///   * Adding command = "... {{foo}}" to your GN tool will allow you to use this in GN.
+///   * Adding command = "... {{foo}}" to your GN tool will allow you to use
+///     this in GN.
 pub struct BuiltinProviders(OwnedFrozen<BuiltinProvidersInternal<'static>>);
 
 #[derive(ProvidesStaticType)]

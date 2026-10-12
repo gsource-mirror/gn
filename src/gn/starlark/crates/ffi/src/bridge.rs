@@ -354,6 +354,12 @@ mod dummy {
             err: Pin<&mut Err>,
         ) -> &'static str;
         fn write_phonies(self: &Target, buffer: Pin<&mut StringOutputBuffer>);
+        fn write_input(
+            self: &Target,
+            file: &str,
+            has_inputs: bool,
+            buffer: Pin<&mut StringOutputBuffer>,
+        ) -> bool;
 
         type Session;
 

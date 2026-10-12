@@ -1071,6 +1071,7 @@ enum class ValueType : ::std::uint8_t {
 struct RustTarget final : public ::rust::Opaque {
   ::rust::Str execute_rule_impl(::Session const &session, ::Err &err) const noexcept;
   void write_phonies(::Ostream &stream) const noexcept;
+  bool write_input(::rust::Str file, bool has_inputs, ::Ostream &stream) const noexcept;
   ~RustTarget() = delete;
 
 private:

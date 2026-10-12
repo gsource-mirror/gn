@@ -332,6 +332,12 @@ mod dummy {
             err: Pin<&mut Err>,
         ) -> &'static str;
         fn write_phonies(self: &Target, stream: Pin<&mut Ostream>);
+        fn write_input(
+            self: &Target,
+            file: &str,
+            has_inputs: bool,
+            stream: Pin<&mut Ostream>,
+        ) -> bool;
 
         type Session;
 

@@ -77,6 +77,28 @@ impl Target {
         }
     }
 
+    /// Writes the inputs to the file `f` declared by GnInputsInfo to the ninja file.
+    pub fn write_input(
+        &self,
+        f: &str,
+        mut has_inputs: bool,
+        mut stream: std::pin::Pin<&mut crate::bridge::Ostream>,
+    ) -> bool {
+        if let Some(evaluated) = self.evaluated.get() {
+            for (suffix, phony) in &evaluated.providers.inputs_phony {
+                if f.ends_with(suffix.as_str()) {
+                    if !has_inputs {
+                        stream.as_mut().write(" |");
+                        has_inputs = true;
+                    }
+                    stream.as_mut().write(" ");
+                    stream.as_mut().write(&phony.ninja_escaped_path());
+                }
+            }
+        }
+        has_inputs
+    }
+
     pub fn providers(&self) -> &Providers {
         &self
             .evaluated

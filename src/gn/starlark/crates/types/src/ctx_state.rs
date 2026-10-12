@@ -96,13 +96,18 @@ impl<T: TargetRef> CtxState<T> {
         Ok(())
     }
 
-    /// Verifies that all declared outputs were generated.
-    pub fn rule_impl_complete(&self) -> starlark::Result<()> {
+    /// Verifies that all declared outputs were generated, and returns the completed state.
+    pub fn rule_impl_complete(&mut self) -> starlark::Result<Self> {
         match self.unused_declared_outputs.first() {
             Some(unused) => {
                 Err(crate::errors::Error::DeclaredOutputNeverGenerated(unused.clone()).into())
             },
-            None => Ok(()),
+            None => Ok(Self {
+                target: self.target.clone(),
+                unused_declared_outputs: Default::default(),
+                declared_outputs: Default::default(),
+                phonies: std::mem::take(&mut self.phonies),
+            }),
         }
     }
 }

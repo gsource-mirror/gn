@@ -5,6 +5,7 @@
 use std::cell::OnceCell;
 
 use providers::Providers;
+use types::File;
 
 use crate::{eval_context::EvalContext, TargetRef};
 
@@ -12,6 +13,7 @@ use crate::{eval_context::EvalContext, TargetRef};
 #[derive(Debug)]
 pub(crate) struct EvaluatedTarget {
     pub(crate) providers: Providers,
+    pub(crate) phonies: Vec<(File, Vec<File>)>,
 }
 
 pub struct Target {
@@ -38,19 +40,40 @@ impl Target {
         let res = rule::run(&target_ref, |t| {
             crate::eval_context::EvalContext::new_rule_impl(session, *t)
         })
-        .and_then(providers::Providers::try_from);
-        if let Some(providers) = err.handle(res) {
+        .and_then(|(state, frozen)| {
+            providers::Providers::try_from(frozen).map(|providers| (state, providers))
+        });
+        if let Some((state, providers)) = err.handle(res) {
             let phony = providers
                 .outputs_phony
                 .as_ref()
                 .map(|f| f.as_str())
                 .unwrap_or_default();
             self.evaluated
-                .set(EvaluatedTarget { providers })
+                .set(EvaluatedTarget {
+                    providers,
+                    phonies: state.phonies,
+                })
                 .expect("Rules can only be executed once");
             phony
         } else {
             ""
+        }
+    }
+
+    /// Writes out Ninja phony rules declared by this target into the provided buffer.
+    pub fn write_phonies(&self, mut buffer: std::pin::Pin<&mut crate::bridge::StringOutputBuffer>) {
+        if let Some(evaluated) = self.evaluated.get() {
+            for (phony, deps) in &evaluated.phonies {
+                buffer.as_mut().append("build ");
+                buffer.as_mut().append(&phony.ninja_escaped_path());
+                buffer.as_mut().append(": phony");
+                for dep in deps {
+                    buffer.as_mut().append(" ");
+                    buffer.as_mut().append(&dep.ninja_escaped_path());
+                }
+                buffer.as_mut().append("\n");
+            }
         }
     }
 

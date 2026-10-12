@@ -15,6 +15,7 @@
 #include "gn/settings.h"
 #include "gn/source_dir.h"
 #include "gn/source_file.h"
+#include "gn/ffi/ostream.h"
 #include "gn/target.h"
 #include "gn/test_with_scope.h"
 #include "gn/value.h"
@@ -1007,6 +1008,7 @@ using Target = ::Target;
 using Settings = ::Settings;
 using Scope = ::Scope;
 using TestWithScope = ::TestWithScope;
+using Ostream = ::Ostream;
 using Value = ::Value;
 using ParseNode = ::ParseNode;
 struct RustTarget;
@@ -1068,6 +1070,7 @@ enum class ValueType : ::std::uint8_t {
 #define CXXBRIDGE1_STRUCT_RustTarget
 struct RustTarget final : public ::rust::Opaque {
   ::rust::Str execute_rule_impl(::Session const &session, ::Err &err) const noexcept;
+  void write_phonies(::Ostream &stream) const noexcept;
   ~RustTarget() = delete;
 
 private:

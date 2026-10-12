@@ -35,8 +35,8 @@ mod test_with_scope;
 mod value;
 
 pub use bridge::{
-    CxxTarget, Err, KeyValue, Label, OutputFile, OwnedFrozenValue, Scope, Settings, SourceDir,
-    SourceFile, Value, ValueType,
+    CxxTarget, Err, KeyValue, Label, Ostream, OutputFile, OwnedFrozenValue, Scope, Settings,
+    SourceDir, SourceFile, Value, ValueType,
 };
 pub use mutability::Immutable;
 pub use opaque::{NonOpaque, OpaqueSized};

@@ -5,19 +5,15 @@
 use std::cell::OnceCell;
 
 use providers::Providers;
-use starlark::values::FrozenValueTyped;
+use types::File;
 
 use crate::{eval_context::EvalContext, TargetRef};
-
-pub(crate) struct StarlarkTarget {
-    pub(crate) rule: FrozenValueTyped<'static, rule::Rule<'static, EvalContext>>,
-    pub(crate) attrs: Vec<attr::Attr>,
-}
 
 /// The results of running the rule implementation on a target.
 #[derive(Debug)]
 pub(crate) struct EvaluatedTarget {
     pub(crate) providers: Providers,
+    pub(crate) phonies: Vec<(File, Vec<File>)>,
 }
 
 pub struct Target {
@@ -25,7 +21,8 @@ pub struct Target {
     // starlark targets store a reference to C++ targets, and C++ targets store an optional
     // reference to starlark targets.
     pub(crate) cxx: &'static crate::bridge::CxxTarget,
-    pub(crate) starlark: Option<StarlarkTarget>,
+    pub(crate) rule: &'static rule::Rule<'static, EvalContext>,
+    pub(crate) attrs: Vec<attr::Attr>,
     pub(crate) evaluated: OnceCell<EvaluatedTarget>,
 }
 
@@ -37,31 +34,46 @@ impl Target {
         session: &'static crate::Session,
         err: std::pin::Pin<&mut crate::bridge::Err>,
     ) -> &'static str {
-        let Some(starlark) = &self.starlark else {
-            return "";
-        };
-        if !starlark.rule.has_implementation() {
-            return "";
-        }
         // Safety: Targets in GN are pinned in the session and outlive rule execution.
         let static_self: &'static Self = unsafe { types::util::extend_lifetime(self) };
         let target_ref = TargetRef(static_self);
         let res = rule::run(&target_ref, |t| {
             crate::eval_context::EvalContext::new_rule_impl(session, *t)
         })
-        .and_then(providers::Providers::try_from);
-        if let Some(providers) = err.handle(res) {
+        .and_then(|(state, frozen)| {
+            providers::Providers::try_from(frozen).map(|providers| (state, providers))
+        });
+        if let Some((state, providers)) = err.handle(res) {
             let phony = providers
                 .outputs_phony
                 .as_ref()
                 .map(|f| f.as_str())
                 .unwrap_or_default();
             self.evaluated
-                .set(EvaluatedTarget { providers })
+                .set(EvaluatedTarget {
+                    providers,
+                    phonies: state.phonies,
+                })
                 .expect("Rules can only be executed once");
             phony
         } else {
             ""
+        }
+    }
+
+    /// Writes out Ninja phony rules declared by this target into the provided stream.
+    pub fn write_phonies(&self, mut stream: std::pin::Pin<&mut crate::bridge::Ostream>) {
+        if let Some(evaluated) = self.evaluated.get() {
+            for (phony, deps) in &evaluated.phonies {
+                stream.as_mut().write("build ");
+                stream.as_mut().write(&phony.ninja_escaped_path());
+                stream.as_mut().write(": phony");
+                for dep in deps {
+                    stream.as_mut().write(" ");
+                    stream.as_mut().write(&dep.ninja_escaped_path());
+                }
+                stream.as_mut().write("\n");
+            }
         }
     }
 

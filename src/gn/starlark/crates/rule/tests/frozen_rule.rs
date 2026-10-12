@@ -8,7 +8,7 @@ use attr::{Attr, LabelOrFile};
 use rule::Rule;
 use starlark::environment::FrozenModule;
 use testutils::{Assert, FakeEvalContext, FakeTarget};
-use types::{Label, OutputType, PackageRef, Session};
+use types::{Label, OutputType, PackageRef, Session as _};
 
 fn new_assert() -> Assert {
     Assert::new_rule_assert()
@@ -22,14 +22,14 @@ fn test_pure_rule_inheritance() {
 
     let rule = |module: &FrozenModule, name: &str| {
         module.get(name).unwrap().by_ref(|v| {
-            let r = v.downcast_ref::<Rule<'_, FakeEvalContext>>()?;
+            let r = v.downcast_ref::<Rule<'_, FakeEvalContext>>().unwrap();
             // Safety: The rule is kept alive for the lifetime of the test.
-            Some(unsafe {
+            unsafe {
                 std::mem::transmute::<
                     &Rule<'_, FakeEvalContext>,
                     &'static Rule<'static, FakeEvalContext>,
                 >(r)
-            })
+            }
         })
     };
 

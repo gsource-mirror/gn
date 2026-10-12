@@ -5,7 +5,7 @@
 use std::{cell::RefCell, collections::HashSet};
 
 use attr::Session;
-use types::{Label, LabelRef, PackageRef, TargetRef};
+use types::{Label, LabelRef, PackageRef, TargetRef as _};
 
 use crate::{FakeTarget, FakeTargetRef};
 
@@ -17,6 +17,11 @@ pub struct FakeSession {
     pub targets: RefCell<HashSet<FakeTargetRef>>,
     /// Temporary storage for targets being constructed.
     pub targets_under_construction: RefCell<Vec<Box<FakeTarget>>>,
+    /// Builtin rules registered for the session.
+    builtin_rules: Vec<&'static rule::Rule<'static, crate::FakeEvalContext>>,
+    /// The module associated with the default rules.
+    /// Never used, just an RAII guard for builtin_rules.
+    _module: starlark::environment::FrozenModule,
 }
 
 impl Default for FakeSession {
@@ -29,14 +34,20 @@ impl FakeSession {
     /// Creates a new `FakeSession` instance with empty targets and a
     /// preconfigured default toolchain.
     pub fn new() -> Self {
-        let this = Self {
+        let mut this = Self {
             default_toolchain: Label::new(
                 PackageRef::root().to_owned(),
                 "default_toolchain".to_owned(),
             ),
             targets: RefCell::new(HashSet::new()),
             targets_under_construction: RefCell::new(Vec::new()),
+            builtin_rules: Vec::new(),
+            _module: rule::register_builtin_rules::<crate::FakeEvalContext>(),
         };
+        // Safety: The session's lifetime is tied to the test session and outlives
+        // all rule executions.
+        let this_mut: &'static mut Self = unsafe { std::mem::transmute(&mut this) };
+        this_mut.builtin_rules = rule::extract_builtin_rules(&this_mut._module);
         this.insert_empty_target(PackageRef::root(), "default");
         this
     }
@@ -59,6 +70,11 @@ impl FakeSession {
         target_ref
     }
 
+    /// Returns the default rule used for testing.
+    pub fn default_rule(&self) -> &'static rule::Rule<'static, crate::FakeEvalContext> {
+        self.builtin_rules[types::OutputType::SourceSet as usize]
+    }
+
     /// Helper to create an empty target with the default toolchain.
     pub fn empty_target(&self, package: &PackageRef, name: &str) -> FakeTarget {
         FakeTarget {
@@ -67,7 +83,7 @@ impl FakeSession {
             outputs: Default::default(),
             attrs: Default::default(),
             output_type: Default::default(),
-            rule: Default::default(),
+            rule: self.default_rule(),
             cxx_attrs: Default::default(),
             dependencies: Default::default(),
         }
@@ -91,9 +107,17 @@ impl Session for FakeSession {
             target.clone()
         } else {
             panic!(
-                "get_target failed to find label: {:?}, toolchain: {:?}. Available targets: {:?}",
-                label, current_toolchain, targets
+                "get_target failed to find label: {label:?}, toolchain: {current_toolchain:?}. Available targets: {targets:?}"
             );
         }
+    }
+
+    fn run_builtin_rule<'v>(
+        &self,
+        heap: &starlark::values::Heap<'v>,
+        _target: &Self::TargetRef,
+        _state: &mut types::CtxState<Self::TargetRef>,
+    ) -> starlark::values::Value<'v> {
+        heap.alloc(Vec::<starlark::values::Value<'v>>::new())
     }
 }

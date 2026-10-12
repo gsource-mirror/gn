@@ -5,7 +5,7 @@
 use attr::{TargetAttrExt, traits::EvalContextAttrExt};
 use starlark::{
     environment::{FrozenModule, Module},
-    values::FrozenHeapName,
+    values::{FrozenHeapName, HeapEdge},
 };
 use strum::IntoEnumIterator as _;
 
@@ -20,15 +20,20 @@ use crate::{OutputType, Rule};
 ///   sources = [...],
 ///   ...
 /// )
-pub fn register_builtin_rules<C: EvalContextAttrExt>() -> FrozenModule
+pub fn register_builtin_rules<C: EvalContextAttrExt + crate::CtxMethods>() -> FrozenModule
 where
     <C::Session as types::Session>::TargetRef: TargetAttrExt,
 {
+    let builtin_impl = C::builtin_impl();
     Module::with_temp_heap(|module| {
         module.frozen_heap(|heap, edge| {
             for output_type in OutputType::iter() {
                 let name = output_type.to_string();
-                let rule = Rule::<C>::new_builtin(output_type, &heap);
+                let rule = Rule::<C>::new_builtin(
+                    output_type,
+                    HeapEdge::immortal().rebrand(builtin_impl),
+                    &heap,
+                );
                 let frozen_value = heap.alloc(rule);
                 module.set(&name, edge.rebrand(frozen_value.to_value()));
             }
@@ -38,6 +43,29 @@ where
             .freeze_named(FrozenHeapName::user("//builtins:rules.scl"))
             .unwrap()
     })
+}
+
+// Returns a vector such that v[OutputType as usize] == builtin rule for that output type
+pub fn extract_builtin_rules<C: EvalContextAttrExt>(
+    module: &'static FrozenModule,
+) -> Vec<&'static Rule<'static, C>> {
+    let mut rules = Vec::new();
+    // Safety: Placeholder at index 0 because OutputType starts from 1.
+    // Never Dereferenced, and validated by assert below.
+    rules.push(unsafe { std::ptr::NonNull::dangling().as_ref() });
+    for output_type in OutputType::iter() {
+        assert!(rules.len() == output_type as usize);
+        rules.push(
+            module
+                .get_option_ref(&output_type.to_string())
+                .unwrap()
+                .unwrap()
+                .value()
+                .downcast_ref::<Rule<'static, C>>()
+                .unwrap(),
+        );
+    }
+    rules
 }
 
 /// Registers standard target rules in the session.
@@ -67,14 +95,7 @@ macro_rules! register_rule_globals {
                     .map(|(k, v)| (k.to_string(), v.clone()))
                     .collect();
                 let rule = eval.frozen_heap(|heap, edge| {
-                    <$crate::Rule<'v, $ctx_type>>::new(
-                        attrs,
-                        None,
-                        parent,
-                        implementation,
-                        &heap,
-                        edge,
-                    )
+                    <$crate::Rule<'v, $ctx_type>>::new(attrs, parent, implementation, &heap, edge)
                 })?;
                 Ok(eval.heap().alloc(rule))
             }

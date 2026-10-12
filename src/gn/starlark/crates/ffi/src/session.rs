@@ -9,6 +9,7 @@ use std::{
 };
 
 use loader::FileLoader;
+use providers::BuiltinProviders;
 use starlark::environment::{FrozenModule, Globals};
 use types::{
     Label, LabelRef, PackageRef, PathResolver, Session as TypesSession, util::extend_lifetime,
@@ -24,6 +25,10 @@ pub struct Session {
     pub(crate) path_resolver: PathResolver,
     globals: Globals,
     targets: RwLock<TargetMap>,
+    builtin_rules: Vec<&'static rule::Rule<'static, crate::eval_context::EvalContext>>,
+    // Never None. Only an Option because this contains references to other fields in session, so
+    // we first need to construct a session object and mutate it before returning.
+    builtin_providers: Option<BuiltinProviders>,
 }
 
 fn make_attr_schema<'v>(
@@ -42,29 +47,38 @@ fn make_attr_schema<'v>(
     )
 }
 
-fn build_globals() -> Globals {
-    let mut builder = starlark::environment::GlobalsBuilder::standard();
-    builder.set("attr", attr::AttrModule { make_attr_schema });
-    providers::globals::register_providers(&mut builder);
-    depset::depset_globals!(&mut builder, crate::eval_context::EvalContext);
-    rule::register_rule_globals!(&mut builder, crate::eval_context::EvalContext);
-    builder.build()
-}
-
 impl Session {
     /// Creates a new `Session`.
     pub fn from_resolver(path_resolver: PathResolver) -> Self {
-        let mut loader = FileLoader::default();
-        loader.preload(
-            Label::parse("//builtins:rules.scl", PackageRef::root()).unwrap(),
-            rule::register_builtin_rules::<crate::eval_context::EvalContext>(),
-        );
-        Self {
-            loader,
+        let mut builder = starlark::environment::GlobalsBuilder::standard();
+        builder.set("attr", attr::AttrModule { make_attr_schema });
+        providers::globals::register_providers(&mut builder);
+        depset::depset_globals!(&mut builder, crate::eval_context::EvalContext);
+        rule::register_rule_globals!(&mut builder, crate::eval_context::EvalContext);
+        let mut s = Self {
+            loader: Default::default(),
             path_resolver,
-            globals: build_globals(),
+            globals: builder.build(),
             targets: Default::default(),
-        }
+            builtin_rules: Vec::new(),
+            builtin_providers: None,
+        };
+        s.as_static_mut().builtin_rules =
+            rule::extract_builtin_rules(s.as_static_mut().loader.preload(
+                Label::parse("//builtins:rules.scl", PackageRef::root()).unwrap(),
+                rule::register_builtin_rules::<crate::eval_context::EvalContext>(),
+            ));
+        s.as_static_mut().loader.preload(
+            Label::parse("//builtins:providers.scl", PackageRef::root()).unwrap(),
+            providers::builtin_providers_module(),
+        );
+        s.as_static_mut().builtin_providers =
+            Some(providers::BuiltinProviders::new(&s.as_static_mut().globals));
+        s
+    }
+
+    fn builtin_providers(&self) -> &BuiltinProviders {
+        self.builtin_providers.as_ref().unwrap()
     }
 
     /// Associated function for C++ constructor.
@@ -79,6 +93,11 @@ impl Session {
     /// Associated function for C++ constructor.
     pub fn new_for_testing() -> Box<Self> {
         Box::new(Self::from_resolver(PathResolver::new_for_testing()))
+    }
+
+    fn as_static_mut(&mut self) -> &'static mut Self {
+        // Safety: The session's lifetime is tied to the build session and thus lives forever.
+        unsafe { std::mem::transmute(self) }
     }
 
     pub fn loaded(&self) -> Vec<&'static str> {
@@ -112,7 +131,7 @@ impl Session {
             // rust_target from a C++ target at the same time.
             Entry::Occupied(e) => {
                 assert!(
-                    target.starlark.is_none(),
+                    target.rule.is_builtin(),
                     "Target already registered, or accessed via to_rust before registration"
                 );
                 // Safety: A target object in the map is never deleted and lives for the
@@ -128,7 +147,8 @@ impl Session {
     ) -> &'static Target {
         self.register_target(Target {
             cxx,
-            starlark: None,
+            rule: self.builtin_rules[cxx.output_type() as usize],
+            attrs: Vec::new(),
             evaluated: Default::default(),
         })
         .0
@@ -189,5 +209,26 @@ impl TypesSession for Session {
         // Safety: A target object can never be deleted.
         let static_ref: &'static Target = unsafe { extend_lifetime(&**target_pin) };
         crate::TargetRef(static_ref)
+    }
+
+    fn run_builtin_rule<'v>(
+        &self,
+        heap: &starlark::values::Heap<'v>,
+        target: &Self::TargetRef,
+        state: &mut types::CtxState<Self::TargetRef>,
+    ) -> starlark::values::Value<'v> {
+        let outputs = target
+            .0
+            .cxx
+            .computed_outputs()
+            .iter()
+            .map(|f| f.to_rust())
+            .collect();
+        let default_info = self.builtin_providers().new_defaultinfo(
+            heap.alloc(depset::Depset::new_file_depset(outputs, heap, state)),
+            None,
+            heap,
+        );
+        heap.alloc(vec![default_info])
     }
 }

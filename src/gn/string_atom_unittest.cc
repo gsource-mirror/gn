@@ -8,6 +8,7 @@
 #include <array>
 #include <set>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "util/test/test.h"
@@ -30,6 +31,41 @@ TEST(StringAtomTest, Find) {
 
   StringAtom foo2("foo");
   EXPECT_EQ(&foo.str(), &foo2.str());
+}
+
+TEST(StringAtomTest, Equality) {
+  StringAtom foo_a("foo");
+  StringAtom foo_b("foo");
+  StringAtom bar("bar");
+
+  EXPECT_EQ(foo_a, foo_b);
+  EXPECT_NE(foo_a, bar);
+  EXPECT_TRUE(foo_a == foo_b);
+  EXPECT_FALSE(foo_a != foo_b);
+  EXPECT_TRUE(foo_a != bar);
+  EXPECT_FALSE(foo_a == bar);
+}
+
+TEST(StringAtomTest, Hash) {
+  StringAtom foo_a("foo");
+  StringAtom foo_b("foo");
+  StringAtom bar("bar");
+
+  EXPECT_EQ(foo_a.hash(), foo_b.hash());
+  EXPECT_EQ(std::hash<StringAtom>()(foo_a), std::hash<StringAtom>()(foo_b));
+  EXPECT_EQ(foo_a.hash(), std::hash<const std::string*>()(&foo_a.str()));
+  EXPECT_NE(foo_a.hash(), bar.hash());
+}
+
+TEST(StringAtomTest, UnorderedSet) {
+  std::unordered_set<StringAtom> set;
+  set.insert(StringAtom("foo"));
+  set.insert(StringAtom("bar"));
+
+  EXPECT_EQ(set.size(), 2u);
+  EXPECT_TRUE(set.find(StringAtom("foo")) != set.end());
+  EXPECT_TRUE(set.find(StringAtom("bar")) != set.end());
+  EXPECT_TRUE(set.find(StringAtom("baz")) == set.end());
 }
 
 // Default compare should always be ordered.

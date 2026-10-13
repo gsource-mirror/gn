@@ -1,0 +1,91 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84d698e3_46913b87",
+        "filename": "src/gn/string_atom.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-13T02:17:40Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: The text on the previous line says \"very fast _unordered_ containers\", which contradicts the use of `std::set` and `std::map` (ordered containers) in the examples below. Consider changing it to something like \"very fast pointer-ordered containers\" or simply removing \"_unordered_\".",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 0
+      },
+      "revId": "8509819cd65a5e3c0d5e596c5a3e559cb6162560",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcfa06e9_5aff49e5",
+        "filename": "src/gn/string_atom.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-13T02:17:40Z",
+      "side": 1,
+      "message": "references?",
+      "range": {
+        "startLine": 83,
+        "startChar": 18,
+        "endLine": 83,
+        "endChar": 23
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "6b541346_3dfcc760",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/string_atom.h",
+              "range": {
+                "startLine": 83,
+                "startChar": 0,
+                "endLine": 84,
+                "endChar": 0
+              },
+              "replacement": "    // The string references can only be equal iff they point to the same underlying\n"
+            }
+          ]
+        }
+      ],
+      "revId": "8509819cd65a5e3c0d5e596c5a3e559cb6162560",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ed9bdbb_da3fed03",
+        "filename": "src/gn/string_atom_unittest.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-13T02:17:40Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: Pointer hashes are not guaranteed to be free of collisions. While extremely unlikely to cause issues in a small test case, using `EXPECT_NE` on hash values can theoretically lead to flaky tests if a collision occurs on a particular platform. Consider whether this assertion is strictly necessary.",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 0
+      },
+      "revId": "8509819cd65a5e3c0d5e596c5a3e559cb6162560",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

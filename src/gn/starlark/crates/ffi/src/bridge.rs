@@ -338,6 +338,7 @@ mod dummy {
             has_inputs: bool,
             stream: Pin<&mut Ostream>,
         ) -> bool;
+        fn write_substitutions(self: &Target, stream: Pin<&mut Ostream>);
 
         type Session;
 

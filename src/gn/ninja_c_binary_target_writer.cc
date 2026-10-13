@@ -194,6 +194,10 @@ void NinjaCBinaryTargetWriter::WriteCompilerVars(
   }
 
   WriteSharedVars(subst);
+
+  if (const auto* rust = target_->rust_target()) {
+    rust->write_substitutions(out_);
+  }
 }
 
 void NinjaCBinaryTargetWriter::WriteModuleNameSubstitution() {

@@ -2,17 +2,31 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use std::borrow::Cow;
+
 use depset::Depset;
 use starlark::{
     eval::Evaluator,
     values::{list::ListRef, tuple::TupleRef, Value},
 };
+use types::escape_ninja_token;
 
 use crate::{
     args::{ArgValue, FrozenArgs},
     formatter::Formatter,
     Error,
 };
+
+fn escape_value<'v>(value: Value<'v>) -> Cow<'v, str> {
+    if let Some(s) = value.unpack_str() {
+        escape_ninja_token(s)
+    } else if let Some(file) = value.downcast_ref::<types::File>() {
+        file.ninja_escaped_arg()
+    } else {
+        // to_str produces an *owned* string.
+        Cow::Owned(escape_ninja_token(&value.to_str()).into_owned())
+    }
+}
 
 /// Helper to process and append a specific `FrozenArgs` object to the action's
 /// command line.
@@ -114,10 +128,11 @@ fn handle_arg(
         dest.push(flag.to_owned());
     }
 
+    let val_str = escape_value(value);
     dest.push(if let Some(fmt) = format {
-        fmt.format(&value.to_str())
+        fmt.format(&val_str)
     } else {
-        value.to_str()
+        val_str.into_owned()
     });
     Ok(())
 }
@@ -161,8 +176,8 @@ fn handle_many_args<'v>(
         if item.is_none() {
             return Err(Error::NoneNotAllowed.into());
         }
-        let s = item.to_str();
-        if uniquify && !seen.insert(s.clone()) {
+        let s = escape_value(item);
+        if uniquify && !seen.insert(s.clone().into_owned()) {
             return Ok(());
         }
 
@@ -172,7 +187,7 @@ fn handle_many_args<'v>(
         dest.push(if let Some(format) = format_each {
             format.format(&s)
         } else {
-            s
+            s.into_owned()
         });
         Ok(())
     };

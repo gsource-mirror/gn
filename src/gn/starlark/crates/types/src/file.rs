@@ -89,6 +89,12 @@ impl File {
             Cow::Borrowed(s)
         }
     }
+
+    /// Returns the file path with proper escaping applied for use in commands or
+    /// command-line variables in a ninja file.
+    pub fn ninja_escaped_arg(&self) -> Cow<'static, str> {
+        crate::escape::escape_ninja_token(self.0)
+    }
 }
 
 // Because we do string interning, we can make PartialEq and Hashing based on

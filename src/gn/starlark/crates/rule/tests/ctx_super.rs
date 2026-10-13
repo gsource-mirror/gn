@@ -5,7 +5,7 @@
 use rule::run;
 use starlark::values::list::ListRef;
 use testutils::Assert;
-use types::{Label, PackageRef, Session};
+use types::{Label, PackageRef, Session as _};
 
 #[test]
 fn test_ctx_super() {
@@ -35,7 +35,7 @@ child_rule(
         .get_target(label.as_ref(), context.session.default_toolchain.as_ref());
 
     let session = assert.session();
-    let res = run(&target, move |t: &testutils::FakeTargetRef| {
+    let (_state, res) = run(&target, move |t: &testutils::FakeTargetRef| {
         testutils::FakeEvalContext::rule_impl(session.clone(), t.clone())
     })
     .unwrap();

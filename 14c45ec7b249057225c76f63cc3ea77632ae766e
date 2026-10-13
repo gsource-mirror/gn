@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1d96dcbf_749e4815",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-13T05:23:50Z",
+      "side": 1,
+      "message": "Oh, I see. I think GN supports some kind of dictionary like type e.g.\nhttps://gn.googlesource.com/gn/+/refs/heads/main/docs/reference.md#var_metadata\n\nCan we use that for this exception list?",
+      "parentUuid": "facc3a73_f01cb295",
+      "revId": "14c45ec7b249057225c76f63cc3ea77632ae766e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b9f9b5ac_308c3eaa",
         "filename": "src/gn/check_includes_strict_exceptions.cc",
         "patchSetId": 3

@@ -353,6 +353,12 @@ mod dummy {
             session: &'static Session,
             err: Pin<&mut Err>,
         ) -> &'static str;
+        fn write_substitutions(
+            self: &Target,
+            buffer: Pin<&mut StringOutputBuffer>,
+            platform: EscapingPlatform,
+            err: Pin<&mut Err>,
+        );
 
         type Session;
 

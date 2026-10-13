@@ -6,6 +6,7 @@ use args::FrozenArgsSequence;
 use depset::UnpackFileDepset;
 use starlark::{
     collections::SmallMap,
+    eval::Evaluator,
     typing::Ty,
     values::{
         Heap, OwnedFrozen, ProvidesStaticType, StarlarkValue, UnpackValue as _, Value,
@@ -25,7 +26,7 @@ struct InnerProviders<'v> {
     /// `GnSubstitutionsInfo` carries key-value substitutions (packaged as a
     /// struct) that are used by toolchains and command-line execution
     /// blocks to expand variables and flags dynamically.
-    substitutions: SmallMap<String, FrozenArgsSequence<'v>>,
+    substitutions: Vec<(String, FrozenArgsSequence<'v>)>,
 
     /// All provider instances mapped by their ProviderType's ProviderId.
     value: SmallMap<ProviderId, Value<'v>>,
@@ -57,17 +58,27 @@ pub struct Providers {
 }
 
 impl Providers {
-    /// Inspect the inner provider instances and substitutions within a scoped
-    /// closure.
-    pub fn by_ref<'s, R>(
+    /// Inspect the inner provider instances within a scoped closure.
+    pub fn providers<'s, R>(
         &'s self,
-        f: impl for<'a, 'v> FnOnce(
-            &'a SmallMap<String, FrozenArgsSequence<'v>>,
-            &'a SmallMap<ProviderId, Value<'v>>,
-        ) -> R,
+        f: impl for<'a, 'v> FnOnce(&'a SmallMap<ProviderId, Value<'v>>) -> R,
     ) -> R {
+        self.owned.by_ref(|inner| f(&inner.value))
+    }
+
+    /// Returns the substitutions, accessible to the evaluator.
+    pub fn substitutions<'v, R>(
+        &self,
+        eval: &mut Evaluator<'v, '_, '_>,
+        f: impl FnOnce(&[(String, FrozenArgsSequence<'v>)], &mut Evaluator<'v, '_, '_>) -> R,
+    ) -> R {
+        let heap = eval.heap();
         self.owned
-            .by_ref(|inner| f(&inner.substitutions, &inner.value))
+            .by_ref_with_reconstructor(|inner, reconstructor| {
+                let edge = reconstructor.edge(heap);
+                let inner = edge.rebrand_ref(inner);
+                f(&inner.substitutions, eval)
+            })
     }
 
     /// Looks up a provider instance by provider type value.
@@ -104,7 +115,7 @@ impl Providers {
         else {
             return starlark::values::ValueError::unsupported_with(source, "in", key);
         };
-        Ok(self.by_ref(|_subs, values| values.contains_key(key)))
+        Ok(self.providers(|values| values.contains_key(key)))
     }
 }
 
@@ -123,7 +134,7 @@ fn parse_providers<'v>(val: Value<'v>) -> starlark::Result<ParsedProviders<'v>> 
     let mut value_map = SmallMap::new();
     let mut outputs_phony = None;
     let mut inputs_phony = Vec::new();
-    let mut substitutions = SmallMap::new();
+    let mut substitutions = Vec::new();
 
     for item in list.iter() {
         let instance = <&ProviderInstance>::unpack_value_err(item)?;
@@ -182,8 +193,10 @@ fn parse_providers<'v>(val: Value<'v>) -> starlark::Result<ParsedProviders<'v>> 
 
                 for (k, v) in substitutions_struct.iter() {
                     let seq: FrozenArgsSequence = <FrozenArgsSequence>::unpack_value_err(v)?;
-                    substitutions.insert(k.as_str().to_owned(), seq);
+                    substitutions.push((k.as_str().to_owned(), seq));
                 }
+                // Sort for deterministic ordering in the ninja file.
+                substitutions.sort_by(|(a, _), (b, _)| a.cmp(b));
             },
             _ => {},
         }
@@ -251,9 +264,14 @@ mod tests {
         let providers = Providers::try_from(val).unwrap();
         assert_eq!(providers.outputs_phony, None);
         assert_eq!(providers.inputs_phony, Vec::<(String, File)>::new());
-        providers.by_ref(|substitutions, value| {
-            assert!(substitutions.is_empty());
+        providers.providers(|value| {
             assert!(value.is_empty());
+        });
+        starlark::environment::Module::with_temp_heap(|module| {
+            let mut eval = starlark::eval::Evaluator::new(&module);
+            providers.substitutions(&mut eval, |substitutions, _eval| {
+                assert!(substitutions.is_empty());
+            });
         });
 
         let custom_info_ty = a.pass("CustomInfo = provider(fields = ['foo']); CustomInfo");
@@ -280,14 +298,19 @@ mod tests {
             vec![(".o".to_owned(), File::intern("b"))]
         );
 
-        providers.by_ref(|substitutions, value| {
-            let keys: Vec<&str> = substitutions.keys().map(|s| s.as_str()).collect();
-            assert_eq!(keys, vec!["key"]);
-
+        providers.providers(|value| {
             assert_eq!(value.len(), 4);
             assert!(value.contains_key(&crate::builtins::DEFAULT_INFO_ID));
             assert!(value.contains_key(&crate::builtins::INPUTS_INFO_ID));
             assert!(value.contains_key(&crate::builtins::SUBSTITUTIONS_INFO_ID));
+        });
+
+        starlark::environment::Module::with_temp_heap(|module| {
+            let mut eval = starlark::eval::Evaluator::new(&module);
+            providers.substitutions(&mut eval, |substitutions, _eval| {
+                let keys: Vec<&str> = substitutions.iter().map(|(k, _)| k.as_str()).collect();
+                assert_eq!(keys, vec!["key"]);
+            });
         });
     }
 

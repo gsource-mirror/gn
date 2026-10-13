@@ -4,6 +4,7 @@
 
 pub mod ctx_state;
 pub mod errors;
+pub mod escape;
 pub mod eval_context;
 pub mod file;
 pub mod label;
@@ -12,6 +13,7 @@ pub mod output_type;
 pub mod package;
 pub mod package_ref;
 pub mod path_resolver;
+pub mod platform;
 pub mod scope;
 pub mod session;
 pub mod target_ref;
@@ -19,6 +21,7 @@ pub mod util;
 
 pub use ctx_state::CtxState;
 pub(crate) use errors::Error;
+pub use escape::{Ostream, escape_token};
 pub use eval_context::{CtxMethods, EvalContext, EvaluatorContextExt};
 pub use file::{File, intern_string};
 pub use label::Label;
@@ -27,6 +30,7 @@ pub use output_type::OutputType;
 pub use package::Package;
 pub use package_ref::PackageRef;
 pub use path_resolver::PathResolver;
+pub use platform::{HostPlatform, Platform, Posix, Windows};
 pub use scope::Scope;
 pub use session::Session;
 pub use target_ref::{IPromiseToImplementStarlarkEqAndHash, TargetMut, TargetRef};

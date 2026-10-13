@@ -7,6 +7,7 @@ use starlark::{
     typing::Ty,
     values::{Freeze, type_repr::StarlarkTypeRepr},
 };
+use types::escape_ninja_token_owned;
 
 use crate::errors::Error;
 
@@ -46,7 +47,20 @@ impl Formatter {
         if !eof {
             return Err(Error::InvalidFormatString(fmt.to_owned()).into());
         }
-        Ok(Self { before, after })
+        Ok(Self {
+            // The empty string doesn't need to be escaped to "" for formatters,
+            // since it's only empty if the thing you're formatting is empty.
+            before: if before.is_empty() {
+                before
+            } else {
+                escape_ninja_token_owned(before)
+            },
+            after: if after.is_empty() {
+                after
+            } else {
+                escape_ninja_token_owned(after)
+            },
+        })
     }
 
     /// Formats the string by replacing `%s` with the input string.
@@ -72,10 +86,13 @@ mod tests {
     #[test]
     fn test_valid_formats() {
         let cases = [
-            ("hello %s", "hello world"),
-            ("%s hello", "world hello"),
-            ("hello %s, hello", "hello world, hello"),
-            ("hello %%s %s", "hello %s world"),
+            ("hello %s", "\"hello \"world"),
+            ("%s hello", "world\" hello\""),
+            ("hello %s, hello", "\"hello \"world\", hello\""),
+            ("hello %%s %s", "\"hello %s \"world"),
+            ("-I%s", "-Iworld"),
+            ("%s.o", "world.o"),
+            ("-DVAR=$%s", "-DVAR=$$world"),
         ];
         for (fmt, expected) in cases {
             let f = Formatter::new(fmt).unwrap();

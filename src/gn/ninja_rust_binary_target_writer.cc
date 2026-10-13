@@ -8,6 +8,7 @@
 
 #include "base/strings/string_util.h"
 #include "gn/deps_iterator.h"
+#include "gn/ffi/bridge.h"
 #include "gn/filesystem_utils.h"
 #include "gn/general_tool.h"
 #include "gn/ninja_target_command_util.h"
@@ -319,6 +320,14 @@ void NinjaRustBinaryTargetWriter::WriteCompilerVars() {
   WriteRustCompilerVars(subst, /*indent=*/false, /*always_write=*/true);
 
   WriteSharedVars(subst);
+
+  if (const auto* rust = target_->rust_target()) {
+    Err err;
+    rust->write_substitutions(out_, opts.platform, err);
+    if (err.has_error()) {
+      g_scheduler->FailWithError(err);
+    }
+  }
 }
 
 void NinjaRustBinaryTargetWriter::AppendSourcesAndInputsToImplicitDeps(

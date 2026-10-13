@@ -85,11 +85,21 @@ fn test_args_add() {
 
     a.assert_expands_to(r#"[args().add("--bar", "baz")]"#, Ok(&["--bar", "baz"]));
 
+    a.assert_expands_to(
+        r#"[args().add("--msg", "hello world")]"#,
+        Ok(&["--msg", "\"hello world\""]),
+    );
+
+    a.assert_expands_to(
+        r#"[args().add(make_file("path with spaces/a.cc"))]"#,
+        Ok(&["\"path with spaces/a.cc\""]),
+    );
+
     a.assert_expands_to(r#"[args().add("--qux", None)]"#, Ok(&[]));
 
     a.assert_expands_to(
         r#"[args().add("--val", 1, format="before %s after")]"#,
-        Ok(&["--val", "before 1 after"]),
+        Ok(&["--val", "\"before \"1\" after\""]),
     );
 
     a.fail(
@@ -107,6 +117,11 @@ fn test_args_add() {
 fn test_args_add_all() {
     let mut a = ArgsAssert::new();
     a.assert_expands_to(r#"[args().add_all([1, 2])]"#, Ok(&["1", "2"]));
+
+    a.assert_expands_to(
+        r#"[args().add_all(["hello world", "$USER"])]"#,
+        Ok(&["\"hello world\"", "$$USER"]),
+    );
 
     a.assert_expands_to(
         r#"[args().add_all("--flag", ["3", "4"], before_each = "-b")]"#,
@@ -135,6 +150,11 @@ fn test_args_add_joined() {
     a.assert_expands_to(
         r#"[args().add_joined([1, 2], join_with = ',')]"#,
         Ok(&["1,2"]),
+    );
+
+    a.assert_expands_to(
+        r#"[args().add_joined(["hello world", "foo"], join_with = ",")]"#,
+        Ok(&["\"hello world\",foo"]),
     );
 
     a.assert_expands_to(

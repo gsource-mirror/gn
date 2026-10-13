@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "facc3a73_f01cb295",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-13T02:43:52Z",
+      "side": 1,
+      "message": "No, because we don\u0027t want to allowlist a list of targets.\n\nRather than saying \"this target is allowed to include things it shouldn\u0027t normally\" or \"this target can be included when it shouldn\u0027t normally\", what we want is to specify \"target x can include target y when it couldn\u0027t normally\".\n\nI\u0027ve achieved this via a list of pairs of label patterns. If you have a different preferred way to express a list of pairs of label patterns without a custom parser, I\u0027m open to it.",
+      "parentUuid": "14ef1592_93460cfa",
+      "revId": "14c45ec7b249057225c76f63cc3ea77632ae766e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b9f9b5ac_308c3eaa",
         "filename": "src/gn/check_includes_strict_exceptions.cc",
         "patchSetId": 3

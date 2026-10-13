@@ -59,6 +59,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "57437cdf_8b560eb1",
+        "filename": "src/gn/check_includes_strict_exceptions.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-13T02:55:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9f9b5ac_308c3eaa",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 0
+      },
+      "revId": "14c45ec7b249057225c76f63cc3ea77632ae766e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e34ec78_92be2046",
@@ -72,6 +96,30 @@
       "writtenOn": "2026-10-13T02:40:13Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: `Result` inherits from `std::expected`, so `result.has_value()` means the parsing *succeeded*. This should be `!result.has_value()` or `result.has_error()`.",
+      "range": {
+        "startLine": 328,
+        "startChar": 0,
+        "endLine": 328,
+        "endChar": 0
+      },
+      "revId": "14c45ec7b249057225c76f63cc3ea77632ae766e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccabb766_b5c5e402",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-13T02:55:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e34ec78_92be2046",
       "range": {
         "startLine": 328,
         "startChar": 0,

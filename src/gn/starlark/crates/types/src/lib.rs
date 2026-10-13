@@ -4,6 +4,7 @@
 
 pub mod ctx_state;
 pub mod errors;
+pub mod escape;
 pub mod eval_context;
 pub mod file;
 pub mod label;
@@ -19,6 +20,7 @@ pub mod util;
 
 pub use ctx_state::CtxState;
 pub(crate) use errors::Error;
+pub use escape::escape_ninja_token;
 pub use eval_context::{CtxMethods, EvalContext, EvaluatorContextExt};
 pub use file::{File, intern_string};
 pub use label::Label;

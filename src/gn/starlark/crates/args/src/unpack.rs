@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use either::Either;
 use starlark::{
     eval::Evaluator,
@@ -17,7 +19,7 @@ impl<'v> UnpackValue<'v> for Formatter {
 }
 
 #[derive(Debug, Default)]
-pub struct FrozenArgsSequence<'v>(pub Vec<Either<&'v str, ValueTyped<'v, FrozenArgs<'v>>>>);
+pub struct FrozenArgsSequence<'v>(pub Vec<Either<Cow<'v, str>, ValueTyped<'v, FrozenArgs<'v>>>>);
 
 impl<'v> StarlarkTypeRepr for FrozenArgsSequence<'v> {
     type Canonical = starlark::values::Value<'v>;
@@ -38,6 +40,7 @@ impl<'v> UnpackValue<'v> for FrozenArgsSequence<'v> {
             <&ListRef>::unpack_value_err(value)?
                 .iter()
                 .map(<Either<&'v str, ValueTyped<'v, FrozenArgs<'v>>>>::unpack_value_err)
+                .map(|elem| elem.map(|either| either.map_left(types::escape_ninja_token)))
                 .collect::<Result<Vec<_>, _>>()?,
         )))
     }
@@ -48,7 +51,7 @@ impl<'v> FrozenArgsSequence<'v> {
         let mut command = Vec::new();
         for item in &self.0 {
             match item {
-                Either::Left(s) => command.push((*s).to_owned()),
+                Either::Left(s) => command.push(s.clone().into_owned()),
                 Either::Right(args) => {
                     crate::expand::expand_into(&mut command, args.as_ref(), eval)?;
                 },

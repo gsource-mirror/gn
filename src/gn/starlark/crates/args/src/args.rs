@@ -12,6 +12,7 @@ use starlark::{
     values::{Freeze, FreezeResult, Freezer, ProvidesStaticType, StarlarkValue, Trace, Value},
 };
 use starlark_derive::{NoSerialize, starlark_module, starlark_value};
+use types::escape_ninja_token;
 
 use crate::{Error, formatter::Formatter};
 
@@ -125,7 +126,7 @@ fn arg_name_and_value<'v>(
 ) -> starlark::Result<(Option<String>, Value<'v>)> {
     if let Some(val) = value {
         if let Some(arg_name) = arg_name_or_value.unpack_str() {
-            Ok((Some(arg_name.to_owned()), val))
+            Ok((Some(escape_ninja_token(arg_name).into_owned()), val))
         } else {
             Err(starlark::Error::from(err))
         }
@@ -196,8 +197,8 @@ pub fn args_methods(builder: &mut MethodsBuilder) {
             values,
             map_each,
             format_each,
-            before_each: before_each.map(String::from),
-            terminate_with: terminate_with.map(String::from),
+            before_each: before_each.map(|s| escape_ninja_token(s).into_owned()),
+            terminate_with: terminate_with.map(|s| escape_ninja_token(s).into_owned()),
             omit_if_empty,
             uniquify,
         });
@@ -232,7 +233,7 @@ pub fn args_methods(builder: &mut MethodsBuilder) {
         args.push(ArgValue::Joined {
             flag,
             values,
-            join_with: join_with.to_owned(),
+            join_with: escape_ninja_token(join_with).into_owned(),
             map_each,
             format_each,
             format_joined,

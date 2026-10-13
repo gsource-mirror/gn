@@ -17,6 +17,7 @@
 #include "gn/deps_iterator.h"
 #include "gn/err.h"
 #include "gn/escape.h"
+#include "gn/ffi/bridge.h"
 #include "gn/filesystem_utils.h"
 #include "gn/general_tool.h"
 #include "gn/ninja_module_writer_util.h"
@@ -192,6 +193,14 @@ void NinjaCBinaryTargetWriter::WriteCompilerVars(
   }
 
   WriteSharedVars(subst);
+
+  if (const auto* rust = target_->rust_target()) {
+    Err err;
+    rust->write_substitutions(out_, GetFlagOptions().platform, err);
+    if (err.has_error()) {
+      g_scheduler->FailWithError(err);
+    }
+  }
 }
 
 void NinjaCBinaryTargetWriter::WriteModuleNameSubstitution() {

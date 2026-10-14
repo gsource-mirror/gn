@@ -54,6 +54,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "27403101_fbccd909",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-14T03:59:55Z",
+      "side": 1,
+      "message": "We do lose out on a little performance that way, but it\u0027s probably acceptable given that the allowlist ideally shouldn\u0027t be around for that long. It adds a few hundred ms to gn gen when the allowlist has 75k entries, but it should shrink relatively quickly.",
+      "parentUuid": "1d96dcbf_749e4815",
+      "revId": "14c45ec7b249057225c76f63cc3ea77632ae766e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b9f9b5ac_308c3eaa",

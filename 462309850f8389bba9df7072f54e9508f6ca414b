@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "be42ca20_e96fd1fe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T22:29:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ec12870_32520698",
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "355ffbfd_bd120d83",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-10-15T08:01:28Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: NIT: The file list here is sorted alphabetically. `check_includes_strict_exceptions.cc` should go around line 807, right after `\u0027src/gn/c_tool.cc\u0027`.",
+      "range": {
+        "startLine": 930,
+        "startChar": 0,
+        "endLine": 930,
+        "endChar": 0
+      },
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8e17032_505425bb",
+        "filename": "build/gen.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T22:29:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "355ffbfd_bd120d83",
       "range": {
         "startLine": 930,
         "startChar": 0,
@@ -64,6 +106,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "906fff59_6d100d0b",
+        "filename": "build/gen.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1057,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T22:29:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "efe5374e_86b7a905",
+      "range": {
+        "startLine": 1057,
+        "startChar": 0,
+        "endLine": 1057,
+        "endChar": 0
+      },
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cb886427_48ee08f8",
@@ -87,6 +153,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "54adcf60_8568fe22",
+        "filename": "src/gn/check_includes_strict_exceptions.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T22:29:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb886427_48ee08f8",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 0
+      },
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "727a85b6_0c9a5a8a",
@@ -100,6 +190,30 @@
       "writtenOn": "2026-10-15T08:01:28Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: NIT: Evaluating `strict_exempt` across all targets upfront does make the exemption unnecessarily broad, as mentioned in the comment. \n\nYou can fix this by removing this loop and evaluating `strict_exempt` per-target inside the main `for (const auto\u0026 target : targets)` loop below:\n```cpp\nbool strict_exempt \u003d check_includes_strict_exceptions_.CanInclude(\n    from_target-\u003elabel(), to_target-\u003elabel());\n```",
+      "range": {
+        "startLine": 682,
+        "startChar": 0,
+        "endLine": 682,
+        "endChar": 0
+      },
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9dfa5253_d1ba50c4",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T22:29:47Z",
+      "side": 1,
+      "message": "I had it that way initially, but found that it made adding exceptions more difficult. Namely, I got the error \":foo\" included a header from \":bar\" without depending on it, but adding an exception :foo -\u003e :bar didn\u0027t fix it. You instead needed to write :foo -\u003e :bar_reexporter. To simplify things, I changed it to this way.",
+      "parentUuid": "727a85b6_0c9a5a8a",
       "range": {
         "startLine": 682,
         "startChar": 0,
@@ -141,6 +255,24 @@
           ]
         }
       ],
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb1e3741_22b463ab",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T22:29:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25c2613b_91b9b6c0",
       "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

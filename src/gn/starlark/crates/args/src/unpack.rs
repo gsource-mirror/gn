@@ -47,16 +47,21 @@ impl<'v> UnpackValue<'v> for FrozenArgsSequence<'v> {
 }
 
 impl<'v> FrozenArgsSequence<'v> {
-    pub fn expand(&self, eval: &mut Evaluator<'v, '_, '_>) -> starlark::Result<Vec<String>> {
-        let mut command = Vec::new();
+    /// Writes the sequence of arguments into the given stream.
+    pub fn write(
+        &self,
+        eval: &mut Evaluator<'v, '_, '_>,
+        stream: &mut impl crate::expand::Ostream,
+    ) -> starlark::Result<()> {
+        let mut needs_space = false;
         for item in &self.0 {
             match item {
-                Either::Left(s) => command.push(s.clone().into_owned()),
+                Either::Left(s) => stream.write_token(s, &mut needs_space),
                 Either::Right(args) => {
-                    crate::expand::expand_into(&mut command, args.as_ref(), eval)?;
+                    crate::expand::write(stream, args.as_ref(), eval, &mut needs_space)?;
                 },
             }
         }
-        Ok(command)
+        Ok(())
     }
 }

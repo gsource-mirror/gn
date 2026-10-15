@@ -11,5 +11,6 @@ mod tests;
 pub mod unpack;
 pub use args::{Args, FrozenArgs, args_methods};
 pub(crate) use errors::Error;
+pub use expand::Ostream;
 pub use formatter::Formatter;
 pub use unpack::FrozenArgsSequence;

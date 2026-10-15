@@ -1796,6 +1796,7 @@ dependencies = [
  "args",
  "attr",
  "depset",
+ "either",
  "providers",
  "starlark",
  "starlark_derive",

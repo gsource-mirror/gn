@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "25398020_2e0bd567",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T23:20:12Z",
+      "side": 1,
+      "message": "This is a different argument expansion to C++ code. args refers to the bazel concept of [args](https://bazel.build/rules/lib/builtins/Args), which corresponds to the crate args.\n\n```\nargs \u003d ctx.actions.args()\nargs.add_all(\"--files\", ctx.files.sources)\nargs.add_all(ctx.files.public, format_each\u003d\"--header\u003d%s\")\nreturn [GnSubstitutionInfo(foo \u003d ctx.actions.args())\n```\n\nIf in your GN toolchain you have the command:\n```\ntool(\"cc\") {\n  command \u003d \"clang++ ... {starlark:foo}\"\n}\n```\n\nIt should expand to `clang++ ... --files foo.cc bar.cc --header\u003dfoo.h --header\u003dbar.h`.",
+      "parentUuid": "e58797ab_1173e520",
+      "revId": "da6331d304967d37316bfb305e2373ddb194ed15",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "efb6a24f_2390a835",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-10-15T07:22:47Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: `value.to_str()` allocates an owned `String`, and if `escape_ninja_token` returns `Cow::Borrowed`, `.into_owned()` will allocate a second `String` with the same contents. You can avoid the second allocation by matching on the `Cow`:\n```rust\nlet s \u003d value.to_str();\nmatch escape_ninja_token(\u0026s) {\n    Cow::Borrowed(_) \u003d\u003e Cow::Owned(s),\n    Cow::Owned(escaped) \u003d\u003e Cow::Owned(escaped),\n}\n```",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 0
+      },
+      "revId": "da6331d304967d37316bfb305e2373ddb194ed15",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0cb43cd3_a3627352",
+        "filename": "src/gn/starlark/crates/args/src/expand.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T23:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "efb6a24f_2390a835",
       "range": {
         "startLine": 27,
         "startChar": 0,
@@ -64,6 +106,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6854be16_541b67be",
+        "filename": "src/gn/starlark/crates/args/src/expand.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T23:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4aac698_2c1978de",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 180,
+        "endChar": 0
+      },
+      "revId": "da6331d304967d37316bfb305e2373ddb194ed15",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "43c141b7_ffc0e928",
@@ -87,6 +153,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea57d819_241181f5",
+        "filename": "src/gn/starlark/crates/types/src/escape.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T23:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43c141b7_ffc0e928",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 0
+      },
+      "revId": "da6331d304967d37316bfb305e2373ddb194ed15",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99ee5efb_7ce02ef8",
@@ -100,6 +190,30 @@
       "writtenOn": "2026-10-15T07:22:47Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If `token` is an empty string, `escape_mode` returns `(false, 0)`. Then `escape_ninja_token` returns `Cow::Borrowed(\"\")`. However, an empty string argument passed to a shell will be completely dropped unless it is quoted (e.g. `\"\"`). Consider handling empty strings explicitly so they get quoted:\n```rust\nif token.is_empty() {\n    return (true, 2);\n}\n```",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 0
+      },
+      "revId": "da6331d304967d37316bfb305e2373ddb194ed15",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7db0926b_ad88f799",
+        "filename": "src/gn/starlark/crates/types/src/escape.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T23:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99ee5efb_7ce02ef8",
       "range": {
         "startLine": 39,
         "startChar": 0,
@@ -167,6 +281,30 @@
           ]
         }
       ],
+      "revId": "da6331d304967d37316bfb305e2373ddb194ed15",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6207539f_c2899538",
+        "filename": "src/gn/starlark/crates/types/src/escape.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T23:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3876b43f_50c3bc52",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 38
+      },
       "revId": "da6331d304967d37316bfb305e2373ddb194ed15",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

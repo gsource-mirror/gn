@@ -10,7 +10,7 @@ use starlark::{
 };
 use types::{EvalContext, EvaluatorContextExt, Label, PathResolver};
 
-use crate::{register_globals, FakeEvalContext, FakeSession};
+use crate::{FakeEvalContext, FakeSession, register_globals};
 
 type GlobalsConfig = Box<dyn Fn(&mut GlobalsBuilder)>;
 

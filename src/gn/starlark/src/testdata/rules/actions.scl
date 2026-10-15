@@ -2,83 +2,143 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+"""Rules for testing ctx.actions.run."""
+
 ActionInfo = provider(fields = ["out_file"])
 
 def _write_impl(ctx):
-  declared = ctx.actions.declare_file("declared.txt")
-  ctx.actions.write(output = declared, content = str(ctx.label))
-  undeclared = ctx.actions.declare_file("undeclared.txt")
-  ctx.actions.write(output = undeclared, content = "undeclared")
-  return [
-    DefaultInfo(files = depset([declared])),
-    ActionInfo(out_file = undeclared),
-  ]
+    declared = ctx.actions.declare_file("declared.txt")
+    ctx.actions.write(output = declared, content = str(ctx.label))
+    undeclared = ctx.actions.declare_file("undeclared.txt")
+    ctx.actions.write(output = undeclared, content = "undeclared")
+    return [
+        DefaultInfo(files = depset([declared])),
+        ActionInfo(out_file = undeclared),
+    ]
 
 write = rule(
-  implementation = _write_impl,
+    implementation = _write_impl,
 )
 
 def _label_impl(ctx):
-  out = ctx.actions.declare_file(ctx.label.name + ".txt")
-  ctx.actions.write(
-    output = out,
-    content = "label",
-  )
-  return [ActionInfo(out_file = out)]
+    out = ctx.actions.declare_file(ctx.label.name + ".txt")
+    ctx.actions.write(
+        output = out,
+        content = "label",
+    )
+    return [ActionInfo(out_file = out)]
 
 label = rule(
-  implementation = _label_impl,
+    implementation = _label_impl,
 )
 
 def _generated_file_impl(ctx):
-  files = []
-  for k, v in ctx.attr.files.items():
-    f = ctx.actions.declare_file(k)
-    files.append(f)
-    if v:
-      ctx.actions.write(output = f, content = v)
-  return [DefaultInfo(files = depset(files))]
+    files = []
+    for k, v in ctx.attr.files.items():
+        f = ctx.actions.declare_file(k)
+        files.append(f)
+        if v:
+            ctx.actions.write(output = f, content = v)
+    return [DefaultInfo(files = depset(files))]
 
 generated_file = rule(
-  implementation = _generated_file_impl,
-  attrs = {"files": attr.string_dict()},
+    implementation = _generated_file_impl,
+    attrs = {"files": attr.string_dict()},
 )
 
 def _duplicate_declare_file_impl(ctx):
-  ctx.actions.declare_file("dup.txt")
-  ctx.actions.declare_file("dup.txt")
-  return []
+    ctx.actions.declare_file("dup.txt")
+    ctx.actions.declare_file("dup.txt")
+    return []
 
 duplicate_declare_file = rule(
-  implementation = _duplicate_declare_file_impl,
+    implementation = _duplicate_declare_file_impl,
 )
 
 def _already_generated_impl(ctx):
-  out = ctx.actions.declare_file("gen.txt")
-  ctx.actions.write(
-    output = out,
-    content = "first",
-  )
-  ctx.actions.write(
-    output = out,
-    content = "second",
-  )
-  return []
+    out = ctx.actions.declare_file("gen.txt")
+    ctx.actions.write(
+        output = out,
+        content = "first",
+    )
+    ctx.actions.write(
+        output = out,
+        content = "second",
+    )
+    return []
 
 already_generated = rule(
-  implementation = _already_generated_impl,
+    implementation = _already_generated_impl,
 )
 
 def _undeclared_output_impl(ctx):
-  ctx.actions.write(
-    output = ctx.files.src[0],
-    content = "fail",
-  )
-  return []
+    ctx.actions.write(
+        output = ctx.files.src[0],
+        content = "fail",
+    )
+    return []
 
 undeclared_output = rule(
-  implementation = _undeclared_output_impl,
-  attrs = {
-    "src": attr.label(allow_files = True),
-  },
+    implementation = _undeclared_output_impl,
+    attrs = {
+        "src": attr.label(allow_files = True),
+    },
+)
+
+def _run_action_impl(ctx):
+    out = ctx.actions.declare_file(ctx.label.name + ".o")
+    in_file = ctx.file.src
+    args = ctx.actions.args()
+    args.add("-c")
+    args.add(in_file)
+    ctx.actions.run(
+        outputs = [out],
+        inputs = depset([in_file]),
+        executable = "my_compiler",
+        arguments = ["--flag", args],
+        mnemonic = "MYCOMPILE",
+        env = {"MY_ENV": "value"},
+    )
+
+    # The action should contain a snapshot of the state of args *before* this was added.
+    args.add("--after-registration")
+
+    exec_out = ctx.actions.declare_file(ctx.label.name + "_exec.o")
+    ctx.actions.run(
+        outputs = [exec_out],
+        inputs = [in_file],
+        executable = in_file,
+        arguments = ["--test"],
+    )
+
+    return [DefaultInfo(files = depset([out]))]
+
+run_action = rule(
+    implementation = _run_action_impl,
+    attrs = {
+        "src": attr.label(allow_single_file = True),
+    },
+)
+
+def _invalid_action_impl(ctx):
+    out = ctx.actions.declare_file(ctx.label.name + ".txt")
+    name = ctx.label.name
+    if name == "empty_outputs":
+        ctx.actions.run(outputs = [], executable = "tool")
+    elif name == "undeclared_output":
+        ctx.actions.run(outputs = [ctx.file.src], executable = "tool")
+    elif name == "duplicate_output":
+        ctx.actions.run(outputs = [out], executable = "tool")
+        ctx.actions.run(outputs = [out], executable = "tool")
+    elif name == "invalid_mnemonic":
+        ctx.actions.run(outputs = [out], executable = "tool", mnemonic = "invalid")
+    else:
+        fail("Unsupported test")
+    return []
+
+invalid_action = rule(
+    implementation = _invalid_action_impl,
+    attrs = {
+        "src": attr.label(allow_single_file = True),
+    },
 )

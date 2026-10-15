@@ -160,6 +160,7 @@ mod dummy {
         include!("gn/settings.h");
         include!("gn/source_dir.h");
         include!("gn/source_file.h");
+        include!("gn/ffi/ostream.h");
         include!("gn/target.h");
         include!("gn/test_with_scope.h");
         include!("gn/value.h");
@@ -285,6 +286,9 @@ mod dummy {
         #[rust_name = "scope_cxx"]
         fn scope(self: Pin<&mut TestWithScope>) -> *mut Scope;
 
+        type Ostream;
+        fn write_to_ostream(stream: Pin<&mut Ostream>, str: &str);
+
         type Value;
         type ParseNode;
         // We allow dead code because this isn't used in production and we
@@ -327,6 +331,7 @@ mod dummy {
             session: &'static Session,
             err: Pin<&mut Err>,
         ) -> &'static str;
+        fn write_phonies(self: &Target, stream: Pin<&mut Ostream>);
 
         type Session;
 
@@ -372,6 +377,13 @@ mod dummy {
             origin: ParseNodePtr,
             err: Pin<&mut Err>,
         );
+    }
+}
+
+impl dummy::Ostream {
+    /// Writes a string slice to the C++ ostream.
+    pub fn write(self: std::pin::Pin<&mut Self>, str: &str) {
+        dummy::write_to_ostream(self, str);
     }
 }
 

@@ -44,12 +44,14 @@ impl ArgsAssert {
             let mut eval = starlark::eval::Evaluator::new(&module);
             let val_ref = val.as_ref().add_to_heap(module.heap());
             let seq = FrozenArgsSequence::unpack_value_err(val_ref).unwrap();
-            seq.expand(&mut eval)
+            let mut out = String::new();
+            seq.write(&mut eval, &mut out)?;
+            starlark::Result::Ok(out)
         });
 
         match expected {
             Ok(expected_cmd) => {
-                assert_eq!(res.unwrap(), expected_cmd);
+                assert_eq!(res.unwrap(), expected_cmd.join(" "));
             },
             Err(expected_err) => {
                 let err_str = res.unwrap_err().to_string();

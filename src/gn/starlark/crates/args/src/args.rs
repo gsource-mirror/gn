@@ -245,11 +245,21 @@ pub fn args_methods(builder: &mut MethodsBuilder) {
 }
 
 impl<'v> FrozenArgs<'v> {
-    /// Expands the stored arguments list into command-line arguments and input
-    /// files.
-    pub fn expand(&self, eval: &mut Evaluator<'v, '_, '_>) -> starlark::Result<Vec<String>> {
-        let mut command = Vec::new();
-        crate::expand::expand_into(&mut command, self, eval)?;
-        Ok(command)
+    /// Writes the stored arguments into the given stream.
+    pub fn write(
+        &self,
+        eval: &mut Evaluator<'v, '_, '_>,
+        stream: &mut impl crate::expand::Ostream,
+        needs_space: &mut bool,
+    ) -> starlark::Result<()> {
+        crate::expand::write(stream, self, eval, needs_space)
+    }
+
+    /// Expands the stored arguments list into command-line arguments.
+    pub fn expand(&self, eval: &mut Evaluator<'v, '_, '_>) -> starlark::Result<String> {
+        let mut out = String::new();
+        let mut needs_space = false;
+        self.write(eval, &mut out, &mut needs_space)?;
+        Ok(out)
     }
 }

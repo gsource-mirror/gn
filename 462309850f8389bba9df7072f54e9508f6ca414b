@@ -1,0 +1,148 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ec12870_32520698",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-15T08:01:28Z",
+      "side": 1,
+      "message": "Update commit message?",
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "355ffbfd_bd120d83",
+        "filename": "build/gen.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-15T08:01:28Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: NIT: The file list here is sorted alphabetically. `check_includes_strict_exceptions.cc` should go around line 807, right after `\u0027src/gn/c_tool.cc\u0027`.",
+      "range": {
+        "startLine": 930,
+        "startChar": 0,
+        "endLine": 930,
+        "endChar": 0
+      },
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efe5374e_86b7a905",
+        "filename": "build/gen.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1057,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-15T08:01:28Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: NIT: The file list here is sorted alphabetically. This should go around line 984, right after `\u0027src/gn/c_include_iterator_unittest.cc\u0027`.",
+      "range": {
+        "startLine": 1057,
+        "startChar": 0,
+        "endLine": 1057,
+        "endChar": 0
+      },
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb886427_48ee08f8",
+        "filename": "src/gn/check_includes_strict_exceptions.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-15T08:01:28Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: BUG: `to` is inserted into `specific_targets_` as-is, which preserves its toolchain (if one was parsed). However, `CanInclude` searches the map using `to.GetWithNoToolchain()`. If a user provides a label with a toolchain here, the exception rule will never match.\n\nYou can fix this by using the `AddException` helper which properly strips the toolchain:\n```cpp\nexceptions.AddException(from, to);\n```",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 0
+      },
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "727a85b6_0c9a5a8a",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-15T08:01:28Z",
+      "side": 1,
+      "message": "Please fix this WARNING reported by autoreview issue finding: NIT: Evaluating `strict_exempt` across all targets upfront does make the exemption unnecessarily broad, as mentioned in the comment. \n\nYou can fix this by removing this loop and evaluating `strict_exempt` per-target inside the main `for (const auto\u0026 target : targets)` loop below:\n```cpp\nbool strict_exempt \u003d check_includes_strict_exceptions_.CanInclude(\n    from_target-\u003elabel(), to_target-\u003elabel());\n```",
+      "range": {
+        "startLine": 682,
+        "startChar": 0,
+        "endLine": 682,
+        "endChar": 0
+      },
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25c2613b_91b9b6c0",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-15T08:01:28Z",
+      "side": 1,
+      "message": "Better to break when this becomes true?",
+      "fixSuggestions": [
+        {
+          "fixId": "4103e452_656e995d",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/header_checker.cc",
+              "range": {
+                "startLine": 684,
+                "startChar": 0,
+                "endLine": 686,
+                "endChar": 0
+              },
+              "replacement": "    if (check_includes_strict_exceptions_.CanInclude(\n            from_target-\u003elabel(), target.target-\u003elabel())) {\n      strict_exempt \u003d true;\n      break;\n    }\n"
+            }
+          ]
+        }
+      ],
+      "revId": "462309850f8389bba9df7072f54e9508f6ca414b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

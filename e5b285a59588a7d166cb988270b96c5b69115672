@@ -16,6 +16,24 @@
       "message": "Why do we need to change this to unsafe ?",
       "revId": "e5b285a59588a7d166cb988270b96c5b69115672",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "edf6e9d2_be3f2b6d",
+        "filename": "src/gn/starlark/crates/types/src/file.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-15T04:43:22Z",
+      "side": 1,
+      "message": "Rust 2024 requires all \"extern\" to be marked as unsafe.",
+      "parentUuid": "4e74c75a_febaf6ac",
+      "revId": "e5b285a59588a7d166cb988270b96c5b69115672",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

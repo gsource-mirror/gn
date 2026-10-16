@@ -1,0 +1,100 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ea2beb6_1a8d0342",
+        "filename": "src/gn/check_includes_strict_exceptions.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T02:33:03Z",
+      "side": 1,
+      "message": "[From Jetski review] `BlockNode::Execute` does not run `CheckForUnusedVars` on scopes returned as values (`RETURNS_SCOPE`), and `dotfile_scope_.CheckForUnusedVars` does not recurse into nested scopes.\n\nBecause `included` is optional, a typo in `.gn` such as `{ includer \u003d \"//foo/*\", include \u003d \"//bar:baz\" }` will silently ignore `include` and grant a **global** exception to `//foo/*`.\n\nConsider checking for unknown keys in `scope` (e.g. via `scope-\u003eGetCurrentScopeValues()`, or by marking `\"includer\"` / `\"included\"` as used and calling `scope-\u003eCheckForUnusedVars(\u0026err)`).",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "1f990fac69cae99d80d7e512922275d608ff13cc",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43414ed8_b7d62b45",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T02:33:03Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: `#include \"gn/filesystem_utils.h\"` and `#include \"gn/input_file.h\"` appear to be unused leftovers from an earlier patchset.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "1f990fac69cae99d80d7e512922275d608ff13cc",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d363f3b5_6317c67c",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T02:33:03Z",
+      "side": 1,
+      "message": "[From Jetski review] Passing `build_settings-\u003echeck_includes_strict_exceptions()` by value to `HeaderChecker` makes a full deep copy of the `CheckIncludesStrictExceptions` map/vectors on every `CheckPublicHeaders` call.\n\nSince `HeaderChecker` already holds `const BuildSettings* build_settings_`, could `HeaderChecker` read `build_settings_-\u003echeck_includes_strict_exceptions()` directly (and have the unit test set it on `setup_.build_settings()`) instead of storing a duplicate copy on `HeaderChecker`?",
+      "range": {
+        "startLine": 314,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "1f990fac69cae99d80d7e512922275d608ff13cc",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30441c7f_e7cd6502",
+        "filename": "src/gn/header_checker.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T02:33:03Z",
+      "side": 1,
+      "message": "[From Jetski review] When `strict_exempt` is `true` but the include still fails because an intermediate dependency is private (e.g. `A -\u003e B --[private]--\u003e C` where `B` has `check_includes_strict \u003d true`), `GetDependencyChainPublicError(chain)` (lines 102-118) will still blame `B`\u0027s `check_includes_strict \u003d true` (\"Including headers from the public_deps of B is blocked because check_includes_strict \u003d true is enabled on it\") even though `strict_exempt` was already applied and the actual failure is the private dep.\n\nConsider passing `strict_exempt` (or checking `chain[i - 1].is_public` in `GetDependencyChainPublicError`) so the diagnostic does not blame `check_includes_strict` when it was exempted or when the link was actually private.",
+      "range": {
+        "startLine": 777,
+        "startChar": 0,
+        "endLine": 780,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "1f990fac69cae99d80d7e512922275d608ff13cc",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

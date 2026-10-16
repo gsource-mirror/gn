@@ -1,0 +1,58 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6deaa9f8_d320ec05",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:41:38Z",
+      "side": 1,
+      "message": "[From Jetski review] Could you add a commit message body explaining why builtin rules need an implementation (e.g., allowing custom rules that inherit from builtin rules to call ctx.super() and receive [DefaultInfo(files \u003d ...)], as well as allowing Starlark targets to access DefaultInfo on builtin targets) and how it works (providing _builtin_impl for ctx.super() while fast-pathing direct builtin rule evaluation via Session::run_builtin_rule)?",
+      "isAi": true,
+      "revId": "42710e36590a2ad8ff132fa63a276a3a057ed056",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cd62f69_00a67d72",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:41:38Z",
+      "side": 1,
+      "message": "[From Jetski review] This logic is already implemented in \u003cTargetRef as types::TargetRef\u003e::outputs() (in src/gn/starlark/crates/ffi/src/target_ref.rs). You can simplify this to target.outputs() (with use types::TargetRef as _;).",
+      "isAi": true,
+      "revId": "42710e36590a2ad8ff132fa63a276a3a057ed056",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1f5f3c8_931df710",
+        "filename": "src/gn/starlark/crates/rule/src/ctx.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:41:38Z",
+      "side": 1,
+      "message": "[From Jetski review] Two minor nits here: (1) TargetRef as _ on line 176 is unused in this function, and (2) is #[starlark(default \u003d starlark::values::none::NoneType)] needed on _ctx? Both direct evaluation and ctx.super() always pass ctx as a positional argument.",
+      "isAi": true,
+      "revId": "42710e36590a2ad8ff132fa63a276a3a057ed056",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

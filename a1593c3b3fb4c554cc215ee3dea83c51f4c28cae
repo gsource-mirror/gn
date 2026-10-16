@@ -21,6 +21,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8a07421c_2244a830",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T06:07:12Z",
+      "side": 1,
+      "message": "By the way, could you use http://b/528225104 in bug label for starlark related CLs too?",
+      "revId": "a1593c3b3fb4c554cc215ee3dea83c51f4c28cae",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "32b274c8_8e63d00f",
         "filename": "src/gn/starlark/crates/types/src/escape.rs",
         "patchSetId": 5

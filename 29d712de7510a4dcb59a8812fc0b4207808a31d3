@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2d19fa5_40f9b948",
+        "filename": "src/gn/starlark/crates/args/src/args.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-16T05:34:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c02acf57_8f27f256",
+      "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d79ca61_c3f0a511",
@@ -39,6 +57,30 @@
         "endChar": 9999
       },
       "isAi": true,
+      "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "554dd44a_8b901266",
+        "filename": "src/gn/starlark/crates/args/src/expand.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-16T05:34:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d79ca61_c3f0a511",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 9999
+      },
       "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -67,6 +109,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "09c89bda_abaa7275",
+        "filename": "src/gn/starlark/crates/args/src/formatter.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-16T05:34:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7607b032_9567a165",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 9999
+      },
+      "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8d21785f_743a655f",
@@ -85,6 +151,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac1ce1bc_ea91348c",
+        "filename": "src/gn/starlark/crates/types/src/escape.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-16T05:34:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d21785f_743a655f",
+      "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6576e91d_bfac7db9",
@@ -99,6 +183,24 @@
       "side": 1,
       "message": "[From Jetski review] Two things to consider here:\n1. Line 27 escapes `\\\\` when quoting is enabled, but `b\u0027\\\\\u0027` is not checked in `escape_mode`. A token like `foo\\bar` (without spaces or quotes) will not have its backslash escaped, whereas `foo\\bar baz` will become `\"foo\\\\bar baz\"`.\n2. Escaping `$` as `$$` only escapes it for Ninja, so Ninja passes a literal `$` to `/bin/sh -c`, which will still expand `$BAR` / `$USER` as shell environment variables (unlike `EscapeStringToString_PosixNinjaFork` in `src/gn/escape.cc` which emits `\\$$`). Is shell variable expansion intended here?",
       "isAi": true,
+      "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0de5217d_3f730a50",
+        "filename": "src/gn/starlark/crates/types/src/escape.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-16T05:34:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6576e91d_bfac7db9",
       "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

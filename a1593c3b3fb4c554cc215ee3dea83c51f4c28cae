@@ -1,0 +1,58 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f854e578_cfa25c1f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:57:44Z",
+      "side": 1,
+      "message": "[From Jetski review] Even with the args crate changes split into a follow-up CL, the commit message still has no body explaining why Ninja command/shell escaping is needed in Rust alongside C++\u0027s EscapeString (src/gn/escape.cc). Could you add a description explaining the motivation (e.g., expanding Starlark ctx.actions.args() on the Rust side and streaming composite token slices directly into an Ostream with platform-specific quoting/escaping corresponding to ESCAPE_NINJA_COMMAND)?",
+      "isAi": true,
+      "revId": "a1593c3b3fb4c554cc215ee3dea83c51f4c28cae",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32b274c8_8e63d00f",
+        "filename": "src/gn/starlark/crates/types/src/escape.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:57:44Z",
+      "side": 1,
+      "message": "[From Jetski review] On Posix, if a token contains \u0027$\u0027 or other shell metacharacters (such as \u0027\\\u0027, \u0027`\u0027, \u0027;\u0027, \u0027|\u0027, \u0027\u0026\u0027, \u0027*\u0027, \u0027?\u0027, \u0027(\u0027, \u0027)\u0027, \u0027\u003c\u0027, \u0027\u003e\u0027, \u0027[\u0027, \u0027]\u0027, \u0027#\u0027, \u0027~\u0027, \u0027{\u0027, \u0027}\u0027, \u0027!\u0027) without spaces or quotes (e.g., \"-DMSG\u003d$USER\", \"foo\\\\bar\", or \"*.cc\"), escape_quoting will be Some(false) or None. As a result, \"-DMSG\u003d$USER\" becomes \"-DMSG\u003d$$USER\" (which Ninja unescapes to \"$USER\" and /bin/sh still expands as an environment variable), and characters like \u0027\\\u0027, \u0027;\u0027, or \u0027*\u0027 are passed unquoted to the shell. Consider making the quoting check platform-aware (or quoting whenever any character outside the safe set [a-zA-Z0-9_+-./:\u003d@] is present on Posix) so that \u0027$\u0027 and shell metacharacters trigger quoting.",
+      "isAi": true,
+      "revId": "a1593c3b3fb4c554cc215ee3dea83c51f4c28cae",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8610dcd_06c6afea",
+        "filename": "src/gn/starlark/crates/types/src/platform.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:57:44Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Per .agents/AGENTS.md (\"Anything marked as pub should have a docstring (starts with ///)\"), please add /// docstrings to pub struct Windows and pub struct Posix (line 45).",
+      "isAi": true,
+      "revId": "a1593c3b3fb4c554cc215ee3dea83c51f4c28cae",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

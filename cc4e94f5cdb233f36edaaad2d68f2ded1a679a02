@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12ea5b02_b0d4d3e1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:42:54Z",
+      "side": 1,
+      "message": "[From Jetski review] Could you add a commit message body (and/or clarify the subject) to explain that \"rust phonies\" refers to the intermediate phony targets generated on the Rust/Starlark side for multi-file depsets (stored in CtxState::phonies / EvaluatedTarget::phonies and written out via NinjaTargetWriter), rather than phony rules for GN rust_* language targets?",
+      "isAi": true,
+      "revId": "cc4e94f5cdb233f36edaaad2d68f2ded1a679a02",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97b9062e_1f827f2f",
+        "filename": "src/gn/string_output_buffer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:42:54Z",
+      "side": 1,
+      "message": "[From Jetski review] AppendRust (and #include \"cxx.h\" on line 15) appears to be unused now that Ostream (src/gn/ffi/ostream.h) is used instead. Can these changes to string_output_buffer.h be reverted?",
+      "isAi": true,
+      "revId": "cc4e94f5cdb233f36edaaad2d68f2ded1a679a02",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c02acf57_8f27f256",
+        "filename": "src/gn/starlark/crates/args/src/args.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T02:09:13Z",
+      "side": 1,
+      "message": "[From Jetski review] If `join_with` is `\"\"`, `escape_ninja_token(\"\")` returns `\"\\\"\\\"\"`, so `add_joined([\"a\", \"b\"], join_with \u003d \"\")` will expand to `a\"\"b` instead of `ab`. Similar to `Formatter::new`, an empty `join_with` should not be escaped to `\"\\\"\\\"\"`.",
+      "isAi": true,
+      "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d79ca61_c3f0a511",
+        "filename": "src/gn/starlark/crates/args/src/expand.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T02:09:13Z",
+      "side": 1,
+      "message": "[From Jetski review] When `dest` is empty and `omit_if_empty` is `False`, `joined` is `\"\"` and gets pushed without being escaped to `\"\\\"\\\"\"` (even if `format_joined \u003d \"%s\"` is used). You can see this in `test_args_omit_if_empty` in `tests.rs`, where `add_joined(\"--flag\", [], join_with\u003d\",\", omit_if_empty\u003dFalse)` still expands to `[\"--flag\", \"\"]`.",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7607b032_9567a165",
+        "filename": "src/gn/starlark/crates/args/src/formatter.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T02:09:13Z",
+      "side": 1,
+      "message": "[From Jetski review] Quoting `before`, `after`, and the argument value separately and then concatenating them can produce adjacent quotes like `\"hello \"\"world foo\"` (when both `before` and the value contain spaces), which Windows `CommandLineToArgvW` interprets as a literal `\"` rather than quote concatenation. It also behaves unexpectedly when the format string itself wraps `%s` in quotes (e.g. `format \u003d \u0027--foo\u003d\"%s\"\u0027`).\n\nWould it be simpler and more accurate to apply `Formatter` / `join_with` on the unescaped strings first, and call `escape_ninja_token` once on the final assembled token?",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d21785f_743a655f",
+        "filename": "src/gn/starlark/crates/types/src/escape.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T02:09:13Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Use `///` for docstrings on `pub` items per `AGENTS.md`.",
+      "isAi": true,
+      "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6576e91d_bfac7db9",
+        "filename": "src/gn/starlark/crates/types/src/escape.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T02:09:13Z",
+      "side": 1,
+      "message": "[From Jetski review] Two things to consider here:\n1. Line 27 escapes `\\\\` when quoting is enabled, but `b\u0027\\\\\u0027` is not checked in `escape_mode`. A token like `foo\\bar` (without spaces or quotes) will not have its backslash escaped, whereas `foo\\bar baz` will become `\"foo\\\\bar baz\"`.\n2. Escaping `$` as `$$` only escapes it for Ninja, so Ninja passes a literal `$` to `/bin/sh -c`, which will still expand `$BAR` / `$USER` as shell environment variables (unlike `EscapeStringToString_PosixNinjaFork` in `src/gn/escape.cc` which emits `\\$$`). Is shell variable expansion intended here?",
+      "isAi": true,
+      "revId": "29d712de7510a4dcb59a8812fc0b4207808a31d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48a2c7a3_118cb1f5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:40:32Z",
+      "side": 1,
+      "message": "[From Jetski review] Could you add a commit message body explaining the motivation and design of this refactoring (e.g., separating the global registration of DefaultInfo from the //builtins:providers.scl module containing GnInputsInfo/GnSubstitutionsInfo, and constructing BuiltinProviders from Globals)? Also, as noted in session.rs, the actual FileLoader::preload call for //builtins:providers.scl is currently in the next CL (27400) rather than this one.",
+      "isAi": true,
+      "revId": "5b4522e319adffaa8609e3b07f0faf46c320f72f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37c898ff_8f43c47c",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:40:32Z",
+      "side": 1,
+      "message": "[From Jetski review] The commit message says \"Refactor builtin providers to be preloaded via FileLoader\", but the actual loader.preload(\"//builtins:providers.scl\", providers::builtin_providers_module()) call in Session::from_resolver appears to have been placed in the next CL (27400) instead of this one.",
+      "isAi": true,
+      "revId": "5b4522e319adffaa8609e3b07f0faf46c320f72f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8bacb199_a43204b2",
+        "filename": "src/gn/starlark/crates/providers/src/builtins.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-16T05:40:32Z",
+      "side": 1,
+      "message": "[From Jetski review] Does BuiltinProviders::new need to require \u0026\u0027static Globals? OwnedFrozenRef (returned by globals.get_ref(\"DefaultInfo\")) provides .add_to_frozen_heap(heap) and .to_owned() (or .try_map(...).unwrap().to_owned() to get OwnedFrozen\u003cValueTyped\u003c\u0027static, ProviderType\u003e\u003e). Using that would allow BuiltinProviders::new(\u0026Globals) to take a normal \u0026Globals reference without HeapEdge::immortal(), and in the next CL (27400) Session::builtin_providers wouldn\u0027t need to be wrapped in an Option or initialized via as_static_mut().",
+      "isAi": true,
+      "revId": "5b4522e319adffaa8609e3b07f0faf46c320f72f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -4,7 +4,9 @@
 
 #include "gn/json_project_writer.h"
 
+#include "base/command_line.h"
 #include "base/strings/string_util.h"
+#include "gn/commands.h"
 #include "gn/substitution_list.h"
 #include "gn/target.h"
 #include "gn/test_with_scheduler.h"
@@ -297,6 +299,63 @@ TEST_F(JSONWriter, ActionWithResponseFile) {
 }
 )_";
   EXPECT_EQ(expected_json, out);
+}
+
+// Tests that a Rust executable exports its aliased_deps and the native files
+// that rustc passes to the linker.
+TEST_F(JSONWriter, RustAliasedDepsAndLinkInputs) {
+  Err err;
+  TestWithScope setup;
+  // Describing a target's deps reads the command switches.
+  commands::CommandSwitches::Init(
+      base::CommandLine(base::CommandLine::NO_PROGRAM));
+
+  Target lib(setup.settings(), Label(SourceDir("//foo/"), "lib"));
+  lib.set_output_type(Target::RUST_LIBRARY);
+  lib.visibility().SetPublic();
+  SourceFile lib_rs("//foo/lib.rs");
+  lib.sources().push_back(lib_rs);
+  lib.source_types_used().Set(SourceFile::SOURCE_RS);
+  lib.rust_values().set_crate_root(lib_rs);
+  lib.rust_values().crate_name() = "lib";
+  lib.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(lib.OnResolved(&err));
+
+  Target staticlib(setup.settings(), Label(SourceDir("//foo/"), "static"));
+  staticlib.set_output_type(Target::STATIC_LIBRARY);
+  staticlib.visibility().SetPublic();
+  staticlib.sources().push_back(SourceFile("//foo/static.cpp"));
+  staticlib.source_types_used().Set(SourceFile::SOURCE_CPP);
+  staticlib.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(staticlib.OnResolved(&err));
+
+  Target exe(setup.settings(), Label(SourceDir("//foo/"), "bar"));
+  exe.set_output_type(Target::EXECUTABLE);
+  exe.visibility().SetPublic();
+  SourceFile main_rs("//foo/main.rs");
+  exe.sources().push_back(main_rs);
+  exe.source_types_used().Set(SourceFile::SOURCE_RS);
+  exe.rust_values().set_crate_root(main_rs);
+  exe.rust_values().crate_name() = "bar";
+  exe.rust_values().aliased_deps()[lib.label()] = "renamed";
+  exe.private_deps().push_back(LabelTargetPair(&lib));
+  exe.private_deps().push_back(LabelTargetPair(&staticlib));
+  exe.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(exe.OnResolved(&err));
+
+  std::vector<const Target*> targets = {&lib, &staticlib, &exe};
+  std::string out =
+      JSONProjectWriter::RenderJSON(setup.build_settings(), targets);
+  EXPECT_NE(out.find(R"_("//foo:lib()": "renamed")_"), std::string::npos)
+      << out;
+  EXPECT_NE(
+      out.find(
+          R"_("rust_link_inputs": [ "//out/Debug/obj/foo/libstatic.a" ])_"),
+      std::string::npos)
+      << out;
+  // An rlib links nothing, so it exports no link inputs.
+  EXPECT_EQ(out.find("rust_link_inputs"), out.rfind("rust_link_inputs")) << out;
+  commands::CommandSwitches::Set(commands::CommandSwitches());
 }
 
 TEST_F(JSONWriter, RustTarget) {

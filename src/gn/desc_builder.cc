@@ -14,6 +14,7 @@
 #include "gn/config_values_extractors.h"
 #include "gn/deps_iterator.h"
 #include "gn/input_file.h"
+#include "gn/ninja_rust_binary_target_writer.h"
 #include "gn/parse_tree.h"
 #include "gn/resolved_target_data.h"
 #include "gn/runtime_deps.h"
@@ -21,6 +22,7 @@
 #include "gn/scope.h"
 #include "gn/settings.h"
 #include "gn/standard_out.h"
+#include "gn/string_output_buffer.h"
 #include "gn/substitution_writer.h"
 #include "gn/swift_variables.h"
 #include "gn/variables.h"
@@ -62,6 +64,8 @@
 //   "data_keys" : [ list of target data keys ]
 //   "walk_keys" : [ list of target walk keys ]
 //   "crate_root" : "root file of a Rust target"
+//   "aliased_deps" : { dependency label: crate name passed to --extern }
+//   "rust_link_inputs" : [ native files rustc passes to the linker ]
 //   "crate_name" : "name of a Rust target"
 //   "rebase" : true or false
 //   "output_conversion" : "string for output conversion"
@@ -350,6 +354,20 @@ class TargetDescBuilder : public BaseDescBuilder {
       if (what(variables::kRustCrateName)) {
         res->SetKey(variables::kRustCrateName,
                     base::Value(target_->rust_values().crate_name()));
+      }
+      // The crate names that aliased_deps give dependencies in --extern. Label
+      // form matches "deps".
+      const auto& aliased_deps = target_->rust_values().aliased_deps();
+      if (what(variables::kRustAliasedDeps) && !aliased_deps.empty()) {
+        Label default_tc_label = target_->settings()->default_toolchain_label();
+        auto aliases = std::make_unique<base::DictionaryValue>();
+        for (const auto& [label, name] : aliased_deps) {
+          aliases->SetKey(label.GetUserVisibleName(label.GetToolchainLabel() !=
+                                                   default_tc_label),
+                          base::Value(name));
+        }
+        res->SetWithoutPathExpansion(variables::kRustAliasedDeps,
+                                     std::move(aliases));
       }
     }
 
@@ -733,6 +751,23 @@ class TargetDescBuilder : public BaseDescBuilder {
     // dependency walk for every target.
     ResolvedTargetData local_resolved;
     ResolvedTargetData& resolved = resolved_ ? *resolved_ : local_resolved;
+
+    // The native files (objects, libraries, and rlibs behind non-Rust deps)
+    // that rustc passes to the linker as -Clink-arg. Writers outside GN can't
+    // derive them from the other fields, because they come from GN's
+    // dependency classification.
+    if (what("rust_link_inputs") && target_->IsBinary() &&
+        target_->source_types_used().RustSourceUsed()) {
+      StringOutputBuffer unused;
+      NinjaRustBinaryTargetWriter writer(target_, unused);
+      writer.SetResolvedTargetData(&resolved);
+      std::vector<SourceFile> files;
+      for (const OutputFile& file : writer.GetNonRustDeps())
+        files.push_back(
+            file.AsSourceFile(target_->settings()->build_settings()));
+      if (!files.empty())
+        res->SetWithoutPathExpansion("rust_link_inputs", RenderValue(files));
+    }
 
     // Libs can be part of any target and get recursively pushed up the chain,
     // so display them regardless of target type.

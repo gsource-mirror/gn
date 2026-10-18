@@ -161,13 +161,7 @@ void NinjaRustBinaryTargetWriter::Run() {
   }
 
   std::vector<OutputFile> rustdeps;
-  std::vector<OutputFile> nonrustdeps;
   std::vector<OutputFile> swiftmodules;
-  if (!is_rlib) {
-    nonrustdeps.insert(nonrustdeps.end(),
-                       classified_deps.extra_object_files.begin(),
-                       classified_deps.extra_object_files.end());
-  }
   for (const auto* framework_dep : classified_deps.framework_deps) {
     if (framework_dep->has_dependency_output_file()) {
       order_only_deps.push_back(framework_dep->dependency_output_file());
@@ -200,8 +194,6 @@ void NinjaRustBinaryTargetWriter::Run() {
     } else if (is_rlib) {
       // Not needed to build an rlib. See the comment on `is_rlib` above.
       continue;
-    } else {
-      nonrustdeps.push_back(linkable_dep->link_output_file());
     }
     CHECK(linkable_dep->has_dependency_output_file());
     implicit_deps.push_back(linkable_dep->dependency_output_file());
@@ -218,78 +210,21 @@ void NinjaRustBinaryTargetWriter::Run() {
     }
   }
 
-  // Collect the full transitive set of rust libraries that this target depends
-  // on, and the public flag represents if the target has direct access to the
-  // dependency through a chain of public_deps.
-  std::vector<ExternCrate> transitive_crates;
-  for (const auto& inherited : resolved().GetRustInheritedLibraries(target_)) {
-    const Target* dep = inherited.target();
-    bool has_direct_access = inherited.is_public();
-    // We will tell rustc to look for crate metadata for any rust crate
-    // dependencies except cdylibs, as they have no metadata present.
-    if (dep->source_types_used().RustSourceUsed() &&
-        RustValues::IsRustLibrary(dep)) {
-      transitive_crates.push_back({dep, has_direct_access});
-      // If the current crate can directly acccess the `dep` crate, then the
-      // current crate needs an implicit dependency on `dep` so it will be
-      // rebuilt if `dep` changes.
-      if (has_direct_access) {
-        implicit_deps.push_back(dep->dependency_output_file());
-      }
+  std::vector<ExternCrate> transitive_crates = GetTransitiveCrates();
+  for (const auto& crate : transitive_crates) {
+    // If the current crate can directly acccess the `dep` crate, then the
+    // current crate needs an implicit dependency on `dep` so it will be
+    // rebuilt if `dep` changes.
+    if (crate.has_direct_access) {
+      implicit_deps.push_back(crate.target->dependency_output_file());
     }
   }
-
-  // rustc only links rlibs reachable through the Rust crate graph (via
-  // --extern / -Ldependency). Rust libraries reachable only through a non-Rust
-  // (C++) dependency are otherwise dropped from a rustc-driven link, which
-  // breaks cxx bridges whose Rust half lives behind a C++ target (e.g. //base's
-  // rust_logger or serde_json_lenient). The C++ linker path handles this via
-  // the "rlibs" ninja variable (see NinjaCBinaryTargetWriter); mirror it here
-  // by linking those rlibs directly as archives through the linker. Crates
-  // already covered by the crate graph above are skipped to avoid linking them
-  // twice.
-  if (target_->IsFinal()) {
-    // Compute the set of rlibs rustc links by itself: the crates passed to
-    // --extern (those with direct access), plus everything reachable from them
-    // by following Rust crate dependencies (rustc resolves these through crate
-    // metadata). A Rust library is NOT in this set if it can only be reached
-    // through a non-Rust (C++) dependency, since the C++ boundary breaks the
-    // crate graph.
-    std::unordered_set<const Target*> linked_by_rustc;
-    std::vector<const Target*> work;
-    for (const auto& crate : transitive_crates) {
-      if (crate.has_direct_access)
-        work.push_back(crate.target);
-    }
-    while (!work.empty()) {
-      const Target* crate = work.back();
-      work.pop_back();
-      if (!linked_by_rustc.insert(crate).second)
-        continue;
-      for (const auto& pair : crate->GetDeps(Target::DEPS_LINKED)) {
-        // Groups are flattened into the crate graph, so rustc links rlibs
-        // reachable through them; treat groups as transparent in this walk so
-        // those rlibs aren't passed to the linker a second time below.
-        if (pair.ptr->output_type() == Target::GROUP ||
-            (pair.ptr->source_types_used().RustSourceUsed() &&
-             RustValues::IsRustLibrary(pair.ptr)))
-          work.push_back(pair.ptr);
-      }
-    }
-    // Link any Rust library in the transitive closure that rustc won't link
-    // itself directly as an archive, mirroring the "rlibs" handling in
-    // NinjaCBinaryTargetWriter. This is what lets cxx bridges whose Rust half
-    // sits behind a C++ target (e.g. //base's rust_logger) resolve.
-    for (const auto& inherited : resolved().GetInheritedLibraries(target_)) {
-      const Target* dep = inherited.target();
-      if (dep->output_type() == Target::RUST_LIBRARY &&
-          !linked_by_rustc.contains(dep)) {
-        CHECK(dep->has_dependency_output_file());
-        nonrustdeps.push_back(dep->dependency_output_file());
-        implicit_deps.push_back(dep->dependency_output_file());
-      }
-    }
+  for (const Target* dep : GetRustLibrariesLinkedNatively(transitive_crates)) {
+    CHECK(dep->has_dependency_output_file());
+    implicit_deps.push_back(dep->dependency_output_file());
   }
+  std::vector<OutputFile> nonrustdeps =
+      GetNonRustDeps(classified_deps, transitive_crates);
 
   std::vector<OutputFile> tool_outputs;
   SubstitutionWriter::ApplyListToLinkerAsOutputFile(
@@ -308,6 +243,109 @@ void NinjaRustBinaryTargetWriter::Run() {
                       swiftmodules);
   WriteSourcesAndInputs();
   WritePool(out_);
+}
+
+std::vector<OutputFile> NinjaRustBinaryTargetWriter::GetNonRustDeps() const {
+  return GetNonRustDeps(GetClassifiedDeps(), GetTransitiveCrates());
+}
+
+std::vector<NinjaRustBinaryTargetWriter::ExternCrate>
+NinjaRustBinaryTargetWriter::GetTransitiveCrates() const {
+  // Collect the full transitive set of rust libraries that this target depends
+  // on, and the public flag represents if the target has direct access to the
+  // dependency through a chain of public_deps.
+  std::vector<ExternCrate> transitive_crates;
+  for (const auto& inherited : resolved().GetRustInheritedLibraries(target_)) {
+    const Target* dep = inherited.target();
+    bool has_direct_access = inherited.is_public();
+    // We will tell rustc to look for crate metadata for any rust crate
+    // dependencies except cdylibs, as they have no metadata present.
+    if (dep->source_types_used().RustSourceUsed() &&
+        RustValues::IsRustLibrary(dep)) {
+      transitive_crates.push_back({dep, has_direct_access});
+    }
+  }
+  return transitive_crates;
+}
+
+std::vector<const Target*>
+NinjaRustBinaryTargetWriter::GetRustLibrariesLinkedNatively(
+    const std::vector<ExternCrate>& transitive_crates) const {
+  // rustc only links rlibs reachable through the Rust crate graph (via
+  // --extern / -Ldependency). Rust libraries reachable only through a non-Rust
+  // (C++) dependency are otherwise dropped from a rustc-driven link, which
+  // breaks cxx bridges whose Rust half lives behind a C++ target (e.g. //base's
+  // rust_logger or serde_json_lenient). The C++ linker path handles this via
+  // the "rlibs" ninja variable (see NinjaCBinaryTargetWriter); mirror it here
+  // by linking those rlibs directly as archives through the linker. Crates
+  // already covered by the crate graph above are skipped to avoid linking them
+  // twice.
+  std::vector<const Target*> result;
+  if (!target_->IsFinal())
+    return result;
+
+  // Compute the set of rlibs rustc links by itself: the crates passed to
+  // --extern (those with direct access), plus everything reachable from them
+  // by following Rust crate dependencies (rustc resolves these through crate
+  // metadata). A Rust library is NOT in this set if it can only be reached
+  // through a non-Rust (C++) dependency, since the C++ boundary breaks the
+  // crate graph.
+  std::unordered_set<const Target*> linked_by_rustc;
+  std::vector<const Target*> work;
+  for (const auto& crate : transitive_crates) {
+    if (crate.has_direct_access)
+      work.push_back(crate.target);
+  }
+  while (!work.empty()) {
+    const Target* crate = work.back();
+    work.pop_back();
+    if (!linked_by_rustc.insert(crate).second)
+      continue;
+    for (const auto& pair : crate->GetDeps(Target::DEPS_LINKED)) {
+      // Groups are flattened into the crate graph, so rustc links rlibs
+      // reachable through them; treat groups as transparent in this walk so
+      // those rlibs aren't passed to the linker a second time below.
+      if (pair.ptr->output_type() == Target::GROUP ||
+          (pair.ptr->source_types_used().RustSourceUsed() &&
+           RustValues::IsRustLibrary(pair.ptr)))
+        work.push_back(pair.ptr);
+    }
+  }
+  // Link any Rust library in the transitive closure that rustc won't link
+  // itself directly as an archive, mirroring the "rlibs" handling in
+  // NinjaCBinaryTargetWriter. This is what lets cxx bridges whose Rust half
+  // sits behind a C++ target (e.g. //base's rust_logger) resolve.
+  for (const auto& inherited : resolved().GetInheritedLibraries(target_)) {
+    const Target* dep = inherited.target();
+    if (dep->output_type() == Target::RUST_LIBRARY &&
+        !linked_by_rustc.contains(dep)) {
+      result.push_back(dep);
+    }
+  }
+  return result;
+}
+
+std::vector<OutputFile> NinjaRustBinaryTargetWriter::GetNonRustDeps(
+    const ClassifiedDeps& classified_deps,
+    const std::vector<ExternCrate>& transitive_crates) const {
+  // An rlib links nothing; see the comment on `is_rlib` in Run().
+  std::vector<OutputFile> nonrustdeps;
+  if (RustValues::InferredCrateType(target_) == RustValues::CRATE_RLIB)
+    return nonrustdeps;
+
+  nonrustdeps.insert(nonrustdeps.end(),
+                     classified_deps.extra_object_files.begin(),
+                     classified_deps.extra_object_files.end());
+  for (const auto* linkable_dep : classified_deps.linkable_deps) {
+    // Rust cdylibs are treated as non-Rust dependencies for linking purposes.
+    if (!linkable_dep->source_types_used().RustSourceUsed() ||
+        linkable_dep->rust_values().crate_type() == RustValues::CRATE_CDYLIB) {
+      nonrustdeps.push_back(linkable_dep->link_output_file());
+    }
+  }
+  for (const Target* dep : GetRustLibrariesLinkedNatively(transitive_crates))
+    nonrustdeps.push_back(dep->dependency_output_file());
+  return nonrustdeps;
 }
 
 void NinjaRustBinaryTargetWriter::WriteCompilerVars() {

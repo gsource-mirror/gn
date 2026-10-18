@@ -907,6 +907,15 @@ TEST_F(NinjaRustBinaryTargetWriterTest, NonRustDeps) {
         "  ldflags =\n"
         "  sources = ../../foo/source.rs ../../foo/main.rs\n";
     EXPECT_EQ(expected, out);
+
+    // GetNonRustDeps returns the files that rustdeps passes as -Clink-arg.
+    std::vector<std::string> link_deps;
+    for (const OutputFile& file : writer.GetNonRustDeps())
+      link_deps.emplace_back(file.value());
+    EXPECT_EQ((std::vector<std::string>{"obj/baz/sourceset.csourceset.o",
+                                        "obj/foo/libstatic.a", "./libshared.so",
+                                        "./libshared_with_toc.so"}),
+              link_deps);
   }
 
   Target nonrust_only(setup.settings(), Label(SourceDir("//foo/"), "bar"));

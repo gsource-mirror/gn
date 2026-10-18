@@ -19,11 +19,24 @@ class NinjaRustBinaryTargetWriter : public NinjaBinaryTargetWriter {
 
   void Run() override;
 
+  // Returns the native files that rustc passes to the linker for this target,
+  // in command-line order: object files, non-Rust libraries, and Rust
+  // libraries that are reachable only through non-Rust dependencies. Empty for
+  // an rlib, which doesn't link.
+  std::vector<OutputFile> GetNonRustDeps() const;
+
  private:
   struct ExternCrate {
     const Target* target;
     bool has_direct_access;
   };
+
+  std::vector<ExternCrate> GetTransitiveCrates() const;
+  std::vector<const Target*> GetRustLibrariesLinkedNatively(
+      const std::vector<ExternCrate>& transitive_crates) const;
+  std::vector<OutputFile> GetNonRustDeps(
+      const ClassifiedDeps& classified_deps,
+      const std::vector<ExternCrate>& transitive_crates) const;
 
   void WriteCompilerVars();
   void WriteSources(const OutputFile& input_dep,

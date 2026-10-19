@@ -198,6 +198,13 @@ class Target : public Item {
   bool check_includes_strict() const { return check_includes_strict_; }
   void set_check_includes_strict(bool value) { check_includes_strict_ = value; }
 
+  // Whether this target can safely enable check includes strict optimizations.
+  // This requires check_includes_strict, but also for no check_includes_strict
+  // exceptions.
+  bool check_includes_strict_optimizations() const {
+    return check_includes_strict_optimizations_;
+  }
+
   // Whether this static_library target should have code linked in.
   bool complete_static_lib() const { return complete_static_lib_; }
   void set_complete_static_lib(bool complete) {
@@ -583,6 +590,7 @@ class Target : public Item {
   FileList public_headers_;
   bool check_includes_ = true;
   bool check_includes_strict_ = false;
+  bool check_includes_strict_optimizations_ = false;
   bool complete_static_lib_ = false;
   bool collect_validations_metadata_ = false;
   std::vector<std::string> data_;

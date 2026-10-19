@@ -547,12 +547,47 @@ TEST(ResolvedTargetDataTest, HardDepsStrictIncludes) {
   ASSERT_TRUE(priv_action.OnResolved(&err));
   ASSERT_TRUE(strict.OnResolved(&err));
 
+  EXPECT_TRUE(strict.check_includes_strict_optimizations());
+
   ResolvedTargetData resolved;
 
   const TargetSet& strict_hard_deps = resolved.GetHardDeps(&strict);
   EXPECT_EQ(1u, strict_hard_deps.size());
   EXPECT_TRUE(strict_hard_deps.contains(&pub_action));
   EXPECT_FALSE(strict_hard_deps.contains(&priv_action));
+}
+
+TEST(ResolvedTargetDataTest, HardDepsStrictIncludesWithExceptions) {
+  TestWithScope setup;
+  Err err;
+
+  CheckIncludesStrictExceptions exceptions;
+  exceptions.AddLocalException(
+      LabelPattern(LabelPattern::DIRECTORY, SourceDir("//foo/"), "", Label()),
+      Label(SourceDir("//foo/"), "priv_action"));
+  setup.build_settings()->set_check_includes_strict_exceptions(
+      std::move(exceptions));
+
+  TestTarget pub_action(setup, "//foo:pub_action", Target::ACTION);
+  TestTarget priv_action(setup, "//foo:priv_action", Target::ACTION);
+
+  TestTarget strict(setup, "//foo:strict", Target::SOURCE_SET);
+  strict.set_check_includes_strict(true);
+  strict.public_deps().push_back(LabelTargetPair(&pub_action));
+  strict.private_deps().push_back(LabelTargetPair(&priv_action));
+
+  ASSERT_TRUE(pub_action.OnResolved(&err));
+  ASSERT_TRUE(priv_action.OnResolved(&err));
+  ASSERT_TRUE(strict.OnResolved(&err));
+
+  EXPECT_FALSE(strict.check_includes_strict_optimizations());
+
+  ResolvedTargetData resolved;
+
+  const TargetSet& strict_hard_deps = resolved.GetHardDeps(&strict);
+  EXPECT_EQ(2u, strict_hard_deps.size());
+  EXPECT_TRUE(strict_hard_deps.contains(&pub_action));
+  EXPECT_TRUE(strict_hard_deps.contains(&priv_action));
 }
 
 TEST(ResolvedTargetDataTest, HardDepsRustLibrary) {

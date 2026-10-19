@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f11cba3_0f71cc7b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-19T06:24:36Z",
+      "side": 1,
+      "message": "If this disableds build optimization for some targets, I\u0027d like to avoid that.\n\nIs it difficult to make exceptions work with optimization?",
+      "revId": "6d7385fe86169faaa9c129e31940050447db256b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "263c6c0d_91e98130",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-19T06:24:36Z",
+      "side": 1,
+      "message": "This is related to http://b/556959580 ?",
+      "revId": "6d7385fe86169faaa9c129e31940050447db256b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

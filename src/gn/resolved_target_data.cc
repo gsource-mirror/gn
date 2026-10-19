@@ -82,8 +82,9 @@ bool ResolvedTargetData::OnlyForwardsPublicHardDeps(const Target* target) {
   // binding headers via `public_deps`), dependents only need hard deps from
   // `public_deps()`. The target's own compilation still gets hard deps from its
   // `private_deps()` in NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep.
-  return !target->hard_dep() && (target->check_includes_strict() ||
-                                 target->source_types_used().RustSourceUsed());
+  return !target->hard_dep() &&
+         (target->check_includes_strict_optimizations() ||
+          target->source_types_used().RustSourceUsed());
 }
 
 // Keep in sync with NinjaTargetWriter::WriteHardDepsStampOrPhony().

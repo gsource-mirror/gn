@@ -11,6 +11,7 @@
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
+#include "gn/build_settings.h"
 #include "gn/c_tool.h"
 #include "gn/config_values_extractors.h"
 #include "gn/deps_iterator.h"
@@ -633,6 +634,34 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
     DCHECK(!computed_outputs_.empty());
     g_scheduler->AddGeneratedFile(
         computed_outputs_[0].AsSourceFile(settings()->build_settings()));
+  }
+
+  if (check_includes_strict_) {
+    const auto& exceptions =
+        settings()->build_settings()->check_includes_strict_exceptions();
+    if (exceptions.empty()) {
+      check_includes_strict_optimizations_ = true;
+      // HasException(from, to) = HasGlobalException(from) ||
+      // HasLocalException(from, to) This is purely on optimization so we don't
+      // call HasException many times.
+    } else if (exceptions.HasGlobalException(label())) {
+      check_includes_strict_optimizations_ = false;
+      // If a public header includes a private header in this target, the
+      // private header may then require a private dep. See below comment for
+      // explanation on private deps.
+    } else if (exceptions.HasLocalException(label(), label())) {
+      check_includes_strict_optimizations_ = false;
+    } else {
+      check_includes_strict_optimizations_ = true;
+      // If a public header requires a private dep, then targets depending on
+      // this may require our public header, and thus our private dep.
+      for (const auto& dep : private_deps_) {
+        if (exceptions.HasLocalException(label(), dep.label)) {
+          check_includes_strict_optimizations_ = false;
+          break;
+        }
+      }
+    }
   }
 
   return true;

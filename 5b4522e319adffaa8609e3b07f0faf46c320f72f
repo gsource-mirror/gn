@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a03efba_5a22a101",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T05:44:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48a2c7a3_118cb1f5",
+      "revId": "5b4522e319adffaa8609e3b07f0faf46c320f72f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "37c898ff_8f43c47c",
@@ -37,6 +55,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f15d0ba_1a8f12b7",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T05:44:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37c898ff_8f43c47c",
+      "revId": "5b4522e319adffaa8609e3b07f0faf46c320f72f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8bacb199_a43204b2",
@@ -51,6 +87,24 @@
       "side": 1,
       "message": "[From Jetski review] Does BuiltinProviders::new need to require \u0026\u0027static Globals? OwnedFrozenRef (returned by globals.get_ref(\"DefaultInfo\")) provides .add_to_frozen_heap(heap) and .to_owned() (or .try_map(...).unwrap().to_owned() to get OwnedFrozen\u003cValueTyped\u003c\u0027static, ProviderType\u003e\u003e). Using that would allow BuiltinProviders::new(\u0026Globals) to take a normal \u0026Globals reference without HeapEdge::immortal(), and in the next CL (27400) Session::builtin_providers wouldn\u0027t need to be wrapped in an Option or initialized via as_static_mut().",
       "isAi": true,
+      "revId": "5b4522e319adffaa8609e3b07f0faf46c320f72f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3a185aa_07faaa40",
+        "filename": "src/gn/starlark/crates/providers/src/builtins.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T05:44:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8bacb199_a43204b2",
       "revId": "5b4522e319adffaa8609e3b07f0faf46c320f72f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

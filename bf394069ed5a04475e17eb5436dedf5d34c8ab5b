@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5f27856_9d9ead0d",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7720d6b9_617a0cac",
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "afa1b803_817dbc08",
@@ -32,6 +50,30 @@
       "writtenOn": "2026-10-16T05:39:34Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: Using `as_static_mut` here creates overlapping mutable references to the local variable `s` (since both the receiver for `loader` and `builtin_rules` evaluate to `\u0026mut s` in the same expression), which is undefined behavior. Additionally, returning `s` immediately invalidates those `\u0027static` references.\n\nIf `extract_builtin_rules` is changed to take `\u0026FrozenModule` instead of `\u0026\u0027static FrozenModule`, you can avoid this UB entirely:\n\n```rust\n        let mut s \u003d Self {\n            loader: Default::default(),\n            path_resolver,\n            globals: build_globals(),\n            targets: Default::default(),\n            builtin_rules: Vec::new(),\n        };\n        s.builtin_rules \u003d rule::extract_builtin_rules(s.loader.preload(\n            Label::parse(\"//builtins:rules.scl\", PackageRef::root()).unwrap(),\n            rule::register_builtin_rules::\u003ccrate::eval_context::EvalContext\u003e(),\n        ));\n        s\n```",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 0
+      },
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2adf1954_af1d9837",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afa1b803_817dbc08",
       "range": {
         "startLine": 69,
         "startChar": 0,
@@ -65,6 +107,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a085ebe7_e7e8b62f",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47d9d356_0d49f007",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 0
+      },
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "05f17d78_99ab2393",
@@ -78,6 +144,30 @@
       "writtenOn": "2026-10-16T05:39:34Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If you change `builtin_rules` to be a `Vec\u003cOption\u003c\u0026\u0027static Rule\u003e\u003e` to avoid the undefined behavior with the dangling pointer, you\u0027ll need to `.unwrap()` it here:\n\n```rust\n            rule: self.builtin_rules[cxx.output_type() as usize].unwrap(),\n```",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 0
+      },
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31f5cae6_9d8cdd08",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05f17d78_99ab2393",
       "range": {
         "startLine": 139,
         "startChar": 0,
@@ -106,6 +196,42 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "13fb4ebf_2b077f2c",
+        "filename": "src/gn/starlark/crates/rule/src/globals.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db1eac24_13fee435",
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "222e1d36_aadcda6b",
+        "filename": "src/gn/starlark/crates/rule/src/globals.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db1eac24_13fee435",
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a41a36f_5e214ec5",
@@ -119,6 +245,30 @@
       "writtenOn": "2026-10-16T05:39:34Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: There are a couple of safety/UB issues here:\n1. `std::ptr::NonNull::dangling().as_ref()` is immediate undefined behavior because it creates a reference to unallocated/unaligned memory, even if it\u0027s never dereferenced. Use `Option` for the placeholder.\n2. Taking `\u0026\u0027static FrozenModule` forces callers to do unsafe lifetime transmutations. Since the rules are allocated on a `FrozenHeap` that outlives the targets referencing them, you can accept a temporary `\u0026FrozenModule` and extend the lifetime of the rules internally instead.\n\n```rust\npub fn extract_builtin_rules\u003cC: EvalContextAttrExt\u003e(\n    module: \u0026FrozenModule,\n) -\u003e Vec\u003cOption\u003c\u0026\u0027static Rule\u003c\u0027static, C\u003e\u003e\u003e {\n    let mut rules \u003d Vec::new();\n    rules.push(None);\n    for output_type in OutputType::iter() {\n        assert!(rules.len() \u003d\u003d output_type as usize);\n        let rule \u003d module\n            .get_option_ref(\u0026output_type.to_string())\n            .unwrap()\n            .unwrap()\n            .value()\n            .downcast_ref::\u003cRule\u003c\u0027static, C\u003e\u003e()\n            .unwrap();\n        rules.push(Some(unsafe { std::mem::transmute(rule) }));\n    }\n    rules\n}\n```",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 0
+      },
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6938f534_7ac8807c",
+        "filename": "src/gn/starlark/crates/rule/src/globals.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a41a36f_5e214ec5",
       "range": {
         "startLine": 64,
         "startChar": 0,
@@ -147,6 +297,42 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb357ef4_a94d09d8",
+        "filename": "src/gn/starlark/crates/rule/src/rule.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e9098ab_2e9f748d",
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b9b21a6_b58522d2",
+        "filename": "src/gn/starlark/crates/rule/src/rule.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e9098ab_2e9f748d",
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0902cc4b_5fb8f7ce",
@@ -170,6 +356,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6941dd5_528a76bc",
+        "filename": "src/gn/starlark/crates/testutils/src/session.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0902cc4b_5fb8f7ce",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 0
+      },
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c2946b33_f5cce128",
@@ -183,6 +393,54 @@
       "writtenOn": "2026-10-16T05:39:34Z",
       "side": 1,
       "message": "Please fix this WARNING reported by autoreview issue finding: If you change `builtin_rules` to `Vec\u003cOption\u003c\u0026\u0027static Rule\u003e\u003e` to avoid the dangling pointer UB, you will need to `.unwrap()` the rule here:\n\n```rust\n        self.builtin_rules[types::OutputType::SourceSet as usize].unwrap()\n```",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 0
+      },
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dee1250a_b7c7c679",
+        "filename": "src/gn/starlark/crates/testutils/src/session.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2946b33_f5cce128",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 0
+      },
+      "revId": "bf394069ed5a04475e17eb5436dedf5d34c8ab5b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "292c5e40_5a555d37",
+        "filename": "src/gn/starlark/crates/testutils/src/session.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-19T03:51:04Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "c2946b33_f5cce128",
       "range": {
         "startLine": 75,
         "startChar": 0,

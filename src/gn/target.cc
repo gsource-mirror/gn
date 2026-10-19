@@ -11,6 +11,7 @@
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
+#include "gn/build_settings.h"
 #include "gn/c_tool.h"
 #include "gn/config_values_extractors.h"
 #include "gn/deps_iterator.h"
@@ -529,6 +530,13 @@ Target::GeneratedFile& Target::generated_file() {
   if (!generated_file_)
     generated_file_ = std::make_unique<Target::GeneratedFile>();
   return *generated_file_;
+}
+
+bool Target::enable_check_includes_strict_optimizations() const {
+  return check_includes_strict() && settings()
+                                        ->build_settings()
+                                        ->check_includes_strict_exceptions()
+                                        .empty();
 }
 
 // static

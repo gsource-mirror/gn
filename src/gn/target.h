@@ -197,6 +197,10 @@ class Target : public Item {
   // Whether this target enforces strict include checking.
   bool check_includes_strict() const { return check_includes_strict_; }
   void set_check_includes_strict(bool value) { check_includes_strict_ = value; }
+  // Whether this target can safely enable check includes strict optimizations.
+  // This requires check_includes_strict, but also for no check_includes_strict
+  // exceptions.
+  bool enable_check_includes_strict_optimizations() const;
 
   // Whether this static_library target should have code linked in.
   bool complete_static_lib() const { return complete_static_lib_; }

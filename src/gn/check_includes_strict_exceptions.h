@@ -35,6 +35,9 @@ class CheckIncludesStrictExceptions {
   // Checks whether `from` is allowed to include headers from `to`.
   bool CanInclude(const Label& from, const Label& to) const;
 
+  // Returns true if there are no exceptions.
+  bool empty() const { return global_.empty() && specific_targets_.empty(); }
+
  private:
   std::vector<LabelPattern> global_;
   std::unordered_map<Label, std::vector<LabelPattern>> specific_targets_;

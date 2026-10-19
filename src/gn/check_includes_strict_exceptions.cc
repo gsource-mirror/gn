@@ -4,21 +4,100 @@
 
 #include "gn/check_includes_strict_exceptions.h"
 
+#include <memory>
 #include <string_view>
 
 #include "gn/scope.h"
 #include "gn/value.h"
 
-bool CheckIncludesStrictExceptions::CanInclude(const Label& from,
-                                               const Label& to) const {
-  if (LabelPattern::VectorMatches(global_, from))
-    return true;
+namespace {
 
+// Returns the path components of a directory, as a string_view.
+// It is guaranteed to have exactly one trailing slash (if non-empty), and no
+// leading slash
+std::string_view PathComponents(const SourceDir& d) {
+  return std::string_view(d.value()).substr(2);
+}
+
+// Extracts the next component from the path.
+// Invariant: Path is either empty, or ends with a '/'
+// Path is treated as an iterator-like object, and it is consumed.
+std::string_view NextComponent(std::string_view& path) {
+  if (path.empty()) {
+    return "";
+  }
+  auto next = path.find('/');
+  DCHECK(next != std::string_view::npos);
+  auto out = path.substr(0, next);
+  path = path.substr(next + 1);
+  return out;
+}
+
+}  // namespace
+
+void LabelPatterns::AddPattern(const LabelPattern& pattern) {
+  // Should have been checked already in FromValue
+  DCHECK(pattern.dir().is_source_absolute());
+  std::string_view path = PathComponents(pattern.dir());
+  Node* current = &root_;
+  for (std::string_view comp = NextComponent(path); !comp.empty();
+       comp = NextComponent(path)) {
+    auto& child = current->children[std::string(comp)];
+    if (!child)
+      child = std::make_unique<Node>();
+    current = child.get();
+  }
+
+  switch (pattern.type()) {
+    case LabelPattern::RECURSIVE_DIRECTORY:
+      current->is_recursive = true;
+      break;
+    case LabelPattern::DIRECTORY:
+      current->is_directory = true;
+      break;
+    case LabelPattern::MATCH:
+      current->targets.emplace(pattern.name());
+      break;
+  }
+}
+
+bool LabelPatterns::Matches(const Label& label) const {
+  if (!label.dir().is_source_absolute())
+    return false;
+  const Node* current = &root_;
+  std::string_view path = PathComponents(label.dir());
+  while (true) {
+    if (current->is_recursive)
+      return true;
+    std::string_view comp = NextComponent(path);
+    if (comp.empty())
+      return current->is_directory || current->targets.contains(label.name());
+    auto it = current->children.find(comp);
+    if (it == current->children.end())
+      return false;
+    current = it->second.get();
+  }
+}
+
+bool CheckIncludesStrictExceptions::HasGlobalException(
+    const Label& from) const {
+  return global_.Matches(from);
+}
+
+bool CheckIncludesStrictExceptions::HasLocalException(const Label& from,
+                                                      const Label& to) const {
   auto it = specific_targets_.find(to.GetWithNoToolchain());
   if (it != specific_targets_.end())
-    return LabelPattern::VectorMatches(it->second, from);
+    return it->second.Matches(from);
 
   return false;
+}
+
+bool CheckIncludesStrictExceptions::HasException(const Label& from,
+                                                 const Label& to) const {
+  if (empty_)
+    return false;
+  return HasGlobalException(from) || HasLocalException(from, to);
 }
 
 Result<CheckIncludesStrictExceptions> CheckIncludesStrictExceptions::FromValue(
@@ -63,7 +142,7 @@ Result<CheckIncludesStrictExceptions> CheckIncludesStrictExceptions::FromValue(
       if (!included->string_value().starts_with("//"))
         return Err(*included,
                    "Target label must be absolute (starting with '//').");
-      exceptions.AddException(from, to);
+      exceptions.AddLocalException(from, to);
     } else {
       exceptions.AddGlobalException(from);
     }

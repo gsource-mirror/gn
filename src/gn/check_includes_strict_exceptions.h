@@ -5,7 +5,6 @@
 #ifndef TOOLS_GN_CHECK_INCLUDES_STRICT_EXCEPTIONS_H_
 #define TOOLS_GN_CHECK_INCLUDES_STRICT_EXCEPTIONS_H_
 
-#include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
@@ -27,15 +26,29 @@ class CheckIncludesStrictExceptions {
       const SourceDir& current_dir,
       std::string_view source_root);
 
-  void AddGlobalException(const LabelPattern& from) { global_.push_back(from); }
-  void AddException(const LabelPattern& from, const Label& to) {
+  void AddGlobalException(const LabelPattern& from) {
+    empty_ = false;
+    global_.push_back(from);
+  }
+  void AddLocalException(const LabelPattern& from, const Label& to) {
+    empty_ = false;
     specific_targets_[to.GetWithNoToolchain()].push_back(from);
   }
 
   // Checks whether `from` is allowed to include headers from `to`.
-  bool CanInclude(const Label& from, const Label& to) const;
+  bool HasException(const Label& from, const Label& to) const;
+
+  // Checks whether `from` matches any global exception rule.
+  bool HasGlobalException(const Label& from) const;
+
+  // Checks whether `(from, to)` matches any specific (local) exception rule.
+  bool HasLocalException(const Label& from, const Label& to) const;
+
+  // Returns true if there are no exception rules.
+  bool empty() const { return empty_; }
 
  private:
+  bool empty_ = true;
   std::vector<LabelPattern> global_;
   std::unordered_map<Label, std::vector<LabelPattern>> specific_targets_;
 };

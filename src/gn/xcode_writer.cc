@@ -668,7 +668,7 @@ bool XcodeWorkspace::WriteWorkspaceDataFile(const std::string& name,
     return false;
 
   StringOutputBuffer storage;
-  std::ostream out(&storage);
+  StringOutputBuffer& out = storage;
   out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       << "<Workspace\n"
       << "   version = \"1.0\">\n"
@@ -691,7 +691,7 @@ bool XcodeWorkspace::WriteSettingsFile(const std::string& name,
     return false;
 
   StringOutputBuffer storage;
-  std::ostream out(&storage);
+  StringOutputBuffer& out = storage;
   out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       << "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" "
       << "\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
@@ -776,7 +776,7 @@ class XcodeProject {
   std::string GetConfigOutputDir(std::string_view output_dir);
 
   // Generates the content of the .xcodeproj file into |out|.
-  void WriteFileContent(std::ostream& out) const;
+  void WriteFileContent(StringOutputBuffer& out) const;
 
   // Returns whether the file should be added to the project.
   bool ShouldIncludeFileInProject(const SourceFile& source) const;
@@ -1055,7 +1055,7 @@ bool XcodeProject::WriteFile(Err* err) const {
     return false;
 
   StringOutputBuffer storage;
-  std::ostream pbxproj_string_out(&storage);
+  StringOutputBuffer& pbxproj_string_out = storage;
   WriteFileContent(pbxproj_string_out);
 
   if (!storage.WriteToFileIfChanged(build_settings_->GetFullPath(pbxproj_file),
@@ -1200,7 +1200,7 @@ std::string XcodeProject::GetConfigOutputDir(std::string_view output_dir) {
                     build_settings_->root_path_utf8());
 }
 
-void XcodeProject::WriteFileContent(std::ostream& out) const {
+void XcodeProject::WriteFileContent(StringOutputBuffer& out) const {
   out << "// !$*UTF8*$!\n"
       << "{\n"
       << "\tarchiveVersion = 1;\n"

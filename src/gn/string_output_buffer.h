@@ -5,8 +5,10 @@
 #ifndef TOOLS_GN_STRING_OUTPUT_BUFFER_H_
 #define TOOLS_GN_STRING_OUTPUT_BUFFER_H_
 
+#include <charconv>
 #include <concepts>
 #include <cstring>
+#include <limits>
 #include <memory>
 #include <streambuf>
 #include <string>
@@ -32,6 +34,24 @@ inline size_t MaximumSize(char) {
 }
 inline void WriteToBuf(char c, char buf[], size_t& upto) {
   buf[upto++] = c;
+}
+
+template <typename T>
+  requires(std::integral<T> && !std::same_as<T, char>)
+inline size_t MaximumSize(T) {
+  // digits10 is the number of digits such that *every* number of this length
+  // can be represented. For int32 for example, it returns log10(100 million).
+  // +1 because although we can't represent *every* number in the billions, we
+  // can represent *some* numbers in the billions.
+  // +1 for negative sign
+  return std::numeric_limits<T>::digits10 + 2;
+}
+
+template <typename T>
+  requires(std::integral<T> && !std::same_as<T, char>)
+inline void WriteToBuf(T val, char buf[], size_t& upto) {
+  upto =
+      std::to_chars(&buf[upto], &buf[upto + MaximumSize(val)], val).ptr - buf;
 }
 
 template <typename T>
@@ -137,5 +157,7 @@ class StringOutputBuffer : public std::streambuf {
   // Contains sum([page.size for page in ro_])
   size_t ro_size_ = 0;
 };
+
+std::string Pretty(const StringOutputBuffer& buffer);
 
 #endif  // TOOLS_GN_STRING_OUTPUT_BUFFER_H_

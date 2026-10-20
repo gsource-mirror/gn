@@ -86,14 +86,19 @@ TEST(StringOutputBuffer, ContentsEqual) {
   ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
 
   const size_t data_size = 100000;
-  std::string data = CreateTestString(data_size);
+  std::string elem = CreateTestString(data_size);
+  std::string data = elem + elem;
 
   base::FilePath file_path = temp_dir.GetPath().AppendASCII("foo.txt");
   base::WriteFile(file_path, data.c_str(), static_cast<int>(data.size()));
 
   {
     StringOutputBuffer buffer;
-    buffer.Append(data);
+    // If we just call buffer.Write(data), then it remains in the same
+    // allocation, and thus our code isn't tested properly.
+    buffer.Append(elem);
+    buffer.Append(elem);
+    EXPECT_EQ(data, buffer);
 
     EXPECT_TRUE(buffer.ContentsEqual(file_path));
 
@@ -164,6 +169,6 @@ static_assert(!Writable<Unwritable>);
 
 TEST(StringOutputBuffer, CustomWritable) {
   StringOutputBuffer buffer;
-  buffer << CustomGreeting{"world"} << '!';
-  EXPECT_EQ(buffer.str(), "Hello, world!");
+  buffer << CustomGreeting{"world"} << 1 << '!';
+  EXPECT_EQ("Hello, world1!", buffer);
 }

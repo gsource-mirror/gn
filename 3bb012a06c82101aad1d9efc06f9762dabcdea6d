@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b0c6b57_042791ee",
+        "filename": "src/gn/check_includes_strict_exceptions.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-20T23:35:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ca67068_098b247f",
+      "revId": "3bb012a06c82101aad1d9efc06f9762dabcdea6d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3548700_1e04f326",
@@ -37,6 +55,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f96f1ba_2a3633fc",
+        "filename": "src/gn/check_includes_strict_exceptions.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-20T23:35:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3548700_1e04f326",
+      "revId": "3bb012a06c82101aad1d9efc06f9762dabcdea6d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8f49e0e4_7c5741bd",
@@ -51,6 +87,24 @@
       "side": 1,
       "message": "[From Jetski review] Could you rename this test (e.g., to HasException) to match the renamed API, and also add direct assertions for the newly exposed methods (empty(), HasGlobalException(), and HasLocalException())? Currently all expectations only exercise HasException().",
       "isAi": true,
+      "revId": "3bb012a06c82101aad1d9efc06f9762dabcdea6d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe1c840a_5f288f21",
+        "filename": "src/gn/check_includes_strict_exceptions_unittest.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-20T23:35:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f49e0e4_7c5741bd",
       "revId": "3bb012a06c82101aad1d9efc06f9762dabcdea6d",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

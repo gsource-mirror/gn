@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <sstream>
 
+#include "gn/string_output_buffer.h"
 #include "gn/substitution_list.h"
 #include "gn/target.h"
 #include "gn/test_with_scope.h"
@@ -29,7 +30,7 @@ TEST(NinjaCopyTargetWriter, Run) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCopyTargetWriter writer(&target, out);
   writer.Run();
 
@@ -58,7 +59,7 @@ TEST(NinjaCopyTargetWriter, ToolchainDeps) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCopyTargetWriter writer(&target, out);
   writer.Run();
 
@@ -83,7 +84,7 @@ TEST(NinjaCopyTargetWriter, OrderOnlyDeps) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCopyTargetWriter writer(&target, out);
   writer.Run();
 
@@ -115,7 +116,7 @@ TEST(NinjaCopyTargetWriter, DataDeps) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCopyTargetWriter writer(&target, out);
   writer.Run();
 
@@ -152,7 +153,7 @@ TEST(NinjaCopyTargetWriter, NoSourcesInOutputs) {
         SubstitutionList::MakeForTest("//out/Debug/{{source_name_part}}.copy");
     ASSERT_TRUE(target.OnResolved(&err));
 
-    std::ostringstream out;
+    StringOutputBuffer out;
     std::vector<OutputFile> ninja_outputs;
     NinjaCopyTargetWriter writer(&target, out);
     writer.SetNinjaOutputs(&ninja_outputs);
@@ -202,7 +203,7 @@ TEST(NinjaCopyTargetWriter, NoSourcesInOutputs) {
         SubstitutionList::MakeForTest("//out/Debug/{{source_name_part}}.copy");
     ASSERT_TRUE(target.OnResolved(&err));
 
-    std::ostringstream out;
+    StringOutputBuffer out;
     std::vector<OutputFile> ninja_outputs;
     NinjaCopyTargetWriter writer(&target, out);
     writer.SetNinjaOutputs(&ninja_outputs);
@@ -246,7 +247,7 @@ TEST(NinjaCopyTargetWriter, CopyWithValidations) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCopyTargetWriter writer(&target, out);
   writer.Run();
 

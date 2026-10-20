@@ -4,7 +4,10 @@
 
 #include "gn/ninja_generated_file_target_writer.h"
 
+#include <sstream>
+
 #include "gn/source_file.h"
+#include "gn/string_output_buffer.h"
 #include "gn/target.h"
 #include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
@@ -58,7 +61,7 @@ TEST_F(NinjaGeneratedFileTargetWriterTest, Run) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err)) << err.message();
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   bool delayed_write = false;
   NinjaGeneratedFileTargetWriter writer(&target, out);
   writer.SetDelayedGeneratedFileWritePtr(&delayed_write);
@@ -119,7 +122,7 @@ TEST_F(NinjaGeneratedFileTargetWriterTest, RunWithDelayedGeneratedFileWrite) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err)) << err.message();
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaGeneratedFileTargetWriter writer(&target, out);
   bool delayed_write = false;
   writer.SetDelayedGeneratedFileWritePtr(&delayed_write);

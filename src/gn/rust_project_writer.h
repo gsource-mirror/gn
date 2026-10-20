@@ -7,6 +7,7 @@
 
 #include "gn/err.h"
 #include "gn/target.h"
+#include "gn/string_output_buffer.h"
 
 class Builder;
 class BuildSettings;
@@ -27,7 +28,7 @@ class RustProjectWriter {
                                Err* err);
   static void RenderJSON(const BuildSettings* build_settings,
                          std::vector<const Target*>& all_targets,
-                         std::ostream& rust_project);
+                         StringOutputBuffer& rust_project);
 
  private:
   // This function visits the deps graph of a target in a DFS fashion.

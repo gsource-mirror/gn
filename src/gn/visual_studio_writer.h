@@ -12,6 +12,7 @@
 
 #include "base/gtest_prod_util.h"
 #include "gn/path_output.h"
+#include "gn/string_output_buffer.h"
 
 namespace base {
 class FilePath;
@@ -113,18 +114,18 @@ class VisualStudioWriter {
                          const std::string& ninja_extra_args,
                          const std::string& ninja_executable,
                          Err* err);
-  bool WriteProjectFileContents(std::ostream& out,
+  bool WriteProjectFileContents(StringOutputBuffer& out,
                                 const SolutionProject& solution_project,
                                 const Target* target,
                                 const std::string& ninja_extra_args,
                                 const std::string& ninja_executable,
                                 SourceFileCompileTypePairs* source_types,
                                 Err* err);
-  void WriteFiltersFileContents(std::ostream& out,
+  void WriteFiltersFileContents(StringOutputBuffer& out,
                                 const Target* target,
                                 const SourceFileCompileTypePairs& source_types);
   bool WriteSolutionFile(const std::string& sln_name, Err* err);
-  void WriteSolutionFileContents(std::ostream& out,
+  void WriteSolutionFileContents(StringOutputBuffer& out,
                                  const base::FilePath& solution_dir_path);
 
   // Resolves all solution folders (parent folders for projects) into |folders_|

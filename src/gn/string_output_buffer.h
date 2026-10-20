@@ -5,8 +5,10 @@
 #ifndef TOOLS_GN_STRING_OUTPUT_BUFFER_H_
 #define TOOLS_GN_STRING_OUTPUT_BUFFER_H_
 
+#include <charconv>
 #include <concepts>
 #include <cstring>
+#include <limits>
 #include <memory>
 #include <streambuf>
 #include <string>
@@ -32,6 +34,19 @@ inline size_t MaximumSize(char) {
 }
 inline void WriteToBuf(char c, char buf[], size_t& upto) {
   buf[upto++] = c;
+}
+
+template <typename T>
+  requires(std::integral<T> && !std::same_as<T, char>)
+inline size_t MaximumSize(T) {
+  return std::numeric_limits<T>::digits10 + 3;
+}
+
+template <typename T>
+  requires(std::integral<T> && !std::same_as<T, char>)
+inline void WriteToBuf(T val, char buf[], size_t& upto) {
+  auto [ptr, ec] = std::to_chars(&buf[upto], &buf[upto + MaximumSize(val)], val);
+  upto = ptr - buf;
 }
 
 template <typename T>

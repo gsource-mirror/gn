@@ -9,6 +9,7 @@
 #include "gn/c_substitution_type.h"
 #include "gn/err.h"
 #include "gn/escape.h"
+#include "gn/string_output_buffer.h"
 #include "gn/substitution_list.h"
 #include "gn/substitution_pattern.h"
 #include "gn/target.h"
@@ -78,7 +79,7 @@ TEST(SubstitutionWriter, WriteNinjaVariablesForSource) {
   EscapeOptions options;
   options.mode = ESCAPE_NONE;
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   SubstitutionWriter::WriteNinjaVariablesForSource(
       nullptr, setup.settings(), SourceFile("//foo/bar/baz.txt"), types,
       options, out);
@@ -101,7 +102,7 @@ TEST(SubstitutionWriter, WriteWithNinjaVariables) {
   EscapeOptions options;
   options.mode = ESCAPE_NONE;
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   SubstitutionWriter::WriteWithNinjaVariables(pattern, options, out);
 
   EXPECT_EQ("-i ${in} --out=bar\"${source_name_part}\".o", out.str());

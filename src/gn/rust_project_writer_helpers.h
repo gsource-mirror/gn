@@ -7,6 +7,7 @@
 
 #include <optional>
 #include <string>
+#include "gn/string_output_buffer.h"
 #include <utility>
 #include <vector>
 
@@ -126,7 +127,7 @@ using CrateList = std::vector<Crate>;
 void WriteCrates(const BuildSettings* build_settings,
                  CrateList& crate_list,
                  std::optional<std::string>& sysroot,
-                 std::ostream& rust_project);
+                 StringOutputBuffer& rust_project);
 
 // Assemble the compiler arguments for the given GN Target.
 std::vector<std::string> ExtractCompilerArgs(const Target* target);

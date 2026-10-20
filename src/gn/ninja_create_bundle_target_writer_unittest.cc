@@ -8,6 +8,7 @@
 #include <memory>
 #include <sstream>
 
+#include "gn/string_output_buffer.h"
 #include "gn/target.h"
 #include "gn/test_with_scope.h"
 #include "util/test/test.h"
@@ -70,7 +71,7 @@ TEST(NinjaCreateBundleTargetWriter, Run) {
   create_bundle.SetToolchain(setup.toolchain());
   ASSERT_TRUE(create_bundle.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCreateBundleTargetWriter writer(&create_bundle, out);
   writer.Run();
 
@@ -118,7 +119,7 @@ TEST(NinjaCreateBundleTargetWriter, InSubDirectory) {
   create_bundle.SetToolchain(setup.toolchain());
   ASSERT_TRUE(create_bundle.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCreateBundleTargetWriter writer(&create_bundle, out);
   writer.Run();
 
@@ -158,7 +159,7 @@ TEST(NinjaCreateBundleTargetWriter, JustPartialInfoPlist) {
   create_bundle.SetToolchain(setup.toolchain());
   ASSERT_TRUE(create_bundle.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCreateBundleTargetWriter writer(&create_bundle, out);
   writer.Run();
 
@@ -222,7 +223,7 @@ TEST(NinjaCreateBundleTargetWriter, AssetCatalog) {
   create_bundle.SetToolchain(setup.toolchain());
   ASSERT_TRUE(create_bundle.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCreateBundleTargetWriter writer(&create_bundle, out);
   writer.Run();
 
@@ -264,7 +265,7 @@ TEST(NinjaCreateBundleTargetWriter, PhonyTarget) {
 
   ASSERT_TRUE(create_bundle.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCreateBundleTargetWriter writer(&create_bundle, out);
   writer.Run();
 
@@ -384,7 +385,7 @@ TEST(NinjaCreateBundleTargetWriter, Complex) {
   create_bundle.SetToolchain(setup.toolchain());
   ASSERT_TRUE(create_bundle.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCreateBundleTargetWriter writer(&create_bundle, out);
   writer.Run();
 
@@ -466,7 +467,7 @@ TEST(NinjaCreateBundleTargetWriter, PostProcessing) {
   create_bundle.SetToolchain(setup.toolchain());
   ASSERT_TRUE(create_bundle.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCreateBundleTargetWriter writer(&create_bundle, out);
   writer.Run();
 
@@ -549,7 +550,7 @@ TEST(NinjaCreateBundleTargetWriter, PostProcessingNoStampFilesCustomToolchain) {
   create_bundle.SetToolchain(setup.toolchain());
   ASSERT_TRUE(create_bundle.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaCreateBundleTargetWriter writer(&create_bundle, out);
   writer.Run();
 

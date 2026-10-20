@@ -5,7 +5,7 @@
 #ifndef TOOLS_GN_ECLIPSE_WRITER_H_
 #define TOOLS_GN_ECLIPSE_WRITER_H_
 
-#include <iosfwd>
+#include "gn/string_output_buffer.h"
 #include <map>
 #include <set>
 #include <string>
@@ -25,7 +25,7 @@ class EclipseWriter {
  private:
   EclipseWriter(const BuildSettings* build_settings,
                 const Builder& builder,
-                std::ostream& out);
+                StringOutputBuffer& out);
   ~EclipseWriter();
 
   void Run();
@@ -48,7 +48,7 @@ class EclipseWriter {
   const Builder& builder_;
 
   // The output stream for the settings file.
-  std::ostream& out_;
+  StringOutputBuffer& out_;
 
   // Eclipse languages for which the include dirs and defines apply.
   std::vector<std::string> languages_;

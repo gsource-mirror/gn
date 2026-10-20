@@ -29,7 +29,7 @@ const char kIndent[] = "  ";
 
 NinjaToolchainWriter::NinjaToolchainWriter(const Settings* settings,
                                            const Toolchain* toolchain,
-                                           std::ostream& out)
+                                           StringOutputBuffer& out)
     : settings_(settings),
       toolchain_(toolchain),
       out_(out),
@@ -68,15 +68,10 @@ bool NinjaToolchainWriter::RunAndWriteFile(
 
   base::CreateDirectory(ninja_file.DirName());
 
-  std::ofstream file;
-  file.open(FilePathToUTF8(ninja_file).c_str(),
-            std::ios_base::out | std::ios_base::binary);
-  if (file.fail())
-    return false;
-
+  StringOutputBuffer file;
   NinjaToolchainWriter gen(settings, toolchain, file);
   gen.Run(rules);
-  return true;
+  return file.WriteToFileIfChanged(ninja_file, nullptr);
 }
 
 void NinjaToolchainWriter::WriteToolRule(Tool* tool,

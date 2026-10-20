@@ -1,3 +1,4 @@
+#include "gn/string_output_buffer.h"
 // Copyright 2020 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -41,7 +42,7 @@ TEST_F(RustProjectWriterHelper, WriteCrates) {
   crates.push_back(dep);
   crates.push_back(target);
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   WriteCrates(setup.build_settings(), crates, sysroot, stream);
   std::string out = stream.str();
 #if defined(OS_WIN)
@@ -102,7 +103,7 @@ TEST_F(RustProjectWriterHelper, SysrootDepsAreCorrect) {
   std::optional<std::string> sysroot = "sysroot";
   CrateList crates;
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   WriteCrates(setup.build_settings(), crates, sysroot, stream);
   std::string out = stream.str();
 #if defined(OS_WIN)

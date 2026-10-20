@@ -254,6 +254,14 @@ inline std::optional<std::string> CheckFailure(
 
 }  // namespace testing
 
+class StringOutputBuffer;
+
+// This should not be used in production code, so we put it in test.h instead
+// of string_output_buffer.h.
+// Also, since gn uses the format EXPECT_EQ(want, got), we only support
+// StringOutputBuffer on the rhs.
+bool operator==(std::string_view expected, const StringOutputBuffer& actual);
+
 void RegisterTest(testing::Test* (*)(), const char*);
 
 #define TEST_F_(x, y, name)                                                    \

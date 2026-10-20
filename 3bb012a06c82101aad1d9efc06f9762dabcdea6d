@@ -1,0 +1,58 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ca67068_098b247f",
+        "filename": "src/gn/check_includes_strict_exceptions.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-20T08:12:16Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Adding \u0027if (specific_targets_.empty()) return false;\u0027 before \u0027to.GetWithNoToolchain()\u0027 avoids out-of-line label copy/hash computation and map lookup when only global exceptions are configured (since the follow-up CL calls HasLocalException across targets and their dependencies).",
+      "isAi": true,
+      "revId": "3bb012a06c82101aad1d9efc06f9762dabcdea6d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3548700_1e04f326",
+        "filename": "src/gn/check_includes_strict_exceptions.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-20T08:12:16Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Since CanInclude was renamed to HasException to clarify that this only checks exemption rules rather than general include permissions, consider updating this comment accordingly (e.g., \u0027// Checks whether any exception rule (global or local) matches (from, to).\u0027).",
+      "isAi": true,
+      "revId": "3bb012a06c82101aad1d9efc06f9762dabcdea6d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f49e0e4_7c5741bd",
+        "filename": "src/gn/check_includes_strict_exceptions_unittest.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-20T08:12:16Z",
+      "side": 1,
+      "message": "[From Jetski review] Could you rename this test (e.g., to HasException) to match the renamed API, and also add direct assertions for the newly exposed methods (empty(), HasGlobalException(), and HasLocalException())? Currently all expectations only exercise HasException().",
+      "isAi": true,
+      "revId": "3bb012a06c82101aad1d9efc06f9762dabcdea6d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

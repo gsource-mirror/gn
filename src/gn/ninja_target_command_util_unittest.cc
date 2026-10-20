@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <sstream>
 
+#include "gn/string_output_buffer.h"
 #include "util/build_config.h"
 #include "util/test/test.h"
 
@@ -16,7 +17,7 @@ namespace {
 // the generated output as a string.
 template <typename Writer, typename Item>
 std::string FormatWithWriter(Writer writer, std::vector<Item> items) {
-  std::ostringstream out;
+  StringOutputBuffer out;
   for (const Item& item : items) {
     writer(item, out);
   }

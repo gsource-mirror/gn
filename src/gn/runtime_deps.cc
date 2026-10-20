@@ -114,7 +114,7 @@ void RecursiveCollectRuntimeDeps(
 }
 
 // Streams the output file for all runtime deps of `target` to `out`.
-void StreamRuntimeDeps(const Target* target, std::ostream& out) {
+void StreamRuntimeDeps(const Target* target, StringOutputBuffer& out) {
   std::unordered_map<const Target*, bool> seen_targets;
 
   // The initial target is not considered a data dependency so that actions's
@@ -213,7 +213,7 @@ bool WriteRuntimeDepsFile(const OutputFile& output_file,
       target->settings()->build_settings()->GetFullPath(output_as_source);
 
   StringOutputBuffer storage;
-  std::ostream contents(&storage);
+  StringOutputBuffer& contents = storage;
   StreamRuntimeDeps(target, contents);
 
   ScopedTrace trace(TraceItem::TRACE_FILE_WRITE, output_as_source.value());

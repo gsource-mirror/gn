@@ -90,8 +90,7 @@ Value RunWriteFile(Scope* scope,
 
   // Compute output.
   StringOutputBuffer storage;
-  std::ostream contents(&storage);
-  ConvertValueToOutput(scope->settings(), args[1], output_conversion, contents,
+  ConvertValueToOutput(scope->settings(), args[1], output_conversion, storage,
                        err);
   if (err->has_error())
     return Value();

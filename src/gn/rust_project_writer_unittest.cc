@@ -1,12 +1,12 @@
+#include "gn/string_output_buffer.h"
 // Copyright 2020 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "gn/rust_project_writer.h"
-
 #include "base/files/file_path.h"
 #include "base/strings/string_util.h"
 #include "gn/filesystem_utils.h"
+#include "gn/rust_project_writer.h"
 #include "gn/substitution_list.h"
 #include "gn/target.h"
 #include "gn/test_with_scheduler.h"
@@ -46,7 +46,7 @@ TEST_F(RustProjectJSONWriter, OneRustTarget) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   std::vector<const Target*> targets;
   targets.push_back(&target);
   RustProjectWriter::RenderJSON(setup.build_settings(), targets, stream);
@@ -111,7 +111,7 @@ TEST_F(RustProjectJSONWriter, RustTargetDep) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   std::vector<const Target*> targets;
   targets.push_back(&target);
   RustProjectWriter::RenderJSON(setup.build_settings(), targets, stream);
@@ -207,7 +207,7 @@ TEST_F(RustProjectJSONWriter, RustTargetDepTwo) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   std::vector<const Target*> targets;
   targets.push_back(&target);
   RustProjectWriter::RenderJSON(setup.build_settings(), targets, stream);
@@ -341,7 +341,7 @@ TEST_F(RustProjectJSONWriter, RustTargetGetDepRustOnly) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   std::vector<const Target*> targets;
   targets.push_back(&target);
   RustProjectWriter::RenderJSON(setup.build_settings(), targets, stream);
@@ -440,7 +440,7 @@ TEST_F(RustProjectJSONWriter, OneRustTargetWithRustcTargetSet) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   std::vector<const Target*> targets;
   targets.push_back(&target);
   RustProjectWriter::RenderJSON(setup.build_settings(), targets, stream);
@@ -495,7 +495,7 @@ TEST_F(RustProjectJSONWriter, OneRustTargetWithRustcTargetSetAlternate) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   std::vector<const Target*> targets;
   targets.push_back(&target);
   RustProjectWriter::RenderJSON(setup.build_settings(), targets, stream);
@@ -549,7 +549,7 @@ TEST_F(RustProjectJSONWriter, OneRustTargetWithEditionSet) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   std::vector<const Target*> targets;
   targets.push_back(&target);
   RustProjectWriter::RenderJSON(setup.build_settings(), targets, stream);
@@ -603,7 +603,7 @@ TEST_F(RustProjectJSONWriter, OneRustTargetWithEditionSetAlternate) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   std::vector<const Target*> targets;
   targets.push_back(&target);
   RustProjectWriter::RenderJSON(setup.build_settings(), targets, stream);
@@ -658,7 +658,7 @@ TEST_F(RustProjectJSONWriter, OneRustProcMacroTarget) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   std::vector<const Target*> targets;
   targets.push_back(&target);
   RustProjectWriter::RenderJSON(setup.build_settings(), targets, stream);
@@ -729,7 +729,7 @@ TEST_F(RustProjectJSONWriter, RustTargetAliasedDep) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   std::vector<const Target*> targets;
   targets.push_back(&target);
   RustProjectWriter::RenderJSON(setup.build_settings(), targets, stream);

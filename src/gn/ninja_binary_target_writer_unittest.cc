@@ -4,6 +4,9 @@
 
 #include "gn/ninja_binary_target_writer.h"
 
+#include <sstream>
+
+#include "gn/string_output_buffer.h"
 #include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
 #include "util/test/test.h"
@@ -28,7 +31,7 @@ TEST_F(NinjaBinaryTargetWriterTest, CSources) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaBinaryTargetWriter writer(&target, out);
   writer.Run();
 
@@ -66,7 +69,7 @@ TEST_F(NinjaBinaryTargetWriterTest, NoSourcesSourceSet) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaBinaryTargetWriter writer(&target, out);
   writer.Run();
 
@@ -93,7 +96,7 @@ TEST_F(NinjaBinaryTargetWriterTest, NoSourcesStaticLib) {
   target.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaBinaryTargetWriter writer(&target, out);
   writer.Run();
 
@@ -129,7 +132,7 @@ TEST_F(NinjaBinaryTargetWriterTest, Inputs) {
     target.SetToolchain(setup.toolchain());
     ASSERT_TRUE(target.OnResolved(&err));
 
-    std::ostringstream out;
+    StringOutputBuffer out;
     NinjaBinaryTargetWriter writer(&target, out);
     writer.Run();
 
@@ -166,7 +169,7 @@ TEST_F(NinjaBinaryTargetWriterTest, Inputs) {
     target.SetToolchain(setup.toolchain());
     ASSERT_TRUE(target.OnResolved(&err));
 
-    std::ostringstream out;
+    StringOutputBuffer out;
     NinjaBinaryTargetWriter writer(&target, out);
     writer.Run();
 
@@ -223,7 +226,7 @@ TEST_F(NinjaBinaryTargetWriterTest, PublicInputs) {
   ASSERT_TRUE(a.OnResolved(&err));
   ASSERT_TRUE(b.OnResolved(&err));
 
-  std::ostringstream out;
+  StringOutputBuffer out;
   NinjaBinaryTargetWriter writer(&b, out);
   writer.Run();
 

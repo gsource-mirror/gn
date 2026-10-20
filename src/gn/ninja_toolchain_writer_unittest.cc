@@ -6,13 +6,14 @@
 
 #include <sstream>
 
+#include "gn/string_output_buffer.h"
 #include "gn/test_with_scope.h"
 #include "util/test/test.h"
 
 TEST(NinjaToolchainWriter, WriteToolRule) {
   TestWithScope setup;
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   NinjaToolchainWriter writer(setup.settings(), setup.toolchain(), stream);
   writer.WriteToolRule(setup.toolchain()->GetTool(CTool::kCToolCc),
                        std::string("prefix_"));
@@ -27,7 +28,7 @@ TEST(NinjaToolchainWriter, WriteToolRule) {
 TEST(NinjaToolchainWriter, WriteToolRuleWithLauncher) {
   TestWithScope setup;
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   NinjaToolchainWriter writer(setup.settings(), setup.toolchain(), stream);
   writer.WriteToolRule(setup.toolchain()->GetTool(CTool::kCToolCxx),
                        std::string("prefix_"));
@@ -51,7 +52,7 @@ TEST(NinjaToolchainWriter, WriteToolRuleWithInputsPhony) {
   tool->set_inputs(
       {SourceFile("//bin/clang++"), SourceFile("//bin/plugin.so")});
 
-  std::ostringstream stream;
+  StringOutputBuffer stream;
   NinjaToolchainWriter writer(setup.settings(), setup.toolchain(), stream);
   writer.WriteToolRule(tool.get(), std::string("prefix_"));
 

@@ -1,14 +1,15 @@
+#include "gn/string_output_buffer.h"
 // Copyright 2018 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
-#include "gn/output_conversion.h"
 
 #include <sstream>
 
 #include "gn/err.h"
 #include "gn/input_conversion.h"
+#include "gn/output_conversion.h"
 #include "gn/scope.h"
+#include "gn/string_output_buffer.h"
 #include "gn/template.h"
 #include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
@@ -38,7 +39,7 @@ TEST_F(OutputConversionTest, ListLines) {
   output.list_value().push_back(Value(nullptr, "foo"));
   output.list_value().push_back(Value(nullptr, ""));
   output.list_value().push_back(Value(nullptr, "bar"));
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, "list lines"), result,
                        &err);
 
@@ -49,7 +50,7 @@ TEST_F(OutputConversionTest, ListLines) {
 TEST_F(OutputConversionTest, String) {
   Err err;
   Value output(nullptr, "foo bar");
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, "string"), result,
                        &err);
 
@@ -60,7 +61,7 @@ TEST_F(OutputConversionTest, String) {
 TEST_F(OutputConversionTest, StringInt) {
   Err err;
   Value output(nullptr, int64_t(6));
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, "string"), result,
                        &err);
 
@@ -71,7 +72,7 @@ TEST_F(OutputConversionTest, StringInt) {
 TEST_F(OutputConversionTest, StringBool) {
   Err err;
   Value output(nullptr, true);
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, "string"), result,
                        &err);
 
@@ -85,7 +86,7 @@ TEST_F(OutputConversionTest, StringList) {
   output.list_value().push_back(Value(nullptr, "foo"));
   output.list_value().push_back(Value(nullptr, "bar"));
   output.list_value().push_back(Value(nullptr, int64_t(6)));
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, "string"), result,
                        &err);
 
@@ -103,7 +104,7 @@ TEST_F(OutputConversionTest, StringScope) {
   std::string_view private_var_name("_private");
   new_scope->SetValue(private_var_name, value, nullptr);
 
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), Value(nullptr, std::move(new_scope)),
                        Value(nullptr, "string"), result, &err);
   EXPECT_SUCCESS(err);
@@ -113,7 +114,7 @@ TEST_F(OutputConversionTest, StringScope) {
 TEST_F(OutputConversionTest, ValueString) {
   Err err;
   Value output(nullptr, "foo bar");
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, "value"), result,
                        &err);
 
@@ -124,7 +125,7 @@ TEST_F(OutputConversionTest, ValueString) {
 TEST_F(OutputConversionTest, ValueInt) {
   Err err;
   Value output(nullptr, int64_t(6));
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, "value"), result,
                        &err);
 
@@ -135,7 +136,7 @@ TEST_F(OutputConversionTest, ValueInt) {
 TEST_F(OutputConversionTest, ValueBool) {
   Err err;
   Value output(nullptr, true);
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, "value"), result,
                        &err);
 
@@ -149,7 +150,7 @@ TEST_F(OutputConversionTest, ValueList) {
   output.list_value().push_back(Value(nullptr, "foo"));
   output.list_value().push_back(Value(nullptr, "bar"));
   output.list_value().push_back(Value(nullptr, int64_t(6)));
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, "value"), result,
                        &err);
 
@@ -167,7 +168,7 @@ TEST_F(OutputConversionTest, ValueScope) {
   std::string_view private_var_name("_private");
   new_scope->SetValue(private_var_name, value, nullptr);
 
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), Value(nullptr, std::move(new_scope)),
                        Value(nullptr, "value"), result, &err);
   EXPECT_SUCCESS(err);
@@ -213,7 +214,7 @@ TEST_F(OutputConversionTest, JSON) {
     ]
   }
 })*");
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), Value(nullptr, std::move(new_scope)),
                        Value(nullptr, "json"), result, &err);
   EXPECT_SUCCESS(err);
@@ -222,7 +223,7 @@ TEST_F(OutputConversionTest, JSON) {
 
 TEST_F(OutputConversionTest, ValueEmpty) {
   Err err;
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), Value(), Value(nullptr, ""), result, &err);
   EXPECT_SUCCESS(err);
   EXPECT_EQ(result.str(), "<void>");
@@ -231,7 +232,7 @@ TEST_F(OutputConversionTest, ValueEmpty) {
 TEST_F(OutputConversionTest, DefaultValue) {
   Err err;
   Value output(nullptr, "foo bar");
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, ""), result, &err);
 
   EXPECT_SUCCESS(err);
@@ -245,7 +246,7 @@ TEST_F(OutputConversionTest, DefaultListLines) {
   output.list_value().push_back(Value(nullptr, "foo"));
   output.list_value().push_back(Value(nullptr, ""));
   output.list_value().push_back(Value(nullptr, "bar"));
-  std::ostringstream result;
+  StringOutputBuffer result;
   ConvertValueToOutput(settings(), output, Value(nullptr, ""), result, &err);
 
   EXPECT_SUCCESS(err);
@@ -259,7 +260,7 @@ TEST_F(OutputConversionTest, ReverseString) {
                                      Value(nullptr, "string"), &err);
   EXPECT_SUCCESS(err);
 
-  std::ostringstream reverse;
+  StringOutputBuffer reverse;
   ConvertValueToOutput(settings(), result, Value(nullptr, "string"), reverse,
                        &err);
   EXPECT_SUCCESS(err);
@@ -273,7 +274,7 @@ TEST_F(OutputConversionTest, ReverseListLines) {
                                      Value(nullptr, "list lines"), &err);
   EXPECT_SUCCESS(err);
 
-  std::ostringstream reverse;
+  StringOutputBuffer reverse;
   ConvertValueToOutput(settings(), result, Value(nullptr, "list lines"),
                        reverse, &err);
   EXPECT_SUCCESS(err);
@@ -287,7 +288,7 @@ TEST_F(OutputConversionTest, ReverseValueString) {
                                      Value(nullptr, "value"), &err);
   EXPECT_SUCCESS(err);
 
-  std::ostringstream reverse;
+  StringOutputBuffer reverse;
   ConvertValueToOutput(settings(), result, Value(nullptr, "value"), reverse,
                        &err);
   EXPECT_SUCCESS(err);
@@ -301,7 +302,7 @@ TEST_F(OutputConversionTest, ReverseValueInt) {
                                      Value(nullptr, "value"), &err);
   EXPECT_SUCCESS(err);
 
-  std::ostringstream reverse;
+  StringOutputBuffer reverse;
   ConvertValueToOutput(settings(), result, Value(nullptr, "value"), reverse,
                        &err);
   EXPECT_SUCCESS(err);
@@ -315,7 +316,7 @@ TEST_F(OutputConversionTest, ReverseValueList) {
                                      Value(nullptr, "value"), &err);
   EXPECT_SUCCESS(err);
 
-  std::ostringstream reverse;
+  StringOutputBuffer reverse;
   ConvertValueToOutput(settings(), result, Value(nullptr, "value"), reverse,
                        &err);
   EXPECT_SUCCESS(err);
@@ -329,7 +330,7 @@ TEST_F(OutputConversionTest, ReverseValueDict) {
                                      Value(nullptr, "scope"), &err);
   EXPECT_SUCCESS(err);
 
-  std::ostringstream reverse;
+  StringOutputBuffer reverse;
   ConvertValueToOutput(settings(), result, Value(nullptr, "scope"), reverse,
                        &err);
   EXPECT_SUCCESS(err);
@@ -342,7 +343,7 @@ TEST_F(OutputConversionTest, ReverseValueEmpty) {
                                      Value(nullptr, "value"), &err);
   EXPECT_SUCCESS(err);
 
-  std::ostringstream reverse;
+  StringOutputBuffer reverse;
   ConvertValueToOutput(settings(), result, Value(nullptr, "value"), reverse,
                        &err);
   EXPECT_SUCCESS(err);

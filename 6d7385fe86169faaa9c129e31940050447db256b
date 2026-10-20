@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a1e16db_e77cbbb0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-20T00:38:48Z",
+      "side": 1,
+      "message": "An exception inherently means that the target does not truly have the characteristics of check_includes_strict, so no, it is generally impossible to have them coexist. This is no different from the old behaviour (where instead of an exception, we would just be setting check_includes_strict \u003d false).\n\nHowever, it is possible to more accurately determine whether exceptions are possible for a particular target, which I have now done in this CL",
+      "parentUuid": "2f11cba3_0f71cc7b",
+      "revId": "6d7385fe86169faaa9c129e31940050447db256b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "263c6c0d_91e98130",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-10-19T06:24:36Z",
       "side": 1,
       "message": "This is related to http://b/556959580 ?",
+      "revId": "6d7385fe86169faaa9c129e31940050447db256b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70652c9f_43c38d05",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-20T00:38:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "263c6c0d_91e98130",
       "revId": "6d7385fe86169faaa9c129e31940050447db256b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

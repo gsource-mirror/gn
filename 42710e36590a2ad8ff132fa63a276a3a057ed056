@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "da97284c_db8b948c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-20T00:49:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6deaa9f8_d320ec05",
+      "revId": "42710e36590a2ad8ff132fa63a276a3a057ed056",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2cd62f69_00a67d72",
@@ -37,6 +55,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e6bdfa4_b88ed0d1",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-20T00:49:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2cd62f69_00a67d72",
+      "revId": "42710e36590a2ad8ff132fa63a276a3a057ed056",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c1f5f3c8_931df710",
@@ -51,6 +87,24 @@
       "side": 1,
       "message": "[From Jetski review] Two minor nits here: (1) TargetRef as _ on line 176 is unused in this function, and (2) is #[starlark(default \u003d starlark::values::none::NoneType)] needed on _ctx? Both direct evaluation and ctx.super() always pass ctx as a positional argument.",
       "isAi": true,
+      "revId": "42710e36590a2ad8ff132fa63a276a3a057ed056",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55ef31e8_b54f3436",
+        "filename": "src/gn/starlark/crates/rule/src/ctx.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-20T00:49:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1f5f3c8_931df710",
       "revId": "42710e36590a2ad8ff132fa63a276a3a057ed056",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

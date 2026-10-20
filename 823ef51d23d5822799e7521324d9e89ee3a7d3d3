@@ -33,6 +33,23 @@
       "message": "ptal",
       "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80c638e6_194dbed4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-10-20T19:31:37Z",
+      "side": 1,
+      "message": "There are several levels of bad things in this CL, I will only start with the more important points:\n\n- What is the point of storing the config values in the Ninja build plan? This is not addressed in the referenced bug at all.\n\n- It looks like the \"materialize-compile-flags\" command simply reads a JSON file then copies it to the output (with pretty printing, which doesn\u0027t sound an important implementation detail). I believe this could be implemented directly in the Ninja plan using `cat` on Windows or `copy` on Windows.  I still don\u0027t understand why this is needed though.\n\n- Write the compile-flags file in ninja_target_writer.cc or ninja_binary_target_writer.cc, this will be performed in parallel threads during resolution. There is no reason to do that in a post-resolution hook, especially with a non-parallel scan of all resolved targets.\n\n- Documentation needs clarification, terms like \"snapshots\" or \"materialize\" are poorly defined. It\u0027s impossible to understand the purpose of the new feature from the documentation alone (i.e. without referencing the associated bug).\n\n- Properly document the JSON schema of the file in the reference.",
+      "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

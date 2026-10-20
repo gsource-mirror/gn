@@ -5,8 +5,9 @@
 #ifndef TOOLS_GN_OUTPUT_CONVERSION_H_
 #define TOOLS_GN_OUTPUT_CONVERSION_H_
 
-#include <iosfwd>
 #include <string>
+
+#include "gn/string_output_buffer.h"
 
 class Err;
 class Settings;
@@ -20,7 +21,7 @@ class Value;
 void ConvertValueToOutput(const Settings* settings,
                           const Value& output,
                           const Value& output_conversion_value,
-                          std::ostream& out,
+                          StringOutputBuffer& out,
                           Err* err);
 
 #endif  // TOOLS_GN_OUTPUT_CONVERSION_H_

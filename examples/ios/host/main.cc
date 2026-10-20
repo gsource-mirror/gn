@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 
   std::cout << "{\"username\": \"";
   EscapeString(&std::cout, username);
-  std::cout << "\"}" << std::endl;
+  std::cout << "\"}" << '\n';
 
   return 0;
 }

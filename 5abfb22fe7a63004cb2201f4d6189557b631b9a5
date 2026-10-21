@@ -16,6 +16,24 @@
       "message": "Is this sufficient? A little concerned about this std::ios_base::binary part?",
       "revId": "5abfb22fe7a63004cb2201f4d6189557b631b9a5",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8fc0fbd_78c9b7ed",
+        "filename": "src/gn/eclipse_writer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T02:13:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e0e7e5d_027688c4",
+      "revId": "5abfb22fe7a63004cb2201f4d6189557b631b9a5",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

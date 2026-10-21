@@ -1,0 +1,442 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcc408c9_f7dedac5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "For each file, check if we should be removing a standard library include (eg. iostream), and check if we should be adding an include for the string output buffer.",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc35f77c_8430e69f",
+        "filename": "src/gn/ninja_binary_target_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Why include sstream?",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36ec379e_ff3015c0",
+        "filename": "src/gn/ninja_build_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Remove",
+      "fixSuggestions": [
+        {
+          "fixId": "b909222a_cd7661a6",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_build_writer_unittest.cc",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 2,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14c9c38f_7d630b65",
+        "filename": "src/gn/ninja_copy_target_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "I see this pattern a lot:\nStringOutputBuffer out;\nstd::string out_str \u003d out.str();\nEXPECT_EQ(expected, out_str);\n\nIs it possible to add a pretty printer / equality comparison to StringOutputBuffer that we can write EXPECT_EQ(expected, out)?",
+      "fixSuggestions": [
+        {
+          "fixId": "2f649bcc_f8213e58",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/ninja_copy_target_writer_unittest.cc",
+              "range": {
+                "startLine": 42,
+                "startChar": 0,
+                "endLine": 44,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_EQ(expected_linux, out.str());\n"
+            },
+            {
+              "path": "src/gn/ninja_copy_target_writer_unittest.cc",
+              "range": {
+                "startLine": 70,
+                "startChar": 0,
+                "endLine": 72,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_EQ(expected_linux, out.str());\n"
+            },
+            {
+              "path": "src/gn/ninja_copy_target_writer_unittest.cc",
+              "range": {
+                "startLine": 95,
+                "startChar": 0,
+                "endLine": 97,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_EQ(expected_linux, out.str());\n"
+            },
+            {
+              "path": "src/gn/ninja_copy_target_writer_unittest.cc",
+              "range": {
+                "startLine": 127,
+                "startChar": 0,
+                "endLine": 129,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_EQ(expected_linux, out.str());\n"
+            },
+            {
+              "path": "src/gn/ninja_copy_target_writer_unittest.cc",
+              "range": {
+                "startLine": 166,
+                "startChar": 0,
+                "endLine": 168,
+                "endChar": 0
+              },
+              "replacement": "    EXPECT_EQ(expected_linux, out.str());\n"
+            },
+            {
+              "path": "src/gn/ninja_copy_target_writer_unittest.cc",
+              "range": {
+                "startLine": 217,
+                "startChar": 0,
+                "endLine": 219,
+                "endChar": 0
+              },
+              "replacement": "    EXPECT_EQ(expected_linux, out.str());\n"
+            },
+            {
+              "path": "src/gn/ninja_copy_target_writer_unittest.cc",
+              "range": {
+                "startLine": 258,
+                "startChar": 0,
+                "endLine": 260,
+                "endChar": 0
+              },
+              "replacement": "  EXPECT_EQ(expected_linux, out.str());\n"
+            }
+          ]
+        }
+      ],
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41cf7329_1f6ecb13",
+        "filename": "src/gn/ninja_generated_file_target_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Delete?",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7968e371_ad9c4161",
+        "filename": "src/gn/ninja_group_target_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Delete?",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27d97ec3_cd757ebe",
+        "filename": "src/gn/ninja_rust_binary_target_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Delete?",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "931fca60_53ee4ca5",
+        "filename": "src/gn/ninja_target_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Delete",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3370d66_db7f4aa1",
+        "filename": "src/gn/ninja_toolchain_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Again, is binary a concern here?",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8decac30_b108aae1",
+        "filename": "src/gn/output_conversion_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Delete",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dec1d9a2_d7e6e513",
+        "filename": "src/gn/runtime_deps.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Seems redundant? Just use storage directly",
+      "fixSuggestions": [
+        {
+          "fixId": "ee71595e_021269be",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/runtime_deps.cc",
+              "range": {
+                "startLine": 216,
+                "startChar": 0,
+                "endLine": 218,
+                "endChar": 0
+              },
+              "replacement": "  StreamRuntimeDeps(target, storage);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d61aaaa5_213e766b",
+        "filename": "src/gn/rust_project_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Also redundant",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef258d62_19c6db3b",
+        "filename": "src/gn/rust_project_writer_helpers_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Move",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "587cf042_f084374d",
+        "filename": "src/gn/rust_project_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Move",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2d12698_cdfa79a0",
+        "filename": "src/gn/string_output_buffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "What\u0027s the difference between this max_digits10? And why the +3? Explain in a comment",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e177715_5df9861d",
+        "filename": "src/gn/string_output_buffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Is there a variant of this without error checking?",
+      "fixSuggestions": [
+        {
+          "fixId": "8b7f5674_dbc9087f",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/string_output_buffer.h",
+              "range": {
+                "startLine": 1,
+                "startChar": 0,
+                "endLine": 1,
+                "endChar": 0
+              },
+              "replacement": "  (void)ec; // Can\u0027t fail because buffer is big enough.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f929bbd_5fd03871",
+        "filename": "src/gn/trace.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Move",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba73036e_49f07f22",
+        "filename": "src/gn/visual_studio_writer_unittest.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T01:14:45Z",
+      "side": 1,
+      "message": "Remove?",
+      "revId": "8b1ececd9ef2b34e1fbc7df8159a3b142c7eb7ea",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

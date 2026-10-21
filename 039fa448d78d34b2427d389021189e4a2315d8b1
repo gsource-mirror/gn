@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff5c04b3_e73d3b2d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T02:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "479377c5_6cf115e5",
+      "revId": "039fa448d78d34b2427d389021189e4a2315d8b1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b9e3a2f6_63020b3b",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "[From Jetski review] Could you add unit tests (e.g. in resolved_target_data_unittest.cc alongside HardDepsStrictIncludes) covering:\n1. Unrelated exception leaves optimization enabled on other targets,\n2. Global exception or self local exception (T -\u003e T) disables optimization on T, and\n3. Local exception from T to a direct private dep and to a transitive public_dep of a private dep disables optimization on T?",
       "isAi": true,
+      "revId": "039fa448d78d34b2427d389021189e4a2315d8b1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cf6b604_327da669",
+        "filename": "src/gn/resolved_target_data.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T02:26:17Z",
+      "side": 1,
+      "message": "Not really relevant anymore now that it\u0027s this simple.",
+      "parentUuid": "b9e3a2f6_63020b3b",
       "revId": "039fa448d78d34b2427d389021189e4a2315d8b1",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -55,6 +91,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a91af6a0_d79d7e24",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T02:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9047e580_86b11bb9",
+      "revId": "039fa448d78d34b2427d389021189e4a2315d8b1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cecad7a2_bd483ef1",
@@ -69,6 +123,24 @@
       "side": 1,
       "message": "[From Jetski review] Could you update the help text here (and in src/gn/setup.cc for \u0027check_includes_strict_exceptions\u0027, then run \u0027tools/update_reference.sh\u0027 to regenerate docs/reference.md) to note that this build-parallelism optimization is disabled for targets exempted via \u0027check_includes_strict_exceptions\u0027 (and mention \u0027check_includes_strict_exceptions\u0027 alongside \u0027allow_circular_includes_from\u0027 above)?",
       "isAi": true,
+      "revId": "039fa448d78d34b2427d389021189e4a2315d8b1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba252925_0fbb4de2",
+        "filename": "src/gn/variables.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-21T02:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cecad7a2_bd483ef1",
       "revId": "039fa448d78d34b2427d389021189e4a2315d8b1",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

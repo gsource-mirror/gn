@@ -6,6 +6,7 @@
 
 #include <stddef.h>
 
+#include <array>
 #include <memory>
 
 #include "base/compiler_specific.h"
@@ -24,7 +25,7 @@ constexpr size_t kMaxEscapedCharsPerChar = 3;
 
 // A "1" in this lookup table means that char is valid in the Posix shell.
 // clang-format off
-const char kShellValid[0x80] = {
+constexpr char kShellValid[256] = {
 // 00-1f: all are invalid
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -42,31 +43,66 @@ const char kShellValid[0x80] = {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0};
 // clang-format on
 
-size_t EscapeStringToString_Space(std::string_view str, char* dest) {
-  size_t i = 0;
-  for (const auto& elem : str) {
-    if (elem == ' ')
-      dest[i++] = '\\';
-    dest[i++] = elem;
+constexpr std::array<char, 256> PosixEscapesTo(const char (&entries)[256]) {
+  std::array<char, 256> table{};
+  for (size_t i = 0; i < 256; ++i) {
+    if (i == ':') {
+      table[i] = '$';
+    } else if (entries[i] == 0) {
+      table[i] = '\\';
+    } else {
+      table[i] = '\0';
+    }
   }
-  return i;
+  return table;
+}
+
+constexpr auto kPosixNinjaTable = PosixEscapesTo(kShellValid);
+
+void EscapeStringToString_Space(std::string_view str,
+                                char* dest,
+                                size_t& upto) {
+  size_t in_idx = 0;
+  for (size_t delim = str.find(' '); UNLIKELY(delim != std::string_view::npos);
+       delim = str.find(' ', in_idx)) {
+    size_t len = delim - in_idx;
+    memcpy(dest + upto, str.data() + in_idx, len);
+    upto += len;
+    dest[upto++] = '\\';
+    dest[upto++] = ' ';
+    in_idx = delim + 1;
+  }
+  size_t len = str.size() - in_idx;
+  memcpy(dest + upto, str.data() + in_idx, len);
+  upto += len;
 }
 
 // Ninja's escaping rules are very simple. We always escape colons even
 // though they're OK in many places, in case the resulting string is used on
 // the left-hand-side of a rule.
 inline bool ShouldEscapeCharForNinja(char ch) {
+  // Keep in sync with EscapeStringToString_Ninja
   return ch == '$' || ch == ' ' || ch == ':';
 }
 
-size_t EscapeStringToString_Ninja(std::string_view str, char* dest) {
-  size_t i = 0;
-  for (const auto& elem : str) {
-    if (ShouldEscapeCharForNinja(elem))
-      dest[i++] = '$';
-    dest[i++] = elem;
+void EscapeStringToString_Ninja(std::string_view str,
+                                char* dest,
+                                size_t& upto) {
+  size_t in_idx = 0;
+  for (size_t delim = str.find_first_of("$ :");
+       UNLIKELY(delim != std::string_view::npos);
+       // Keep in sync with ShouldEscapeCharForNinja
+       delim = str.find_first_of("$ :", in_idx)) {
+    size_t len = delim - in_idx;
+    memcpy(dest + upto, str.data() + in_idx, len);
+    upto += len;
+    dest[upto++] = '$';
+    dest[upto++] = str[delim];
+    in_idx = delim + 1;
   }
-  return i;
+  size_t len = str.size() - in_idx;
+  memcpy(dest + upto, str.data() + in_idx, len);
+  upto += len;
 }
 
 inline bool ShouldEscapeCharForCompilationDatabase(char ch) {
@@ -78,8 +114,7 @@ size_t EscapeStringToString_CompilationDatabase(std::string_view str,
   size_t i = 0;
   bool quote = false;
   for (const auto& elem : str) {
-    if (static_cast<unsigned>(elem) >= 0x80 ||
-        !kShellValid[static_cast<int>(elem)]) {
+    if (!kShellValid[static_cast<int>(elem)]) {
       quote = true;
       break;
     }
@@ -140,75 +175,101 @@ size_t EscapeStringToString_WindowsNinjaFork(std::string_view str,
   DCHECK(str.find_first_of("\r\n\v\t") == std::string::npos);
 
   size_t i = 0;
-  if (str.find_first_of(" \"") == std::string::npos) {
-    // Simple case, don't quote.
-    return EscapeStringToString_Ninja(str, dest);
-  } else {
-    if (!inhibit_quoting)
-      dest[i++] = '"';
-
-    for (size_t j = 0; j < str.size(); j++) {
-      // Count backslashes in case they're followed by a quote.
-      size_t backslash_count = 0;
-      while (j < str.size() && str[j] == '\\') {
-        j++;
-        backslash_count++;
-      }
-      if (j == str.size()) {
-        // Backslashes at end of string. Backslash-escape all of them since
-        // they'll be followed by a quote.
-        memset(dest + i, '\\', backslash_count * 2);
-        i += backslash_count * 2;
-      } else if (str[j] == '"') {
-        // 0 or more backslashes followed by a quote. Backslash-escape the
-        // backslashes, then backslash-escape the quote.
-        memset(dest + i, '\\', backslash_count * 2 + 1);
-        i += backslash_count * 2 + 1;
-        dest[i++] = '"';
-      } else {
-        // Non-special Windows character, just escape for Ninja. Also, add any
-        // backslashes we read previously, these are literals.
-        memset(dest + i, '\\', backslash_count);
-        i += backslash_count;
-        if (ShouldEscapeCharForNinja(str[j]))
-          dest[i++] = '$';
-        dest[i++] = str[j];
-      }
-    }
-
-    if (!inhibit_quoting)
-      dest[i++] = '"';
-    if (needed_quoting)
-      *needed_quoting = true;
+  // '$', ' ', and ':' mean we need ninja escaping. ' ' and '"' mean we need
+  // shell escaping.
+  size_t idx = str.find_first_of("$: \"");
+  if (LIKELY(idx == std::string::npos)) {
+    // Super-fast-path: No shell escaping or Ninja escaping required.
+    memcpy(dest, str.data(), str.size());
+    return str.size();
   }
+
+  // If the special character found was NOT a space or quote (i.e. it was '$'
+  // or ':'), check if there are any spaces or quotes in the rest of the string.
+  if (str[idx] != ' ' && str[idx] != '"' &&
+      str.find_first_of(" \"", idx + 1) == std::string::npos) {
+    // Fast-path: Needs Ninja escaping, but no Windows command-line quoting.
+    // We know that the up until here doesn't require any escaping
+    memcpy(dest, str.data(), idx);
+    size_t upto = idx;
+    // Ninja always escapes with a $
+    dest[upto++] = '$';
+    dest[upto++] = str[idx];
+    // Escape the rest of the string with ninja.
+    EscapeStringToString_Ninja(str.substr(idx + 1), dest, upto);
+    return upto;
+  }
+
+  if (!inhibit_quoting)
+    dest[i++] = '"';
+
+  for (size_t j = 0; j < str.size(); j++) {
+    // Count backslashes in case they're followed by a quote.
+    size_t backslash_count = 0;
+    while (j < str.size() && str[j] == '\\') {
+      j++;
+      backslash_count++;
+    }
+    if (j == str.size()) {
+      // Backslashes at end of string. Backslash-escape all of them since
+      // they'll be followed by a quote.
+      memset(dest + i, '\\', backslash_count * 2);
+      i += backslash_count * 2;
+    } else if (str[j] == '"') {
+      // 0 or more backslashes followed by a quote. Backslash-escape the
+      // backslashes, then backslash-escape the quote.
+      memset(dest + i, '\\', backslash_count * 2 + 1);
+      i += backslash_count * 2 + 1;
+      dest[i++] = '"';
+    } else {
+      // Non-special Windows character, just escape for Ninja. Also, add any
+      // backslashes we read previously, these are literals.
+      memset(dest + i, '\\', backslash_count);
+      i += backslash_count;
+      if (ShouldEscapeCharForNinja(str[j]))
+        dest[i++] = '$';
+      dest[i++] = str[j];
+    }
+  }
+
+  if (!inhibit_quoting)
+    dest[i++] = '"';
+  if (needed_quoting)
+    *needed_quoting = true;
+
   return i;
 }
 
-size_t EscapeStringToString_PosixNinjaFork(std::string_view str, char* dest) {
-  size_t i = 0;
-  for (const auto& elem : str) {
-    if (elem == '$' || elem == ' ') {
-      // Space and $ are special to both Ninja and the shell. '$' escape for
-      // Ninja, then backslash-escape for the shell.
-      dest[i++] = '\\';
-      dest[i++] = '$';
-      dest[i++] = elem;
-    } else if (elem == ':') {
-      // Colon is the only other Ninja special char, which is not special to
-      // the shell.
-      dest[i++] = '$';
-      dest[i++] = ':';
-    } else if (static_cast<unsigned>(elem) >= 0x80 ||
-               !kShellValid[static_cast<int>(elem)]) {
-      // All other invalid shell chars get backslash-escaped.
-      dest[i++] = '\\';
-      dest[i++] = elem;
-    } else {
-      // Everything else is a literal.
-      dest[i++] = elem;
+void EscapeStringToString_PosixNinjaFork(std::string_view str,
+                                         char* dest,
+                                         size_t& upto) {
+  auto find_first_escape = [&](size_t pos = 0) {
+    for (size_t i = pos; i < str.size(); ++i) {
+      if (kPosixNinjaTable[static_cast<uint8_t>(str[i])] != '\0')
+        return i;
     }
+    return std::string_view::npos;
+  };
+
+  size_t start = 0;
+  for (size_t delim = find_first_escape();
+       UNLIKELY(delim != std::string_view::npos);
+       delim = find_first_escape(start)) {
+    size_t len = delim - start;
+    memcpy(dest + upto, str.data() + start, len);
+    upto += len;
+
+    char c = str[delim];
+    dest[upto++] = kPosixNinjaTable[static_cast<uint8_t>(c)];
+    if (c == ' ' || c == '$') {
+      dest[upto++] = '$';
+    }
+    dest[upto++] = c;
+    start = delim + 1;
   }
-  return i;
+  size_t len = str.size() - start;
+  memcpy(dest + upto, str.data() + start, len);
+  upto += len;
 }
 
 // Escapes |str| into |dest| and returns the number of characters written.
@@ -220,10 +281,16 @@ size_t EscapeStringToString(std::string_view str,
     case ESCAPE_NONE:
       strncpy(dest, str.data(), str.size());
       return str.size();
-    case ESCAPE_SPACE:
-      return EscapeStringToString_Space(str, dest);
-    case ESCAPE_NINJA:
-      return EscapeStringToString_Ninja(str, dest);
+    case ESCAPE_SPACE: {
+      size_t upto = 0;
+      EscapeStringToString_Space(str, dest, upto);
+      return upto;
+    }
+    case ESCAPE_NINJA: {
+      size_t upto = 0;
+      EscapeStringToString_Ninja(str, dest, upto);
+      return upto;
+    }
     case ESCAPE_DEPFILE:
       return EscapeStringToString_Depfile(str, dest);
     case ESCAPE_COMPILATION_DATABASE:
@@ -235,13 +302,20 @@ size_t EscapeStringToString(std::string_view str,
           return EscapeStringToString_WindowsNinjaFork(
               str, options.inhibit_quoting, dest, needed_quoting);
 #else
-          return EscapeStringToString_PosixNinjaFork(str, dest);
+        {
+          size_t upto = 0;
+          EscapeStringToString_PosixNinjaFork(str, dest, upto);
+          return upto;
+        }
 #endif
         case ESCAPE_PLATFORM_WIN:
           return EscapeStringToString_WindowsNinjaFork(
               str, options.inhibit_quoting, dest, needed_quoting);
-        case ESCAPE_PLATFORM_POSIX:
-          return EscapeStringToString_PosixNinjaFork(str, dest);
+        case ESCAPE_PLATFORM_POSIX: {
+          size_t upto = 0;
+          EscapeStringToString_PosixNinjaFork(str, dest, upto);
+          return upto;
+        }
         default:
           NOTREACHED();
       }
@@ -256,11 +330,11 @@ size_t EscapeStringToString(std::string_view str,
 }  // namespace
 
 void Escape::Space::WriteToBuf(char buf[], size_t& upto) const {
-  upto += EscapeStringToString_Space(str, &buf[upto]);
+  EscapeStringToString_Space(str, buf, upto);
 }
 
 void Escape::Ninja::WriteToBuf(char buf[], size_t& upto) const {
-  upto += EscapeStringToString_Ninja(str, &buf[upto]);
+  EscapeStringToString_Ninja(str, buf, upto);
 }
 
 void Escape::Depfile::WriteToBuf(char buf[], size_t& upto) const {
@@ -282,7 +356,7 @@ void Escape::Command::WriteToBuf(char buf[], size_t& upto) const {
       upto += EscapeStringToString_WindowsNinjaFork(str, inhibit_quoting,
                                                     &buf[upto], nullptr);
 #else
-      upto += EscapeStringToString_PosixNinjaFork(str, &buf[upto]);
+      EscapeStringToString_PosixNinjaFork(str, buf, upto);
 #endif
       break;
     case ESCAPE_PLATFORM_WIN:
@@ -290,7 +364,7 @@ void Escape::Command::WriteToBuf(char buf[], size_t& upto) const {
                                                     &buf[upto], nullptr);
       break;
     case ESCAPE_PLATFORM_POSIX:
-      upto += EscapeStringToString_PosixNinjaFork(str, &buf[upto]);
+      EscapeStringToString_PosixNinjaFork(str, buf, upto);
       break;
   }
 }

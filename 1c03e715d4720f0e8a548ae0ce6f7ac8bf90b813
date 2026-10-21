@@ -1,0 +1,111 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "613cb649_e79b187b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-21T06:24:34Z",
+      "side": 1,
+      "message": "Add bug for starlark support?",
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7af6e3df_3254c5dc",
+        "filename": "src/gn/starlark/crates/providers/src/builtins.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-21T06:24:34Z",
+      "side": 1,
+      "message": "[From Jetski review] Typo in docstring: \u0027path prefix\u0027 -\u003e \u0027path suffix\u0027 (keys like \u0027*.o\u0027 match the suffix of the output path, not the prefix).",
+      "isAi": true,
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "698f54b3_b67ede6c",
+        "filename": "src/gn/starlark/crates/providers/src/errors.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-21T06:24:34Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: This variant checks both that the key is a string and that it starts with \u0027*\u0027, so a name like InvalidGnInputsInfoKey might better match what it represents.",
+      "isAi": true,
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90ee4b33_268df3ab",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-21T06:24:34Z",
+      "side": 1,
+      "message": "[From Jetski review] Same typo here: \u0027path prefix pattern\u0027 -\u003e \u0027path suffix pattern\u0027 (in both paragraphs above). It would also be helpful to mention in this doc comment that the leading \u0027*\u0027 is stripped from the stored String (e.g. \u0027*.o\u0027 is stored as \u0027.o\u0027).",
+      "isAi": true,
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3aa31a8_4b316065",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-21T06:24:34Z",
+      "side": 1,
+      "message": "[From Jetski review] Consider using strip_prefix(\u0027*\u0027) here instead of slicing path[1..] below.\n\nAlso, since downstream matching uses a plain suffix check (ends_with) rather than full glob matching, keys like \u0027*/*.o\u0027 or \u0027*foo*.o\u0027 would pass starts_with(\u0027*\u0027) and silently never match anything. Should we also reject \u0027*\u0027 in the remaining suffix (e.g. .filter(|s| !s.contains(\u0027*\u0027))) and clarify the error message so callers don\u0027t assume full glob support?",
+      "isAi": true,
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "749b0110_b99616b7",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-21T06:24:34Z",
+      "side": 1,
+      "message": "[From Jetski review] Consider also adding an entry with an empty depset (e.g. \u0027*.empty\u0027: depset()) here to cover the Ok(UnpackFileDepset(None)) \u003d\u003e {} branch in parse_providers (the empty-depset cases in test_providers_unpack_fails return early on key validation).",
+      "isAi": true,
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

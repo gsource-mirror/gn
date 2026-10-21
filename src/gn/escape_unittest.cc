@@ -107,3 +107,62 @@ TEST(Escape, CompilationDatabase) {
   std::string result = EscapeString("asdf:$ \\#*[|]bar", opts, nullptr);
   EXPECT_EQ("\"asdf:$ \\\\#*[|]bar\"", result);
 }
+
+TEST(Escape, StreamNinja) {
+  EscapeOptions opts;
+  opts.mode = ESCAPE_NINJA;
+  StringOutputBuffer buffer;
+  EscapeStringToStream(buffer, "asdf: \"$\\bar", opts);
+  EXPECT_EQ("asdf$:$ \"$$\\bar", buffer.str());
+}
+
+TEST(Escape, EscapedStream) {
+  // Ninja escaping
+  {
+    StringOutputBuffer out;
+    out << Escape::Ninja("asdf: \"$\\bar");
+    EXPECT_EQ("asdf$:$ \"$$\\bar", out.str());
+  }
+
+  // Depfile escaping
+  {
+    StringOutputBuffer out;
+    out << Escape::Depfile("asdf:$ \\#*[|]bar");
+    EXPECT_EQ("asdf:$$\\ \\\\\\#\\*\\[\\|\\]bar", out.str());
+  }
+
+  // Space escaping
+  {
+    StringOutputBuffer out;
+    out << Escape::Space("-VERSION=\"libsrtp 2.1.0-pre\"");
+    EXPECT_EQ("-VERSION=\"libsrtp\\ 2.1.0-pre\"", out.str());
+  }
+
+  // Ninja preformatted escaping
+  {
+    StringOutputBuffer out;
+    out << Escape::NinjaPreformatted("a: \"$\\b<;");
+    EXPECT_EQ("a: \"$$\\b<;", out.str());
+  }
+
+  // Compilation database escaping
+  {
+    StringOutputBuffer out;
+    out << Escape::CompilationDatabase("asdf:$ \\#*[|]bar");
+    EXPECT_EQ("\"asdf:$ \\\\#*[|]bar\"", out.str());
+  }
+
+  // Windows command escaping
+  {
+    StringOutputBuffer out;
+    out << Escape::Command("foo\\ bar", ESCAPE_PLATFORM_WIN);
+    EXPECT_EQ("\"foo\\$ bar\"", out.str());
+  }
+
+  // Posix command escaping
+  {
+    StringOutputBuffer out;
+    out << Escape::Command("a: \"$\\b", ESCAPE_PLATFORM_POSIX);
+    EXPECT_EQ("a$:\\$ \\\"\\$$\\\\b", out.str());
+  }
+}

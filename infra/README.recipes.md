@@ -4,12 +4,14 @@
 
 **[Recipe Modules](#Recipe-Modules)**
   * [macos_sdk](#recipe_modules-macos_sdk) &mdash; The `macos_sdk` module provides safe functions to access a semi-hermetic XCode installation.
+  * [pinned](#recipe_modules-pinned)
   * [target](#recipe_modules-target)
   * [windows_sdk](#recipe_modules-windows_sdk)
 
 **[Recipes](#Recipes)**
   * [gn](#recipes-gn) &mdash; Recipe for building GN.
   * [macos_sdk:examples/full](#recipes-macos_sdk_examples_full)
+  * [pinned:examples/full](#recipes-pinned_examples_full)
   * [target:examples/full](#recipes-target_examples_full)
   * [windows_sdk:examples/full](#recipes-windows_sdk_examples_full)
 ## Recipe Modules
@@ -63,6 +65,16 @@ Raises:
     StepFailure or InfraFailure.
 
 &emsp; **@property**<br>&mdash; **def [sdk\_dir](/infra/recipe_modules/macos_sdk/api.py#25)(self):**
+### *recipe_modules* / [pinned](/infra/recipe_modules/pinned)
+
+[DEPS](/infra/recipe_modules/pinned/__init__.py#5): [target](#recipe_modules-target), [recipe\_engine/platform][recipe_engine/recipe_modules/platform]
+
+
+#### **class [PinnedApi](/infra/recipe_modules/pinned/api.py#15)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+&mdash; **def [get\_packages](/infra/recipe_modules/pinned/api.py#31)(self):**
+
+&mdash; **def [release\_targets](/infra/recipe_modules/pinned/api.py#19)(self):**
 ### *recipe_modules* / [target](/infra/recipe_modules/target)
 
 [DEPS](/infra/recipe_modules/target/__init__.py#5): [recipe\_engine/platform][recipe_engine/recipe_modules/platform]
@@ -92,18 +104,24 @@ Raises:
 
 ### *recipes* / [gn](/infra/recipes/gn.py)
 
-[DEPS](/infra/recipes/gn.py#8): [macos\_sdk](#recipe_modules-macos_sdk), [target](#recipe_modules-target), [windows\_sdk](#recipe_modules-windows_sdk), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/cas][recipe_engine/recipe_modules/cas], [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/infra/recipes/gn.py#8): [macos\_sdk](#recipe_modules-macos_sdk), [pinned](#recipe_modules-pinned), [target](#recipe_modules-target), [windows\_sdk](#recipe_modules-windows_sdk), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/cas][recipe_engine/recipe_modules/cas], [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 
 Recipe for building GN.
 
-&mdash; **def [RunSteps](/infra/recipes/gn.py#98)(api, repository):**
+&mdash; **def [RunSteps](/infra/recipes/gn.py#99)(api, repository):**
 ### *recipes* / [macos\_sdk:examples/full](/infra/recipe_modules/macos_sdk/examples/full.py)
 
 [DEPS](/infra/recipe_modules/macos_sdk/examples/full.py#5): [macos\_sdk](#recipe_modules-macos_sdk), [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 
 &mdash; **def [RunSteps](/infra/recipe_modules/macos_sdk/examples/full.py#13)(api):**
+### *recipes* / [pinned:examples/full](/infra/recipe_modules/pinned/examples/full.py)
+
+[DEPS](/infra/recipe_modules/pinned/examples/full.py#5): [pinned](#recipe_modules-pinned), [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+
+&mdash; **def [RunSteps](/infra/recipe_modules/pinned/examples/full.py#12)(api):**
 ### *recipes* / [target:examples/full](/infra/recipe_modules/target/examples/full.py)
 
 [DEPS](/infra/recipe_modules/target/examples/full.py#5): [target](#recipe_modules-target), [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

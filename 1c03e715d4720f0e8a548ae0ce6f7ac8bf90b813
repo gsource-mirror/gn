@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "60d512b0_1e383ee7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-22T22:43:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "613cb649_e79b187b",
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7af6e3df_3254c5dc",
@@ -32,6 +50,24 @@
       "side": 1,
       "message": "[From Jetski review] Typo in docstring: \u0027path prefix\u0027 -\u003e \u0027path suffix\u0027 (keys like \u0027*.o\u0027 match the suffix of the output path, not the prefix).",
       "isAi": true,
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "782a3e14_baaf4e8f",
+        "filename": "src/gn/starlark/crates/providers/src/builtins.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-22T22:43:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af6e3df_3254c5dc",
       "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -54,6 +90,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddd5f502_04c6e7ae",
+        "filename": "src/gn/starlark/crates/providers/src/errors.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-22T22:43:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "698f54b3_b67ede6c",
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90ee4b33_268df3ab",
@@ -68,6 +122,24 @@
       "side": 1,
       "message": "[From Jetski review] Same typo here: \u0027path prefix pattern\u0027 -\u003e \u0027path suffix pattern\u0027 (in both paragraphs above). It would also be helpful to mention in this doc comment that the leading \u0027*\u0027 is stripped from the stored String (e.g. \u0027*.o\u0027 is stored as \u0027.o\u0027).",
       "isAi": true,
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39399ef7_c8340a14",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-22T22:43:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90ee4b33_268df3ab",
       "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -90,6 +162,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "889fe2dc_60b6e1c7",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-22T22:43:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3aa31a8_4b316065",
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "749b0110_b99616b7",
@@ -104,6 +194,24 @@
       "side": 1,
       "message": "[From Jetski review] Consider also adding an entry with an empty depset (e.g. \u0027*.empty\u0027: depset()) here to cover the Ok(UnpackFileDepset(None)) \u003d\u003e {} branch in parse_providers (the empty-depset cases in test_providers_unpack_fails return early on key validation).",
       "isAi": true,
+      "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "99256b8b_692889b5",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-22T22:43:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "749b0110_b99616b7",
       "revId": "1c03e715d4720f0e8a548ae0ce6f7ac8bf90b813",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

@@ -3,19 +3,26 @@
 #include "gn/err.h"
 #include "gn/ffi/err.h"
 #include "gn/ffi/scope.h"
+#include "gn/ffi/source_file.h"
+#include "gn/ffi/target.h"
 #include "gn/ffi/test_with_scope.h"
 #include "gn/ffi/value.h"
 #include "gn/label.h"
+#include "gn/label_ptr.h"
 #include "gn/output_file.h"
 #include "gn/scope.h"
 #include "gn/settings.h"
 #include "gn/source_dir.h"
+#include "gn/source_file.h"
+#include "gn/target.h"
 #include "gn/test_with_scope.h"
 #include "gn/value.h"
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <initializer_list>
 #include <iterator>
 #include <memory>
 #include <new>
@@ -23,6 +30,7 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <vector>
 #if __cplusplus >= 201703L
 #include <string_view>
 #endif
@@ -659,6 +667,251 @@ template <typename T>
 Box<T>::Box(uninit) noexcept {}
 #endif // CXXBRIDGE1_RUST_BOX
 
+#ifndef CXXBRIDGE1_RUST_BITCOPY_T
+#define CXXBRIDGE1_RUST_BITCOPY_T
+struct unsafe_bitcopy_t final {
+  explicit unsafe_bitcopy_t() = default;
+};
+#endif // CXXBRIDGE1_RUST_BITCOPY_T
+
+#ifndef CXXBRIDGE1_RUST_VEC
+#define CXXBRIDGE1_RUST_VEC
+template <typename T>
+class Vec final {
+public:
+  using value_type = T;
+
+  Vec() noexcept;
+  Vec(std::initializer_list<T>);
+  Vec(const Vec &);
+  Vec(Vec &&) noexcept;
+  ~Vec() noexcept;
+
+  Vec &operator=(Vec &&) & noexcept;
+  Vec &operator=(const Vec &) &;
+
+  std::size_t size() const noexcept;
+  bool empty() const noexcept;
+  const T *data() const noexcept;
+  T *data() noexcept;
+  std::size_t capacity() const noexcept;
+
+  const T &operator[](std::size_t n) const noexcept;
+  const T &at(std::size_t n) const;
+  const T &front() const noexcept;
+  const T &back() const noexcept;
+
+  T &operator[](std::size_t n) noexcept;
+  T &at(std::size_t n);
+  T &front() noexcept;
+  T &back() noexcept;
+
+  void reserve(std::size_t new_cap);
+  void push_back(const T &value);
+  void push_back(T &&value);
+  template <typename... Args>
+  void emplace_back(Args &&...args);
+  void truncate(std::size_t len);
+  void clear();
+
+  using iterator = typename Slice<T>::iterator;
+  iterator begin() noexcept;
+  iterator end() noexcept;
+
+  using const_iterator = typename Slice<const T>::iterator;
+  const_iterator begin() const noexcept;
+  const_iterator end() const noexcept;
+  const_iterator cbegin() const noexcept;
+  const_iterator cend() const noexcept;
+
+  void swap(Vec &) noexcept;
+
+  Vec(unsafe_bitcopy_t, const Vec &) noexcept;
+
+private:
+  void reserve_total(std::size_t new_cap) noexcept;
+  void set_len(std::size_t len) noexcept;
+  void drop() noexcept;
+
+  friend void swap(Vec &lhs, Vec &rhs) noexcept { lhs.swap(rhs); }
+
+  std::array<std::uintptr_t, 3> repr;
+};
+
+template <typename T>
+Vec<T>::Vec(std::initializer_list<T> init) : Vec{} {
+  this->reserve_total(init.size());
+  std::move(init.begin(), init.end(), std::back_inserter(*this));
+}
+
+template <typename T>
+Vec<T>::Vec(const Vec &other) : Vec() {
+  this->reserve_total(other.size());
+  std::copy(other.begin(), other.end(), std::back_inserter(*this));
+}
+
+template <typename T>
+Vec<T>::Vec(Vec &&other) noexcept : repr(other.repr) {
+  new (&other) Vec();
+}
+
+template <typename T>
+Vec<T>::~Vec() noexcept {
+  this->drop();
+}
+
+template <typename T>
+Vec<T> &Vec<T>::operator=(Vec &&other) & noexcept {
+  this->drop();
+  this->repr = other.repr;
+  new (&other) Vec();
+  return *this;
+}
+
+template <typename T>
+Vec<T> &Vec<T>::operator=(const Vec &other) & {
+  if (this != &other) {
+    this->drop();
+    new (this) Vec(other);
+  }
+  return *this;
+}
+
+template <typename T>
+bool Vec<T>::empty() const noexcept {
+  return this->size() == 0;
+}
+
+template <typename T>
+T *Vec<T>::data() noexcept {
+  return const_cast<T *>(const_cast<const Vec<T> *>(this)->data());
+}
+
+template <typename T>
+const T &Vec<T>::operator[](std::size_t n) const noexcept {
+  assert(n < this->size());
+  auto data = reinterpret_cast<const char *>(this->data());
+  return *reinterpret_cast<const T *>(data + n * size_of<T>());
+}
+
+template <typename T>
+const T &Vec<T>::at(std::size_t n) const {
+  if (n >= this->size()) {
+    panic<std::out_of_range>("rust::Vec index out of range");
+  }
+  return (*this)[n];
+}
+
+template <typename T>
+const T &Vec<T>::front() const noexcept {
+  assert(!this->empty());
+  return (*this)[0];
+}
+
+template <typename T>
+const T &Vec<T>::back() const noexcept {
+  assert(!this->empty());
+  return (*this)[this->size() - 1];
+}
+
+template <typename T>
+T &Vec<T>::operator[](std::size_t n) noexcept {
+  assert(n < this->size());
+  auto data = reinterpret_cast<char *>(this->data());
+  return *reinterpret_cast<T *>(data + n * size_of<T>());
+}
+
+template <typename T>
+T &Vec<T>::at(std::size_t n) {
+  if (n >= this->size()) {
+    panic<std::out_of_range>("rust::Vec index out of range");
+  }
+  return (*this)[n];
+}
+
+template <typename T>
+T &Vec<T>::front() noexcept {
+  assert(!this->empty());
+  return (*this)[0];
+}
+
+template <typename T>
+T &Vec<T>::back() noexcept {
+  assert(!this->empty());
+  return (*this)[this->size() - 1];
+}
+
+template <typename T>
+void Vec<T>::reserve(std::size_t new_cap) {
+  this->reserve_total(new_cap);
+}
+
+template <typename T>
+void Vec<T>::push_back(const T &value) {
+  this->emplace_back(value);
+}
+
+template <typename T>
+void Vec<T>::push_back(T &&value) {
+  this->emplace_back(std::move(value));
+}
+
+template <typename T>
+template <typename... Args>
+void Vec<T>::emplace_back(Args &&...args) {
+  auto size = this->size();
+  this->reserve_total(size + 1);
+  ::new (reinterpret_cast<T *>(reinterpret_cast<char *>(this->data()) +
+                               size * size_of<T>()))
+      T(std::forward<Args>(args)...);
+  this->set_len(size + 1);
+}
+
+template <typename T>
+void Vec<T>::clear() {
+  this->truncate(0);
+}
+
+template <typename T>
+typename Vec<T>::iterator Vec<T>::begin() noexcept {
+  return Slice<T>(this->data(), this->size()).begin();
+}
+
+template <typename T>
+typename Vec<T>::iterator Vec<T>::end() noexcept {
+  return Slice<T>(this->data(), this->size()).end();
+}
+
+template <typename T>
+typename Vec<T>::const_iterator Vec<T>::begin() const noexcept {
+  return this->cbegin();
+}
+
+template <typename T>
+typename Vec<T>::const_iterator Vec<T>::end() const noexcept {
+  return this->cend();
+}
+
+template <typename T>
+typename Vec<T>::const_iterator Vec<T>::cbegin() const noexcept {
+  return Slice<const T>(this->data(), this->size()).begin();
+}
+
+template <typename T>
+typename Vec<T>::const_iterator Vec<T>::cend() const noexcept {
+  return Slice<const T>(this->data(), this->size()).end();
+}
+
+template <typename T>
+void Vec<T>::swap(Vec &rhs) noexcept {
+  using std::swap;
+  swap(this->repr, rhs.repr);
+}
+
+template <typename T>
+Vec<T>::Vec(unsafe_bitcopy_t, const Vec &bits) noexcept : repr(bits.repr) {}
+#endif // CXXBRIDGE1_RUST_VEC
+
 #ifndef CXXBRIDGE1_RUST_OPAQUE
 #define CXXBRIDGE1_RUST_OPAQUE
 class Opaque {
@@ -737,6 +990,25 @@ std::size_t align_of() {
 }
 #endif // CXXBRIDGE1_LAYOUT
 
+class Str::uninit {};
+inline Str::Str(uninit) noexcept {}
+
+namespace repr {
+using Fat = ::std::array<::std::uintptr_t, 2>;
+} // namespace repr
+
+namespace detail {
+template <typename T, typename = void *>
+struct operator_new {
+  void *operator()(::std::size_t sz) { return ::operator new(sz); }
+};
+
+template <typename T>
+struct operator_new<T, decltype(T::operator new(sizeof(T)))> {
+  void *operator()(::std::size_t sz) { return T::operator new(sz); }
+};
+} // namespace detail
+
 template <typename T>
 union ManuallyDrop {
   T value;
@@ -744,12 +1016,52 @@ union ManuallyDrop {
   ~ManuallyDrop() {}
 };
 
+template <typename T>
+union MaybeUninit {
+  T value;
+  void *operator new(::std::size_t sz) { return detail::operator_new<T>{}(sz); }
+  MaybeUninit() {}
+  ~MaybeUninit() {}
+};
+
 namespace {
+template <>
+class impl<Str> final {
+public:
+  static Str new_unchecked(repr::Fat repr) noexcept {
+    Str str = Str::uninit{};
+    str.repr = repr;
+    return str;
+  }
+  static repr::Fat repr(Str str) noexcept {
+    return str.repr;
+  }
+};
+
+template <typename T>
+void destroy(T *ptr) {
+  ptr->~T();
+}
+
 template <bool> struct deleter_if {
   template <typename T> void operator()(T *) {}
 };
 template <> struct deleter_if<true> {
   template <typename T> void operator()(T *ptr) { ptr->~T(); }
+};
+
+template <typename T, bool = ::std::is_move_constructible<T>::value>
+struct if_move_constructible {
+  static bool reserve(::std::vector<T> &, ::std::size_t) noexcept {
+    return false;
+  }
+};
+template <typename T>
+struct if_move_constructible<T, true> {
+  static bool reserve(::std::vector<T> &vec, ::std::size_t new_cap) {
+    vec.reserve(new_cap);
+    return true;
+  }
 };
 } // namespace
 } // namespace cxxbridge1
@@ -771,12 +1083,17 @@ using InputFile = ::InputFile;
 using OutputFile = ::OutputFile;
 using SourceDir = ::SourceDir;
 using Label = ::Label;
+using SourceFile = ::SourceFile;
+using LabelTargetPair = ::LabelTargetPair;
+using Target = ::Target;
 using Settings = ::Settings;
 using Scope = ::Scope;
 using TestWithScope = ::TestWithScope;
 using Value = ::Value;
 using ParseNode = ::ParseNode;
+struct RustTarget;
 struct Session;
+struct OwnedFrozenValue;
 
 #ifndef CXXBRIDGE1_STRUCT_Any
 #define CXXBRIDGE1_STRUCT_Any
@@ -825,15 +1142,33 @@ enum class ValueType : ::std::uint8_t {
   String = 3,
   List = 4,
   Scope = 5,
+  StarlarkValue = 6,
 };
 #endif // CXXBRIDGE1_ENUM_ValueType
+
+#ifndef CXXBRIDGE1_STRUCT_RustTarget
+#define CXXBRIDGE1_STRUCT_RustTarget
+struct RustTarget final : public ::rust::Opaque {
+  ::rust::Str execute_rule_impl(::Session const &session, ::Err &err) const noexcept;
+  ~RustTarget() = delete;
+
+private:
+  friend ::rust::layout;
+  struct layout {
+    static ::std::size_t size() noexcept;
+    static ::std::size_t align() noexcept;
+  };
+};
+#endif // CXXBRIDGE1_STRUCT_RustTarget
 
 #ifndef CXXBRIDGE1_STRUCT_Session
 #define CXXBRIDGE1_STRUCT_Session
 struct Session final : public ::rust::Opaque {
-  static ::rust::Box<::Session> new_cxx(::rust::Str source_root, ::rust::Str source_root_rel) noexcept;
+  static ::rust::Box<::Session> new_cxx(::rust::Str source_root, ::rust::Str build_root, ::rust::Str source_root_rel) noexcept;
   static ::rust::Box<::Session> new_for_testing() noexcept;
+  ::RustTarget const &register_cxx_target(::Target const &target) const noexcept;
   void load_values(::rust::Str label, ::rust::Str relative_to, ::rust::Slice<::rust::Str const> keys, ::Scope &scope, ::Settings const &settings, ::ParseNodePtr origin, ::Err &err) const noexcept;
+  ::rust::Vec<::rust::Str> loaded() const noexcept;
   ~Session() = delete;
 
 private:
@@ -845,7 +1180,30 @@ private:
 };
 #endif // CXXBRIDGE1_STRUCT_Session
 
+#ifndef CXXBRIDGE1_STRUCT_OwnedFrozenValue
+#define CXXBRIDGE1_STRUCT_OwnedFrozenValue
+struct OwnedFrozenValue final : public ::rust::Opaque {
+  ::rust::Box<::OwnedFrozenValue> clone() const noexcept;
+  ::rust::String to_string() const noexcept;
+  bool eq(::OwnedFrozenValue const &other) const noexcept;
+  void invoke(::Session const &session, ::std::vector<::Value> const &args, ::Scope const &kwargs, ::Value &out_val, ::Scope &scope, ::ParseNodePtr origin, ::Err &err) const noexcept;
+  ~OwnedFrozenValue() = delete;
+
+private:
+  friend ::rust::layout;
+  struct layout {
+    static ::std::size_t size() noexcept;
+    static ::std::size_t align() noexcept;
+  };
+};
+#endif // CXXBRIDGE1_STRUCT_OwnedFrozenValue
+
 extern "C" {
+void cxxbridge1$196$free_vector_buffer(::Any *ptr) noexcept {
+  void (*free_vector_buffer$)(::Any *) = ::free_vector_buffer;
+  free_vector_buffer$(ptr);
+}
+
 bool cxxbridge1$196$Err$has_error(::Err const &self) noexcept {
   bool (::Err::*has_error$)() const = &::Err::has_error;
   return (self.*has_error$)();
@@ -901,13 +1259,98 @@ void cxxbridge1$196$Label$name(::Label const &self, ::rust::Str *return$) noexce
   new (return$) ::rust::Str(::rust::cxx_to_rust((self.*name$)()));
 }
 
+bool cxxbridge1$196$SourceFile$is_header(::SourceFile const &self) noexcept {
+  bool (::SourceFile::*is_header$)() const = &::SourceFile::IsHeaderType;
+  return (self.*is_header$)();
+}
+
+::rust::repr::Fat cxxbridge1$196$source_file_to_output_path(::Settings const &settings, ::SourceFile const &file) noexcept {
+  ::rust::Str (*source_file_to_output_path$)(::Settings const &, ::SourceFile const &) = ::source_file_to_output_path;
+  return ::rust::impl<::rust::Str>::repr(source_file_to_output_path$(settings, file));
+}
+
+void cxxbridge1$196$label_target_pair_target(::LabelTargetPair const &pair, ::Target const **return$) noexcept {
+  ::Target const &(*label_target_pair_target$)(::LabelTargetPair const &) = ::label_target_pair_target;
+  new (return$) ::Target const *(&label_target_pair_target$(pair));
+}
+
+void cxxbridge1$196$Target$label(::Target const &self, ::Label const **return$) noexcept {
+  ::Label const &(::Target::*label$)() const = &::Target::label;
+  new (return$) ::Label const *(&(self.*label$)());
+}
+
+::std::uint8_t cxxbridge1$196$output_type_u8(::Target const &target) noexcept {
+  ::std::uint8_t (*output_type_u8$)(::Target const &) = ::output_type_u8;
+  return output_type_u8$(target);
+}
+
+void cxxbridge1$196$Target$private_deps(::Target const &self, ::std::vector<::LabelTargetPair> const **return$) noexcept {
+  ::std::vector<::LabelTargetPair> const &(::Target::*private_deps$)() const = &::Target::private_deps;
+  new (return$) ::std::vector<::LabelTargetPair> const *(&(self.*private_deps$)());
+}
+
+void cxxbridge1$196$Target$public_deps(::Target const &self, ::std::vector<::LabelTargetPair> const **return$) noexcept {
+  ::std::vector<::LabelTargetPair> const &(::Target::*public_deps$)() const = &::Target::public_deps;
+  new (return$) ::std::vector<::LabelTargetPair> const *(&(self.*public_deps$)());
+}
+
+bool cxxbridge1$196$Target$all_headers_public(::Target const &self) noexcept {
+  bool (::Target::*all_headers_public$)() const = &::Target::all_headers_public;
+  return (self.*all_headers_public$)();
+}
+
+void cxxbridge1$196$Target$sources(::Target const &self, ::std::vector<::SourceFile> const **return$) noexcept {
+  ::std::vector<::SourceFile> const &(::Target::*sources$)() const = &::Target::sources;
+  new (return$) ::std::vector<::SourceFile> const *(&(self.*sources$)());
+}
+
+void cxxbridge1$196$Target$public_headers(::Target const &self, ::std::vector<::SourceFile> const **return$) noexcept {
+  ::std::vector<::SourceFile> const &(::Target::*public_headers$)() const = &::Target::public_headers;
+  new (return$) ::std::vector<::SourceFile> const *(&(self.*public_headers$)());
+}
+
+void cxxbridge1$196$Target$computed_outputs(::Target const &self, ::std::vector<::OutputFile> const **return$) noexcept {
+  ::std::vector<::OutputFile> const &(::Target::*computed_outputs$)() const = &::Target::computed_outputs;
+  new (return$) ::std::vector<::OutputFile> const *(&(self.*computed_outputs$)());
+}
+
+::RustTarget const *cxxbridge1$196$Target$rust_target(::Target const &self, ::Session const &session) noexcept {
+  ::RustTarget const &(::Target::*rust_target$)(::Session const &) const = &::Target::rust_target;
+  return &(self.*rust_target$)(session);
+}
+
+void cxxbridge1$196$Target$set_rust_target(::Target const &self, ::RustTarget const &rust_target) noexcept {
+  void (::Target::*set_rust_target$)(::RustTarget const &) const = &::Target::set_rust_target;
+  (self.*set_rust_target$)(rust_target);
+}
+
+::Settings const *cxxbridge1$196$Target$settings_cxx(::Target const &self) noexcept {
+  ::Settings const *(::Target::*settings_cxx$)() const = &::Target::settings;
+  return (self.*settings_cxx$)();
+}
+
+::Target *cxxbridge1$196$create_target(::Scope &scope, ::ParseNodePtr *origin, ::rust::Str name, ::rust::Str output_type, ::Err &err) noexcept {
+  ::Target *(*create_target$)(::Scope &, ::ParseNodePtr, ::rust::Str, ::rust::Str, ::Err &) = ::create_target;
+  return create_target$(scope, ::std::move(*origin), name, output_type, err);
+}
+
+void cxxbridge1$196$register_dependency(::Target &target, ::rust::Str package, ::rust::Str name, ::rust::Str toolchain_package, ::rust::Str toolchain_name) noexcept {
+  void (*register_dependency$)(::Target &, ::rust::Str, ::rust::Str, ::rust::Str, ::rust::Str) = ::register_dependency;
+  register_dependency$(target, package, name, toolchain_package, toolchain_name);
+}
+
 void cxxbridge1$196$Settings$toolchain_label(::Settings const &self, ::Label const **return$) noexcept {
   ::Label const &(::Settings::*toolchain_label$)() const = &::Settings::toolchain_label;
   new (return$) ::Label const *(&(self.*toolchain_label$)());
 }
 
-void cxxbridge1$196$NewScope(::Scope const &parent_scope, ::rust::Slice<::rust::Str const> keys, ::std::unique_ptr<::Scope> &out_scope, ::SliceAny *return$) noexcept {
-  ::SliceAny (*NewScope$)(::Scope const &, ::rust::Slice<::rust::Str const>, ::std::unique_ptr<::Scope> &) = ::NewScope;
+bool cxxbridge1$196$Settings$is_default(::Settings const &self) noexcept {
+  bool (::Settings::*is_default$)() const = &::Settings::is_default;
+  return (self.*is_default$)();
+}
+
+void cxxbridge1$196$NewScope(::Scope &parent_scope, ::rust::Slice<::rust::Str const> keys, ::std::unique_ptr<::Scope> &out_scope, ::SliceAny *return$) noexcept {
+  ::SliceAny (*NewScope$)(::Scope &, ::rust::Slice<::rust::Str const>, ::std::unique_ptr<::Scope> &) = ::NewScope;
   new (return$) ::SliceAny(NewScope$(parent_scope, keys, out_scope));
 }
 
@@ -934,6 +1377,11 @@ void cxxbridge1$196$GetScopeItems(::Scope const &scope, ::SliceAny *return$) noe
 ::Settings const *cxxbridge1$196$Scope$settings_cxx(::Scope const &self) noexcept {
   ::Settings const *(::Scope::*settings_cxx$)() const = &::Scope::settings;
   return (self.*settings_cxx$)();
+}
+
+void cxxbridge1$196$Scope$package_cxx(::Scope const &self, ::SourceDir const **return$) noexcept {
+  ::SourceDir const &(::Scope::*package_cxx$)() const = &::Scope::GetSourceDir;
+  new (return$) ::SourceDir const *(&(self.*package_cxx$)());
 }
 
 ::TestWithScope *cxxbridge1$196$NewTestWithScope() noexcept {
@@ -1015,15 +1463,55 @@ void cxxbridge1$196$SetValueScope(::Value &val, ::ParseNodePtr *origin, ::Scope 
   void (*SetValueScope$)(::Value &, ::ParseNodePtr, ::std::unique_ptr<::Scope>) = ::SetValueScope;
   SetValueScope$(val, ::std::move(*origin), ::std::unique_ptr<::Scope>(scope));
 }
+
+void cxxbridge1$196$SetValueStarlark(::Value &val, ::ParseNodePtr *origin, ::OwnedFrozenValue *starlark_val) noexcept {
+  void (*SetValueStarlark$)(::Value &, ::ParseNodePtr, ::rust::Box<::OwnedFrozenValue>) = ::SetValueStarlark;
+  SetValueStarlark$(val, ::std::move(*origin), ::rust::Box<::OwnedFrozenValue>::from_raw(starlark_val));
+}
+
+void cxxbridge1$196$Value$starlark_value(::Value const &self, ::OwnedFrozenValue const **return$) noexcept {
+  ::OwnedFrozenValue const &(::Value::*starlark_value$)() const = &::Value::starlark_value;
+  new (return$) ::OwnedFrozenValue const *(&(self.*starlark_value$)());
+}
+::std::size_t cxxbridge1$196$RustTarget$operator$sizeof() noexcept;
+::std::size_t cxxbridge1$196$RustTarget$operator$alignof() noexcept;
+
+::rust::repr::Fat cxxbridge1$196$RustTarget$execute_rule_impl(::RustTarget const &self, ::Session const &session, ::Err &err) noexcept;
 ::std::size_t cxxbridge1$196$Session$operator$sizeof() noexcept;
 ::std::size_t cxxbridge1$196$Session$operator$alignof() noexcept;
 
-::Session *cxxbridge1$196$Session$new(::rust::Str source_root, ::rust::Str source_root_rel) noexcept;
+::Session *cxxbridge1$196$Session$new(::rust::Str source_root, ::rust::Str build_root, ::rust::Str source_root_rel) noexcept;
 
 ::Session *cxxbridge1$196$Session$new_for_testing() noexcept;
 
+::RustTarget const *cxxbridge1$196$Session$register_cxx_target(::Session const &self, ::Target const &target) noexcept;
+
 void cxxbridge1$196$Session$load_values(::Session const &self, ::rust::Str label, ::rust::Str relative_to, ::rust::Slice<::rust::Str const> keys, ::Scope &scope, ::Settings const &settings, ::ParseNodePtr *origin, ::Err &err) noexcept;
+
+void cxxbridge1$196$Session$loaded(::Session const &self, ::rust::Vec<::rust::Str> *return$) noexcept;
+::std::size_t cxxbridge1$196$OwnedFrozenValue$operator$sizeof() noexcept;
+::std::size_t cxxbridge1$196$OwnedFrozenValue$operator$alignof() noexcept;
+
+::OwnedFrozenValue *cxxbridge1$196$OwnedFrozenValue$clone_cxx(::OwnedFrozenValue const &self) noexcept;
+
+void cxxbridge1$196$OwnedFrozenValue$to_string_cxx(::OwnedFrozenValue const &self, ::rust::String *return$) noexcept;
+
+bool cxxbridge1$196$OwnedFrozenValue$eq_cxx(::OwnedFrozenValue const &self, ::OwnedFrozenValue const &other) noexcept;
+
+void cxxbridge1$196$OwnedFrozenValue$invoke(::OwnedFrozenValue const &self, ::Session const &session, ::std::vector<::Value> const &args, ::Scope const &kwargs, ::Value &out_val, ::Scope &scope, ::ParseNodePtr *origin, ::Err &err) noexcept;
 } // extern "C"
+
+::std::size_t RustTarget::layout::size() noexcept {
+  return cxxbridge1$196$RustTarget$operator$sizeof();
+}
+
+::std::size_t RustTarget::layout::align() noexcept {
+  return cxxbridge1$196$RustTarget$operator$alignof();
+}
+
+::rust::Str RustTarget::execute_rule_impl(::Session const &session, ::Err &err) const noexcept {
+  return ::rust::impl<::rust::Str>::new_unchecked(cxxbridge1$196$RustTarget$execute_rule_impl(*this, session, err));
+}
 
 ::std::size_t Session::layout::size() noexcept {
   return cxxbridge1$196$Session$operator$sizeof();
@@ -1033,17 +1521,54 @@ void cxxbridge1$196$Session$load_values(::Session const &self, ::rust::Str label
   return cxxbridge1$196$Session$operator$alignof();
 }
 
-::rust::Box<::Session> Session::new_cxx(::rust::Str source_root, ::rust::Str source_root_rel) noexcept {
-  return ::rust::Box<::Session>::from_raw(cxxbridge1$196$Session$new(source_root, source_root_rel));
+::rust::Box<::Session> Session::new_cxx(::rust::Str source_root, ::rust::Str build_root, ::rust::Str source_root_rel) noexcept {
+  return ::rust::Box<::Session>::from_raw(cxxbridge1$196$Session$new(source_root, build_root, source_root_rel));
 }
 
 ::rust::Box<::Session> Session::new_for_testing() noexcept {
   return ::rust::Box<::Session>::from_raw(cxxbridge1$196$Session$new_for_testing());
 }
 
+::RustTarget const &Session::register_cxx_target(::Target const &target) const noexcept {
+  return *cxxbridge1$196$Session$register_cxx_target(*this, target);
+}
+
 void Session::load_values(::rust::Str label, ::rust::Str relative_to, ::rust::Slice<::rust::Str const> keys, ::Scope &scope, ::Settings const &settings, ::ParseNodePtr origin, ::Err &err) const noexcept {
   ::rust::ManuallyDrop<::ParseNodePtr> origin$(::std::move(origin));
   cxxbridge1$196$Session$load_values(*this, label, relative_to, keys, scope, settings, &origin$.value, err);
+}
+
+::rust::Vec<::rust::Str> Session::loaded() const noexcept {
+  ::rust::MaybeUninit<::rust::Vec<::rust::Str>> return$;
+  cxxbridge1$196$Session$loaded(*this, &return$.value);
+  return ::std::move(return$.value);
+}
+
+::std::size_t OwnedFrozenValue::layout::size() noexcept {
+  return cxxbridge1$196$OwnedFrozenValue$operator$sizeof();
+}
+
+::std::size_t OwnedFrozenValue::layout::align() noexcept {
+  return cxxbridge1$196$OwnedFrozenValue$operator$alignof();
+}
+
+::rust::Box<::OwnedFrozenValue> OwnedFrozenValue::clone() const noexcept {
+  return ::rust::Box<::OwnedFrozenValue>::from_raw(cxxbridge1$196$OwnedFrozenValue$clone_cxx(*this));
+}
+
+::rust::String OwnedFrozenValue::to_string() const noexcept {
+  ::rust::MaybeUninit<::rust::String> return$;
+  cxxbridge1$196$OwnedFrozenValue$to_string_cxx(*this, &return$.value);
+  return ::std::move(return$.value);
+}
+
+bool OwnedFrozenValue::eq(::OwnedFrozenValue const &other) const noexcept {
+  return cxxbridge1$196$OwnedFrozenValue$eq_cxx(*this, other);
+}
+
+void OwnedFrozenValue::invoke(::Session const &session, ::std::vector<::Value> const &args, ::Scope const &kwargs, ::Value &out_val, ::Scope &scope, ::ParseNodePtr origin, ::Err &err) const noexcept {
+  ::rust::ManuallyDrop<::ParseNodePtr> origin$(::std::move(origin));
+  cxxbridge1$196$OwnedFrozenValue$invoke(*this, session, args, kwargs, out_val, scope, &origin$.value, err);
 }
 
 extern "C" {
@@ -1064,6 +1589,108 @@ void cxxbridge1$unique_ptr$Err$raw(::std::unique_ptr<::Err> *ptr, ::std::unique_
 }
 void cxxbridge1$unique_ptr$Err$drop(::std::unique_ptr<::Err> *ptr) noexcept {
   ::rust::deleter_if<::rust::detail::is_complete<::Err>::value>{}(ptr);
+}
+
+::std::vector<::LabelTargetPair> *cxxbridge1$std$vector$LabelTargetPair$new() noexcept {
+  return new ::std::vector<::LabelTargetPair>();
+}
+::std::size_t cxxbridge1$std$vector$LabelTargetPair$size(::std::vector<::LabelTargetPair> const &s) noexcept {
+  return s.size();
+}
+::std::size_t cxxbridge1$std$vector$LabelTargetPair$capacity(::std::vector<::LabelTargetPair> const &s) noexcept {
+  return s.capacity();
+}
+::LabelTargetPair *cxxbridge1$std$vector$LabelTargetPair$get_unchecked(::std::vector<::LabelTargetPair> *s, ::std::size_t pos) noexcept {
+  return &(*s)[pos];
+}
+bool cxxbridge1$std$vector$LabelTargetPair$reserve(::std::vector<::LabelTargetPair> *s, ::std::size_t new_cap) noexcept {
+  return ::rust::if_move_constructible<::LabelTargetPair>::reserve(*s, new_cap);
+}
+static_assert(::rust::detail::is_complete<::std::remove_extent<::std::vector<::LabelTargetPair>>::type>::value, "definition of `::std::vector<::LabelTargetPair>` is required");
+static_assert(sizeof(::std::unique_ptr<::std::vector<::LabelTargetPair>>) == sizeof(void *), "");
+static_assert(alignof(::std::unique_ptr<::std::vector<::LabelTargetPair>>) == alignof(void *), "");
+void cxxbridge1$unique_ptr$std$vector$LabelTargetPair$null(::std::unique_ptr<::std::vector<::LabelTargetPair>> *ptr) noexcept {
+  ::new (ptr) ::std::unique_ptr<::std::vector<::LabelTargetPair>>();
+}
+void cxxbridge1$unique_ptr$std$vector$LabelTargetPair$raw(::std::unique_ptr<::std::vector<::LabelTargetPair>> *ptr, ::std::unique_ptr<::std::vector<::LabelTargetPair>>::pointer raw) noexcept {
+  ::new (ptr) ::std::unique_ptr<::std::vector<::LabelTargetPair>>(raw);
+}
+::std::unique_ptr<::std::vector<::LabelTargetPair>>::element_type const *cxxbridge1$unique_ptr$std$vector$LabelTargetPair$get(::std::unique_ptr<::std::vector<::LabelTargetPair>> const &ptr) noexcept {
+  return ptr.get();
+}
+::std::unique_ptr<::std::vector<::LabelTargetPair>>::pointer cxxbridge1$unique_ptr$std$vector$LabelTargetPair$release(::std::unique_ptr<::std::vector<::LabelTargetPair>> &ptr) noexcept {
+  return ptr.release();
+}
+void cxxbridge1$unique_ptr$std$vector$LabelTargetPair$drop(::std::unique_ptr<::std::vector<::LabelTargetPair>> *ptr) noexcept {
+  ::rust::deleter_if<::rust::detail::is_complete<::std::vector<::LabelTargetPair>>::value>{}(ptr);
+}
+
+::std::vector<::SourceFile> *cxxbridge1$std$vector$SourceFile$new() noexcept {
+  return new ::std::vector<::SourceFile>();
+}
+::std::size_t cxxbridge1$std$vector$SourceFile$size(::std::vector<::SourceFile> const &s) noexcept {
+  return s.size();
+}
+::std::size_t cxxbridge1$std$vector$SourceFile$capacity(::std::vector<::SourceFile> const &s) noexcept {
+  return s.capacity();
+}
+::SourceFile *cxxbridge1$std$vector$SourceFile$get_unchecked(::std::vector<::SourceFile> *s, ::std::size_t pos) noexcept {
+  return &(*s)[pos];
+}
+bool cxxbridge1$std$vector$SourceFile$reserve(::std::vector<::SourceFile> *s, ::std::size_t new_cap) noexcept {
+  return ::rust::if_move_constructible<::SourceFile>::reserve(*s, new_cap);
+}
+static_assert(::rust::detail::is_complete<::std::remove_extent<::std::vector<::SourceFile>>::type>::value, "definition of `::std::vector<::SourceFile>` is required");
+static_assert(sizeof(::std::unique_ptr<::std::vector<::SourceFile>>) == sizeof(void *), "");
+static_assert(alignof(::std::unique_ptr<::std::vector<::SourceFile>>) == alignof(void *), "");
+void cxxbridge1$unique_ptr$std$vector$SourceFile$null(::std::unique_ptr<::std::vector<::SourceFile>> *ptr) noexcept {
+  ::new (ptr) ::std::unique_ptr<::std::vector<::SourceFile>>();
+}
+void cxxbridge1$unique_ptr$std$vector$SourceFile$raw(::std::unique_ptr<::std::vector<::SourceFile>> *ptr, ::std::unique_ptr<::std::vector<::SourceFile>>::pointer raw) noexcept {
+  ::new (ptr) ::std::unique_ptr<::std::vector<::SourceFile>>(raw);
+}
+::std::unique_ptr<::std::vector<::SourceFile>>::element_type const *cxxbridge1$unique_ptr$std$vector$SourceFile$get(::std::unique_ptr<::std::vector<::SourceFile>> const &ptr) noexcept {
+  return ptr.get();
+}
+::std::unique_ptr<::std::vector<::SourceFile>>::pointer cxxbridge1$unique_ptr$std$vector$SourceFile$release(::std::unique_ptr<::std::vector<::SourceFile>> &ptr) noexcept {
+  return ptr.release();
+}
+void cxxbridge1$unique_ptr$std$vector$SourceFile$drop(::std::unique_ptr<::std::vector<::SourceFile>> *ptr) noexcept {
+  ::rust::deleter_if<::rust::detail::is_complete<::std::vector<::SourceFile>>::value>{}(ptr);
+}
+
+::std::vector<::OutputFile> *cxxbridge1$std$vector$OutputFile$new() noexcept {
+  return new ::std::vector<::OutputFile>();
+}
+::std::size_t cxxbridge1$std$vector$OutputFile$size(::std::vector<::OutputFile> const &s) noexcept {
+  return s.size();
+}
+::std::size_t cxxbridge1$std$vector$OutputFile$capacity(::std::vector<::OutputFile> const &s) noexcept {
+  return s.capacity();
+}
+::OutputFile *cxxbridge1$std$vector$OutputFile$get_unchecked(::std::vector<::OutputFile> *s, ::std::size_t pos) noexcept {
+  return &(*s)[pos];
+}
+bool cxxbridge1$std$vector$OutputFile$reserve(::std::vector<::OutputFile> *s, ::std::size_t new_cap) noexcept {
+  return ::rust::if_move_constructible<::OutputFile>::reserve(*s, new_cap);
+}
+static_assert(::rust::detail::is_complete<::std::remove_extent<::std::vector<::OutputFile>>::type>::value, "definition of `::std::vector<::OutputFile>` is required");
+static_assert(sizeof(::std::unique_ptr<::std::vector<::OutputFile>>) == sizeof(void *), "");
+static_assert(alignof(::std::unique_ptr<::std::vector<::OutputFile>>) == alignof(void *), "");
+void cxxbridge1$unique_ptr$std$vector$OutputFile$null(::std::unique_ptr<::std::vector<::OutputFile>> *ptr) noexcept {
+  ::new (ptr) ::std::unique_ptr<::std::vector<::OutputFile>>();
+}
+void cxxbridge1$unique_ptr$std$vector$OutputFile$raw(::std::unique_ptr<::std::vector<::OutputFile>> *ptr, ::std::unique_ptr<::std::vector<::OutputFile>>::pointer raw) noexcept {
+  ::new (ptr) ::std::unique_ptr<::std::vector<::OutputFile>>(raw);
+}
+::std::unique_ptr<::std::vector<::OutputFile>>::element_type const *cxxbridge1$unique_ptr$std$vector$OutputFile$get(::std::unique_ptr<::std::vector<::OutputFile>> const &ptr) noexcept {
+  return ptr.get();
+}
+::std::unique_ptr<::std::vector<::OutputFile>>::pointer cxxbridge1$unique_ptr$std$vector$OutputFile$release(::std::unique_ptr<::std::vector<::OutputFile>> &ptr) noexcept {
+  return ptr.release();
+}
+void cxxbridge1$unique_ptr$std$vector$OutputFile$drop(::std::unique_ptr<::std::vector<::OutputFile>> *ptr) noexcept {
+  ::rust::deleter_if<::rust::detail::is_complete<::std::vector<::OutputFile>>::value>{}(ptr);
 }
 
 static_assert(::rust::detail::is_complete<::std::remove_extent<::Scope>::type>::value, "definition of `::Scope` is required");
@@ -1123,13 +1750,63 @@ void cxxbridge1$unique_ptr$Value$drop(::std::unique_ptr<::Value> *ptr) noexcept 
   ::rust::deleter_if<::rust::detail::is_complete<::Value>::value>{}(ptr);
 }
 
+::OwnedFrozenValue *cxxbridge1$box$OwnedFrozenValue$alloc() noexcept;
+void cxxbridge1$box$OwnedFrozenValue$dealloc(::OwnedFrozenValue *) noexcept;
+void cxxbridge1$box$OwnedFrozenValue$drop(::rust::Box<::OwnedFrozenValue> *ptr) noexcept;
+
 ::Session *cxxbridge1$box$Session$alloc() noexcept;
 void cxxbridge1$box$Session$dealloc(::Session *) noexcept;
 void cxxbridge1$box$Session$drop(::rust::Box<::Session> *ptr) noexcept;
+
+::std::vector<::Value> *cxxbridge1$std$vector$Value$new() noexcept {
+  return new ::std::vector<::Value>();
+}
+::std::size_t cxxbridge1$std$vector$Value$size(::std::vector<::Value> const &s) noexcept {
+  return s.size();
+}
+::std::size_t cxxbridge1$std$vector$Value$capacity(::std::vector<::Value> const &s) noexcept {
+  return s.capacity();
+}
+::Value *cxxbridge1$std$vector$Value$get_unchecked(::std::vector<::Value> *s, ::std::size_t pos) noexcept {
+  return &(*s)[pos];
+}
+bool cxxbridge1$std$vector$Value$reserve(::std::vector<::Value> *s, ::std::size_t new_cap) noexcept {
+  return ::rust::if_move_constructible<::Value>::reserve(*s, new_cap);
+}
+static_assert(::rust::detail::is_complete<::std::remove_extent<::std::vector<::Value>>::type>::value, "definition of `::std::vector<::Value>` is required");
+static_assert(sizeof(::std::unique_ptr<::std::vector<::Value>>) == sizeof(void *), "");
+static_assert(alignof(::std::unique_ptr<::std::vector<::Value>>) == alignof(void *), "");
+void cxxbridge1$unique_ptr$std$vector$Value$null(::std::unique_ptr<::std::vector<::Value>> *ptr) noexcept {
+  ::new (ptr) ::std::unique_ptr<::std::vector<::Value>>();
+}
+void cxxbridge1$unique_ptr$std$vector$Value$raw(::std::unique_ptr<::std::vector<::Value>> *ptr, ::std::unique_ptr<::std::vector<::Value>>::pointer raw) noexcept {
+  ::new (ptr) ::std::unique_ptr<::std::vector<::Value>>(raw);
+}
+::std::unique_ptr<::std::vector<::Value>>::element_type const *cxxbridge1$unique_ptr$std$vector$Value$get(::std::unique_ptr<::std::vector<::Value>> const &ptr) noexcept {
+  return ptr.get();
+}
+::std::unique_ptr<::std::vector<::Value>>::pointer cxxbridge1$unique_ptr$std$vector$Value$release(::std::unique_ptr<::std::vector<::Value>> &ptr) noexcept {
+  return ptr.release();
+}
+void cxxbridge1$unique_ptr$std$vector$Value$drop(::std::unique_ptr<::std::vector<::Value>> *ptr) noexcept {
+  ::rust::deleter_if<::rust::detail::is_complete<::std::vector<::Value>>::value>{}(ptr);
+}
 } // extern "C"
 
 namespace rust {
 inline namespace cxxbridge1 {
+template <>
+::OwnedFrozenValue *Box<::OwnedFrozenValue>::allocation::alloc() noexcept {
+  return cxxbridge1$box$OwnedFrozenValue$alloc();
+}
+template <>
+void Box<::OwnedFrozenValue>::allocation::dealloc(::OwnedFrozenValue *ptr) noexcept {
+  cxxbridge1$box$OwnedFrozenValue$dealloc(ptr);
+}
+template <>
+void Box<::OwnedFrozenValue>::drop() noexcept {
+  cxxbridge1$box$OwnedFrozenValue$drop(this);
+}
 template <>
 ::Session *Box<::Session>::allocation::alloc() noexcept {
   return cxxbridge1$box$Session$alloc();

@@ -18,6 +18,8 @@
 #include "gn/config.h"
 #include "gn/config_values_generator.h"
 #include "gn/err.h"
+#include "gn/ffi/bridge.h"
+#include "gn/ffi/session.h"
 #include "gn/input_file.h"
 #include "gn/parse_node_value_adapter.h"
 #include "gn/parse_tree.h"
@@ -691,6 +693,72 @@ Value RunImport(Scope* scope,
     scope->settings()->import_manager().DoImport(import_file, function, scope,
                                                  err);
   }
+  return Value();
+}
+
+// load -----------------------------------------------------------------------
+
+const char kLoad[] = "load";
+const char kLoad_HelpShort[] =
+    "load: Load variables from a starlark file into the current scope.";
+const char kLoad_Help[] =
+    R"(load: Load variables from a starlark file into the current scope.
+
+  The load command executes a Starlark (.scl) file in a standalone environment
+  and imports the specified symbols into the current scope.
+
+Arguments
+
+  First argument:
+    A label to the Starlark (.scl) file to load. This label can be
+    absolute (e.g. "//path/to:rules.scl") or relative to the current directory
+    (e.g, ":rules.scl")
+
+  Remaining arguments:
+    A list of string names of the symbols to load from the file.
+
+Example:
+
+  load("//:rules.scl", "custom_rule", "MY_CONSTANT")
+
+  custom_rule("a") {
+    foo = MY_CONSTANT
+  }
+)";
+
+Value RunLoad(Scope* scope,
+              const FunctionCallNode* function,
+              const ListNode* args_list,
+              Err* err) {
+  const std::vector<std::unique_ptr<ParseNode>>& args = args_list->contents();
+  if (args.size() < 2) {
+    *err = Err(function->function(), "Incorrect arguments.",
+               "This function requires at least a file to import and a list of "
+               "variables to load.");
+    return Value();
+  }
+
+  std::vector<Value> values;
+  values.reserve(args.size());
+  for (const auto& arg : args) {
+    Value val = arg->Execute(scope, err);
+    if (err->has_error()) {
+      return Value();
+    }
+    values.push_back(std::move(val));
+  }
+
+  const ::Session& loader =
+      scope->settings()->build_settings()->starlark_session();
+
+  session_load(loader, values[0], std::span(values).subspan(1), *scope,
+               ParseNodePtr{function}, *err);
+
+  if (err->has_error()) {
+    err->AppendSubErr(Err(function, "whence 'load' was called."));
+    return Value();
+  }
+
   return Value();
 }
 
@@ -1537,6 +1605,7 @@ struct FunctionInfoInitializer {
     INSERT_FUNCTION(GetPathInfo, false)
     INSERT_FUNCTION(GetTargetOutputs, false)
     INSERT_FUNCTION(Import, false)
+    INSERT_FUNCTION(Load, false)
     INSERT_FUNCTION(LabelMatches, false)
     INSERT_FUNCTION(Len, false)
     INSERT_FUNCTION(NotNeeded, false)
@@ -1590,6 +1659,40 @@ Value RunFunction(Scope* scope,
   FunctionInfoMap::const_iterator found_function =
       function_map.find(name.value());
   if (found_function == function_map.end()) {
+    // Check if the function name matches a loaded Starlark macro.
+    const Value* val = scope->GetValue(name.value(), true);
+    if (val && val->type() == Value::STARLARK_VALUE) {
+      Value args = args_list->Execute(scope, err);
+      if (err->has_error())
+        return Value();
+
+      std::unique_ptr<Scope> block_scope;
+      if (block) {
+        NonNestableBlock non_nestable(scope, function, "macro invocation");
+        if (!non_nestable.Enter(err))
+          return Value();
+
+        block_scope = std::make_unique<Scope>(scope);
+        block->Execute(block_scope.get(), err);
+        if (err->has_error())
+          return Value();
+      } else {
+        block_scope = std::make_unique<Scope>(scope);
+      }
+
+      Value result;
+      val->starlark_value().invoke(
+          scope->settings()->build_settings()->starlark_session(),
+          args.list_value(), *block_scope, result, *scope,
+          ParseNodePtr{function}, *err);
+
+      if (err->has_error()) {
+        err->AppendSubErr(Err(function, "whence '" + std::string(name.value()) +
+                                            "' was called."));
+        return Value();
+      }
+      return result;
+    }
     *err = Err(name, "Unknown function.");
     return Value();
   }

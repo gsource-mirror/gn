@@ -2,16 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::{
-    collections::{HashMap, HashSet},
-    sync::Mutex,
-};
+use std::collections::{HashMap, HashSet};
 
 use attr::{Attr, LabelOrFile};
-use rule::FrozenRule;
-use starlark::{environment::FrozenModule, values::FrozenValueTyped};
+use rule::Rule;
+use starlark::environment::FrozenModule;
 use testutils::{Assert, FakeEvalContext, FakeTarget};
-use types::{Label, OutputType, PackageRef, Session};
+use types::{Label, OutputType, PackageRef, Session as _};
 
 fn new_assert() -> Assert {
     Assert::new_rule_assert()
@@ -24,9 +21,16 @@ fn test_pure_rule_inheritance() {
     let pure = assert.load_module("//rules:pure.scl");
 
     let rule = |module: &FrozenModule, name: &str| {
-        let val = module.get(name).unwrap().value().unpack_frozen().unwrap();
-        let typed = FrozenValueTyped::<FrozenRule<FakeEvalContext>>::new(val).unwrap();
-        Some(typed.as_ref())
+        module.get(name).unwrap().by_ref(|v| {
+            let r = v.downcast_ref::<Rule<'_, FakeEvalContext>>().unwrap();
+            // Safety: The rule is kept alive for the lifetime of the test.
+            unsafe {
+                std::mem::transmute::<
+                    &Rule<'_, FakeEvalContext>,
+                    &'static Rule<'static, FakeEvalContext>,
+                >(r)
+            }
+        })
     };
 
     assert.pass(
@@ -67,11 +71,10 @@ child_rule(
 "#,
     );
 
-    let heap = starlark::values::FrozenHeap::new();
     let mut unknown_attrs = HashMap::new();
     unknown_attrs.insert(
         "unknown".to_owned(),
-        starlark::values::Value::new_frozen(heap.alloc("unknown")),
+        starlark::const_frozen_string!("unknown").to_value(),
     );
 
     let context = assert.context();
@@ -95,7 +98,7 @@ child_rule(
             output_type: Some(OutputType::SharedLibrary),
             rule: rule(&native, "custom_shared_library"),
             cxx_attrs: unknown_attrs.clone(),
-            dependencies: Mutex::new(HashSet::new()),
+            dependencies: HashSet::new(),
         }
     );
 
@@ -109,7 +112,7 @@ child_rule(
             output_type: Some(OutputType::StaticLibrary),
             rule: rule(&native, "static_library"),
             cxx_attrs: unknown_attrs.clone(),
-            dependencies: Mutex::new(HashSet::new()),
+            dependencies: HashSet::new(),
         }
     );
 
@@ -134,10 +137,10 @@ child_rule(
             output_type: None,
             rule: rule(&pure, "parent_rule"),
             cxx_attrs: HashMap::new(),
-            dependencies: Mutex::new(HashSet::from([(
+            dependencies: HashSet::from([(
                 Label::new(PackageRef::root().to_owned(), "parent".to_owned()),
                 toolchain.clone(),
-            )])),
+            )]),
         }
     );
 
@@ -158,10 +161,10 @@ child_rule(
             output_type: None,
             rule: rule(&pure, "child_rule"),
             cxx_attrs: HashMap::new(),
-            dependencies: Mutex::new(HashSet::from([(
+            dependencies: HashSet::from([(
                 Label::new(PackageRef::root().to_owned(), "child".to_owned()),
                 toolchain.clone(),
-            )])),
+            )]),
         }
     );
 
@@ -182,10 +185,10 @@ child_rule(
             output_type: None,
             rule: rule(&pure, "child_rule"),
             cxx_attrs: HashMap::new(),
-            dependencies: Mutex::new(HashSet::from([(
+            dependencies: HashSet::from([(
                 Label::new(PackageRef::root().to_owned(), "custom_val".to_owned()),
                 toolchain.clone(),
-            )])),
+            )]),
         }
     );
 }

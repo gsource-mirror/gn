@@ -16,6 +16,24 @@
       "message": "What is the motivation of this CL?",
       "revId": "e5034b668ecd1d2b12c52abb9dbcc8fb69858264",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0485f83_5ae574bd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-22T22:18:27Z",
+      "side": 1,
+      "message": "Added to cl description. It\u0027s required for the child commit where I replace ostreams with StringOutputBuffer.",
+      "parentUuid": "140f4b42_bec1b019",
+      "revId": "e5034b668ecd1d2b12c52abb9dbcc8fb69858264",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

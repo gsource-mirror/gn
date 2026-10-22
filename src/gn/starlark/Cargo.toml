@@ -1,7 +1,7 @@
 [package]
 name = "gn_starlark"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [lints]
 workspace = true
@@ -12,6 +12,7 @@ test = false
 
 [dependencies]
 ffi = { path = "crates/ffi" }
+link-cplusplus = { workspace = true }
 
 [workspace]
 members = [
@@ -28,16 +29,25 @@ members = [
 ]
 
 [workspace.dependencies]
-allocative = "0.3"
+# allocative on crates.io still points to the old location.
+allocative = { version = "0.3.6", git = "https://github.com/facebook/buck2.git", branch = "main" }
 anyhow = "1.0"
 # cxx's C++ version must be <= GN's C++ version. This does not need to be kept
 # in sync unless you're trying to use new C++ features in the bridge.
 cxx = { version = "1.0", features = ["c++20"] }
-either = "1.16"
-starlark = "0.14"
-starlark_derive = "0.14"
+either = "1.18"
+link-cplusplus = "1.0"
+normalize-path = "0.2"
+starlark = "0.14.2"
+starlark_derive = "0.14.2"
 thiserror = "2.0"
-strum = { version = "0.26", features = ["derive"] }
+strum = { version = "0.28", features = ["derive"] }
+tempfile = "3.27"
+
+[features]
+# When compiling with ninja, ninja has its own set of link flags.
+# Thus, we need to tell link-cplusplus not to generate any of its own.
+ninja = ["link-cplusplus/nothing"]
 
 # A short-lived fork until my PR gets merged.
 # Basically all it does is make some pub(crate) things public, so that we can
@@ -50,10 +60,6 @@ starlark = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_s
 starlark_derive = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
 starlark_map = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
 starlark_syntax = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-allocative = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-allocative_derive = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-pagable = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
-pagable_derive = { git = "https://github.com/matts1/starlark-rust.git", branch = "gn_starlark" }
 
 # In debug mode, we still optimize our dependencies.
 # Otherwise our static library for this package is

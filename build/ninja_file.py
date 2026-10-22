@@ -141,8 +141,8 @@ class NinjaFile:
         ninja_file=self,
         command=self.python(
             run_cargo_rel_path,
-            '$target_type $out $cargo_out_dir $cxx "$cxxflags"'
-            ' cargo build --color=always'
+            '$target_type $out $cargo_out_dir $cxx "$cxxflags" "$ldflags" $target_triple $ld'
+            ' cargo build --color=always --target=$target_triple'
             ' --manifest-path=$manifest_path $cargo_target_dir $cargo_flags'
             + ('' if self.debug else ' --release'),
         ),
@@ -152,6 +152,21 @@ class NinjaFile:
         deps='gcc',
         restat='1',
         pool='cargo_pool',
+    )
+
+    self.CargoClippy = Rule(
+        name='cargo_clippy',
+        ninja_file=self,
+        command=self.python(
+            run_cargo_rel_path,
+            '$target_type $out $cargo_out_dir $cxx "$cxxflags" "$ldflags" $target_triple $ld'
+            ' cargo clippy --color=always --target=$target_triple'
+            ' --manifest-path=$manifest_path $cargo_target_dir $cargo_flags'
+            + ('' if self.debug else ' --release')
+            + ' -- $clippy_flags',
+        ),
+        description='CARGO clippy $out',
+        inputs=[run_cargo_script],
     )
 
   def chain(self, *commands):
@@ -170,6 +185,7 @@ class NinjaFile:
   def CargoLibTarget(
       self, name, *, crate_dir, target_dir, cargo_flags='', **kwargs
   ):
+    target_triple = self.platform.rust_triple()
     return self.Cargo(
         name,
         inputs=self.directory(crate_dir, ['target', 'testdata']),
@@ -177,7 +193,8 @@ class NinjaFile:
         cargo_target_dir=f'--target-dir={target_dir}',
         cargo_flags=cargo_flags + ' --lib',
         target_type='lib',
-        cargo_out_dir=f'{target_dir}/{self.rust_profile}',
+        target_triple=target_triple,
+        cargo_out_dir=f'{target_dir}/{target_triple}/{self.rust_profile}',
         depfile=f'{name}.d',
         **kwargs,
     )
@@ -185,6 +202,7 @@ class NinjaFile:
   def CargoTestTarget(
       self, name, *, crate_dir, target_dir, cargo_flags='', **kwargs
   ):
+    target_triple = self.platform.rust_triple()
     return self.Cargo(
         name,
         inputs=self.directory(crate_dir, ['target']),
@@ -192,8 +210,24 @@ class NinjaFile:
         cargo_target_dir=f'--target-dir={target_dir}',
         cargo_flags=cargo_flags + ' --tests',
         target_type='test',
-        cargo_out_dir=f'{target_dir}/{self.rust_profile}',
+        target_triple=target_triple,
+        cargo_out_dir=f'{target_dir}/{target_triple}/{self.rust_profile}',
         depfile=f'{name}.d',
+        **kwargs,
+    )
+
+  def CargoClippyTarget(self, name, *, crate_dir, target_dir, cargo_flags='', clippy_flags='', **kwargs):
+    target_triple = self.platform.rust_triple()
+    return self.CargoClippy(
+        name,
+        inputs=self.directory(crate_dir, ['target']),
+        manifest_path=crate_dir / 'Cargo.toml',
+        cargo_target_dir=f'--target-dir={target_dir}',
+        cargo_flags=cargo_flags,
+        clippy_flags=clippy_flags,
+        target_type='clippy',
+        target_triple=target_triple,
+        cargo_out_dir=f'{target_dir}/{target_triple}/{self.rust_profile}',
         **kwargs,
     )
 

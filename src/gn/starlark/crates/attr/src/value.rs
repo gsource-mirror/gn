@@ -5,11 +5,11 @@
 use allocative::Allocative;
 use starlark::{
     collections::{SmallMap, SmallSet},
-    values::{dict::Dict, Heap, Value},
+    values::{Heap, Value, dict::Dict},
 };
 use types::{File, LabelRef, TargetRef as _};
 
-use crate::{schema::AttrSchema, Attr, Session};
+use crate::{Attr, Session, schema::AttrSchema};
 
 /// AttrValue is the value that will appear in ctx.(attr|file|files).foo
 #[derive(Clone, Debug, Allocative)]
@@ -202,17 +202,16 @@ impl Attr {
         match lf {
             crate::LabelOrFile::Label(lbl) => {
                 let target = session.get_target(lbl.as_ref(), *current_toolchain);
-                if let Some(matcher) = schema.file_matcher() {
-                    if let crate::allow_files::AllowFiles::Some(exts) = matcher {
-                        if !target.outputs().iter().any(|f| matcher.matches(f.as_str())) {
-                            return Err(starlark::Error::new_other(
-                                crate::Error::NoMatchingOutputs {
-                                    target: lbl.clone(),
-                                    allowed: exts.clone(),
-                                },
-                            ));
-                        }
-                    }
+                if let Some(matcher) = schema.file_matcher()
+                    && let crate::allow_files::AllowFiles::Some(exts) = matcher
+                    && !target.outputs().iter().any(|f| matcher.matches(f.as_str()))
+                {
+                    return Err(starlark::Error::new_other(
+                        crate::Error::NoMatchingOutputs {
+                            target: lbl.clone(),
+                            allowed: exts.clone(),
+                        },
+                    ));
                 }
                 for f in target.outputs() {
                     files.insert(f.clone());
@@ -232,11 +231,9 @@ impl Attr {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-
     use starlark::{
         environment::Module,
-        values::{list::UnpackList, UnpackValue as _, ValueLike as _},
+        values::{UnpackValue as _, list::UnpackList},
     };
     use testutils::{FakeSession, FakeTarget, FakeTargetRef};
     use types::PackageRef;
@@ -446,19 +443,11 @@ mod tests {
             )
             .unwrap();
 
-            let source_target = session.insert_empty_target(PackageRef::root(), "source");
-            attr.register_dependencies(
-                &session,
-                source_target.clone(),
-                session.default_toolchain.as_ref(),
-            );
-
+            let mut deps = SmallSet::new();
+            attr.add_dependencies(session.default_toolchain.as_ref(), &mut deps);
             assert_eq!(
-                source_target.registered_deps(),
-                HashSet::from([(
-                    target_single.label().to_owned(),
-                    session.default_toolchain.clone()
-                )])
+                deps,
+                SmallSet::from_iter([(target_single.label(), session.default_toolchain.as_ref(),)])
             );
 
             let AttrValue {

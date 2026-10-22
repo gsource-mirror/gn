@@ -2,30 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use depset::FrozenDepset;
 use starlark::{
-    environment::{FrozenModule, GlobalsBuilder, Module},
+    environment::{FrozenModule, Globals, GlobalsBuilder, Module},
     eval::ParametersSpecParam::{Defaulted, Required},
-    values::{typing::TypeInstanceId, FrozenValue, FrozenValueTyped},
+    values::{FrozenHeapName, Heap, OwnedFrozen, ProvidesStaticType, Value, ValueTyped},
 };
 
-use crate::{provider_instance::ProviderInstanceGen, provider_type::FrozenProviderType};
+use crate::{ProviderId, ProviderInstance, ProviderType};
 
-// Compile-time assertion that the layout matches u64, in case starlark-rs
-// decides to change this.
-const _: () = {
-    assert!(std::mem::size_of::<TypeInstanceId>() == std::mem::size_of::<u64>());
-    assert!(std::mem::align_of::<TypeInstanceId>() == std::mem::align_of::<u64>());
-};
-
-// Hardcoded stable IDs for builtin providers.
-// These are verified by a unit test to guarantee correctness and prevent drift.
-pub(crate) const DEFAULT_INFO_ID: TypeInstanceId =
-    unsafe { std::mem::transmute::<u64, TypeInstanceId>(6904120031855430705) };
-pub(crate) const INPUTS_INFO_ID: TypeInstanceId =
-    unsafe { std::mem::transmute::<u64, TypeInstanceId>(10321705343315126159) };
-pub(crate) const SUBSTITUTIONS_INFO_ID: TypeInstanceId =
-    unsafe { std::mem::transmute::<u64, TypeInstanceId>(8875227055924591575) };
+// Stable IDs for built-in providers.
+pub(crate) const DEFAULT_INFO_ID: ProviderId = ProviderId::builtin(1);
+pub(crate) const INPUTS_INFO_ID: ProviderId = ProviderId::builtin(2);
+pub(crate) const SUBSTITUTIONS_INFO_ID: ProviderId = ProviderId::builtin(3);
 
 /// Holds the global built-in provider types and default instances created at
 /// initialization time.
@@ -37,117 +25,131 @@ pub(crate) const SUBSTITUTIONS_INFO_ID: TypeInstanceId =
 /// rather than just being metadata passed between targets, GN does something
 /// special with them.
 /// * DefaultInfo(files=depset(...)) (https://bazel.build/rules/lib/providers/DefaultInfo)
-///   * The "outputs" of a rule. Building the alias for the target builds all
-///     files in DefaultInfo.
+///   * The "outputs" of a rule. Building the alias for the target builds all files in DefaultInfo.
 ///   * Unlike all other providers, available globally without calling
 /// * GnInputsInfo(files=depset(...))
-///   * When the target is a mixed C++/starlark target, this adds the specified
-///     inputs as implicit inputs to all ninja actions C++ generates for this
-///     target.
-/// * GnSubstitutionsInfo(substitutions=struct(foo =
-///   [ctx.actions.args().add("--foo", ctx.file.foo)]))
+///   * When the target is a mixed C++/starlark target, this adds the specified inputs as implicit
+///     inputs to all ninja actions C++ generates for this target.
+/// * GnSubstitutionsInfo:
+///
+///   ```rust
+///   GnSubstitutionsInfo(substitutions=struct(
+///      foo = [ctx.actions.args().add("--foo", ctx.file.foo)]
+///   ))
+///   ```
 ///   * Adds "foo = --foo path/to/foo" to the ninja file
-///   * Adding command = "... {{foo}}" to your GN tool will allow you to use
-///     this in GN.
-pub struct BuiltinProviders {
-    /// Default instance of `DefaultInfo`.
-    /// Targets that do not return an explicit DefaultInfo provider will have
-    /// target[DefaultInfo] return this.
-    pub default_defaultinfo: FrozenValue,
+///   * Adding command = "... {{foo}}" to your GN tool will allow you to use this in GN.
+pub struct BuiltinProviders(OwnedFrozen<BuiltinProvidersInternal<'static>>);
 
-    /// A frozen Starlark module containing the built-in provider definitions.
-    /// This module is preloaded as `//builtins:providers.scl` and can be loaded
-    /// in Starlark files.
-    pub module: FrozenModule,
+#[derive(ProvidesStaticType)]
+struct BuiltinProvidersInternal<'v> {
+    /// Default instance of `DefaultInfo`.
+    default_defaultinfo: Value<'v>,
+    default_info: ValueTyped<'v, ProviderType>,
 }
 
-pub(crate) fn register_builtin_providers(builder: &mut GlobalsBuilder) -> BuiltinProviders {
-    let mut default_defaultinfo = None;
+impl BuiltinProviders {
+    /// Creates a new `BuiltinProviders` from the session globals.
+    pub fn new(globals: &Globals) -> Self {
+        Self(OwnedFrozen::build(
+            FrozenHeapName::user("//builtins:default_defaultinfo"),
+            |heap| {
+                let default_info_val = globals
+                    .get_ref("DefaultInfo")
+                    .expect("DefaultInfo provider not registered in globals")
+                    .add_to_frozen_heap(heap);
+                let default_info = ValueTyped::<ProviderType>::new(default_info_val).unwrap();
 
-    let module = Module::with_temp_heap(|module: Module| {
-        let heap = module.frozen_heap();
+                let default_defaultinfo = heap.alloc(ProviderInstance {
+                    provider_type: default_info,
+                    values: Box::new([
+                        Some(heap.alloc(depset::Depset::default())),
+                        Some(Value::new_none()),
+                    ]),
+                });
 
-        let empty_depset = heap.alloc(FrozenDepset::default());
-        let default_info = FrozenProviderType::new(
+                BuiltinProvidersInternal {
+                    default_defaultinfo,
+                    default_info,
+                }
+            },
+        ))
+    }
+
+    /// Returns the default `DefaultInfo` instance.
+    pub fn default_defaultinfo<'v>(&self, heap: &Heap<'v>) -> Value<'v> {
+        self.0.by_ref_with_reconstructor(|inner, reconstructor| {
+            reconstructor.edge(*heap).rebrand(inner.default_defaultinfo)
+        })
+    }
+
+    /// Creates a new `DefaultInfo` instance with the given files and optional
+    /// executable.
+    pub fn new_defaultinfo<'v>(
+        &self,
+        files: Value<'v>,
+        executable: Option<Value<'v>>,
+        heap: &Heap<'v>,
+    ) -> Value<'v> {
+        let provider_type = self.0.by_ref_with_reconstructor(|inner, reconstructor| {
+            reconstructor.edge(*heap).rebrand(inner.default_info)
+        });
+        heap.alloc_complex(ProviderInstance {
+            provider_type,
+            values: Box::new([
+                Some(files),
+                Some(executable.unwrap_or_else(Value::new_none)),
+            ]),
+        })
+    }
+}
+
+pub(crate) fn register_builtin_providers_globals(builder: &mut GlobalsBuilder) {
+    builder.set(
+        "DefaultInfo",
+        ProviderType::new_builtin(
             DEFAULT_INFO_ID,
             "DefaultInfo",
             &[
-                ("files", Defaulted(empty_depset)),
-                ("executable", Defaulted(FrozenValue::new_none())),
+                (
+                    "files",
+                    Defaulted(Some(OwnedFrozen::build(
+                        FrozenHeapName::user("//builtins:empty_depset"),
+                        |heap| heap.alloc(depset::Depset::default()),
+                    ))),
+                ),
+                ("executable", Defaulted(None)),
             ],
-            heap,
-        );
-        let default_info_value = heap.alloc(default_info);
-        builder.set("DefaultInfo", default_info_value);
-
-        let inputs =
-            FrozenProviderType::new(INPUTS_INFO_ID, "GnInputsInfo", &[("files", Required)], heap);
-
-        let substitutions = FrozenProviderType::new(
-            SUBSTITUTIONS_INFO_ID,
-            "GnSubstitutionsInfo",
-            &[("substitutions", Required)],
-            heap,
-        );
-
-        let inputs_value = heap.alloc(inputs);
-        let substitutions_value = heap.alloc(substitutions);
-
-        module.set("GnInputsInfo", inputs_value.to_value());
-        module.set("GnSubstitutionsInfo", substitutions_value.to_value());
-
-        let defaultinfo_instance = heap.alloc(ProviderInstanceGen {
-            provider_type: FrozenValueTyped::<FrozenProviderType>::new(default_info_value)
-                .unwrap()
-                .as_ref(),
-            values: Box::new([Some(empty_depset), Some(FrozenValue::new_none())]),
-        });
-        default_defaultinfo = Some(defaultinfo_instance);
-
-        module
-            .freeze_named(starlark::values::FrozenHeapName::User(Box::new(
-                "//builtins:providers.scl".to_owned(),
-            )))
-            .unwrap()
-    });
-
-    let default_defaultinfo = default_defaultinfo.unwrap();
-    // DefaultInfo is allocated in the module's heap, so we ensure that the module's
-    // heap will never disappear while the builder is active.
-    builder.frozen_heap().add_reference(module.frozen_heap());
-
-    BuiltinProviders {
-        default_defaultinfo,
-        module,
-    }
+        ),
+    );
 }
 
-#[cfg(test)]
-mod tests {
-    use starlark::values::typing::TypeIdDomain;
+/// Registers and returns the built-in provider types as a frozen module.
+/// Preloaded as `//builtins:providers.scl`.
+pub fn builtin_providers_module() -> FrozenModule {
+    Module::with_temp_heap(|module: Module| {
+        module.frozen_heap(|heap, edge| {
+            let inputs =
+                ProviderType::new_builtin(INPUTS_INFO_ID, "GnInputsInfo", &[("files", Required)]);
 
-    use super::*;
+            let substitutions = ProviderType::new_builtin(
+                SUBSTITUTIONS_INFO_ID,
+                "GnSubstitutionsInfo",
+                &[("substitutions", Required)],
+            );
 
-    struct GnBuiltinDomain;
-    impl TypeIdDomain for GnBuiltinDomain {
-        fn tag(&self) -> &'static str {
-            "gn.builtin_provider"
-        }
-    }
+            let inputs_value = heap.alloc(inputs);
+            let substitutions_value = heap.alloc(substitutions);
 
-    #[test]
-    fn test_builtin_provider_ids_match_identity() {
-        assert_eq!(
-            DEFAULT_INFO_ID,
-            TypeInstanceId::from_identity(GnBuiltinDomain, &"DefaultInfo")
-        );
-        assert_eq!(
-            INPUTS_INFO_ID,
-            TypeInstanceId::from_identity(GnBuiltinDomain, &"GnInputsInfo")
-        );
-        assert_eq!(
-            SUBSTITUTIONS_INFO_ID,
-            TypeInstanceId::from_identity(GnBuiltinDomain, &"GnSubstitutionsInfo")
-        );
-    }
+            module.set("GnInputsInfo", edge.rebrand(inputs_value.to_value()));
+            module.set(
+                "GnSubstitutionsInfo",
+                edge.rebrand(substitutions_value.to_value()),
+            );
+        });
+
+        module
+            .freeze_named(FrozenHeapName::user("//builtins:providers.scl"))
+            .unwrap()
+    })
 }

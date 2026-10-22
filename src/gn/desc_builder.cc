@@ -196,6 +196,8 @@ class BaseDescBuilder {
         return ToBaseValue(val.list_value());
       case Value::NONE:
         return base::Value();
+      case Value::STARLARK_VALUE:
+        return base::Value(val.ToString(false));
     }
     NOTREACHED();
     return base::Value();

@@ -13,7 +13,7 @@
 #include "gn/scope.h"
 #include "gn/value.h"
 
-SliceAny NewScope(const Scope& parent_scope,
+SliceAny NewScope(Scope& parent_scope,
                   rust::Slice<const rust::Str> keys,
                   std::unique_ptr<Scope>& out_scope) {
   auto new_scope = std::make_unique<Scope>(&parent_scope);
@@ -85,4 +85,8 @@ const Value* GetValue(const Scope& scope, rust::Str ident) {
 
 Value& SetValue(Scope& scope, rust::Str ident, ParseNodePtr origin) {
   return *scope.SetValue(std::string_view(ident), Value(), origin.ptr);
+}
+
+void free_vector_buffer(Any* ptr) {
+  ::operator delete(ptr);
 }

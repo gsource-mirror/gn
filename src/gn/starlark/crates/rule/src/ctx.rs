@@ -2,35 +2,46 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::cell::RefCell;
+use std::{cell::RefCell, fmt};
 
 use allocative::Allocative;
-use attr::{traits::EvalContextAttrExt, CtxAttr, TargetAttrExt};
+use attr::{CtxAttr, TargetAttrExt, traits::EvalContextAttrExt};
 use starlark::{
     any::ProvidesStaticType,
     environment::Methods,
     values::{AllocValue, Freeze, FreezeResult, Freezer, Heap, StarlarkValue, Value},
 };
-use starlark_derive::{starlark_value, NoSerialize};
+use starlark_derive::{NoSerialize, starlark_value};
 use types::{CtxMethods, Session};
 
-use crate::FrozenRule;
+use crate::Rule;
 
 #[derive(Allocative, NoSerialize)]
 pub struct Ctx<'v, C: EvalContextAttrExt> {
     /// Contains ctx.attr/files/file
     attrs: CtxAttr<'v>,
+    /// Target label.
+    label: Value<'v>,
+    /// The actions object.
+    actions: Value<'v>,
     /// The rule currently being evaluated.
     /// If you have a parent and child rule, this will start as [child], then
     /// when you call ctx.super() it will be [child, parent].
     #[allocative(skip)]
-    rule_stack: RefCell<Vec<&'v FrozenRule<C>>>,
+    rule_stack: RefCell<Vec<&'v Rule<'v, C>>>,
 }
 
 impl<'v, C: EvalContextAttrExt> Ctx<'v, C> {
-    pub fn new(attrs: CtxAttr<'v>, rule: &'v FrozenRule<C>) -> Self {
+    pub fn new(
+        attrs: CtxAttr<'v>,
+        rule: &'v Rule<'v, C>,
+        label: Value<'v>,
+        actions: Value<'v>,
+    ) -> Self {
         Self {
             attrs,
+            label,
+            actions,
             rule_stack: RefCell::new(vec![rule]),
         }
     }
@@ -41,26 +52,29 @@ impl<'v, C: EvalContextAttrExt> Ctx<'v, C> {
         this: Value<'v>,
         eval: &mut starlark::eval::Evaluator<'v, '_, '_>,
     ) -> starlark::Result<Value<'v>> {
-        let parent = {
+        let parent: &'v Rule<'v, C> = {
             let rule_stack = self.rule_stack.borrow();
             let current = rule_stack.last().expect("rule_stack is never empty");
-            current.parent.ok_or(crate::errors::Error::NoParentRule)?
+            match current.parent {
+                Some(parent) => parent.as_ref(),
+                None => return Err(crate::errors::Error::NoParentRule.into()),
+            }
         };
         self.rule_stack.borrow_mut().push(parent);
-        let res = eval.eval_function(parent.implementation.to_value(), &[this], &[]);
+        let res = eval.eval_function(parent.implementation, &[this], &[]);
         self.rule_stack.borrow_mut().pop();
         res
     }
 }
 
 impl<'v, C: EvalContextAttrExt> std::fmt::Debug for Ctx<'v, C> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "ctx")
     }
 }
 
 impl<'v, C: EvalContextAttrExt> std::fmt::Display for Ctx<'v, C> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "ctx")
     }
 }
@@ -70,6 +84,8 @@ unsafe impl<'v, C: EvalContextAttrExt> starlark::values::Trace<'v> for Ctx<'v, C
         self.attrs.attr.trace(tracer);
         self.attrs.files.trace(tracer);
         self.attrs.file.trace(tracer);
+        self.label.trace(tracer);
+        self.actions.trace(tracer);
     }
 }
 
@@ -90,15 +106,23 @@ where
 
     fn get_attr(&self, attribute: &str, _heap: Heap<'v>) -> Option<Value<'v>> {
         match attribute {
+            "actions" => Some(self.actions),
             "attr" => Some(self.attrs.attr),
             "files" => Some(self.attrs.files),
             "file" => Some(self.attrs.file),
+            "label" => Some(self.label),
             _ => None,
         }
     }
 
     fn dir_attr(&self) -> Vec<String> {
-        vec!["attr".to_owned(), "files".to_owned(), "file".to_owned()]
+        vec![
+            "actions".to_owned(),
+            "attr".to_owned(),
+            "files".to_owned(),
+            "file".to_owned(),
+            "label".to_owned(),
+        ]
     }
 }
 
@@ -111,13 +135,13 @@ where
     }
 }
 
-impl<'v, C: EvalContextAttrExt + CtxMethods> Freeze for Ctx<'v, C>
+impl<'v, C: EvalContextAttrExt + CtxMethods> Freeze<'v> for Ctx<'v, C>
 where
     <C::Session as Session>::TargetRef: TargetAttrExt,
 {
-    type Frozen = starlark::values::none::NoneType;
+    type Frozen<'fv> = starlark::values::none::NoneType;
 
-    fn freeze(self, _packer: &Freezer) -> FreezeResult<Self::Frozen> {
+    fn freeze<'fv>(self, _packer: &Freezer<'v, 'fv>) -> FreezeResult<Self::Frozen<'fv>> {
         Err(crate::errors::Error::ObjectUnfreezable("ctx").into())
     }
 }
@@ -132,20 +156,45 @@ macro_rules! impl_ctx_methods {
                 this: starlark::values::Value<'v>,
                 eval: &mut starlark::eval::Evaluator<'v, '_, '_>,
             ) -> starlark::Result<starlark::values::Value<'v>> {
-                use starlark::values::ValueLike as _;
                 this.downcast_ref::<$crate::Ctx<'v, $ctx_type>>()
                     .unwrap()
                     .run_super(this, eval)
             }
         }
 
+        $crate::impl_actions_methods!($ctx_type);
+
+        /// The singleton starlark function for the rule implementation for builtin functions.
+        #[starlark_derive::starlark_module]
+        pub fn builtin_impl_module(builder: &mut starlark::environment::GlobalsBuilder) {
+            fn _builtin_impl<'v>(
+                _ctx: starlark::values::Value<'v>,
+                eval: &mut starlark::eval::Evaluator<'v, '_, '_>,
+            ) -> starlark::Result<starlark::values::Value<'v>> {
+                use types::{EvalContext as _, EvaluatorContextExt as _, Session as _};
+                let ctx = eval.context::<$ctx_type>();
+                let state_cell = ctx.require_rule_impl()?;
+                let mut state = state_cell.borrow_mut();
+                let target = state.target.clone();
+                let heap = eval.heap();
+                Ok(ctx.session().run_builtin_rule(&heap, &target, &mut state))
+            }
+        }
+
         impl $crate::CtxMethods for $ctx_type {
             fn methods() -> &'static starlark::environment::Methods {
-                static RES: starlark::environment::MethodsStatic =
-                    starlark::environment::MethodsStatic::new("Ctx", |builder| {
-                        ctx_methods(builder);
-                    });
+                starlark::methods_static!(RES = ctx_methods);
                 RES.methods()
+            }
+
+            fn actions_methods() -> &'static starlark::environment::Methods {
+                starlark::methods_static!(RES = actions_methods);
+                RES.methods()
+            }
+
+            fn builtin_impl() -> starlark::values::Value<'static> {
+                starlark::globals_static!(RES = builtin_impl_module);
+                RES.function()
             }
         }
     };

@@ -4,7 +4,7 @@
 
 use starlark::{
     collections::SmallSet,
-    values::{list::UnpackList, Heap, UnpackValue as _, Value, ValueLike as _},
+    values::{Heap, UnpackValue as _, Value, list::UnpackList},
 };
 use types::File;
 
@@ -118,7 +118,7 @@ pub fn depset_constructor<'v, C: types::EvalContext>(
                     deps.push(child_dep.phony().as_ref().unwrap().clone());
                 }
                 let state = ctx.require_rule_impl()?;
-                Some(state.new_phony(deps))
+                Some(state.borrow_mut().new_phony(deps))
             } else {
                 None
             }
@@ -190,10 +190,16 @@ pub(crate) mod tests {
             files: UnpackList<&File>,
             eval: &mut Evaluator<'v, '_, '_>,
         ) -> starlark::Result<Depset<'v>> {
+            use types::EvalContext as _;
             let heap = eval.heap();
             let ctx = eval.context::<testutils::eval_context::FakeEvalContext>();
             let direct = files.items.into_iter().cloned().collect();
-            Depset::new_file_depset(direct, &heap, ctx)
+            let state = ctx.require_rule_impl()?;
+            Ok(Depset::new_file_depset(
+                direct,
+                &heap,
+                &mut *state.borrow_mut(),
+            ))
         }
     }
 

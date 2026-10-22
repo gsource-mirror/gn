@@ -17,6 +17,7 @@ DEPS = [
     'recipe_engine/properties',
     'recipe_engine/raw_io',
     'recipe_engine/step',
+    'pinned',
     'target',
     'macos_sdk',
     'windows_sdk',
@@ -29,6 +30,7 @@ PROPERTIES = {
 # On select platforms, link the GN executable against jemalloc for a drastic speed boost.
 JEMALLOC_GIT_URL = 'https://fuchsia.googlesource.com/third_party/github.com/jemalloc/jemalloc.git'
 JEMALLOC_TAG = '5.3.0'
+
 
 def _get_libcxx_include_path(api):
   # Run the preprocessor with an empty input and print all include paths.
@@ -130,29 +132,13 @@ def RunSteps(api, repository):
     cipd_dir = api.path['start_dir'].join('cipd')
     pkgs = api.cipd.EnsureFile()
     pkgs.add_package('infra/ninja/${platform}', 'version:1.8.2')
-    if api.platform.is_linux or api.platform.is_mac:
-      pkgs.add_package('fuchsia/third_party/clang/${platform}', 'integration')
-    if api.platform.is_linux:
-      pkgs.add_package('fuchsia/third_party/sysroot/linux',
-                       'git_revision:c912d089c3d46d8982fdef76a50514cca79b6132',
-                       'sysroot')
-      # RISCV64 support starts in focal.
-      pkgs.add_package('fuchsia/third_party/sysroot/focal',
-                       'git_revision:fa7a5a9710540f30ff98ae48b62f2cdf72ed2acd',
-                       'sysroot-focal')
+    packages = api.pinned.get_packages()
+    for package in packages:
+      if package.path:
+        pkgs.add_package(package.name, package.version, package.path)
+      else:
+        pkgs.add_package(package.name, package.version)
     api.cipd.ensure(cipd_dir, pkgs)
-
-  def release_targets():
-    if api.platform.is_linux:
-      return [
-          api.target('linux-amd64'),
-          api.target('linux-arm64'),
-          api.target('linux-riscv64')
-      ]
-    elif api.platform.is_mac:
-      return [api.target('mac-amd64'), api.target('mac-arm64')]
-    else:
-      return [api.target.host]
 
   # The order is important since release build will get uploaded to CIPD.
   configs = [
@@ -164,7 +150,7 @@ def RunSteps(api, repository):
       {
           'name': 'release',
           'args': ['--use-lto', '--use-icf'],
-          'targets': release_targets(),
+          'targets': api.pinned.release_targets(),
           # TODO: Enable this for OS X and Windows.
           'use_jemalloc': api.platform.is_linux,
       },
@@ -199,9 +185,10 @@ def RunSteps(api, repository):
       with api.step.nest('jemalloc'):
         api.step('init', ['git', 'init', jemalloc_src_dir])
         with api.context(cwd=jemalloc_src_dir, infra_steps=True):
-          api.step(
-              'fetch',
-              ['git', 'fetch', JEMALLOC_GIT_URL, 'refs/tags/' + JEMALLOC_TAG, '--depth=1'])
+          api.step('fetch', [
+              'git', 'fetch', JEMALLOC_GIT_URL, 'refs/tags/' + JEMALLOC_TAG,
+              '--depth=1'
+          ])
           api.step('checkout', ['git', 'checkout', 'FETCH_HEAD'])
           api.step('autoconf', ['autoconf'])
 
@@ -229,30 +216,35 @@ def RunSteps(api, repository):
           env['CFLAGS'] += " -Wno-error"
           env['CXXFLAGS'] = env['CFLAGS']
 
-          api.step('prepare %s build' % platform, ['mkdir', '-p', jemalloc_build_dir])
+          api.step('prepare %s build' % platform,
+                   ['mkdir', '-p', jemalloc_build_dir])
 
           with api.step.nest('build jemalloc-' + platform), api.context(
               env=env, cwd=jemalloc_build_dir):
             configure_args = [
-              '../configure',
-              '--build=' + host_target.triple,
-              '--host=' + target.triple,
-              '--disable-shared',
-              '--enable-static',
-              '--disable-syscall',
-              '--disable-stats',
-              # Enable Transparent Huge Pages (THP) by default via madvise to reduce
-              # minor page faults and page table walk overhead during large generation
-              # tasks (e.g. saves ~54% minor faults and ~7% wall time on Chromium).
-              '--with-malloc-conf=thp:always',
+                '../configure',
+                '--build=' + host_target.triple,
+                '--host=' + target.triple,
+                '--disable-shared',
+                '--enable-static',
+                '--disable-syscall',
+                '--disable-stats',
+                # Enable Transparent Huge Pages (THP) by default via madvise to reduce
+                # minor page faults and page table walk overhead during large generation
+                # tasks (e.g. saves ~54% minor faults and ~7% wall time on Chromium).
+                '--with-malloc-conf=thp:always',
             ]
             if platform == 'linux-arm64':
               configure_args.append('--with-lg-page=16')
             api.step('configure', configure_args)
-            api.step('build', ['make', '-j%d' % api.platform.cpu_count, 'build_lib_static'])
-            jemalloc_static_lib = jemalloc_build_dir.join('lib', 'libjemalloc.a')
+            api.step(
+                'build',
+                ['make',
+                 '-j%d' % api.platform.cpu_count, 'build_lib_static'])
+            jemalloc_static_lib = jemalloc_build_dir.join(
+                'lib', 'libjemalloc.a')
 
-          jemalloc_static_libs[platform]  = jemalloc_static_lib
+          jemalloc_static_libs[platform] = jemalloc_static_lib
 
     for config in configs:
       with api.step.nest(config['name']):
@@ -262,33 +254,41 @@ def RunSteps(api, repository):
               env=env, cwd=src_dir):
             args = config['args'] + ['--out-path', out_dir]
             if config.get('use_jemalloc', False):
-              args.append('--link-lib=%s' % jemalloc_static_libs[target.platform])
+              args.append('--link-lib=%s' %
+                          jemalloc_static_libs[target.platform])
 
             api.step('generate',
-                     ['python3', '-u', src_dir.join('build', 'gen.py')] + args)
+                     ['python3', '-u',
+                      src_dir.join('build', 'gen.py')] + args)
 
             # Windows requires the environment modifications when building too.
             ninja_cmd = [cipd_dir.join('ninja'), '-C', out_dir]
             exe_suffix = '.exe' if target.is_win else ''
-            api.step('build', ninja_cmd + [
-              f'gn{exe_suffix}',
-              f'gn_unittests{exe_suffix}',
-            ])
+            api.step(
+                'build', ninja_cmd + [
+                    f'gn{exe_suffix}',
+                    f'gn_unittests{exe_suffix}',
+                ])
 
             if target.is_host:
               api.step('test', [out_dir.join('gn_unittests')])
-              api.step(
-                  'integration tests', ninja_cmd + ['run_integration_tests']
-              )
+              api.step('integration tests',
+                       ninja_cmd + ['run_integration_tests'])
 
               if api.platform.is_linux:
-                with api.context(env={'CLANG_FORMAT': cipd_dir.join('bin', 'clang-format')}):
-                  api.step('Check tools/run_formatter.sh',
-                           [src_dir.join('tools', 'run_formatter.sh'), '--diff'])
+                with api.context(
+                    env={'CLANG_FORMAT': cipd_dir.join('bin', 'clang-format')}):
+                  api.step(
+                      'Check tools/run_formatter.sh',
+                      [src_dir.join('tools', 'run_formatter.sh'), '--diff'])
                 # We've already built gn, so tell update_reference not to rebuild it.
-                with api.context(env={'NOBUILD': '1', 'NINJA_OUT_DIR': out_dir}):
-                  api.step('Check tools/update_reference.sh',
-                          [src_dir.join('tools', 'update_reference.sh'), '--diff'])
+                with api.context(env={
+                    'NOBUILD': '1',
+                    'NINJA_OUT_DIR': out_dir
+                }):
+                  api.step(
+                      'Check tools/update_reference.sh',
+                      [src_dir.join('tools', 'update_reference.sh'), '--diff'])
 
             if config['name'] != 'release':
               continue

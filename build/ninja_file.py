@@ -78,8 +78,9 @@ class Rule(DummyRule):
 
 class NinjaFile:
 
-  def __init__(self, platform, source_root, out_dir, debug=False):
-    self.platform = platform
+  def __init__(self, target, source_root, out_dir, debug=False):
+    self.target = target
+    self.platform = target.platform
     self.debug = debug
     self.out_dir = pathlib.Path(out_dir).resolve()
     # source_root is relative to out_dir

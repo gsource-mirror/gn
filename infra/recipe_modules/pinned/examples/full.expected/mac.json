@@ -1,0 +1,12 @@
+[
+  {
+    "cmd": [
+      "echo",
+      "fuchsia/third_party/clang/${platform}"
+    ],
+    "name": "packages"
+  },
+  {
+    "name": "$result"
+  }
+]

@@ -14,13 +14,10 @@ else
 fi
 
 if [ -z "${CLANG_FORMAT:-}" ]; then
-  ensure_file=$(mktemp)
-  # https://chrome-infra-packages.appspot.com/p/fuchsia/third_party/clang
-  # shellcheck disable=SC2016
-  echo 'fuchsia/third_party/clang/${platform} integration' > "$ensure_file"
-  trap 'rm "$ensure_file"' EXIT
-  cipd ensure -ensure-file "$ensure_file" -root clang
-  CLANG_FORMAT="./clang/bin/clang-format"
+  if [ ! -x "clang/bin/clang-format" ]; then
+    python3 infra/recipe_modules/pinned/pinned.py
+  fi
+  CLANG_FORMAT="clang/bin/clang-format"
 fi
 
 git ls-files | grep -E '\.(h|cc)$' | xargs "$CLANG_FORMAT" "${clang_format_opts[@]}"

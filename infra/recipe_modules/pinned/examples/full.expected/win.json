@@ -1,0 +1,11 @@
+[
+  {
+    "cmd": [
+      "echo"
+    ],
+    "name": "packages"
+  },
+  {
+    "name": "$result"
+  }
+]

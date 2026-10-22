@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 use std::{
-    ffi::c_void,
     marker::PhantomData,
     ops::{Deref, DerefMut},
     pin::Pin,
@@ -15,8 +14,7 @@ use crate::opaque::{NonOpaque, OpaqueSized};
 ///
 /// Use this for one of two reasons:
 /// * C++ returns a slice of an opaque type, for which &[T] does not work.
-/// * C++ returns a std::vector<T>, in which case you should use
-///   `OwnedSlice<T>`.
+/// * C++ returns a std::vector<T>, in which case you should use `OwnedSlice<T>`.
 ///
 /// Note that either as_slice or iter is implemented, but not both, depending
 /// on whether T is opaque.
@@ -126,15 +124,10 @@ impl<T> DerefMut for OwnedSlice<T> {
 impl<T> Drop for OwnedSlice<T> {
     #[inline(always)]
     fn drop(&mut self) {
-        // We don't write this function, this is the libc free function.
-        extern "C" {
-            fn free(ptr: *mut c_void);
-        }
-
-        // Safety: Calling free is safe. The pointer is guarunteed to be valid and owned
-        // by us.
+        // Safety: Calling ffi_free_vector_buffer is safe. The pointer is guaranteed
+        // to be valid and owned by us.
         unsafe {
-            free(self.slice.raw.ptr.cast::<c_void>());
+            crate::bridge::free_vector_buffer(self.slice.raw.ptr);
         }
     }
 }

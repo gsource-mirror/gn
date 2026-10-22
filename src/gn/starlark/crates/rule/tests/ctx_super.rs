@@ -5,7 +5,7 @@
 use rule::run;
 use starlark::values::list::ListRef;
 use testutils::Assert;
-use types::{Label, PackageRef, Session};
+use types::{Label, PackageRef, Session as _};
 
 #[test]
 fn test_ctx_super() {
@@ -40,7 +40,7 @@ child_rule(
     })
     .unwrap();
 
-    let list = ListRef::from_value(res.value()).unwrap();
+    let list = ListRef::from_value(res.as_ref().value()).unwrap();
     let items: Vec<starlark::values::Value<'_>> = list.iter().collect();
     assert_eq!(items.len(), 2);
     assert_eq!(items[0].to_repr(), r#"ParentInfo(parent = "parent_val")"#);

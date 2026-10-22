@@ -106,16 +106,14 @@
   },
   {
     "cmd": [
-      "cipd.bat",
-      "ensure",
-      "-root",
-      "[START_DIR]\\cipd",
-      "-ensure-file",
-      "infra/ninja/${platform} version:1.8.2",
-      "-max-threads",
-      "0",
-      "-json-output",
-      "/path/to/tmp/json"
+      "python3",
+      "[START_DIR]\\gn\\build\\pinned.py",
+      "--host",
+      "windows-amd64",
+      "--target",
+      "windows-amd64",
+      "--ci",
+      "[START_DIR]\\cipd"
     ],
     "infra_step": true,
     "luci_context": {
@@ -130,20 +128,7 @@
         "hostname": "rdbhost"
       }
     },
-    "name": "ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\",@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/ninja/resolved-platform\"@@@",
-      "@@@STEP_LOG_LINE@json.output@      }@@@",
-      "@@@STEP_LOG_LINE@json.output@    ]@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
+    "name": "ensure packages"
   },
   {
     "cmd": [
@@ -171,7 +156,7 @@
         "hostname": "rdbhost"
       }
     },
-    "name": "ensure_installed (2)",
+    "name": "ensure_installed",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",

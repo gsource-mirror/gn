@@ -157,16 +157,16 @@
   },
   {
     "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd",
-      "-ensure-file",
-      "infra/ninja/${platform} version:1.8.2\nfuchsia/third_party/clang/${platform} integration\n@Subdir sysroot\nfuchsia/third_party/sysroot/linux git_revision:c912d089c3d46d8982fdef76a50514cca79b6132\n@Subdir sysroot-focal\nfuchsia/third_party/sysroot/focal git_revision:fa7a5a9710540f30ff98ae48b62f2cdf72ed2acd",
-      "-max-threads",
-      "0",
-      "-json-output",
-      "/path/to/tmp/json"
+      "python3",
+      "[START_DIR]/gn/build/pinned.py",
+      "--host",
+      "linux-amd64",
+      "--target",
+      "linux-amd64",
+      "linux-arm64",
+      "linux-riscv64",
+      "--ci",
+      "[START_DIR]/cipd"
     ],
     "infra_step": true,
     "luci_context": {
@@ -181,36 +181,7 @@
         "hostname": "rdbhost"
       }
     },
-    "name": "ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-integration-----\",@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/third_party/clang/resolved-platform\"@@@",
-      "@@@STEP_LOG_LINE@json.output@      },@@@",
-      "@@@STEP_LOG_LINE@json.output@      {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\",@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/ninja/resolved-platform\"@@@",
-      "@@@STEP_LOG_LINE@json.output@      }@@@",
-      "@@@STEP_LOG_LINE@json.output@    ],@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"sysroot\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-git_revision:c91\",@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/third_party/sysroot/linux\"@@@",
-      "@@@STEP_LOG_LINE@json.output@      }@@@",
-      "@@@STEP_LOG_LINE@json.output@    ],@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"sysroot-focal\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-git_revision:fa7\",@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/third_party/sysroot/focal\"@@@",
-      "@@@STEP_LOG_LINE@json.output@      }@@@",
-      "@@@STEP_LOG_LINE@json.output@    ]@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
+    "name": "ensure packages"
   },
   {
     "cmd": [],

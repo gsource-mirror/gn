@@ -3,7 +3,17 @@
 # that can be found in the LICENSE file.
 """Recipe for building GN."""
 
+import os
+import sys
+
 from recipe_engine.recipe_api import Property
+
+_INFRA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _INFRA_DIR not in sys.path:
+  sys.path.insert(0, _INFRA_DIR)
+
+from pinned import get_packages
+from target import Arch, Platform, Target
 
 DEPS = [
     'recipe_engine/buildbucket',
@@ -126,22 +136,6 @@ def RunSteps(api, repository):
         api.step('checkout %s/%s' % (change.change, change.patchset),
                  ['git', 'checkout', 'FETCH_HEAD'])
 
-  with api.context(infra_steps=True):
-    cipd_dir = api.path['start_dir'].join('cipd')
-    pkgs = api.cipd.EnsureFile()
-    pkgs.add_package('infra/ninja/${platform}', 'version:1.8.2')
-    if api.platform.is_linux or api.platform.is_mac:
-      pkgs.add_package('fuchsia/third_party/clang/${platform}', 'integration')
-    if api.platform.is_linux:
-      pkgs.add_package('fuchsia/third_party/sysroot/linux',
-                       'git_revision:c912d089c3d46d8982fdef76a50514cca79b6132',
-                       'sysroot')
-      # RISCV64 support starts in focal.
-      pkgs.add_package('fuchsia/third_party/sysroot/focal',
-                       'git_revision:fa7a5a9710540f30ff98ae48b62f2cdf72ed2acd',
-                       'sysroot-focal')
-    api.cipd.ensure(cipd_dir, pkgs)
-
   def release_targets():
     if api.platform.is_linux:
       return [
@@ -153,6 +147,21 @@ def RunSteps(api, repository):
       return [api.target('mac-amd64'), api.target('mac-arm64')]
     else:
       return [api.target.host]
+
+  def to_target(target):
+    return Target(Platform(target.os), Arch(target.arch))
+
+  with api.context(infra_steps=True):
+    cipd_dir = api.path['start_dir'].join('cipd')
+    pkgs = api.cipd.EnsureFile()
+    pkgs.add_package('infra/ninja/${platform}', 'version:1.8.2')
+    packages = get_packages(
+        host=to_target(api.target.host),
+        targets=[to_target(t) for t in release_targets()] + [to_target(api.target.host)],
+    )
+    for package in packages:
+      pkgs.add_package(package.name, package.version, package.path)
+    api.cipd.ensure(cipd_dir, pkgs)
 
   # The order is important since release build will get uploaded to CIPD.
   configs = [

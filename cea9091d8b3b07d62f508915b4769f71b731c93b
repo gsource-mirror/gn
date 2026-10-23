@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6702d3d2_463cca57",
+        "filename": "src/gn/string_output_buffer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T03:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3e1b5a9_39ff916a",
+      "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98b0b0dc_fcd91ddc",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: `std::numeric_limits\u003cint32_t\u003e::digits10` is `9` (all 9-digit numbers `0..999,999,999` can be represented), which is `log10(1 billion)` rather than `log10(100 million)` (`8`).",
       "isAi": true,
+      "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aea3134a_99b2495c",
+        "filename": "src/gn/string_output_buffer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T03:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98b0b0dc_fcd91ddc",
       "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -55,6 +91,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "37cd0d02_c749f1bb",
+        "filename": "src/gn/string_output_buffer_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T03:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1811ab5_17e9a559",
+      "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7e75ab2f_b10a5289",
@@ -73,6 +127,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0bad270a_d2d1c5a0",
+        "filename": "src/gn/string_output_buffer_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T03:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e75ab2f_b10a5289",
+      "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "51dc217e_5aacde96",
@@ -87,6 +159,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: In C++20, non-member `operator\u003d\u003d(A, B)` automatically synthesizes a rewritten candidate with reversed arguments (`B \u003d\u003d A`), so `EXPECT_EQ(buffer, \"blah\")` actually compiles as well. If you want to strictly disallow `StringOutputBuffer` on the LHS, you can add `bool operator\u003d\u003d(const StringOutputBuffer\u0026, std::string_view) \u003d delete;`; otherwise, consider updating the comment above.",
       "isAi": true,
+      "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f13812d3_89e59ce1",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T03:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51dc217e_5aacde96",
       "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

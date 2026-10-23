@@ -1,0 +1,58 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aba32e2f_a18489cd",
+        "filename": "build/gen.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T06:01:12Z",
+      "side": 1,
+      "message": "[From Jetski review] On macOS (`platform.is_darwin()`), `get_packages()` only downloads host clang and does not download a `sysroot` package, so `cipd_dir / \u0027sysroot\u0027` does not exist. Passing `--sysroot\u003d{sysroot}` unconditionally here will break local builds on macOS (note that `cq_mac` doesn\u0027t catch this because `infra/recipes/gn.py` sets `CXX` in the environment, bypassing this `elif` branch).\n\nShould `cflags.append(f\u0027--sysroot\u003d{sysroot}\u0027)` and `ldflags.append(f\u0027--sysroot\u003d{sysroot}\u0027)` be guarded by `if platform.is_linux():`? (Also nit on line 463: `hermetic sysroots` -\u003e `hermetic clang`).",
+      "isAi": true,
+      "revId": "9b23371f455401b89f445e37d59ea23ed7692a14",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f231024_3a2dfaf4",
+        "filename": "build/pinned.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T06:01:12Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: If this always uses `\u0027sysroot-focal\u0027` (and `build/gen.py` selects `\u0027sysroot-focal\u0027 if target.arch \u003d\u003d Arch.RISCV64 else \u0027sysroot\u0027`), we wouldn\u0027t need the `if ci` special case here, and switching between `x86_64` and `riscv64` targets locally wouldn\u0027t overwrite `clang/sysroot`.",
+      "isAi": true,
+      "revId": "9b23371f455401b89f445e37d59ea23ed7692a14",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30133c18_f0efac76",
+        "filename": "build/target.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T06:01:12Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Leftover `# pragma: no cover`.",
+      "isAi": true,
+      "revId": "9b23371f455401b89f445e37d59ea23ed7692a14",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

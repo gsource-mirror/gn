@@ -42,6 +42,48 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e74a7c13_f2698d93",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "211c5bc7_08a3b5c0",
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b083bfd9_04640d29",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a00ae8f_1bf49373",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 5
+      },
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2a921e0c_693b277b",
@@ -56,6 +98,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: Should this also respect `LD` from the environment (`ld \u003d os.environ.get(\u0027LD\u0027, cxx)`), matching line 470 below and `USED_ENV_VARS`?",
       "isAi": true,
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b72f588_a49edea3",
+        "filename": "build/gen.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a921e0c_693b277b",
       "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -78,6 +138,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "edadfcfb_3447566a",
+        "filename": "build/gen.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70daf596_8702dc54",
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1a035a1b_f6e2b2df",
@@ -91,6 +169,24 @@
       "writtenOn": "2026-10-23T03:45:37Z",
       "side": 1,
       "message": "As we don\u0027t use python2 anymore, it is fine to catch ImportError only?",
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbfb6cf9_01a5b33b",
+        "filename": "infra/recipe_modules/pinned/pinned.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a035a1b_f6e2b2df",
       "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -112,6 +208,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ca94da6_9913f952",
+        "filename": "infra/recipe_modules/pinned/pinned.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c096f982_d93e21dc",
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "defaa54b_66835e87",
@@ -125,6 +239,24 @@
       "writtenOn": "2026-10-23T03:45:37Z",
       "side": 1,
       "message": "Same.",
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9a55e35_e0f05eda",
+        "filename": "infra/recipe_modules/pinned/pinned.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "defaa54b_66835e87",
       "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -147,6 +279,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6678a43_b384a8a3",
+        "filename": "infra/recipe_modules/pinned/pinned.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a3e257c_bda64c47",
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2ce26056_dfc19f7b",
@@ -161,6 +311,24 @@
       "side": 1,
       "message": "[From Jetski review] Instead of putting `pinned.py` and `target.py` under `infra/recipe_modules/pinned/` and importing them into the recipe Python process, would it be simpler to keep this logic under `build/` (or in `build/gen.py`) and invoke it from `infra/recipes/gn.py` as a step after `git checkout`?\n\nDoing so would have several benefits:\n1. It avoids all the recipe module boilerplate (`__init__.py`, `api.py`, `examples/full.py`, expectations, `README.recipes.md`) and eliminates the need for `# pragma: no cover` throughout these files.\n2. `build/gen.py` wouldn\u0027t need to manipulate `sys.path` to import core `Platform`/`Target` classes from `infra/recipe_modules/`, and `pinned.py` wouldn\u0027t need the `try ... except ImportError` workaround.\n3. Most importantly, because recipes load `recipe_modules` from the committed recipe bundle before `src_dir` checks out the Gerrit patchset, CLs that update pinned versions in `infra/recipe_modules/pinned/pinned.py` won\u0027t take effect in `api.pinned.get_packages()` during CQ tryjobs unless the script is invoked from the checked-out `src_dir` after `git checkout`.",
       "isAi": true,
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d739f260_b08035eb",
+        "filename": "infra/recipe_modules/pinned/target.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Unfortunately, recipes are not allowed to use any code except that from recipe modules.",
+      "parentUuid": "2ce26056_dfc19f7b",
       "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -183,6 +351,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c95c1fa6_186f8739",
+        "filename": "infra/recipe_modules/pinned/target.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9bf5aa68_c7f32859",
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d8ff08be_722de812",
@@ -197,6 +383,24 @@
       "side": 1,
       "message": "[From Jetski review] With `[ ! -x \"clang/bin/clang-format\" ]`, `tools/run_formatter.sh` will not pick up future updates to `_CLANG_REF` in `pinned.py` once `clang/bin/clang-format` already exists locally. Since `cipd ensure` is a fast no-op when packages are already up to date, should we run `python3 infra/recipe_modules/pinned/pinned.py` unconditionally when `CLANG_FORMAT` is unset?",
       "isAi": true,
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fea4af3_9382d900",
+        "filename": "tools/run_formatter.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T04:14:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8ff08be_722de812",
       "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

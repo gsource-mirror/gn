@@ -335,6 +335,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "70a3a325_227f0814",
+        "filename": "infra/recipe_modules/pinned/target.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T04:18:48Z",
+      "side": 1,
+      "message": "I meant to run code like\nhttps://source.chromium.org/gn/gn/+/main:infra/recipes/gn.py;l\u003d267-268;drc\u003d018bad7658017c397b47964f6cde71cab37ed6b1\ninstead of calling functions from recipe module.",
+      "parentUuid": "d739f260_b08035eb",
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9bf5aa68_c7f32859",
         "filename": "infra/recipe_modules/pinned/target.py",
         "patchSetId": 4

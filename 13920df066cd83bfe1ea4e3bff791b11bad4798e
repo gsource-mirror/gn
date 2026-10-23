@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3ddabd9_9274e3c5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:36:27Z",
+      "side": 1,
+      "message": "[From Jetski review] This bullet point is cut off mid-sentence (\u0027instead of calling ...\u0027).\n\nAlso, regarding the first bullet point: while single-character str.find(\u0027 \u0027) lowers to memchr (which uses SIMD/SWAR), multi-character std::string_view::find_first_of(\"$ :\") does not use SIMD or 8-byte scanning in either libstdc++ or libc++ (libc++ calls std::__find_first_of_ce, which compiles to a 1-byte-at-a-time scalar loop).",
+      "isAi": true,
+      "revId": "13920df066cd83bfe1ea4e3bff791b11bad4798e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92fd5059_59d6aca5",
+        "filename": "src/gn/escape.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:36:27Z",
+      "side": 1,
+      "message": "It is better to set this after loop?",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 21
+      },
+      "revId": "13920df066cd83bfe1ea4e3bff791b11bad4798e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "042f11ac_56feecf3",
+        "filename": "src/gn/escape.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:36:27Z",
+      "side": 1,
+      "message": "This is not necessary?",
+      "range": {
+        "startLine": 53,
+        "startChar": 6,
+        "endLine": 55,
+        "endChar": 5
+      },
+      "revId": "13920df066cd83bfe1ea4e3bff791b11bad4798e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09de9170_de7af190",
+        "filename": "src/gn/escape.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:36:27Z",
+      "side": 1,
+      "message": "[From Jetski review] Two performance issues here:\n\n1. Unlike single-char `find(\u0027 \u0027)` (which calls `memchr`), `std::string_view::find_first_of(\"$ :\")` compiles to a 1-byte-at-a-time scalar loop in both `libc++` and `libstdc++` (and the second call on line 95 isn\u0027t even inlined by Clang, emitting an out-of-line call per escaped char). Because it scans 1 byte at a time and then runs a second pass with `memcpy`, clean paths end up doing two scalar-ish passes instead of one.\n2. Because `dest` is `char*` and `upto` is `size_t\u0026`, C++ aliasing rules force the compiler to assume writes to `dest[upto++]` may alias `upto`, reloading/storing `upto` from memory on every write. Using a local `size_t out_idx \u003d upto;` and assigning `upto \u003d out_idx;` at the end avoids this (same applies to `EscapeStringToString_Space` and `EscapeStringToString_PosixNinjaFork`).\n\nIn a microbenchmark with Clang `-O3` (`libc++`), `EscapeStringToString_Ninja` in this CL is slightly slower than the old loop on clean paths (`28.6 ns` -\u003e `31.3 ns`, or `34.1 ns` -\u003e `42.2 ns` with `libstdc++`) and ~2.2x slower on paths containing `:`/`$`/` ` (`27.2 ns` -\u003e `59.9 ns`, or `35.0 ns` -\u003e `104.0 ns` with `libstdc++`).\n\n### Reproduction\n\nSave as `bench_escape.cc`:\n\n```cpp\n#include \u003carray\u003e\n#include \u003cchrono\u003e\n#include \u003ccstdint\u003e\n#include \u003ccstdio\u003e\n#include \u003ccstring\u003e\n#include \u003cimmintrin.h\u003e\n#include \u003cstring\u003e\n#include \u003cstring_view\u003e\n#include \u003cvector\u003e\n\n#define UNLIKELY(x) __builtin_expect(!!(x), 0)\n\nconstexpr char kShellValid[256] \u003d {\n    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,\n    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0,\n    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,\n    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1,\n    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,\n    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0};\n\nconstexpr std::array\u003cchar, 256\u003e PosixEscapesTo(const char (\u0026entries)[256]) {\n  std::array\u003cchar, 256\u003e table{};\n  for (size_t i \u003d 0; i \u003c 256; ++i) {\n    if (entries[i] \u003d\u003d 0) table[i] \u003d \u0027\\\\\u0027;\n  }\n  table[\u0027:\u0027] \u003d \u0027$\u0027;\n  return table;\n}\nconstexpr auto kPosixNinjaTable \u003d PosixEscapesTo(kShellValid);\n\nconstexpr std::array\u003cbool, 256\u003e MakeNinjaTable() {\n  std::array\u003cbool, 256\u003e t{};\n  t[\u0027$\u0027] \u003d true;\n  t[\u0027 \u0027] \u003d true;\n  t[\u0027:\u0027] \u003d true;\n  return t;\n}\nconstexpr auto kNinjaTable \u003d MakeNinjaTable();\n\n__attribute__((noinline)) void Ninja_Old(std::string_view str, char* dest, size_t\u0026 upto) {\n  size_t i \u003d 0;\n  char* out \u003d dest + upto;\n  for (char elem : str) {\n    if (elem \u003d\u003d \u0027$\u0027 || elem \u003d\u003d \u0027 \u0027 || elem \u003d\u003d \u0027:\u0027)\n      out[i++] \u003d \u0027$\u0027;\n    out[i++] \u003d elem;\n  }\n  upto +\u003d i;\n}\n\n__attribute__((noinline)) void Ninja_CL27740(std::string_view str, char* dest, size_t\u0026 upto) {\n  size_t in_idx \u003d 0;\n  for (size_t delim \u003d str.find_first_of(\"$ :\");\n       UNLIKELY(delim !\u003d std::string_view::npos);\n       delim \u003d str.find_first_of(\"$ :\", in_idx)) {\n    size_t len \u003d delim - in_idx;\n    memcpy(dest + upto, str.data() + in_idx, len);\n    upto +\u003d len;\n    dest[upto++] \u003d \u0027$\u0027;\n    dest[upto++] \u003d str[delim];\n    in_idx \u003d delim + 1;\n  }\n  size_t len \u003d str.size() - in_idx;\n  memcpy(dest + upto, str.data() + in_idx, len);\n  upto +\u003d len;\n}\n\n__attribute__((noinline)) void Ninja_TableLocal(std::string_view str, char* dest, size_t\u0026 upto) {\n  size_t out_idx \u003d upto;\n  size_t in_idx \u003d 0;\n  for (size_t i \u003d 0; i \u003c str.size(); ++i) {\n    if (UNLIKELY(kNinjaTable[static_cast\u003cuint8_t\u003e(str[i])])) {\n      size_t len \u003d i - in_idx;\n      memcpy(dest + out_idx, str.data() + in_idx, len);\n      out_idx +\u003d len;\n      dest[out_idx++] \u003d \u0027$\u0027;\n      dest[out_idx++] \u003d str[i];\n      in_idx \u003d i + 1;\n    }\n  }\n  size_t len \u003d str.size() - in_idx;\n  memcpy(dest + out_idx, str.data() + in_idx, len);\n  upto \u003d out_idx + len;\n}\n\n__attribute__((noinline)) void Ninja_SSE2(std::string_view str, char* dest, size_t\u0026 upto) {\n  size_t out_idx \u003d upto;\n  const char* data \u003d str.data();\n  size_t n \u003d str.size();\n  size_t in_idx \u003d 0;\n  size_t i \u003d 0;\n  const __m128i v_dollar \u003d _mm_set1_epi8(\u0027$\u0027);\n  const __m128i v_space \u003d _mm_set1_epi8(\u0027 \u0027);\n  const __m128i v_colon \u003d _mm_set1_epi8(\u0027:\u0027);\n  while (i + 16 \u003c\u003d n) {\n    __m128i chunk \u003d _mm_loadu_si128(reinterpret_cast\u003cconst __m128i*\u003e(data + i));\n    __m128i m \u003d _mm_or_si128(_mm_cmpeq_epi8(chunk, v_dollar),\n                _mm_or_si128(_mm_cmpeq_epi8(chunk, v_space),\n                             _mm_cmpeq_epi8(chunk, v_colon)));\n    int mask \u003d _mm_movemask_epi8(m);\n    if (UNLIKELY(mask !\u003d 0)) {\n      size_t hit \u003d i + __builtin_ctz(mask);\n      size_t len \u003d hit - in_idx;\n      memcpy(dest + out_idx, data + in_idx, len);\n      out_idx +\u003d len;\n      dest[out_idx++] \u003d \u0027$\u0027;\n      dest[out_idx++] \u003d data[hit];\n      in_idx \u003d hit + 1;\n      i \u003d hit + 1;\n    } else {\n      i +\u003d 16;\n    }\n  }\n  for (; i \u003c n; ++i) {\n    if (UNLIKELY(kNinjaTable[static_cast\u003cuint8_t\u003e(data[i])])) {\n      size_t len \u003d i - in_idx;\n      memcpy(dest + out_idx, data + in_idx, len);\n      out_idx +\u003d len;\n      dest[out_idx++] \u003d \u0027$\u0027;\n      dest[out_idx++] \u003d data[i];\n      in_idx \u003d i + 1;\n    }\n  }\n  size_t len \u003d n - in_idx;\n  memcpy(dest + out_idx, data + in_idx, len);\n  upto \u003d out_idx + len;\n}\n\ntemplate \u003ctypename Fn\u003e\ndouble bench(const std::vector\u003cstd::string\u003e\u0026 inputs, Fn fn) {\n  char buf[4096];\n  constexpr int kIters \u003d 200000;\n  for (int it \u003d 0; it \u003c 1000; ++it) {\n    for (const auto\u0026 s : inputs) {\n      size_t upto \u003d 0;\n      fn(std::string_view(s), buf, upto);\n    }\n  }\n  auto t0 \u003d std::chrono::steady_clock::now();\n  for (int it \u003d 0; it \u003c kIters; ++it) {\n    for (const auto\u0026 s : inputs) {\n      size_t upto \u003d 0;\n      fn(std::string_view(s), buf, upto);\n      asm volatile(\"\" : : \"r\"(buf[0]), \"r\"(upto) : \"memory\");\n    }\n  }\n  auto t1 \u003d std::chrono::steady_clock::now();\n  return std::chrono::duration\u003cdouble, std::nano\u003e(t1 - t0).count() /\n         (kIters * inputs.size());\n}\n\nint main() {\n  std::vector\u003cstd::string\u003e clean_paths \u003d {\n      \"obj/third_party/blink/renderer/core/layout/layout_object.o\",\n      \"../../chrome/browser/ui/views/frame/browser_view.cc\",\n      \"obj/components/autofill/core/browser/libbrowser.a\",\n      \"gen/services/network/public/mojom/url_loader.mojom.h\",\n      \"phony/chrome/browser/ui/ui\",\n      \"../../base/strings/string_util.cc\",\n  };\n  std::vector\u003cstd::string\u003e escaped_paths \u003d {\n      \"phony/chrome/browser:browser_public_deps\",\n      \"gen/chrome/browser/resources/settings:preprocess\",\n      \"obj/third_party/angle$angle/shader.o\",\n      \"Program Files/Windows Kits/10/Include/um/windows.h\",\n  };\n\n  printf(\"\u003d\u003d\u003d Ninja (clean paths) \u003d\u003d\u003d\\n\");\n  printf(\"  Old (char-by-char):       %.2f ns/call\\n\", bench(clean_paths, Ninja_Old));\n  printf(\"  CL 27740 (find_first_of): %.2f ns/call\\n\", bench(clean_paths, Ninja_CL27740));\n  printf(\"  Table + local upto:       %.2f ns/call\\n\", bench(clean_paths, Ninja_TableLocal));\n  printf(\"  SSE2 + local upto:        %.2f ns/call\\n\", bench(clean_paths, Ninja_SSE2));\n\n  printf(\"\u003d\u003d\u003d Ninja (paths with \u0027:\u0027, \u0027$\u0027, \u0027 \u0027) \u003d\u003d\u003d\\n\");\n  printf(\"  Old (char-by-char):       %.2f ns/call\\n\", bench(escaped_paths, Ninja_Old));\n  printf(\"  CL 27740 (find_first_of): %.2f ns/call\\n\", bench(escaped_paths, Ninja_CL27740));\n  printf(\"  Table + local upto:       %.2f ns/call\\n\", bench(escaped_paths, Ninja_TableLocal));\n  printf(\"  SSE2 + local upto:        %.2f ns/call\\n\", bench(escaped_paths, Ninja_SSE2));\n}\n```\n\nCompile \u0026 run:\n\n```bash\n# With libc++:\nclang++ -O3 -DNDEBUG -std\u003dc++23 -stdlib\u003dlibc++ bench_escape.cc -o bench_escape \u0026\u0026 ./bench_escape\n\n# With libstdc++:\nclang++ -O3 -DNDEBUG -std\u003dc++23 bench_escape.cc -o bench_escape \u0026\u0026 ./bench_escape\n```",
+      "isAi": true,
+      "revId": "13920df066cd83bfe1ea4e3bff791b11bad4798e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ab3930d_d33de4c1",
+        "filename": "src/gn/escape.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:36:27Z",
+      "side": 1,
+      "message": "[From Jetski review] Bug (out-of-bounds read / UB): Previously this was guarded by `static_cast\u003cunsigned\u003e(elem) \u003e\u003d 0x80 ||`. Since `char` is signed on x86_64 Linux/Windows/macOS, removing that guard means non-ASCII bytes (`0x80..0xFF`) will sign-extend `static_cast\u003cint\u003e(elem)` to `-128..-1` and read before the start of `kShellValid`.\n\nPlease cast to `uint8_t` (or `unsigned char`), matching `EscapeStringToString_PosixNinjaFork`:\n\n```cpp\nif (!kShellValid[static_cast\u003cuint8_t\u003e(elem)]) {\n```",
+      "isAi": true,
+      "revId": "13920df066cd83bfe1ea4e3bff791b11bad4798e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72559a28_29f2e7f8",
+        "filename": "src/gn/escape.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:36:27Z",
+      "side": 1,
+      "message": "[From Jetski review] If you use a local `size_t out_idx \u003d upto;` (writing back `upto \u003d out_idx;` at the end to avoid `char*` aliasing against `size_t\u0026 upto`) and fold `find_first_escape` into a single loop so `kPosixNinjaTable[static_cast\u003cuint8_t\u003e(c)]` is only looked up once, this becomes both simpler and ~30% faster in microbenchmarks (`29.1 ns` -\u003e `19.9 ns`):\n\n```cpp\nvoid EscapeStringToString_PosixNinjaFork(std::string_view str,\n                                         char* dest,\n                                         size_t\u0026 upto) {\n  size_t out_idx \u003d upto;\n  size_t start \u003d 0;\n  for (size_t i \u003d 0; i \u003c str.size(); ++i) {\n    char esc \u003d kPosixNinjaTable[static_cast\u003cuint8_t\u003e(str[i])];\n    if (UNLIKELY(esc !\u003d \u0027\\0\u0027)) {\n      size_t len \u003d i - start;\n      memcpy(dest + out_idx, str.data() + start, len);\n      out_idx +\u003d len;\n      char c \u003d str[i];\n      dest[out_idx++] \u003d esc;\n      if (c \u003d\u003d \u0027 \u0027 || c \u003d\u003d \u0027$\u0027) {\n        dest[out_idx++] \u003d \u0027$\u0027;\n      }\n      dest[out_idx++] \u003d c;\n      start \u003d i + 1;\n    }\n  }\n  size_t len \u003d str.size() - start;\n  memcpy(dest + out_idx, str.data() + start, len);\n  upto \u003d out_idx + len;\n}\n```",
+      "isAi": true,
+      "revId": "13920df066cd83bfe1ea4e3bff791b11bad4798e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5bf49103_8d1ac2a4",
+        "filename": "src/gn/escape.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:36:27Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Having separate case blocks for ESCAPE_PLATFORM_CURRENT and ESCAPE_PLATFORM_POSIX (or WIN) causes Clang to inline Two separate copies of EscapeStringToString_PosixNinjaFork here (and in EscapeStringToString above). Falling through from ESCAPE_PLATFORM_CURRENT to the current platform\u0027s case via #if defined(OS_WIN) avoids the duplicate inlining.",
+      "isAi": true,
+      "revId": "13920df066cd83bfe1ea4e3bff791b11bad4798e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

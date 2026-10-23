@@ -351,6 +351,42 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "13b3a180_076cc4af",
+        "filename": "infra/recipe_modules/pinned/target.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T05:28:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70a3a325_227f0814",
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b836c402_546e912d",
+        "filename": "infra/recipe_modules/pinned/target.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-23T05:28:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70a3a325_227f0814",
+      "revId": "d6d9c79b991c7476484876f5cf72d6f3108f319f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9bf5aa68_c7f32859",

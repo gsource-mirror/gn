@@ -1,0 +1,94 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3e1b5a9_39ff916a",
+        "filename": "src/gn/string_output_buffer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:50:19Z",
+      "side": 1,
+      "message": "[From Jetski review] `std::integral\u003cT\u003e` also matches `bool`, for which `std::to_chars` is explicitly deleted (`to_chars(char*, char*, bool, int \u003d 10) \u003d delete;`). Because `concept Writable` only checks the declaration of `WriteToBuf`, `Writable\u003cbool\u003e` currently evaluates to `true`, but calling `buffer \u003c\u003c true` fails inside the body of `WriteToBuf\u003cbool\u003e` when instantiating `std::to_chars`.\n\nConsider excluding `bool` in the constraint (e.g. `requires(std::integral\u003cT\u003e \u0026\u0026 !std::same_as\u003cT, char\u003e \u0026\u0026 !std::same_as\u003cT, bool\u003e)`, or constraining on `std::to_chars` directly) so `Writable\u003cbool\u003e` accurately reflects what `WriteToBuf` supports.",
+      "isAi": true,
+      "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98b0b0dc_fcd91ddc",
+        "filename": "src/gn/string_output_buffer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:50:19Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: `std::numeric_limits\u003cint32_t\u003e::digits10` is `9` (all 9-digit numbers `0..999,999,999` can be represented), which is `log10(1 billion)` rather than `log10(100 million)` (`8`).",
+      "isAi": true,
+      "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1811ab5_17e9a559",
+        "filename": "src/gn/string_output_buffer_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:50:19Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: `buffer.Write(data)` -\u003e `buffer.Append(data)`",
+      "isAi": true,
+      "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e75ab2f_b10a5289",
+        "filename": "src/gn/string_output_buffer_unittest.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:50:19Z",
+      "side": 1,
+      "message": "[From Jetski review] Consider also testing boundary integer values (e.g. `0`, `-1`, `std::numeric_limits\u003cint\u003e::min()`, `std::numeric_limits\u003cint\u003e::max()`, `std::numeric_limits\u003cuint64_t\u003e::max()`) to exercise the `MaximumSize` bound (`digits10 + 2`) at its limit, as well as adding `static_assert(Writable\u003cint\u003e);` above.",
+      "isAi": true,
+      "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51dc217e_5aacde96",
+        "filename": "src/util/test/test.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T02:50:19Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: In C++20, non-member `operator\u003d\u003d(A, B)` automatically synthesizes a rewritten candidate with reversed arguments (`B \u003d\u003d A`), so `EXPECT_EQ(buffer, \"blah\")` actually compiles as well. If you want to strictly disallow `StringOutputBuffer` on the LHS, you can add `bool operator\u003d\u003d(const StringOutputBuffer\u0026, std::string_view) \u003d delete;`; otherwise, consider updating the comment above.",
+      "isAi": true,
+      "revId": "cea9091d8b3b07d62f508915b4769f71b731c93b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

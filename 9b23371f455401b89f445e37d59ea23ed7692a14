@@ -37,6 +37,25 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "773ff557_e4aac8ae",
+        "filename": "build/pinned.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-23T07:27:17Z",
+      "side": 1,
+      "message": "[From Jetski review] Please ignore this comment — keeping `\u0027sysroot\u0027` for local builds keeps `build/gen.py` simpler (and `cipd ensure` removes unrequested subdirs on single-target runs anyway).",
+      "parentUuid": "8f231024_3a2dfaf4",
+      "isAi": true,
+      "revId": "9b23371f455401b89f445e37d59ea23ed7692a14",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "30133c18_f0efac76",

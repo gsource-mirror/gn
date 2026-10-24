@@ -50,6 +50,24 @@
       "message": "There are several levels of bad things in this CL, I will only start with the more important points:\n\n- What is the point of storing the config values in the Ninja build plan? This is not addressed in the referenced bug at all.\n\n- It looks like the \"materialize-compile-flags\" command simply reads a JSON file then copies it to the output (with pretty printing, which doesn\u0027t sound an important implementation detail). I believe this could be implemented directly in the Ninja plan using `cat` on Windows or `copy` on Windows.  I still don\u0027t understand why this is needed though.\n\n- Write the compile-flags file in ninja_target_writer.cc or ninja_binary_target_writer.cc, this will be performed in parallel threads during resolution. There is no reason to do that in a post-resolution hook, especially with a non-parallel scan of all resolved targets.\n\n- Documentation needs clarification, terms like \"snapshots\" or \"materialize\" are poorly defined. It\u0027s impossible to understand the purpose of the new feature from the documentation alone (i.e. without referencing the associated bug).\n\n- Properly document the JSON schema of the file in the reference.",
       "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99926ef5_1e97033c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001342
+      },
+      "writtenOn": "2026-10-24T03:07:11Z",
+      "side": 1,
+      "message": "Thanks for reviewing! this is my first CL to gn and I over complicated the design trying to address edge cases flagged by an LLM review. Sharing the context and some followup questions before I refactor,\n\n1 and 2 - The rule and helper command was added to handle a case where the exported JSON could be manually deleted from out directory without modifications to gn files between builds leading to \"missing and no known rule to make it\". Is this something expected to handle for generation time files ?\n\n3 - This was done for case if a user specified colliding paths (ex: `$root_build_dir/flags.json` in cross target toolchains, or with `--ide\u003djson --json-file-name\u003d...`). Are either of these cases something to guard against ?\n\n4 and 5 - Will clean this up\n\nTo confirm on the overall direction, does the following sound good ?\n\n- Writing the file purely at `gn gen` time in `ninja_binary_target_writer.cc` (with `WriteToFileIfChanged`).\n- Using the following JSON schema\n```\n   {\n     \"target\": \"//path:name(//toolchain:label)\",\n     \"toolchain\": \"//toolchain:label\",\n     \"defines\": [ ... ],\n     \"include_dirs\": [ \"//path/to/dir/\", ... ],\n     \"framework_dirs\": [ ... ],\n     \"asmflags\": [ ... ],\n     \"cflags\": [ ... ],\n     \"cflags_c\": [ ... ],\n     \"cflags_cc\": [ ... ],\n     \"cflags_objc\": [ ... ],\n     \"cflags_objcc\": [ ... ]\n   }\n```\n\nAlso if I should model the design following after another generation time utility, please let me know. Thanks!",
+      "parentUuid": "80c638e6_194dbed4",
+      "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

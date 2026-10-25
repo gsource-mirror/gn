@@ -16,6 +16,24 @@
       "message": "Can we use StringOutputBuffer only place which we want to make faster?\nI feel replacing this in tests is too much.",
       "revId": "a630631c87b0c96b05740228c92a366e0376b1c3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f19cedcf_1451aa6d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-25T23:07:17Z",
+      "side": 1,
+      "message": "If we change the signature of code to take StringOutputBuffer to make it faster, then the function signatures require a StringOutputBuffer rather than an ostream. So I don\u0027t think it\u0027s feasible.\n\nDo you have specific concerns? I\u0027ve found that this simplifies test code, if anything.",
+      "parentUuid": "da2bad85_82ca8c27",
+      "revId": "a630631c87b0c96b05740228c92a366e0376b1c3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

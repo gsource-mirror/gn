@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77222e42_d26e068e",
+        "filename": "build/gen.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-26T09:26:58Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Unused import `_DEFAULT_INSTALL_DIR`.",
+      "isAi": true,
+      "revId": "514e1b3dec226dc4e3f15b2ca57f8969583bb6b6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcfb3115_0939ac3c",
+        "filename": "build/pinned.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-26T09:26:58Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Unused import `Union`.",
+      "isAi": true,
+      "revId": "514e1b3dec226dc4e3f15b2ca57f8969583bb6b6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

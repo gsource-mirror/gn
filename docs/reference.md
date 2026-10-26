@@ -367,7 +367,7 @@
     given arguments set (which may affect the values of other
     arguments).
 ```
-### <a name="cmd_check"></a>**gn check &lt;out_dir&gt; [&lt;label_pattern&gt;] [\--force] [\--check-generated] [\--fix]**&nbsp;[Back to Top](#gn-reference)
+### <a name="cmd_check"></a>**gn check &lt;out_dir&gt; [&lt;label_pattern&gt;...] [\--force] [\--check-generated] [\--fix]**&nbsp;[Back to Top](#gn-reference)
 
 ```
   GN's include header checker validates that the includes for C-like source
@@ -377,9 +377,10 @@
   this command does not write out any build files. It's intended to be an easy
   way to manually trigger include file checking.
 
-  The <label_pattern> can take exact labels or patterns that match more than
-  one (although not general regular expressions). If specified, only those
-  matching targets will be checked. See "gn help label_pattern" for details.
+  Each <label_pattern> can be an exact label or a pattern that matches more
+  than one (although not general regular expressions). If specified, only
+  those matching targets will be checked. See "gn help label_pattern" for
+  details.
 ```
 
 #### **Command-specific switches**
@@ -410,6 +411,12 @@
   --force
       Ignores specifications of "check_includes = false" and checks all
       target's files that match the target label.
+
+  --with-transitive-deps
+      Also checks the transitive dependencies, including data_deps, of the
+      targets that match the label patterns. These are the targets that
+      building the matching targets builds. The lists in the .gn file are
+      applied (see "What gets checked").
 ```
 
 #### **What gets checked**
@@ -420,7 +427,8 @@
   specify a list of targets not to be checked in no_check_targets. It may also
   list targets whose generated files are not checked with --check-generated in
   no_check_generated_targets. If a label pattern is specified on the command
-  line, none of these lists is used.
+  line, none of these lists is used unless --with-transitive-deps is
+  given.
 
   Targets can opt-out from checking with "check_includes = false" (see
   "gn help check_includes").
@@ -510,6 +518,10 @@
 
   gn check out/Default "//foo/*
       Check only the files in targets in the //foo directory tree.
+
+  gn check out/Default --with-transitive-deps //foo:bar //foo:baz
+      Check the files in //foo:bar, //foo:baz and their transitive
+      dependencies, except targets excluded by the lists in the .gn file.
 ```
 ### <a name="cmd_clean"></a>**gn clean &lt;out_dir&gt;...**&nbsp;[Back to Top](#gn-reference)
 
@@ -7698,7 +7710,8 @@
       no_check_targets (see below) is specified, all targets will be checked.
       It is an error to specify both check_targets and no_check_targets. If it
       is the empty list, no targets will be checked. To bypass this list,
-      request an explicit check of targets, like "//*".
+      request an explicit check of targets, like "//*", without
+      --with-transitive-deps.
 
       The format of this list is identical to that of "visibility" so see "gn
       help visibility" for examples.
@@ -7720,7 +7733,7 @@
       Generated files are the target's files in the output directory, such as
       action outputs listed in its sources. This list can be combined with
       check_targets or no_check_targets. To bypass it, request an explicit
-      check of targets, like "//*".
+      check of targets, like "//*", without --with-transitive-deps.
 
       The format of this list is identical to that of "visibility" so see "gn
       help visibility" for examples.

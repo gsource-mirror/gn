@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "82293d5c_ee887921",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-26T23:46:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f2b24eb_1133616f",
+      "revId": "150487b59c4c8d5d6fb1d04b5422b16086308974",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "deeb6ee4_2f4bac2f",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "[From Jetski review] Performance concern: `IncludeWriter::operator()` (and `FrameworkDirsWriter::operator()` on line 40) is called once per `include_dirs` / `framework_dirs` entry for every target.\n\nUnlike `std::ostringstream` (which uses SSO for short paths), writing to a fresh `StringOutputBuffer` calls `Reserve()`, which allocates and value-initializes (`memset(0)`) a full 64 KiB page (`std::make_unique\u003cchar[]\u003e(65536)`) before copying the short path out via `path_out.str()` and immediately freeing the 64 KiB page. Across a large build like Chromium where `IncludeWriter` is invoked hundreds of thousands of times, this allocates and zero-fills gigabytes of temporary memory. (A similar per-item temporary `StringOutputBuffer` inside a loop exists in `src/gn/visual_studio_writer.cc` line 719.)\n\nCould we avoid creating a fresh 64 KiB `StringOutputBuffer` per directory here (e.g. by reusing a buffer / adding a `Clear()` method, or formatting the single path without a 64 KiB page allocation, and using `std::make_unique_for_overwrite\u003cchar[]\u003e` in `StringOutputBuffer::Reserve`)?",
       "isAi": true,
+      "revId": "150487b59c4c8d5d6fb1d04b5422b16086308974",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb948035_aa8ff89e",
+        "filename": "src/gn/ninja_target_command_util.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-26T23:46:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "deeb6ee4_2f4bac2f",
       "revId": "150487b59c4c8d5d6fb1d04b5422b16086308974",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -55,6 +91,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f464d27_373ffe59",
+        "filename": "src/gn/output_conversion.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-26T23:46:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f05d7306_db77e9c9",
+      "revId": "150487b59c4c8d5d6fb1d04b5422b16086308974",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a258fef5_f23aa834",
@@ -69,6 +123,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: No need for the reference alias `out` (here and on lines 694 and 1059) — `storage` can be renamed to `out` (or passed directly to `WriteFileContent(storage)`), matching the cleanup in other files.",
       "isAi": true,
+      "revId": "150487b59c4c8d5d6fb1d04b5422b16086308974",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e09da8fb_b3351d9b",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-26T23:46:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a258fef5_f23aa834",
       "revId": "150487b59c4c8d5d6fb1d04b5422b16086308974",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

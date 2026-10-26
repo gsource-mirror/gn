@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e259a1d4_08347b20",
+        "filename": "build/gen.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-26T01:20:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aba32e2f_a18489cd",
+      "revId": "9b23371f455401b89f445e37d59ea23ed7692a14",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8f231024_3a2dfaf4",
@@ -70,6 +88,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: Leftover `# pragma: no cover`.",
       "isAi": true,
+      "revId": "9b23371f455401b89f445e37d59ea23ed7692a14",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc7126d7_be0c5c0c",
+        "filename": "build/target.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-26T01:20:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30133c18_f0efac76",
       "revId": "9b23371f455401b89f445e37d59ea23ed7692a14",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

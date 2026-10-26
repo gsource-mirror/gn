@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f2b24eb_1133616f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-26T07:09:19Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: `guaruntees` -\u003e `guarantees`.\n\nAlso, now that no production code wraps `StringOutputBuffer` in `std::ostream`, `StringOutputBuffer` no longer needs to inherit from `std::streambuf` (or keep `xsputn` / `overflow`), which will save 64 bytes per instance and avoid `std::locale` refcount operations on construction/destruction.",
+      "isAi": true,
+      "revId": "150487b59c4c8d5d6fb1d04b5422b16086308974",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "deeb6ee4_2f4bac2f",
+        "filename": "src/gn/ninja_target_command_util.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-26T07:09:19Z",
+      "side": 1,
+      "message": "[From Jetski review] Performance concern: `IncludeWriter::operator()` (and `FrameworkDirsWriter::operator()` on line 40) is called once per `include_dirs` / `framework_dirs` entry for every target.\n\nUnlike `std::ostringstream` (which uses SSO for short paths), writing to a fresh `StringOutputBuffer` calls `Reserve()`, which allocates and value-initializes (`memset(0)`) a full 64 KiB page (`std::make_unique\u003cchar[]\u003e(65536)`) before copying the short path out via `path_out.str()` and immediately freeing the 64 KiB page. Across a large build like Chromium where `IncludeWriter` is invoked hundreds of thousands of times, this allocates and zero-fills gigabytes of temporary memory. (A similar per-item temporary `StringOutputBuffer` inside a loop exists in `src/gn/visual_studio_writer.cc` line 719.)\n\nCould we avoid creating a fresh 64 KiB `StringOutputBuffer` per directory here (e.g. by reusing a buffer / adding a `Clear()` method, or formatting the single path without a 64 KiB page allocation, and using `std::make_unique_for_overwrite\u003cchar[]\u003e` in `StringOutputBuffer::Reserve`)?",
+      "isAi": true,
+      "revId": "150487b59c4c8d5d6fb1d04b5422b16086308974",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f05d7306_db77e9c9",
+        "filename": "src/gn/output_conversion.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-26T07:09:19Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Can use a forward declaration `class StringOutputBuffer;` instead of `#include \"gn/string_output_buffer.h\"` like the other headers (same for `rust_project_writer.h`, `rust_project_writer_helpers.h`, and `xcode_object.h`). Also nit on line 18: update `ostream` in the comment.",
+      "isAi": true,
+      "revId": "150487b59c4c8d5d6fb1d04b5422b16086308974",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a258fef5_f23aa834",
+        "filename": "src/gn/xcode_writer.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-26T07:09:19Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: No need for the reference alias `out` (here and on lines 694 and 1059) — `storage` can be renamed to `out` (or passed directly to `WriteFileContent(storage)`), matching the cleanup in other files.",
+      "isAi": true,
+      "revId": "150487b59c4c8d5d6fb1d04b5422b16086308974",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

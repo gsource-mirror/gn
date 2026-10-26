@@ -1,0 +1,191 @@
+// Copyright 2026 The GN Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
+
+#include "base/command_line.h"
+#include "base/files/file_util.h"
+#include "base/files/scoped_temp_dir.h"
+#include "gn/commands.h"
+#include "gn/filesystem_utils.h"
+#include "gn/setup.h"
+#include "gn/source_file.h"
+#include "gn/switches.h"
+#include "gn/target.h"
+#include "gn/test_with_scheduler.h"
+#include "util/test/test.h"
+
+namespace {
+
+using CommandCheckTest = TestWithScheduler;
+
+// //:a depends on //:b, which depends on //:d. //:a also has a data dep on
+// //:c. //:unrelated is not reachable from //:a.
+constexpr char kDotFile[] = R"(
+buildconfig = "//BUILDCONFIG.gn"
+no_check_targets = [ "//:d" ]
+no_check_generated_targets = [ "//:b" ]
+)";
+
+constexpr char kBuildConfig[] = R"(
+set_default_toolchain("//toolchain:default")
+)";
+
+constexpr char kToolchain[] = R"(
+toolchain("default") {
+  tool("cxx") {
+    command = "cxx"
+    outputs = [ "{{source_out_dir}}/{{source_file_part}}.o" ]
+  }
+  tool("link") {
+    command = "link"
+    outputs = [ "{{root_out_dir}}/{{target_output_name}}{{output_extension}}" ]
+  }
+  tool("stamp") {
+    command = "stamp"
+  }
+}
+)";
+
+constexpr char kBuildFile[] = R"(
+executable("a") {
+  sources = [ "a.cc" ]
+  deps = [ ":b" ]
+  data_deps = [ ":c" ]
+}
+source_set("b") {
+  sources = [ "b.h" ]
+  deps = [ ":d" ]
+}
+source_set("c") {
+  sources = [ "c.h" ]
+}
+source_set("d") {
+  sources = [ "d.h" ]
+}
+source_set("unrelated") {
+  sources = [ "unrelated.h" ]
+}
+)";
+
+class TestProject {
+ public:
+  TestProject() {
+    EXPECT_TRUE(in_temp_dir_.CreateUniqueTempDir());
+    EXPECT_TRUE(build_temp_dir_.CreateUniqueTempDir());
+    base::FilePath in_path =
+        base::MakeAbsoluteFilePath(in_temp_dir_.GetPath());
+    base::FilePath build_path =
+        base::MakeAbsoluteFilePath(build_temp_dir_.GetPath());
+
+    const std::map<std::string, std::string> files = {
+        {".gn", kDotFile},
+        {"BUILDCONFIG.gn", kBuildConfig},
+        {"toolchain/BUILD.gn", kToolchain},
+        {"BUILD.gn", kBuildFile},
+    };
+    for (const auto& [name, content] : files) {
+      base::FilePath full_path = in_path.AppendASCII(name);
+      base::CreateDirectory(full_path.DirName());
+      WriteFile(full_path, content, nullptr);
+    }
+
+    base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
+    cmdline.AppendSwitchPath(switches::kRoot, in_path);
+    EXPECT_TRUE(setup_.DoSetup(FilePathToUTF8(build_path), true, cmdline));
+    EXPECT_TRUE(setup_.Run());
+  }
+
+  Setup* setup() { return &setup_; }
+
+ private:
+  base::ScopedTempDir in_temp_dir_;
+  base::ScopedTempDir build_temp_dir_;
+  Setup setup_;
+};
+
+std::vector<std::string> SortedLabels(
+    const std::vector<const Target*>& targets) {
+  std::vector<std::string> labels;
+  for (const Target* target : targets)
+    labels.push_back(target->label().GetUserVisibleName(false));
+  std::sort(labels.begin(), labels.end());
+  return labels;
+}
+
+}  // namespace
+
+TEST_F(CommandCheckTest, NoLabelPatterns) {
+  TestProject project;
+  std::vector<const Target*> candidates, to_check, no_check_generated;
+  ASSERT_TRUE(commands::GetTargetsToCheck(
+      project.setup(), {}, /*with_deps=*/false,
+      /*default_toolchain_only=*/false, &candidates, &to_check,
+      &no_check_generated));
+
+  EXPECT_EQ((std::vector<std::string>{"//:a", "//:b", "//:c", "//:d",
+                                      "//:unrelated"}),
+            SortedLabels(candidates));
+  EXPECT_EQ((std::vector<std::string>{"//:a", "//:b", "//:c", "//:unrelated"}),
+            SortedLabels(to_check));
+  EXPECT_EQ((std::vector<std::string>{"//:b"}),
+            SortedLabels(no_check_generated));
+}
+
+TEST_F(CommandCheckTest, LabelPatternsBypassDotFileLists) {
+  TestProject project;
+  std::vector<const Target*> candidates, to_check, no_check_generated;
+  ASSERT_TRUE(commands::GetTargetsToCheck(
+      project.setup(), {"//:b", "//:d"}, /*with_deps=*/false,
+      /*default_toolchain_only=*/false, &candidates, &to_check,
+      &no_check_generated));
+
+  EXPECT_EQ((std::vector<std::string>{"//:b", "//:d"}),
+            SortedLabels(candidates));
+  EXPECT_EQ((std::vector<std::string>{"//:b", "//:d"}), SortedLabels(to_check));
+  EXPECT_TRUE(no_check_generated.empty());
+}
+
+TEST_F(CommandCheckTest, WithDeps) {
+  TestProject project;
+  std::vector<const Target*> candidates, to_check, no_check_generated;
+  ASSERT_TRUE(commands::GetTargetsToCheck(
+      project.setup(), {"//:a"}, /*with_deps=*/true,
+      /*default_toolchain_only=*/false, &candidates, &to_check,
+      &no_check_generated));
+
+  EXPECT_EQ((std::vector<std::string>{"//:a", "//:b", "//:c", "//:d"}),
+            SortedLabels(candidates));
+  EXPECT_EQ((std::vector<std::string>{"//:a", "//:b", "//:c"}),
+            SortedLabels(to_check));
+  EXPECT_EQ((std::vector<std::string>{"//:b"}),
+            SortedLabels(no_check_generated));
+}
+
+TEST_F(CommandCheckTest, WithDepsMultipleLabelPatterns) {
+  TestProject project;
+  std::vector<const Target*> candidates, to_check, no_check_generated;
+  ASSERT_TRUE(commands::GetTargetsToCheck(
+      project.setup(), {"//:c", "//:b"}, /*with_deps=*/true,
+      /*default_toolchain_only=*/false, &candidates, &to_check,
+      &no_check_generated));
+
+  EXPECT_EQ((std::vector<std::string>{"//:b", "//:c", "//:d"}),
+            SortedLabels(candidates));
+  EXPECT_EQ((std::vector<std::string>{"//:b", "//:c"}), SortedLabels(to_check));
+  EXPECT_EQ((std::vector<std::string>{"//:b"}),
+            SortedLabels(no_check_generated));
+}
+
+TEST_F(CommandCheckTest, NoMatchingTargets) {
+  TestProject project;
+  std::vector<const Target*> candidates, to_check, no_check_generated;
+  EXPECT_FALSE(commands::GetTargetsToCheck(
+      project.setup(), {"//nonexistent/*"}, /*with_deps=*/true,
+      /*default_toolchain_only=*/false, &candidates, &to_check,
+      &no_check_generated));
+}

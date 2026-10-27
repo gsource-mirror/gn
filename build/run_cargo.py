@@ -218,6 +218,11 @@ def main():
   if 'clang' in cxx:
     cxxflags += ' -Wno-unused-template'
 
+  cargo_bin = Path(cmd_args[0])
+  if cargo_bin.is_file():
+    cargo_dir = str(cargo_bin.parent.resolve())
+    os.environ['PATH'] = f"{cargo_dir}{os.pathsep}{os.environ.get('PATH', '')}"
+
   os.environ['CXX'] = cxx
   os.environ['CXXFLAGS'] = cxxflags
   # Since Ninja runs commands from the build output directory, CWD is the

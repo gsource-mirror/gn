@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d348201_73c98e61",
+        "filename": "src/gn/variables.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-27T00:19:01Z",
+      "side": 1,
+      "message": "Nit: exempted as an includer",
+      "revId": "ee57a44f1eb69177725a98d6e2cd39e82fe9f401",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

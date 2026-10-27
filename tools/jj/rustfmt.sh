@@ -10,5 +10,6 @@ if rustup run nightly rustfmt --version >/dev/null 2>&1; then
   rustup run nightly rustfmt --config-path=src/gn/starlark/rustfmt-nightly.toml
 else
   # Otherwise fallback to stable rustfmt with standard stable formatting rules
-  rustfmt --config-path=src/gn/starlark/rustfmt.toml
+  root="$(dirname "$(dirname "$(dirname "$0")")")"
+  "${root}/clang/bin/rustfmt" --config-path=src/gn/starlark/rustfmt.toml
 fi

@@ -220,6 +220,7 @@ def GenerateLastCommitPosition(host, header, generate_dummy):
 
 USED_ENV_VARS = (
     'AR',
+    'CARGO',
     'CFLAGS',
     'CXX',
     'CXXFLAGS',
@@ -230,7 +231,7 @@ USED_ENV_VARS = (
 
 
 def WriteGenericNinja(path, static_libraries, executables,
-                      cxx, ar, ld, target, host, options,
+                      cxx, ar, ld, cargo, target, host, options,
                       args_list, cflags=[], ldflags=[],
                       libflags=[], include_dirs=[], solibs=[]):
   platform = target.platform
@@ -262,6 +263,7 @@ def WriteGenericNinja(path, static_libraries, executables,
     'cxx = ' + cxx,
     'ar = ' + ar,
     'ld = ' + ld,
+    'cargo = ' + cargo,
     'pool cargo_pool',
     '  depth = 1',
     '',
@@ -469,14 +471,17 @@ def WriteGNNinja(path, platform, host, options, args_list):
     cxx = os.environ.get('CXX', 'cl.exe')
     ld = os.environ.get('LD', 'link.exe')
     ar = os.environ.get('AR', 'lib.exe')
+    cargo = os.environ.get('CARGO', 'cargo.exe')
   elif platform.is_aix():
     cxx = os.environ.get('CXX', 'g++')
     ld = os.environ.get('LD', 'g++')
     ar = os.environ.get('AR', 'ar -X64')
+    cargo = os.environ.get('CARGO', 'cargo')
   elif platform.is_msys() or platform.is_mingw():
     cxx = os.environ.get('CXX', 'g++')
     ld = os.environ.get('LD', 'g++')
     ar = os.environ.get('AR', 'ar')
+    cargo = os.environ.get('CARGO', 'cargo')
   # Linux and mac are currently the only supported hosts for hermetic clang.
   elif not (cxx := os.environ.get('CXX')) and any([platform.is_linux(), platform.is_darwin()]):
     toolchain = get_toolchain(Target.host(), target)
@@ -485,6 +490,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
     cxx = toolchain.env['CXX']
     ld = os.environ.get('LD', toolchain.env['LD'])
     ar = os.environ.get('AR', toolchain.env['AR'])
+    cargo = os.environ.get('CARGO', toolchain.env.get('CARGO', 'cargo'))
     if toolchain.sysroot:
       cflags.append(f'--sysroot={toolchain.sysroot}')
       ldflags.append(f'--sysroot={toolchain.sysroot}')
@@ -492,6 +498,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
     cxx = cxx or 'clang++'
     ld = os.environ.get('LD', cxx)
     ar = os.environ.get('AR', 'ar')
+    cargo = os.environ.get('CARGO', 'cargo')
 
   cflags += os.environ.get('CFLAGS', '').split()
   cflags += os.environ.get('CXXFLAGS', '').split()
@@ -1118,7 +1125,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
   with open(os.path.join(options.out_path, 'source_root.txt'), 'w') as f:
     f.write(REPO_ROOT)
 
-  WriteGenericNinja(path, static_libraries, executables, cxx, ar, ld,
+  WriteGenericNinja(path, static_libraries, executables, cxx, ar, ld, cargo,
                     target, host, options, args_list,
                     cflags, ldflags, libflags, include_dirs, libs)
 

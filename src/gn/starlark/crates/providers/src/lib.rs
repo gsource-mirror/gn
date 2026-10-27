@@ -9,9 +9,9 @@ pub mod provider_instance;
 pub mod provider_type;
 pub mod providers;
 
-pub use builtins::BuiltinProviders;
+pub use builtins::{BuiltinProviders, builtin_providers_module};
 pub(crate) use errors::Error;
 pub use globals::register_providers;
-pub use provider_instance::{FrozenProviderInstance, ProviderInstance};
-pub use provider_type::ProviderType;
+pub use provider_instance::ProviderInstance;
+pub use provider_type::{ProviderId, ProviderType};
 pub use providers::Providers;

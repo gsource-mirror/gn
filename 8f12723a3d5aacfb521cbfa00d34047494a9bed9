@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ca69377_f6514d8b",
+        "filename": "src/gn/ninja_target_command_util.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-27T02:36:11Z",
+      "side": 1,
+      "message": "[From Jetski review] Can we make `path_out_` a `mutable StringOutputBuffer` member of `IncludeWriter` (and `FrameworkDirsWriter` on line 40) and call `path_out_.Clear()` here, so we reuse the 64 KiB buffer across directories instead of allocating a new page on every call?",
+      "isAi": true,
+      "revId": "8f12723a3d5aacfb521cbfa00d34047494a9bed9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

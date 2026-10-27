@@ -184,7 +184,7 @@ def main():
   if len(sys.argv) < 10:
     print(
         'Usage: run_cargo.py <test|lib> <out> <cargo_out_dir> <cxx> '
-        '<cxxflags> <ldflags> <target_triple> <ld> <command...>',
+        '<cxxflags> <ldflags> <target_triple> <ld> <cargo> <args...>',
         file=sys.stderr,
     )
     sys.exit(1)
@@ -198,6 +198,7 @@ def main():
       ldflags,
       target_triple,
       linker,
+      cargo,
       *cmd_args,
   ) = sys.argv[1:]
   out_path = Path(out_path_str)
@@ -217,6 +218,10 @@ def main():
   # are compiled away, triggering -Wunused-template causing failures with -Werror.
   if 'clang' in cxx:
     cxxflags += ' -Wno-unused-template'
+
+  # Ensure that cargo finds the correct rustc and clippy.
+  bin_dir = Path(cargo).parent.resolve()
+  os.environ['PATH'] = f"{bin_dir}{os.pathsep}{os.environ.get('PATH', '')}"
 
   os.environ['CXX'] = cxx
   os.environ['CXXFLAGS'] = cxxflags
@@ -286,7 +291,7 @@ def main():
   os.environ['CARGO_TARGET_APPLIES_TO_HOST'] = 'false'
 
   # Now we run the `cargo build` command
-  res = subprocess.run(cmd_args)
+  res = subprocess.run([cargo] + cmd_args)
   if res.returncode != 0:
     sys.exit(res.returncode)
 

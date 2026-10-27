@@ -16,6 +16,24 @@
       "message": "Nit: exempted as an includer",
       "revId": "ee57a44f1eb69177725a98d6e2cd39e82fe9f401",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "956a4e60_62cdcacc",
+        "filename": "src/gn/variables.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-27T00:31:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d348201_73c98e61",
+      "revId": "ee57a44f1eb69177725a98d6e2cd39e82fe9f401",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

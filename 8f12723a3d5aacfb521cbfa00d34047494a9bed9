@@ -17,6 +17,24 @@
       "isAi": true,
       "revId": "8f12723a3d5aacfb521cbfa00d34047494a9bed9",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "958ffffd_94a708b9",
+        "filename": "src/gn/ninja_target_command_util.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-27T02:39:05Z",
+      "side": 1,
+      "message": "My AI tried to do this exact thing, but I rejected it because it\u0027s not thread-safe. If two different threads attempt to call operator() at the same time on the same object, this will result in UB.",
+      "parentUuid": "3ca69377_f6514d8b",
+      "revId": "8f12723a3d5aacfb521cbfa00d34047494a9bed9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

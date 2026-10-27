@@ -28,14 +28,20 @@ mod scope;
 mod session;
 mod settings;
 mod slice;
+mod source_file;
+mod target;
 mod target_ref;
 mod test_with_scope;
 mod value;
 
-pub use bridge::{Err, KeyValue, Label, OutputFile, Scope, Settings, SourceDir, Value, ValueType};
+pub use bridge::{
+    CxxTarget, Err, KeyValue, Label, OutputFile, OwnedFrozenValue, Scope, Settings, SourceDir,
+    SourceFile, Value, ValueType,
+};
 pub use mutability::Immutable;
 pub use opaque::{NonOpaque, OpaqueSized};
-pub use scope::OwnedScope;
 pub use session::Session;
 pub use slice::{OwnedSlice, Slice};
+pub use target::Target;
+pub use target_ref::TargetRef;
 pub use test_with_scope::TestWithScope;

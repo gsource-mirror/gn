@@ -4,15 +4,45 @@
 
 use allocative::Allocative;
 use starlark::values::{AllocValue, Heap, ProvidesStaticType, StarlarkValue, Value};
-use starlark_derive::{starlark_value, NoSerialize};
-use types::LabelRef;
+use starlark_derive::{NoSerialize, starlark_value};
+use types::{LabelRef, TargetRef as _};
 
-#[derive(Clone, Allocative, ProvidesStaticType, Debug, NoSerialize, PartialEq, Eq, Hash)]
-pub struct TargetRef;
+use crate::target::Target;
+
+#[derive(Clone, Copy, Allocative, ProvidesStaticType, NoSerialize)]
+pub struct TargetRef(pub(crate) &'static Target);
+
+impl PartialEq for TargetRef {
+    fn eq(&self, other: &Self) -> bool {
+        std::ptr::eq(self.0, other.0)
+    }
+}
+impl Eq for TargetRef {}
+
+impl std::ops::Deref for TargetRef {
+    type Target = Target;
+
+    fn deref(&self) -> &Self::Target {
+        self.0
+    }
+}
+
+impl std::hash::Hash for TargetRef {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        std::ptr::hash(self.0, state);
+    }
+}
+
+impl std::fmt::Debug for TargetRef {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Delegate to Display
+        write!(f, "{self}")
+    }
+}
 
 impl std::fmt::Display for TargetRef {
-    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!()
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.label())
     }
 }
 
@@ -20,15 +50,30 @@ impl types::IPromiseToImplementStarlarkEqAndHash for TargetRef {}
 
 #[starlark_value(type = "Target")]
 impl<'v> StarlarkValue<'v> for TargetRef {
-    fn equals(&self, _other: Value<'v>) -> starlark::Result<bool> {
-        todo!()
+    fn equals(&self, other: Value<'v>) -> starlark::Result<bool> {
+        Ok(other
+            .downcast_ref::<Self>()
+            .is_some_and(|other| other == self))
     }
 
     fn write_hash(
         &self,
-        _hasher: &mut starlark::collections::StarlarkHasher,
+        hasher: &mut starlark::collections::StarlarkHasher,
     ) -> starlark::Result<()> {
-        todo!()
+        use std::hash::Hash as _;
+        self.hash(hasher);
+        Ok(())
+    }
+
+    fn at(&self, index: Value<'v>, heap: Heap<'v>) -> starlark::Result<Value<'v>> {
+        match self.providers().get(self, index, heap)? {
+            Some(val) => Ok(val),
+            None => Err(crate::errors::Error::MissingProvider(*self, index.to_string()).into()),
+        }
+    }
+
+    fn is_in(&self, index: Value<'v>) -> starlark::Result<bool> {
+        self.providers().contains(self, index)
     }
 }
 
@@ -39,27 +84,131 @@ impl<'v> AllocValue<'v> for TargetRef {
 }
 
 impl types::TargetRef for TargetRef {
+    type Cxx = crate::bridge::CxxTarget;
+    type Rule = rule::Rule<'static, crate::eval_context::EvalContext>;
+    type Session = crate::Session;
+
     fn label(&self) -> LabelRef<'_> {
-        todo!()
+        self.0.label().as_ref()
     }
 
     fn toolchain(&self) -> LabelRef<'_> {
-        todo!()
+        self.0.toolchain()
+    }
+
+    fn rule(&self) -> &'static Self::Rule {
+        self.0.rule
     }
 
     fn outputs(&self) -> Vec<types::File> {
-        todo!()
+        self.0
+            .cxx
+            .computed_outputs()
+            .iter()
+            .map(|f| f.to_rust())
+            .collect()
     }
 
-    fn target_out_dir(&self, _prefix: &str, _suffix: &str, _separator: &str) -> String {
-        todo!()
+    fn output_type(&self) -> Option<types::OutputType> {
+        types::OutputType::from_u8(self.0.output_type())
     }
 
-    fn register_dependencies<S: types::Session<TargetRef = Self>>(
-        &self,
-        _session: &S,
-        _toolchain: LabelRef<'_>,
+    fn is_default_toolchain(&self) -> bool {
+        self.0.settings().is_default()
+    }
+
+    fn builtin_attrs<'v>(&self, session: &Self::Session, heap: &Heap<'v>) -> Vec<Value<'v>> {
+        let Some(output_type) = self.output_type() else {
+            return vec![];
+        };
+        let mut attrs = vec![];
+        let settings = self.0.settings();
+        // The order here needs to match the order in OutputType::attrs
+        if output_type.has_sources() {
+            attrs.push(heap.alloc(if self.0.all_headers_public() {
+                self.0
+                    .sources()
+                    .iter()
+                    .filter(|s| !s.is_header())
+                    .map(|s| heap.alloc(s.to_rust(settings)))
+                    .collect::<Vec<_>>()
+            } else {
+                self.0
+                    .sources()
+                    .iter()
+                    .map(|s| heap.alloc(s.to_rust(settings)))
+                    .collect::<Vec<_>>()
+            }));
+        }
+        if output_type.has_public() {
+            attrs.push(heap.alloc(if self.0.all_headers_public() {
+                self.0
+                    .sources()
+                    .iter()
+                    .filter(|s| s.is_header())
+                    .map(|s| heap.alloc(s.to_rust(settings)))
+                    .collect::<Vec<_>>()
+            } else {
+                self.0
+                    .public_headers()
+                    .iter()
+                    .map(|s| heap.alloc(s.to_rust(settings)))
+                    .collect::<Vec<_>>()
+            }));
+        }
+        if output_type.has_deps() {
+            attrs.push(
+                heap.alloc(
+                    self.0
+                        .private_deps()
+                        .iter()
+                        .map(|target| heap.alloc(target.to_rust(session)))
+                        .collect::<Vec<_>>(),
+                ),
+            );
+        }
+        if output_type.has_public_deps() {
+            attrs.push(
+                heap.alloc(
+                    self.0
+                        .public_deps()
+                        .iter()
+                        .map(|target| heap.alloc(target.to_rust(session)))
+                        .collect::<Vec<_>>(),
+                ),
+            );
+        }
+        attrs
+    }
+}
+
+impl attr::TargetAttrExt for TargetRef {
+    fn attrs(&self) -> &[attr::Attr] {
+        self.0.attrs.as_slice()
+    }
+}
+
+impl types::TargetMut for crate::bridge::CxxTarget {
+    fn register_dependency(
+        self: std::pin::Pin<&mut Self>,
+        label: LabelRef<'_>,
+        toolchain: LabelRef<'_>,
     ) {
-        todo!()
+        crate::bridge::register_dependency(
+            self,
+            label.package().as_str(),
+            label.name(),
+            toolchain.package().as_str(),
+            toolchain.name(),
+        );
+    }
+}
+
+impl crate::bridge::LabelTargetPair {
+    /// Returns the resolved target.
+    ///
+    /// Must only be called if the target is already resolved.
+    pub fn to_rust(&self, session: &crate::Session) -> TargetRef {
+        crate::bridge::label_target_pair_target(self).to_rust(session)
     }
 }

@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use attr::{traits::EvalContextAttrExt, TargetAttrExt};
+use attr::{TargetAttrExt, traits::EvalContextAttrExt};
 use starlark::{
     environment::{FrozenModule, Module},
-    values::FrozenHeapName,
+    values::{FrozenHeapName, HeapEdge},
 };
-use strum::IntoEnumIterator;
+use strum::IntoEnumIterator as _;
 
-use crate::{FrozenRule, OutputType};
+use crate::{OutputType, Rule};
 
 /// Registers and returns the built-in target rules as a frozen module.
 /// Usage:
@@ -20,24 +20,52 @@ use crate::{FrozenRule, OutputType};
 ///   sources = [...],
 ///   ...
 /// )
-pub fn register_builtin_rules<C: EvalContextAttrExt>() -> FrozenModule
+pub fn register_builtin_rules<C: EvalContextAttrExt + crate::CtxMethods>() -> FrozenModule
 where
     <C::Session as types::Session>::TargetRef: TargetAttrExt,
 {
+    let builtin_impl = C::builtin_impl();
     Module::with_temp_heap(|module| {
-        for output_type in OutputType::iter() {
-            let name = output_type.to_string();
-            let frozen_rule = FrozenRule::<C>::new_builtin(output_type, module.frozen_heap());
-            let frozen_value = module.frozen_heap().alloc(frozen_rule);
-            module.set(&name, frozen_value.to_value());
-        }
+        module.frozen_heap(|heap, edge| {
+            for output_type in OutputType::iter() {
+                let name = output_type.to_string();
+                let rule = Rule::<C>::new_builtin(
+                    output_type,
+                    HeapEdge::immortal().rebrand(builtin_impl),
+                    &heap,
+                );
+                let frozen_value = heap.alloc(rule);
+                module.set(&name, edge.rebrand(frozen_value.to_value()));
+            }
+        });
 
         module
-            .freeze_named(FrozenHeapName::User(Box::new(
-                "//builtins:rules.scl".to_owned(),
-            )))
+            .freeze_named(FrozenHeapName::user("//builtins:rules.scl"))
             .unwrap()
     })
+}
+
+/// Returns a vector such that `v[OutputType as usize]` is the builtin rule for that output type.
+pub fn extract_builtin_rules<C: EvalContextAttrExt>(
+    module: &'static FrozenModule,
+) -> Vec<&'static Rule<'static, C>> {
+    let mut rules = Vec::new();
+    for output_type in OutputType::iter() {
+        rules.push(
+            module
+                .get_option_ref(&output_type.to_string())
+                .unwrap()
+                .unwrap()
+                .value()
+                .downcast_ref::<Rule<'static, C>>()
+                .unwrap(),
+        );
+        assert!(rules.len() == output_type as usize);
+    }
+    // Shift all elements one to the right by inserting a dummy element
+    // Output types start at 1, while indexes start at 0
+    rules.insert(0, rules[0]);
+    rules
 }
 
 /// Registers standard target rules in the session.
@@ -48,7 +76,9 @@ macro_rules! register_rule_globals {
         fn register_rule_globals(builder: &mut starlark::environment::GlobalsBuilder) {
             fn rule<'v>(
                 #[starlark(require = named)] implementation: starlark::values::Value<'v>,
-                #[starlark(require = named)] parent: Option<starlark::values::Value<'v>>,
+                #[starlark(require = named)] parent: Option<
+                    starlark::values::ValueTyped<'v, $crate::Rule<'v, $ctx_type>>,
+                >,
                 #[starlark(require = named)] attrs: Option<
                     starlark::collections::SmallMap<&str, &attr::AttrSchema>,
                 >,
@@ -64,13 +94,9 @@ macro_rules! register_rule_globals {
                     .into_iter()
                     .map(|(k, v)| (k.to_string(), v.clone()))
                     .collect();
-                let rule = <$crate::Rule<'v, $ctx_type>>::new(
-                    attrs,
-                    None,
-                    parent,
-                    implementation,
-                    eval.frozen_heap(),
-                )?;
+                let rule = eval.frozen_heap(|heap, edge| {
+                    <$crate::Rule<'v, $ctx_type>>::new(attrs, parent, implementation, &heap, edge)
+                })?;
                 Ok(eval.heap().alloc(rule))
             }
         }
@@ -95,10 +121,8 @@ my_rule = rule(implementation = None)
 my_rule
 "#,
         );
-        let my_rule = rule_value.value().unpack_frozen().unwrap();
-
         a.modify_globals(move |b| {
-            b.set("my_rule", my_rule);
+            b.set("my_rule", rule_value.clone());
         });
 
         a.eq(
@@ -115,7 +139,7 @@ my_rule2 = rule(implementation = None)
             },
         );
 
-        a.fail_to_freeze(
+        a.fail(
             r#"
 x = [rule(implementation = None)]
 "#,

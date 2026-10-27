@@ -8,17 +8,31 @@ use starlark::{
     collections::SmallMap,
     typing::Ty,
     values::{
-        list::FrozenListRef, structs::FrozenStructRef, type_repr::StarlarkTypeRepr,
-        typing::TypeInstanceId, FrozenHeapRef, FrozenValue, OwnedFrozenValue, UnpackValue as _,
-        Value,
+        Heap, OwnedFrozen, ProvidesStaticType, StarlarkValue, UnpackValue as _, Value,
+        dict::DictRef, list::ListRef, structs::StructRef, type_repr::StarlarkTypeRepr,
     },
 };
 use types::File;
 
-use crate::ProviderInstance;
+use crate::{ProviderId, ProviderInstance, errors::Error};
+
+/// The unpacked metadata from a target's providers.
+#[derive(Debug, Default, ProvidesStaticType)]
+struct InnerProviders<'v> {
+    /// Command-line substitution variables propagated by this target, parsed
+    /// from the `GnSubstitutionsInfo` provider.
+    ///
+    /// `GnSubstitutionsInfo` carries key-value substitutions (packaged as a
+    /// struct) that are used by toolchains and command-line execution
+    /// blocks to expand variables and flags dynamically.
+    substitutions: SmallMap<String, FrozenArgsSequence<'v>>,
+
+    /// All provider instances mapped by their ProviderType's ProviderId.
+    value: SmallMap<ProviderId, Value<'v>>,
+}
 
 /// Helper to unpack a frozen list of providers to useful metadata.
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Providers {
     /// The output files produced by this target, parsed from the `DefaultInfo`
     /// provider.
@@ -29,27 +43,69 @@ pub struct Providers {
     pub outputs_phony: Option<File>,
 
     /// Additional input files declared by this target, parsed from the
-    /// `GnInputsInfo` provider.
+    /// `GnInputsInfo` provider, mapped by path suffix pattern.
     ///
-    /// `GnInputsInfo` is a built-in provider used by target rules to declare
-    /// additional, dynamic input files that the rule's tool dependencies or
-    /// parent targets must track.
-    pub inputs_phony: Option<File>,
-
-    /// Command-line substitution variables propagated by this target, parsed
-    /// from the `GnSubstitutionsInfo` provider.
+    /// When the target is a mixed C++/starlark target, this adds the specified
+    /// inputs as implicit inputs to all ninja actions C++ generates for this
+    /// target matching the path suffix pattern.
     ///
-    /// `GnSubstitutionsInfo` carries key-value substitutions (packaged as a
-    /// struct) that are used by toolchains and command-line execution
-    /// blocks to expand variables and flags dynamically.
-    pub substitutions: SmallMap<&'static str, FrozenArgsSequence<'static>>,
+    /// Note that the leading '*' is stripped from the pattern before storage
+    /// (e.g. "*.o" is stored as ".o").
+    pub inputs_phony: Vec<(String, File)>,
 
-    /// All provider instances mapped by their ProviderType's TypeInstanceId.
-    pub value: SmallMap<TypeInstanceId, FrozenValue>,
+    owned: OwnedFrozen<InnerProviders<'static>>,
+}
 
-    /// The frozen heap for the rule implementation, keeping substitutions and
-    /// value alive.
-    _heap: FrozenHeapRef,
+impl Providers {
+    /// Inspect the inner provider instances and substitutions within a scoped
+    /// closure.
+    pub fn by_ref<'s, R>(
+        &'s self,
+        f: impl for<'a, 'v> FnOnce(
+            &'a SmallMap<String, FrozenArgsSequence<'v>>,
+            &'a SmallMap<ProviderId, Value<'v>>,
+        ) -> R,
+    ) -> R {
+        self.owned
+            .by_ref(|inner| f(&inner.substitutions, &inner.value))
+    }
+
+    /// Looks up a provider instance by provider type value.
+    pub fn get<'v>(
+        &self,
+        source: &impl StarlarkValue<'v>,
+        key: Value<'_>,
+        heap: Heap<'v>,
+    ) -> starlark::Result<Option<Value<'v>>> {
+        let Some(key) = &key
+            .downcast_ref::<crate::provider_type::ProviderType>()
+            .map(|p| p.id)
+        else {
+            return starlark::values::ValueError::unsupported_with(source, "[]", key);
+        };
+        Ok(self
+            .owned
+            .by_ref_with_reconstructor(|inner, reconstructor| {
+                inner
+                    .value
+                    .get(key)
+                    .map(|val| reconstructor.edge(heap).rebrand(*val))
+            }))
+    }
+
+    pub fn contains<'a>(
+        &self,
+        source: &impl StarlarkValue<'a>,
+        key: Value<'_>,
+    ) -> starlark::Result<bool> {
+        let Some(key) = &key
+            .downcast_ref::<crate::provider_type::ProviderType>()
+            .map(|p| p.id)
+        else {
+            return starlark::values::ValueError::unsupported_with(source, "in", key);
+        };
+        Ok(self.by_ref(|_subs, values| values.contains_key(key)))
+    }
 }
 
 impl StarlarkTypeRepr for Providers {
@@ -60,75 +116,104 @@ impl StarlarkTypeRepr for Providers {
     }
 }
 
-impl TryFrom<OwnedFrozenValue> for Providers {
-    type Error = starlark::Error;
+type ParsedProviders<'v> = (InnerProviders<'v>, Option<File>, Vec<(String, File)>);
 
-    fn try_from(value: OwnedFrozenValue) -> Result<Self, Self::Error> {
-        let mut providers = Self {
-            _heap: value.owner().clone(),
-            ..Default::default()
-        };
-        let list = <&FrozenListRef>::unpack_value_err(value.value())?;
-        for &item in list.iter() {
-            let instance = <&ProviderInstance<'static>>::unpack_value_err(item.to_value())?;
+fn parse_providers<'v>(val: Value<'v>) -> starlark::Result<ParsedProviders<'v>> {
+    let list = <&ListRef>::unpack_value_err(val)?;
+    let mut value_map = SmallMap::new();
+    let mut outputs_phony = None;
+    let mut inputs_phony = Vec::new();
+    let mut substitutions = SmallMap::new();
 
-            if providers
-                .value
-                .insert(instance.provider_type.id, item)
-                .is_some()
-            {
-                return Err(
-                    crate::errors::Error::DuplicateProvider(instance.ty_name().to_owned()).into(),
-                );
-            }
+    for item in list.iter() {
+        let instance = <&ProviderInstance>::unpack_value_err(item)?;
 
-            match instance.provider_type.id {
-                crate::builtins::DEFAULT_INFO_ID => {
-                    let files = instance.values[0].unwrap();
-                    providers.outputs_phony = UnpackFileDepset::unpack_value_err(files)
-                        .map_err(|_| {
-                            crate::errors::Error::DefaultInfoFilesMustBeFileDepset(files.to_repr())
-                        })?
-                        .0;
-                },
-                crate::builtins::INPUTS_INFO_ID => {
-                    let files = instance.values[0].unwrap();
-                    providers.inputs_phony = UnpackFileDepset::unpack_value_err(files)
-                        .map_err(|_| {
-                            crate::errors::Error::GnInputsInfoFilesMustBeFileDepset(files.to_repr())
-                        })?
-                        .0;
-                },
-                crate::builtins::SUBSTITUTIONS_INFO_ID => {
-                    // GnSubstitutionsInfo(substitutions = struct)
-                    // Safety: We already checked it was frozen earlier.
-                    let substitutions_val = instance.values[0].unwrap();
-                    let substitutions_struct = FrozenStructRef::from_value(unsafe {
-                        substitutions_val.unpack_frozen().unwrap_unchecked()
-                    })
-                    .ok_or_else(|| {
-                        starlark::Error::from(
-                            crate::errors::Error::GnSubstitutionsInfoSubstitutionsMustBeStruct(
-                                substitutions_val.to_repr(),
-                            ),
-                        )
-                    })?;
-
-                    providers.substitutions = substitutions_struct
-                        .iter()
-                        .map(|(k, v)| {
-                            Ok((
-                                k.as_str(),
-                                <FrozenArgsSequence>::unpack_value_err(v.to_value())?,
-                            ))
-                        })
-                        .collect::<Result<_, starlark::Error>>()?;
-                },
-                _ => {},
-            }
+        if value_map.insert(instance.provider_type.id, item).is_some() {
+            return Err(Error::DuplicateProvider(instance.ty_name().to_owned()).into());
         }
 
-        Ok(providers)
+        match instance.provider_type.id {
+            crate::builtins::DEFAULT_INFO_ID => {
+                let files = instance.values[0].unwrap();
+                match UnpackFileDepset::unpack_value_err(files) {
+                    Ok(f) => outputs_phony = f.0,
+                    Err(_) => {
+                        return Err(Error::DefaultInfoFilesMustBeFileDepset(files.to_repr()).into());
+                    },
+                }
+            },
+            crate::builtins::INPUTS_INFO_ID => {
+                let files = instance.values[0].unwrap();
+                let Some(dict) = DictRef::from_value(files) else {
+                    return Err(Error::GnInputsInfoFilesMustBeDict(files.to_repr()).into());
+                };
+
+                for (k, v) in dict.iter() {
+                    let Some(suffix) = k
+                        .unpack_str()
+                        .and_then(|path| path.strip_prefix('*'))
+                        .filter(|suffix| !suffix.contains('*'))
+                    else {
+                        return Err(Error::InvalidGnInputsInfoKey(k.to_repr()).into());
+                    };
+
+                    match UnpackFileDepset::unpack_value_err(v) {
+                        Ok(UnpackFileDepset(Some(f))) => {
+                            inputs_phony.push((suffix.to_owned(), f));
+                        },
+                        Ok(UnpackFileDepset(None)) => {},
+                        Err(_) => {
+                            return Err(
+                                Error::GnInputsInfoValuesMustBeFileDepset(v.to_repr()).into()
+                            );
+                        },
+                    }
+                }
+            },
+            crate::builtins::SUBSTITUTIONS_INFO_ID => {
+                // GnSubstitutionsInfo(substitutions = struct)
+                let substitutions_val = instance.values[0].unwrap();
+                let Some(substitutions_struct) = StructRef::from_value(substitutions_val) else {
+                    return Err(Error::GnSubstitutionsInfoSubstitutionsMustBeStruct(
+                        substitutions_val.to_repr(),
+                    )
+                    .into());
+                };
+
+                for (k, v) in substitutions_struct.iter() {
+                    let seq: FrozenArgsSequence = <FrozenArgsSequence>::unpack_value_err(v)?;
+                    substitutions.insert(k.as_str().to_owned(), seq);
+                }
+            },
+            _ => {},
+        }
+    }
+
+    Ok((
+        InnerProviders {
+            substitutions,
+            value: value_map,
+        },
+        outputs_phony,
+        inputs_phony,
+    ))
+}
+
+impl TryFrom<OwnedFrozen<Value<'static>>> for Providers {
+    type Error = starlark::Error;
+
+    fn try_from(value: OwnedFrozen<Value<'static>>) -> Result<Self, Self::Error> {
+        let (inner_res, (outputs_phony, inputs_phony)) =
+            value.try_by_value_with_reconstructor(|val, _r| match parse_providers(val) {
+                Ok((inner, outputs, inputs)) => (Ok(inner), (outputs, inputs)),
+                Err(e) => (Err(e), Default::default()),
+            });
+
+        Ok(Self {
+            outputs_phony,
+            inputs_phony,
+            owned: inner_res?,
+        })
     }
 }
 
@@ -142,18 +227,17 @@ mod tests {
     fn new_assert() -> testutils::Assert {
         let mut a = testutils::Assert::default();
 
-        a.modify_globals(|builder| {
+        let module = crate::builtins::builtin_providers_module();
+        a.modify_globals(move |builder| {
             depset::depset_globals!(builder, testutils::eval_context::FakeEvalContext);
-            let builtin_providers = crate::globals::register_providers(builder);
-            // Note: In production code, the module would be preloaded instead of loading
-            // into globals.
-            builder.set(
-                "GnInputsInfo",
-                builtin_providers.module.get("GnInputsInfo").unwrap(),
-            );
+            crate::globals::register_providers(builder);
+            // Note: In production code, the module would be preloaded instead
+            // of loading into globals.
+            builder.frozen_heap(|fh| fh.add_reference(module.frozen_heap()));
+            builder.set("GnInputsInfo", module.get("GnInputsInfo").unwrap());
             builder.set(
                 "GnSubstitutionsInfo",
-                builtin_providers.module.get("GnSubstitutionsInfo").unwrap(),
+                module.get("GnSubstitutionsInfo").unwrap(),
             );
         });
         a
@@ -166,9 +250,11 @@ mod tests {
         let val = a.pass("[]");
         let providers = Providers::try_from(val).unwrap();
         assert_eq!(providers.outputs_phony, None);
-        assert_eq!(providers.inputs_phony, None);
-        assert!(providers.substitutions.is_empty());
-        assert!(providers.value.is_empty());
+        assert_eq!(providers.inputs_phony, Vec::<(String, File)>::new());
+        providers.by_ref(|substitutions, value| {
+            assert!(substitutions.is_empty());
+            assert!(value.is_empty());
+        });
 
         let custom_info_ty = a.pass("CustomInfo = provider(fields = ['foo']); CustomInfo");
         a.modify_globals(move |builder| {
@@ -178,7 +264,10 @@ mod tests {
         let val = a.pass(
             r#"[
     DefaultInfo(files = depset([make_file("a")])),
-    GnInputsInfo(files = depset([make_file("b")])),
+    GnInputsInfo(files = {
+        "*.o": depset([make_file("b")]),
+        "*.empty": depset(),
+    }),
     GnSubstitutionsInfo(substitutions = struct(key = ["val"])),
     CustomInfo(foo = 1),
 ]"#,
@@ -186,21 +275,20 @@ mod tests {
         let providers = Providers::try_from(val).unwrap();
 
         assert_eq!(providers.outputs_phony, Some(File::intern("a")));
-        assert_eq!(providers.inputs_phony, Some(File::intern("b")));
+        assert_eq!(
+            providers.inputs_phony,
+            vec![(".o".to_owned(), File::intern("b"))]
+        );
 
-        let keys: Vec<&str> = providers.substitutions.keys().copied().collect();
-        assert_eq!(keys, vec!["key"]);
+        providers.by_ref(|substitutions, value| {
+            let keys: Vec<&str> = substitutions.keys().map(|s| s.as_str()).collect();
+            assert_eq!(keys, vec!["key"]);
 
-        assert_eq!(providers.value.len(), 4);
-        assert!(providers
-            .value
-            .contains_key(&crate::builtins::DEFAULT_INFO_ID));
-        assert!(providers
-            .value
-            .contains_key(&crate::builtins::INPUTS_INFO_ID));
-        assert!(providers
-            .value
-            .contains_key(&crate::builtins::SUBSTITUTIONS_INFO_ID));
+            assert_eq!(value.len(), 4);
+            assert!(value.contains_key(&crate::builtins::DEFAULT_INFO_ID));
+            assert!(value.contains_key(&crate::builtins::INPUTS_INFO_ID));
+            assert!(value.contains_key(&crate::builtins::SUBSTITUTIONS_INFO_ID));
+        });
     }
 
     #[track_caller]
@@ -234,8 +322,32 @@ mod tests {
 
         assert_unpack_fails(
             &mut a,
-            r#"[GnInputsInfo(files = "not-a-depset")]"#,
-            r#"GnInputsInfo.files must be a depset of files, got "not-a-depset""#,
+            r#"[GnInputsInfo(files = "not-a-dict")]"#,
+            r#"GnInputsInfo.files must be a dict, got "not-a-dict""#,
+        );
+
+        assert_unpack_fails(
+            &mut a,
+            r#"[GnInputsInfo(files = {True: depset()})]"#,
+            "GnInputsInfo.files keys must be a pattern starting '*' and containing no other '*' (e.g. '*.o'), got True",
+        );
+
+        assert_unpack_fails(
+            &mut a,
+            r#"[GnInputsInfo(files = {"foo": depset()})]"#,
+            r#"GnInputsInfo.files keys must be a pattern starting '*' and containing no other '*' (e.g. '*.o'), got "foo""#,
+        );
+
+        assert_unpack_fails(
+            &mut a,
+            r#"[GnInputsInfo(files = {"*/*.o": depset()})]"#,
+            r#"GnInputsInfo.files keys must be a pattern starting '*' and containing no other '*' (e.g. '*.o'), got "*/*.o""#,
+        );
+
+        assert_unpack_fails(
+            &mut a,
+            r#"[GnInputsInfo(files = {"*": "not-a-depset"})]"#,
+            r#"GnInputsInfo.files values must be a depset of files, got "not-a-depset""#,
         );
 
         assert_unpack_fails(

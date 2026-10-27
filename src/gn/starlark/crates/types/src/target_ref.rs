@@ -23,35 +23,31 @@ pub trait TargetRef:
     /// Returns the toolchain the label was defined in.
     fn toolchain(&self) -> LabelRef<'_>;
 
-    type Rule: for<'v> StarlarkValue<'v>;
+    type Cxx: TargetMut;
+    type Rule: StarlarkValue<'static>;
+    type Session: Session<TargetRef = Self>;
 
     /// Returns the rule that this target was built from.
-    /// May return None if the target is a pure GN target.
-    fn rule(&self) -> Option<&'static Self::Rule>;
+    fn rule(&self) -> &'static Self::Rule;
     /// Returns the output files produced by this target.
     fn outputs(&self) -> Vec<File>;
-
-    /// Returns the target's output directory path string.
-    /// Toolchain_prefix goes right at the very front, before the toolchain
-    /// Label_prefix goes in between the toolchain and the label
-    /// Package_name_separator is what separates packages and labels (usually
-    /// ":" or "/").
-    fn target_out_dir(
-        &self,
-        toolchain_prefix: &str,
-        label_prefix: &str,
-        package_name_separator: &str,
-    ) -> String;
-    /// Registers target dependencies contained within this target's attributes.
-    fn register_dependencies<S: Session<TargetRef = Self>>(
-        &self,
-        session: &S,
-        toolchain: LabelRef<'_>,
-    );
 
     /// Returns the target's output type.
     fn output_type(&self) -> Option<OutputType>;
 
+    /// Returns true if this target was defined in the default toolchain.
+    fn is_default_toolchain(&self) -> bool;
+
     /// Returns the resolved built-in attributes as Starlark values.
-    fn builtin_attrs<'v>(&self, heap: &Heap<'v>) -> Vec<Value<'v>>;
+    fn builtin_attrs<'v>(&self, session: &Self::Session, heap: &Heap<'v>) -> Vec<Value<'v>>;
+}
+
+/// A trait for mutating a target before it is registered in the session.
+pub trait TargetMut {
+    /// Registers a dependency on this target.
+    fn register_dependency(
+        self: std::pin::Pin<&mut Self>,
+        label: LabelRef<'_>,
+        toolchain: LabelRef<'_>,
+    );
 }

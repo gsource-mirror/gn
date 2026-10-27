@@ -2,10 +2,10 @@ use either::Either;
 use starlark::{
     eval::Evaluator,
     typing::Ty,
-    values::{list::ListRef, type_repr::StarlarkTypeRepr, UnpackValue, Value, ValueTyped},
+    values::{UnpackValue, Value, ValueTyped, list::ListRef, type_repr::StarlarkTypeRepr},
 };
 
-use crate::{formatter::Formatter, FrozenArgs};
+use crate::{FrozenArgs, formatter::Formatter};
 
 impl<'v> UnpackValue<'v> for Formatter {
     type Error = starlark::Error;
@@ -17,7 +17,7 @@ impl<'v> UnpackValue<'v> for Formatter {
 }
 
 #[derive(Debug, Default)]
-pub struct FrozenArgsSequence<'v>(pub Vec<Either<&'v str, ValueTyped<'v, FrozenArgs>>>);
+pub struct FrozenArgsSequence<'v>(pub Vec<Either<&'v str, ValueTyped<'v, FrozenArgs<'v>>>>);
 
 impl<'v> StarlarkTypeRepr for FrozenArgsSequence<'v> {
     type Canonical = starlark::values::Value<'v>;
@@ -37,7 +37,7 @@ impl<'v> UnpackValue<'v> for FrozenArgsSequence<'v> {
         Ok(Some(FrozenArgsSequence(
             <&ListRef>::unpack_value_err(value)?
                 .iter()
-                .map(<Either<&'v str, ValueTyped<'v, FrozenArgs>>>::unpack_value_err)
+                .map(<Either<&'v str, ValueTyped<'v, FrozenArgs<'v>>>>::unpack_value_err)
                 .collect::<Result<Vec<_>, _>>()?,
         )))
     }

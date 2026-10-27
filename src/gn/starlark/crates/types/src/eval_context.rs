@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use crate::{LabelRef, PackageRef, PathResolver, Scope, Session};
+use std::cell::RefCell;
+
+use crate::{CtxState, LabelRef, PackageRef, PathResolver, Scope, Session};
 
 /// The starlark Evaluator has an "extra" object that you can use to store
 /// whatever metadata you want, accessible to any custom functions you write
@@ -37,20 +39,17 @@ pub trait EvalContext:
     /// Use when a function cannot be called from other contexts (eg.
     /// `static_library` cannot be called inside rule evaluation).
     /// Returns the scope of the place the macro was called from.
-    fn require_macro(&self) -> starlark::Result<&Self::Scope>;
+    #[allow(clippy::mut_from_ref)]
+    fn require_macro(&self) -> starlark::Result<std::pin::Pin<&mut Self::Scope>>;
 
     /// Asserts that the current evaluation context is a bzl file context.
     fn require_bzl(&self) -> starlark::Result<()>;
 
     /// Asserts that the evaluator is executing a rule implementation, and
     /// returns the state of the rule implementation.
-    ///
-    /// We require EvalContext to have interior mutability, and thus it can
-    /// return a mutable reference to the state from an immutable reference.
-    #[allow(clippy::mut_from_ref)]
     fn require_rule_impl(
         &self,
-    ) -> starlark::Result<&mut crate::CtxState<<Self::Session as Session>::TargetRef>>;
+    ) -> starlark::Result<&RefCell<CtxState<<Self::Session as Session>::TargetRef>>>;
 }
 
 /// Extension trait to add the methods `.context` and `.set_context` to the
@@ -81,4 +80,6 @@ impl<'v, 'a, 'e> EvaluatorContextExt<'v, 'a, 'e> for starlark::eval::Evaluator<'
 
 pub trait CtxMethods {
     fn methods() -> &'static starlark::environment::Methods;
+    fn actions_methods() -> &'static starlark::environment::Methods;
+    fn builtin_impl() -> starlark::values::Value<'static>;
 }

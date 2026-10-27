@@ -134,8 +134,6 @@ def main(argv):
                     action='store_true',
                     help=('Generate compile_commands.json with ' +
                           '`ninja -t compdb`.'))
-  args_list.add('--starlark', action='store_true', default=False,
-                    help='Enable (experimental) starlark integration')
   args_list.add('--gen', default=None,
                     metavar='SRC_DIR=OUT_DIR', dest='gen_target',
                     help=('Generate ninja targets that invoke `gn gen` on an ' +
@@ -162,6 +160,11 @@ def main(argv):
     # does not invalidate the cache.
     options.no_last_commit_position or options.debug,
   )
+  if platform.is_linux():
+    # Rust binaries linking with clang's sysroot require libgcc_s for unwinding,
+    # which is provided by LLVM's libunwind.
+    with open(os.path.join(out_dir, 'libgcc_s.so'), 'w') as f:
+      f.write('INPUT(-lunwind)\n')
   WriteGNNinja(os.path.join(out_dir, 'build.ninja'), platform, host, options, args_list)
   return 0
 
@@ -227,12 +230,13 @@ USED_ENV_VARS = (
 
 
 def WriteGenericNinja(path, static_libraries, executables,
-                      cxx, ar, ld, platform, host, options,
+                      cxx, ar, ld, target, host, options,
                       args_list, cflags=[], ldflags=[],
                       libflags=[], include_dirs=[], solibs=[]):
+  platform = target.platform
   # Generate integration tests using NinjaFile
   build_dir = os.path.dirname(path)
-  ninja = NinjaFile(platform, REPO_ROOT, build_dir, debug=options.debug)
+  ninja = NinjaFile(target, REPO_ROOT, build_dir, debug=options.debug)
   args = args_list.gen_command_line_args(options)
 
   if args:
@@ -314,6 +318,9 @@ def WriteGenericNinja(path, static_libraries, executables,
 
   ninja_lines = []
   def build_source(src_file, settings):
+    file_cflags = list(settings.get('cflags', cflags))
+    if 'source_cflags' in settings and src_file in settings['source_cflags']:
+      file_cflags.extend(settings['source_cflags'][src_file])
     ninja_lines.extend([
         'build %s: cxx %s' % (src_to_obj(src_file),
                               escape_path_ninja(
@@ -322,7 +329,7 @@ def WriteGenericNinja(path, static_libraries, executables,
                                       os.path.dirname(path)))),
         '  includes = %s' % ' '.join(
             ['-I' + escape_path_ninja(dirname) for dirname in include_dirs]),
-        '  cflags = %s' % ' '.join(cflags),
+        '  cflags = %s' % ' '.join(file_cflags),
     ])
 
   for library, settings in static_libraries.items():
@@ -351,26 +358,27 @@ def WriteGenericNinja(path, static_libraries, executables,
 
   ninja_lines.append('')  # Make sure the file ends with a newline.
 
-  if options.starlark:
-    starlark_common_args = {
-        'crate_dir': ninja.source_file('src/gn/starlark'),
-        'target_dir': 'starlark',
-        'cxxflags': ' '.join(cflags),
-    }
-    ninja.CargoLibTarget(
-        library_to_a('gn_starlark'),
-        **starlark_common_args,
-    )
-    rust_tests = ninja.CargoTestTarget(
-        'rust_unittests',
-        cargo_flags='--workspace',
-        implicit_inputs=[
-            library_to_a('base'),
-            library_to_a('gn_lib'),
-            library_to_a('string_atom'),
-        ],
-        **starlark_common_args,
-    )
+  starlark_common_args = {
+      'crate_dir': ninja.source_file('src/gn/starlark'),
+      'target_dir': 'starlark',
+      'cxxflags': ' '.join(cflags),
+      'ldflags': ' '.join(ldflags),
+  }
+  ninja.CargoLibTarget(
+      library_to_a('gn_starlark'),
+      cargo_flags='--features ninja',
+      **starlark_common_args,
+  )
+  rust_tests = ninja.CargoTestTarget(
+      'rust_unittests',
+      cargo_flags='--workspace --features ninja',
+      implicit_inputs=[
+          library_to_a('base'),
+          library_to_a('gn_lib'),
+          library_to_a('string_atom'),
+      ],
+      **starlark_common_args,
+  )
 
   ninja.Phony(
       'run_tests',
@@ -381,15 +389,18 @@ def WriteGenericNinja(path, static_libraries, executables,
               args='--quiet',
           ),
           ninja.Phony(
-              'run_integration_tests', inputs=[ninja.IntegrationTest('simple')]
+              'run_integration_tests',
+              inputs=[
+                ninja.IntegrationTest('simple'),
+                ninja.IntegrationTest('starlark')
+              ],
           ),
-      ] + ([
           ninja.RunBinary(
               'run_rust_unittests',
               inputs=[rust_tests],
               args='--quiet',
           )
-      ] if options.starlark else []),
+      ],
   )
 
   ninja.Phony(
@@ -411,6 +422,12 @@ def WriteGenericNinja(path, static_libraries, executables,
               args='--diff',
               env=f'NOBUILD=1 NINJA_OUT_DIR={os.path.relpath(build_dir, REPO_ROOT)}',
           ),
+          ninja.CargoClippyTarget(
+              'check_linter',
+              cargo_flags='--workspace --all-targets',
+              clippy_flags='-D warnings',
+              **starlark_common_args,
+          ),
       ],
   )
 
@@ -423,7 +440,6 @@ def WriteGenericNinja(path, static_libraries, executables,
       pathlib.Path(os.path.expandvars(os.path.expanduser(gen_src_dir))).resolve(),
       pathlib.Path(os.path.expandvars(gen_out_dir))
     )
-
   with open(path, 'w') as f:
     f.write('\n'.join(ninja_header_lines))
     f.write(ninja_template)
@@ -446,6 +462,7 @@ def WriteGenericNinja(path, static_libraries, executables,
           ['ninja', '-C', build_dir, '-t', 'compdb'], stdout=f, check=True)
 
 def WriteGNNinja(path, platform, host, options, args_list):
+  target = Target(platform, Arch.target())
   cflags = []
   ldflags = []
   if platform.is_msvc():
@@ -462,7 +479,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
     ar = os.environ.get('AR', 'ar')
   # Linux and mac are currently the only supported hosts for hermetic clang.
   elif not (cxx := os.environ.get('CXX')) and any([platform.is_linux(), platform.is_darwin()]):
-    target = Target(platform, Arch.target())
     toolchain = get_toolchain(Target.host(), target)
     install(toolchain.packages)
 
@@ -719,7 +735,13 @@ def WriteGNNinja(path, platform, host, options, args_list):
           'sources': [
               'src/gn/string_atom.cc',
               'src/gn/ffi/intern_string.cc',
-          ]
+          ],
+          # Strip /GL from string_atom.
+          # The Rust types crate references intern_string via a raw extern "C"
+          # declaration. If compiled with /GL, the MSVC linker discards this
+          # symbol during the LTCG phase because it has no references from
+          # C++ /GL objects, causing LNK2001 link errors in Rust test binaries.
+          'cflags': [f for f in cflags if f != '/GL']
       },
       'gn_lib': {
           'sources': [
@@ -774,6 +796,8 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/gn/exec_process.cc',
               'src/gn/ffi/bridge.cc',
               'src/gn/ffi/scope.cc',
+              'src/gn/ffi/source_file.cc',
+              'src/gn/ffi/target.cc',
               'src/gn/ffi/value.cc',
               'src/gn/ffi/session.cc',
               'src/gn/filesystem_utils.cc',
@@ -899,7 +923,13 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/util/ticks.cc',
               'src/util/worker_pool.cc',
               'src/gn/test_with_scope.cc',
-          ]
+          ],
+          'source_cflags': {
+              # cxxbridge generates helper templates in anonymous namespaces that
+              # may be unused depending on which bridge features are referenced.
+              # Note: -Wno-unused-template is unavailable on gcc
+              'src/gn/ffi/bridge.cc': ['-Wno-unused-template'] if not is_gcc(cxx) and not platform.is_msvc() else [],
+          },
       },
   }
 
@@ -927,6 +957,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/edit_command_unittest.cc',
         'src/gn/escape_unittest.cc',
         'src/gn/exec_process_unittest.cc',
+        'src/gn/ffi/session_unittest.cc',
         'src/gn/filesystem_utils_unittest.cc',
         'src/gn/file_writer_unittest.cc',
         'src/gn/frameworks_utils_unittest.cc',
@@ -1044,7 +1075,9 @@ def WriteGNNinja(path, platform, host, options, args_list):
       libs.extend([
           'advapi32.lib',
           'dbghelp.lib',
+          'gdi32.lib',
           'kernel32.lib',
+          'ntdll.lib',
           'ole32.lib',
           'shell32.lib',
           'user32.lib',
@@ -1058,7 +1091,9 @@ def WriteGNNinja(path, platform, host, options, args_list):
       libs.extend([
           '-ladvapi32',
           '-ldbghelp',
+          '-lgdi32',
           '-lkernel32',
+          '-lntdll',
           '-lole32',
           '-lshell32',
           '-luser32',
@@ -1075,11 +1110,8 @@ def WriteGNNinja(path, platform, host, options, args_list):
   executables['gn']['libs'].extend(static_libraries.keys())
   executables['gn_unittests']['libs'].extend(static_libraries.keys())
 
-  if options.starlark:
-    executables['gn_unittests']['sources'].extend([
-        'src/gn/ffi/session_unittest.cc',
-    ])
-    executables['gn_unittests']['libs'].append('gn_starlark')
+  executables['gn_unittests']['libs'].append('gn_starlark')
+  executables['gn']['libs'].append('gn_starlark')
 
   # Write the absolute path of the source root to a file in the output directory
   # so that tests can locate the source tree robustly.
@@ -1087,7 +1119,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
     f.write(REPO_ROOT)
 
   WriteGenericNinja(path, static_libraries, executables, cxx, ar, ld,
-                    platform, host, options, args_list,
+                    target, host, options, args_list,
                     cflags, ldflags, libflags, include_dirs, libs)
 
 if __name__ == '__main__':

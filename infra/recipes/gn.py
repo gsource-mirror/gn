@@ -96,6 +96,9 @@ def RunSteps(api, repository):
 
     with api.context(cwd=src_dir):
       build_input = api.buildbucket.build_input
+      gitiles_ref = build_input.gitiles_commit.ref if build_input.gitiles_commit else ''
+      branch_name = gitiles_ref.removeprefix('refs/heads/') if gitiles_ref else None
+
       ref = (
           build_input.gitiles_commit.id
           if build_input.gitiles_commit else 'refs/heads/master')
@@ -172,12 +175,43 @@ def RunSteps(api, repository):
 
     pkgs = api.cipd.EnsureFile()
     pkgs.add_package('infra/ninja/${platform}', 'version:1.8.2')
+    # Rust CIPD packages are tagged with `git_revisions:<rust_commit>,<llvm_commit>`
+    # because they bundle an LLVM backend. We select the Rust toolchain that matches
+    # the LLVM revision of Clang's 'integration' ref at the time of updating.
+    #
+    # See:
+    # * https://chrome-infra-packages.appspot.com/p/fuchsia/third_party/rust/host
+    # * https://chrome-infra-packages.appspot.com/p/fuchsia/third_party/rust/target
+    rust_version = (
+        'git_revisions:c26ce708de5d14682647895d2f3caf38f70b5aa6,'
+        '3493720eca95cf844a8d7e58fdd12e0e5644e7d0'
+    )
+    pkgs.add_package('fuchsia/third_party/rust/host/${platform}', rust_version)
+    if api.platform.is_linux:
+      pkgs.add_package(
+          'fuchsia/third_party/rust/target/x86_64-unknown-linux-gnu',
+          rust_version)
+      pkgs.add_package(
+          'fuchsia/third_party/rust/target/aarch64-unknown-linux-gnu',
+          rust_version)
+      pkgs.add_package(
+          'fuchsia/third_party/rust/target/riscv64gc-unknown-linux-gnu',
+          rust_version)
+    elif api.platform.is_mac:
+      pkgs.add_package(
+          'fuchsia/third_party/rust/target/x86_64-apple-darwin', rust_version)
+      pkgs.add_package(
+          'fuchsia/third_party/rust/target/aarch64-apple-darwin', rust_version)
+    elif api.platform.is_win:
+      pkgs.add_package(
+          'fuchsia/third_party/rust/target/x86_64-pc-windows-msvc',
+          rust_version)
     packages = set()
     for tc in toolchains.values():
       for pkg in tc.get('packages', []):
         packages.add((pkg['name'], pkg['version'], pkg.get('path', '')))
     for pkg in sorted(packages):
-        pkgs.add_package(*pkg)
+      pkgs.add_package(*pkg)
     api.cipd.ensure(cipd_dir, pkgs)
 
   # The order is important since release build will get uploaded to CIPD.
@@ -285,7 +319,7 @@ def RunSteps(api, repository):
         for target in config['targets']:
           env = _get_compilation_environment(api, target, toolchains)
           with api.step.nest(target.platform), api.context(
-              env=env, cwd=src_dir):
+              env=env, cwd=src_dir, env_prefixes={'PATH': [cipd_dir.join('bin')]}):
             args = config['args'] + ['--out-path', out_dir]
             if config.get('use_jemalloc', False):
               args.append('--link-lib=%s' % jemalloc_static_libs[target.platform])
@@ -299,10 +333,14 @@ def RunSteps(api, repository):
             api.step('build', ninja_cmd + [
               f'gn{exe_suffix}',
               f'gn_unittests{exe_suffix}',
+              # rust_unittests is a python script that delegates to the test
+              # binaries for each crate.
+              'rust_unittests',
             ])
 
             if target.is_host:
               api.step('test', [out_dir.join('gn_unittests')])
+              api.step('test rust_unittests', ['python3', out_dir.join('rust_unittests')])
               api.step(
                   'integration tests', ninja_cmd + ['run_integration_tests']
               )
@@ -315,8 +353,12 @@ def RunSteps(api, repository):
                 with api.context(env={'NOBUILD': '1', 'NINJA_OUT_DIR': out_dir}):
                   api.step('Check tools/update_reference.sh',
                           [src_dir.join('tools', 'update_reference.sh'), '--diff'])
+                api.step('build', ninja_cmd + [
+                  'check_linter',
+                ])
 
-            if config['name'] != 'release':
+            # Don't allow CI builds from non-main branches to be uploaded to CIPD.
+            if config['name'] != 'release' or (not build_input.gerrit_changes and branch_name not in ('main', 'master')):
               continue
 
             with api.step.nest('upload'):
@@ -368,17 +410,20 @@ def GenTests(api):
            api.buildbucket.ci_build(
                project='gn',
                git_repo='gn.googlesource.com/gn',
+               git_ref='refs/heads/main',
            ))
 
     yield (api.test('cq_' + platform) + api.platform.name(platform) +
            api.buildbucket.try_build(
                project='gn',
                git_repo='gn.googlesource.com/gn',
+               git_ref='refs/heads/main',
            ))
 
   yield (api.test('cipd_exists') + api.buildbucket.ci_build(
       project='infra-internal',
       git_repo='gn.googlesource.com/gn',
+      git_ref='refs/heads/main',
       revision='a' * 40,
   ) + api.step_data(
       'git.rev-parse', api.raw_io.stream_output_text('a' * 40)
@@ -391,6 +436,7 @@ def GenTests(api):
   yield (api.test('cipd_register') + api.buildbucket.ci_build(
       project='infra-internal',
       git_repo='gn.googlesource.com/gn',
+      git_ref='refs/heads/main',
       revision='a' * 40,
   ) + api.step_data(
       'git.rev-parse', api.raw_io.stream_output_text('a' * 40)

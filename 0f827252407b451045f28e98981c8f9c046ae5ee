@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "668a395c_02e822da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-27T03:57:42Z",
+      "side": 1,
+      "message": "FYI the checks are failing because it combines the old recipe with the rust packages with the new pinned.py with the rust packages. The CI links in the description show what will happen after this is submitted.",
+      "revId": "0f827252407b451045f28e98981c8f9c046ae5ee",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

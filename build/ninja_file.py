@@ -206,7 +206,7 @@ class NinjaFile:
     target_triple = self.target.rust_triple()
     return self.Cargo(
         name,
-        inputs=self.directory(crate_dir, ['target']),
+        inputs=self.directory(crate_dir, ['target', 'testdata']),
         manifest_path=crate_dir / 'Cargo.toml',
         cargo_target_dir=f'--target-dir={target_dir}',
         cargo_flags=cargo_flags + ' --tests',

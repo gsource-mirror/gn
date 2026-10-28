@@ -17,6 +17,24 @@
       "isAi": true,
       "revId": "40637812e77600de121123282d4df250f18d66f3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60317c47_6e87d69f",
+        "filename": "src/gn/escape.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-28T23:09:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "874aa3b6_5f06e29e",
+      "revId": "40637812e77600de121123282d4df250f18d66f3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

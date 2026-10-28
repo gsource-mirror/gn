@@ -181,10 +181,10 @@ def process_test_target(out_path: Path, cargo_out_dir: Path) -> list[Path]:
 
 
 def main():
-  if len(sys.argv) < 10:
+  if len(sys.argv) < 12:
     print(
-        'Usage: run_cargo.py <test|lib> <out> <cargo_out_dir> <cxx> '
-        '<cxxflags> <ldflags> <target_triple> <ld> <cargo> <args...>',
+        'Usage: run_cargo.py <test|lib|clippy> <out> <cargo_out_dir> <cxx> '
+        '<cxxflags> <ldflags> <target_triple> <ld> <ar> <cargo> <args...>',
         file=sys.stderr,
     )
     sys.exit(1)
@@ -198,6 +198,7 @@ def main():
       ldflags,
       target_triple,
       linker,
+      ar,
       cargo,
       *cmd_args,
   ) = sys.argv[1:]
@@ -232,6 +233,10 @@ def main():
 
   os.environ['CXX'] = cxx
   os.environ['CXXFLAGS'] = cxxflags
+  # Cargo build scripts for C++ shims (e.g. cxx) use the `cc` crate to build and
+  # archive static libraries. Under LTO, these objects contain LLVM bitcode and
+  # require llvm-ar to generate a proper symbol table.
+  os.environ['AR'] = ar
   # Since Ninja runs commands from the build output directory, CWD is the
   # ninja out dir.
   ninja_out_dir = os.getcwd()
@@ -258,6 +263,16 @@ def main():
   target_rustflags = [f"-C linker={linker}", f"-L {ninja_out_dir}"] + [
       f"-C link-arg={flag}" for flag in ldflags.split()
   ]
+
+  # Cross-language Link Time Optimization (LTO):
+  # When GN is built with LTO (-flto), Clang compiles C++ code with -flto and
+  # -fwhole-program-vtables. We configure rustc with -C linker-plugin-lto so it
+  # emits LLVM bitcode compatible with Clang's LTO pipeline, enabling
+  # bidirectional inlining across C++ and Rust FFI. Because Clang uses
+  # -fwhole-program-vtables, rustc must also split LTO units (-Z split-lto-unit)
+  # to prevent LLD from reporting inconsistent LTO unit splitting errors.
+  if '-flto' in ldflags.split():
+    target_rustflags.extend(['-C linker-plugin-lto', '-Z split-lto-unit'])
 
   if sys.platform == 'win32':
     # GN compiles C++ code on Windows with the static C runtime (/MT or /MTd) by

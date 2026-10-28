@@ -565,8 +565,9 @@ def WriteGNNinja(path, platform, host, options, args_list):
         ldflags.append('-Wl,--icf=all')
 
       if options.use_lto:
-        cflags.extend(['-flto', '-fwhole-program-vtables'])
-        ldflags.extend(['-flto', '-fwhole-program-vtables'])
+        lto_flag = '-flto' if is_gcc(cxx) else '-flto=thin'
+        cflags.extend([lto_flag, '-fwhole-program-vtables'])
+        ldflags.extend([lto_flag, '-fwhole-program-vtables'])
 
     if options.use_asan:
       cflags.append('-fsanitize=address')

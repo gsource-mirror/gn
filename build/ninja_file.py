@@ -142,7 +142,7 @@ class NinjaFile:
         ninja_file=self,
         command=self.python(
             run_cargo_rel_path,
-            '$target_type $out $cargo_out_dir $cxx "$cxxflags" "$ldflags" $target_triple $ld'
+            '$target_type $out $cargo_out_dir $cxx "$cxxflags" "$ldflags" $target_triple $ld $ar'
             ' $cargo build --color=always --target=$target_triple'
             ' --manifest-path=$manifest_path $cargo_target_dir $cargo_flags'
             + ('' if self.debug else ' --release'),
@@ -160,7 +160,7 @@ class NinjaFile:
         ninja_file=self,
         command=self.python(
             run_cargo_rel_path,
-            '$target_type $out $cargo_out_dir $cxx "$cxxflags" "$ldflags" $target_triple $ld'
+            '$target_type $out $cargo_out_dir $cxx "$cxxflags" "$ldflags" $target_triple $ld $ar'
             ' $cargo clippy --color=always --target=$target_triple'
             ' --manifest-path=$manifest_path $cargo_target_dir $cargo_flags'
             + ('' if self.debug else ' --release')

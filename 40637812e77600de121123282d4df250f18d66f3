@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "874aa3b6_5f06e29e",
+        "filename": "src/gn/escape.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-28T06:40:00Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Unused `#include \u003cmemory\u003e` now that `StackOrHeapBuffer` is removed.",
+      "isAi": true,
+      "revId": "40637812e77600de121123282d4df250f18d66f3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

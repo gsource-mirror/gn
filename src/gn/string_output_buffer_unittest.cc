@@ -4,11 +4,13 @@
 
 #include "gn/string_output_buffer.h"
 
+#include <algorithm>
 #include <limits>
 
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
+#include "third_party/zstd/lib/zstd.h"
 #include "util/test/test.h"
 
 namespace {
@@ -133,6 +135,43 @@ TEST(StringOutputBuffer, WriteToFile) {
   base::File::Info file_info;
   ASSERT_TRUE(base::GetFileInfo(file_path, &file_info));
   ASSERT_TRUE(buffer.ContentsEqual(file_path));
+}
+
+TEST(StringOutputBuffer, CompressZstd) {
+  const size_t frame_size = StringOutputBuffer::kZstdFrameSize;
+  for (size_t data_size :
+       {size_t(0), size_t(100), frame_size, 2 * frame_size + 300000}) {
+    std::string data = CreateTestString(data_size);
+    StringOutputBuffer buffer;
+    // Several appends spread the data over several pages.
+    for (size_t pos = 0; pos < data.size(); pos += 1000) {
+      buffer.Append(std::string_view(data).substr(pos, 1000));
+    }
+
+    std::string compressed = buffer.CompressZstd().str();
+    std::vector<size_t> frame_sizes;
+    for (size_t pos = 0; pos < compressed.size();) {
+      const char* frame = compressed.data() + pos;
+      size_t n = ZSTD_findFrameCompressedSize(frame, compressed.size() - pos);
+      ASSERT_FALSE(ZSTD_isError(n)) << ZSTD_getErrorName(n);
+      frame_sizes.push_back(ZSTD_getFrameContentSize(frame, n));
+      pos += n;
+    }
+    std::vector<size_t> want_sizes;
+    for (size_t left = data_size;; left -= frame_size) {
+      want_sizes.push_back(std::min(left, frame_size));
+      if (left <= frame_size)
+        break;
+    }
+    EXPECT_EQ(frame_sizes, want_sizes) << data_size;
+
+    std::string decompressed(data_size, '\0');
+    size_t n = ZSTD_decompress(decompressed.data(), decompressed.size(),
+                               compressed.data(), compressed.size());
+    ASSERT_FALSE(ZSTD_isError(n)) << ZSTD_getErrorName(n);
+    EXPECT_EQ(n, data_size);
+    EXPECT_EQ(decompressed, data);
+  }
 }
 
 namespace {

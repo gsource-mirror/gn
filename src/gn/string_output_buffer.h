@@ -121,6 +121,12 @@ class StringOutputBuffer {
     return *this;
   }
 
+  // Return the content of this instance compressed with zstd, as frames of
+  // at most kZstdFrameSize bytes that record their content size, so that
+  // readers can decompress them in parallel.
+  StringOutputBuffer CompressZstd() const;
+  static constexpr size_t kZstdFrameSize = 4 << 20;
+
   // Compare the content of this instance with that of the file at |file_path|.
   bool ContentsEqual(const base::FilePath& file_path) const;
 

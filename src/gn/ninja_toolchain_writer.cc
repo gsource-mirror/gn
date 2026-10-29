@@ -70,7 +70,7 @@ bool NinjaToolchainWriter::RunAndWriteFile(
   StringOutputBuffer file;
   NinjaToolchainWriter gen(settings, toolchain, file);
   gen.Run(rules);
-  return file.WriteToFileIfChanged(ninja_file, nullptr);
+  return WriteNinjaFileIfChanged(settings->build_settings(), file, ninja_file);
 }
 
 void NinjaToolchainWriter::WriteToolRule(Tool* tool,

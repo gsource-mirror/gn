@@ -322,7 +322,7 @@ def WriteGenericNinja(path, static_libraries, executables,
                                       os.path.dirname(path)))),
         '  includes = %s' % ' '.join(
             ['-I' + escape_path_ninja(dirname) for dirname in include_dirs]),
-        '  cflags = %s' % ' '.join(cflags),
+        '  cflags = %s' % ' '.join(settings.get('cflags', cflags)),
     ])
 
   for library, settings in static_libraries.items():
@@ -478,7 +478,9 @@ def WriteGNNinja(path, platform, host, options, args_list):
     ar = os.environ.get('AR', 'ar')
 
   cflags += os.environ.get('CFLAGS', '').split()
+  cxxflags_start = len(cflags)
   cflags += os.environ.get('CXXFLAGS', '').split()
+  cxxflags_end = len(cflags)
   ldflags += os.environ.get('LDFLAGS', '').split()
   libflags = os.environ.get('LIBFLAGS', '').split()
   include_dirs = [
@@ -680,6 +682,18 @@ def WriteGNNinja(path, platform, host, options, args_list):
       os.path.join(REPO_ROOT, "build/windows.manifest.xml"), options.out_path)
     ldflags.extend(['/DEBUG', '/MACHINE:x64', '/MANIFEST:EMBED',
                     f'/MANIFESTINPUT:{win_manifest}'])
+
+  # C sources are compiled by the C++ compiler in C mode, without CXXFLAGS
+  # and the flags that only apply to C++.
+  cxx_only_flags = (
+      '-std=c++', '/std:c++', '-fno-rtti', '/GR-', '/Zc:__cplusplus',
+      '-Wextra-semi', '-Wrange-loop-analysis', '-Wno-return-type-c-linkage',
+      '-Wno-deprecated-copy', '-Wno-redundant-move', '-D_LIBCPP_DEBUG',
+      '-D_GLIBCXX_DEBUG',
+  )
+  c_cflags = [f for f in cflags[:cxxflags_start] + cflags[cxxflags_end:]
+              if not f.startswith(cxx_only_flags)]
+  c_cflags.extend(['/TC'] if platform.is_msvc() else ['-x', 'c'])
 
   static_libraries = {
       'base': {
@@ -901,6 +915,39 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/gn/test_with_scope.cc',
           ]
       },
+  }
+  # Last, so that one-pass linkers find its symbols.
+  static_libraries['zstd'] = {
+      'sources': [
+          'src/third_party/zstd/lib/common/debug.c',
+          'src/third_party/zstd/lib/common/entropy_common.c',
+          'src/third_party/zstd/lib/common/error_private.c',
+          'src/third_party/zstd/lib/common/fse_decompress.c',
+          'src/third_party/zstd/lib/common/pool.c',
+          'src/third_party/zstd/lib/common/threading.c',
+          'src/third_party/zstd/lib/common/xxhash.c',
+          'src/third_party/zstd/lib/common/zstd_common.c',
+          'src/third_party/zstd/lib/compress/fse_compress.c',
+          'src/third_party/zstd/lib/compress/hist.c',
+          'src/third_party/zstd/lib/compress/huf_compress.c',
+          'src/third_party/zstd/lib/compress/zstd_compress.c',
+          'src/third_party/zstd/lib/compress/zstd_compress_literals.c',
+          'src/third_party/zstd/lib/compress/zstd_compress_sequences.c',
+          'src/third_party/zstd/lib/compress/zstd_compress_superblock.c',
+          'src/third_party/zstd/lib/compress/zstd_double_fast.c',
+          'src/third_party/zstd/lib/compress/zstd_fast.c',
+          'src/third_party/zstd/lib/compress/zstd_lazy.c',
+          'src/third_party/zstd/lib/compress/zstd_ldm.c',
+          'src/third_party/zstd/lib/compress/zstd_opt.c',
+          'src/third_party/zstd/lib/compress/zstd_preSplit.c',
+          'src/third_party/zstd/lib/compress/zstdmt_compress.c',
+          'src/third_party/zstd/lib/decompress/huf_decompress.c',
+          'src/third_party/zstd/lib/decompress/zstd_ddict.c',
+          'src/third_party/zstd/lib/decompress/zstd_decompress.c',
+          'src/third_party/zstd/lib/decompress/zstd_decompress_block.c',
+      ],
+      # The x86-64 assembly would need an assembler rule.
+      'cflags': c_cflags + ['-DZSTD_DISABLE_ASM'],
   }
 
   executables = {

@@ -56,6 +56,7 @@ const char kSwitchIdeValueWinSdk[] = "winsdk";
 const char kSwitchIdeValueXcode[] = "xcode";
 const char kSwitchIdeValueJson[] = "json";
 const char kSwitchIdeRootTarget[] = "ide-root-target";
+const char kSwitchNinjaCompression[] = "ninja-compression";
 const char kSwitchNinjaExecutable[] = "ninja-executable";
 const char kSwitchNinjaExtraArgs[] = "ninja-extra-args";
 const char kSwitchNinjaOutputsFile[] = "ninja-outputs-file";
@@ -561,6 +562,12 @@ General options
       option requires a ninja executable of at least version 1.10.0. It can be
       provided by the --ninja-executable switch. Also see "gn help clean_stale".
 
+  --ninja-compression=<none|zstd>
+      "zstd" compresses every Ninja file except build.ninja with zstd, under
+      its usual name. Ninja itself can't read them, but Siso can. build.ninja
+      stays uncompressed so that scripts can extract its regeneration rules.
+      Defaults to "none".
+
 IDE support
 
   QtCreator (version 20 and newer) has built-in support for GN-based projects.
@@ -804,6 +811,19 @@ int RunGen(const std::vector<std::string>& args) {
     setup->set_check_public_headers(true);
     if (command_line->GetSwitchValueString(kSwitchCheck) == "system")
       setup->set_check_system_includes(true);
+  }
+
+  if (command_line->HasSwitch(kSwitchNinjaCompression)) {
+    std::string compression =
+        command_line->GetSwitchValueString(kSwitchNinjaCompression);
+    if (compression == "zstd") {
+      setup->build_settings().set_compress_ninja_files(true);
+    } else if (compression != "none") {
+      Err(Location(), "Invalid --ninja-compression value.",
+          "Expected \"none\" or \"zstd\", got \"" + compression + "\".")
+          .PrintToStdout();
+      return 1;
+    }
   }
 
   // If this is a regeneration, replace existing build.ninja and build.ninja.d

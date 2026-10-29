@@ -8,6 +8,7 @@
 #include "gn/filesystem_utils.h"
 #include "gn/output_file.h"
 #include "gn/settings.h"
+#include "gn/string_output_buffer.h"
 #include "gn/target.h"
 
 SourceFile GetNinjaFileForTarget(const Target* target) {
@@ -20,6 +21,15 @@ SourceFile GetNinjaFileForToolchain(const Settings* settings) {
       GetSourceDir(BuildDirContext(settings), BuildDirType::TOOLCHAIN_ROOT)
           .value() +
       "toolchain.ninja");
+}
+
+bool WriteNinjaFileIfChanged(const BuildSettings* build_settings,
+                             const StringOutputBuffer& contents,
+                             const base::FilePath& path) {
+  if (build_settings->compress_ninja_files()) {
+    return contents.CompressZstd().WriteToFileIfChanged(path, nullptr);
+  }
+  return contents.WriteToFileIfChanged(path, nullptr);
 }
 
 std::string GetNinjaRulePrefixForToolchain(const Settings* settings) {

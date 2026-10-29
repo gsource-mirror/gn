@@ -1467,6 +1467,59 @@ TEST(TargetTest, CollectMetadataWithError) {
       << err.message();
 }
 
+// Tests that walk_deps are used as roots of the metadata walk (without
+// collecting the top-level target's own metadata if the walk cycles back to
+// it), and that targets listed under dep_keys are collected and validated.
+TEST(TargetTest, CollectMetadataWithWalkDepsAndDepKeys) {
+  TestWithScope setup;
+
+  TestTarget pickle(setup, "//foo:pickle", Target::ACTION);
+  Value pickle_files(nullptr, Value::LIST);
+  pickle_files.list_value().push_back(Value(nullptr, "foo.pickle"));
+  pickle.metadata().contents().emplace("files", pickle_files);
+  Value pickle_deps(nullptr, Value::LIST);
+  pickle_deps.list_value().push_back(Value(nullptr, ":pickle"));
+  pickle.metadata().contents().emplace("file_deps", pickle_deps);
+
+  // Lists its direct dependency under dep_keys.
+  TestTarget lib(setup, "//foo:lib", Target::SOURCE_SET);
+  lib.private_deps().push_back(LabelTargetPair(&pickle));
+  Value lib_deps(nullptr, Value::LIST);
+  lib_deps.list_value().push_back(Value(nullptr, "//foo:pickle"));
+  lib.metadata().contents().emplace("file_deps", lib_deps);
+
+  TestTarget gen(setup, "//foo:gen", Target::GENERATED_FILE);
+  gen.metadata().contents().emplace("files", pickle_files);
+  gen.dep_keys().push_back("file_deps");
+
+  TestTarget app(setup, "//foo:app", Target::GROUP);
+  app.private_deps().push_back(LabelTargetPair(&lib));
+  app.private_deps().push_back(LabelTargetPair(&gen));
+  gen.walk_deps().push_back(LabelTargetPair(&app));
+
+  Err err;
+  std::vector<Value> result;
+  UniqueVector<const Target*> deps_collected;
+  TargetSet targets;
+  gen.GetMetadata({"files"}, {""}, SourceDir(), true, &result, &targets, &err,
+                  &deps_collected);
+  EXPECT_SUCCESS(err);
+  EXPECT_EQ(result, std::vector<Value>{Value(nullptr, "foo.pickle")});
+  ASSERT_EQ(1u, deps_collected.size());
+  EXPECT_EQ(&pickle, deps_collected[0]);
+
+  // A label in dep_keys that is not the target itself or a direct dep fails.
+  Value bad_deps(nullptr, Value::LIST);
+  bad_deps.list_value().push_back(Value(nullptr, "//foo:missing"));
+  app.metadata().contents().emplace("file_deps", bad_deps);
+  targets.clear();
+  gen.GetMetadata({"files"}, {""}, SourceDir(), true, &result, &targets, &err,
+                  &deps_collected);
+  EXPECT_TRUE(err.has_error());
+  EXPECT_EQ(0u, err.message().find("I was expecting //foo:missing"))
+      << err.message();
+}
+
 TEST_F(TargetTest, WriteMetadataCollection) {
   TestWithScope setup;
   Err err;

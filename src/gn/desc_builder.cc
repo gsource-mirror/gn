@@ -61,6 +61,8 @@
 //   "metadata" : [ dictionary of target metadata values ]
 //   "data_keys" : [ list of target data keys ]
 //   "walk_keys" : [ list of target walk keys ]
+//   "walk_deps" : [ list of metadata walk roots ]
+//   "dep_keys" : [ list of target dep keys ]
 //   "crate_root" : "root file of a Rust target"
 //   "crate_name" : "name of a Rust target"
 //   "rebase" : true or false
@@ -589,6 +591,14 @@ class TargetDescBuilder : public BaseDescBuilder {
         res->SetKey(variables::kCollectValidationsMetadata,
                     base::Value(target_->collect_validations_metadata()));
       }
+      if (what(variables::kDepKeys) && !target_->dep_keys().empty()) {
+        res->SetWithoutPathExpansion(variables::kDepKeys,
+                                     RenderValue(target_->dep_keys()));
+      }
+      if (what(variables::kWalkDeps) && !target_->walk_deps().empty()) {
+        res->SetWithoutPathExpansion(variables::kWalkDeps,
+                                     RenderLabels(target_->walk_deps()));
+      }
     }
 
     if (what(variables::kDeps))
@@ -759,33 +769,23 @@ class TargetDescBuilder : public BaseDescBuilder {
     return res;
   }
 
-  ValuePtr RenderGenDeps() {
+  ValuePtr RenderGenDeps() { return RenderLabels(target_->gen_deps()); }
+
+  // Returns the sorted list of labels in |pairs|.
+  ValuePtr RenderLabels(const LabelTargetVector& pairs) {
     auto res = std::make_unique<base::ListValue>();
     Label default_tc = target_->settings()->default_toolchain_label();
-    const auto& gen_deps_pairs = target_->gen_deps();
-    std::vector<std::string> gen_deps;
-    gen_deps.reserve(gen_deps_pairs.size());
-    for (const auto& pair : gen_deps_pairs)
-      gen_deps.push_back(pair.label.GetUserVisibleName(default_tc));
-    std::sort(gen_deps.begin(), gen_deps.end());
-    for (const auto& dep : gen_deps)
-      res->AppendString(dep);
+    std::vector<std::string> labels;
+    labels.reserve(pairs.size());
+    for (const auto& pair : pairs)
+      labels.push_back(pair.label.GetUserVisibleName(default_tc));
+    std::sort(labels.begin(), labels.end());
+    for (const auto& label : labels)
+      res->AppendString(label);
     return res;
   }
 
-  ValuePtr RenderValidations() {
-    auto res = std::make_unique<base::ListValue>();
-    Label default_tc = target_->settings()->default_toolchain_label();
-    const auto& validation_pairs = target_->validations();
-    std::vector<std::string> validations;
-    validations.reserve(validation_pairs.size());
-    for (const auto& pair : validation_pairs)
-      validations.push_back(pair.label.GetUserVisibleName(default_tc));
-    std::sort(validations.begin(), validations.end());
-    for (const auto& dep : validations)
-      res->AppendString(dep);
-    return res;
-  }
+  ValuePtr RenderValidations() { return RenderLabels(target_->validations()); }
 
   ValuePtr RenderRuntimeDeps() {
     auto res = std::make_unique<base::ListValue>();

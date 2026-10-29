@@ -1287,16 +1287,20 @@ struct MetadataWalker {
 
   MetadataWalker(const KeyList& data_keys,
                  const KeyList& walk_keys,
+                 const KeyList& dep_keys,
                  const SourceDir& rebase_dir,
                  bool collect_validations_metadata,
                  std::vector<Value>* result,
+                 UniqueVector<const Target*>* deps_collected,
                  TargetSet& targets_walked,
                  Err& err)
       : data_keys_(data_keys),
         walk_keys_(walk_keys),
+        dep_keys_(dep_keys),
         rebase_dir_(rebase_dir),
         collect_validations_metadata_(collect_validations_metadata),
         result_(result),
+        deps_collected_(deps_collected),
         targets_walked_(targets_walked),
         err_(err) {}
 
@@ -1306,6 +1310,9 @@ struct MetadataWalker {
     // If deps_only, this is the top-level target and thus we don't want to
     // collect its metadata, only that of its deps and data_deps.
     if (deps_only) {
+      // Do not collect its metadata either if the walk leads back to it
+      // (which is possible with walk_deps or validations).
+      targets_walked_.add(&target);
       // Empty string will be converted below to mean all deps and data_deps.
       // Origin is null because this isn't declared anywhere, and should never
       // trigger any errors.
@@ -1320,12 +1327,25 @@ struct MetadataWalker {
               rebase_dir_, &next_walk_labels, &current_result, &err_)) {
         return false;
       }
+      if (deps_collected_) {
+        for (const auto& key : dep_keys_) {
+          auto iter = target.metadata().contents().find(key);
+          if (iter == target.metadata().contents().end())
+            continue;
+          for (const Value& value : iter->second.list_value()) {
+            const Target* dep =
+                ResolveDepLabel(target, value, /*allow_self=*/true);
+            if (!dep)
+              return false;
+            deps_collected_->push_back(dep);
+          }
+        }
+      }
     }
 
     // Gather walk keys and find the appropriate target. Targets identified in
     // the walk key set must be deps or data_deps of the declaring target.
     const DepsIteratorRange& all_deps = target.GetDeps(Target::DEPS_ALL);
-    SourceDir current_dir = target.label().dir();
     for (const auto& next : next_walk_labels) {
       DCHECK(next.type() == Value::STRING);
 
@@ -1350,68 +1370,23 @@ struct MetadataWalker {
             }
           }
         }
+        if (deps_only) {
+          for (const auto& dep : target.walk_deps()) {
+            if (targets_walked_.add(dep.ptr) && !Walk(*dep.ptr, false))
+              return false;
+          }
+        }
 
         // Any other walk keys are superfluous, as they can only be a subset of
         // all deps.
         break;
       }
 
-      // Otherwise, look through the target's deps for the specified one.
-      // Canonicalize the label if possible.
-      const Settings* settings = target.settings();
-      const Label& toolchain_label = settings->toolchain_label();
-      Label next_label = Label::Resolve(
-          current_dir, settings->build_settings()->root_path_utf8(),
-          toolchain_label, next, &err_);
-      if (next_label.is_null()) {
-        err_ = Err(next.origin(), std::string("Failed to canonicalize ") +
-                                      next.string_value() + std::string("."));
+      const Target* dep = ResolveDepLabel(target, next, /*allow_self=*/false);
+      if (!dep || (targets_walked_.add(dep) && !Walk(*dep, false)))
         return false;
-      }
-
-      bool found_next = false;
-      for (const auto& dep : all_deps) {
-        // Match against the label with the toolchain.
-        if (dep.label.Matches(next_label, toolchain_label)) {
-          // If we haven't walked this dep yet, go down into it.
-          if (targets_walked_.add(dep.ptr)) {
-            if (!Walk(*dep.ptr, false))
-              return false;
-          }
-          // We found it, so we can exit this search now.
-          found_next = true;
-          break;
-        }
-      }
-      if (!found_next && collect_validations_metadata_) {
-        for (const auto& dep : target.validations()) {
-          // Match against the label with the toolchain.
-          if (dep.label.Matches(next_label, toolchain_label)) {
-            // If we haven't walked this dep yet, go down into it.
-            if (targets_walked_.add(dep.ptr)) {
-              if (!Walk(*dep.ptr, false))
-                return false;
-            }
-            // We found it, so we can exit this search now.
-            found_next = true;
-            break;
-          }
-        }
-      }
-      // If we didn't find the specified dep in the target, that's an error.
-      // Propagate it back to the user.
-      if (!found_next) {
-        err_ =
-            Err(next.origin(),
-                std::string("I was expecting ") +
-                    next_label.GetUserVisibleName(true) +
-                    std::string(" to be a dependency of ") +
-                    target.label().GetUserVisibleName(true) +
-                    ". Make sure it's included in the deps or data_deps, and "
-                    "that you've specified the appropriate toolchain.");
-        return false;
-      }
     }
+
     result_->insert(result_->end(),
                     std::make_move_iterator(current_result.begin()),
                     std::make_move_iterator(current_result.end()));
@@ -1419,11 +1394,52 @@ struct MetadataWalker {
   }
 
  private:
+  // Resolves |value| as a label relative to |target|, which must refer to a
+  // direct dependency of |target| (or to |target| itself when |allow_self| is
+  // true).
+  const Target* ResolveDepLabel(const Target& target,
+                                const Value& value,
+                                bool allow_self) {
+    if (!value.VerifyTypeIs(Value::STRING, &err_))
+      return nullptr;
+    const Settings* settings = target.settings();
+    const Label& toolchain_label = settings->toolchain_label();
+    Label label = Label::Resolve(target.label().dir(),
+                                 settings->build_settings()->root_path_utf8(),
+                                 toolchain_label, value, &err_);
+    if (label.is_null()) {
+      err_ = Err(value.origin(),
+                 "Failed to canonicalize " + value.string_value() + ".");
+      return nullptr;
+    }
+    if (allow_self && target.label().Matches(label, toolchain_label))
+      return &target;
+    for (const auto& dep : target.GetDeps(Target::DEPS_ALL)) {
+      if (dep.label.Matches(label, toolchain_label))
+        return dep.ptr;
+    }
+    if (collect_validations_metadata_) {
+      for (const auto& dep : target.validations()) {
+        if (dep.label.Matches(label, toolchain_label))
+          return dep.ptr;
+      }
+    }
+    err_ = Err(value.origin(),
+               "I was expecting " + label.GetUserVisibleName(true) +
+                   " to be a dependency of " +
+                   target.label().GetUserVisibleName(true) +
+                   ". Make sure it's included in the deps or data_deps, and "
+                   "that you've specified the appropriate toolchain.");
+    return nullptr;
+  }
+
   const KeyList& data_keys_;
   const KeyList& walk_keys_;
+  const KeyList& dep_keys_;
   const SourceDir& rebase_dir_;
   bool collect_validations_metadata_;
   std::vector<Value>* result_;
+  UniqueVector<const Target*>* deps_collected_;
   TargetSet& targets_walked_;
   Err& err_;
 };
@@ -1436,10 +1452,11 @@ bool Target::GetMetadata(const std::vector<std::string>& data_keys,
                          bool deps_only,
                          std::vector<Value>* result,
                          TargetSet* targets_walked,
-                         Err* err) const {
-  MetadataWalker walker(data_keys, walk_keys, rebase_dir,
-                        collect_validations_metadata_, result, *targets_walked,
-                        *err);
+                         Err* err,
+                         UniqueVector<const Target*>* deps_collected) const {
+  MetadataWalker walker(data_keys, walk_keys, dep_keys(), rebase_dir,
+                        collect_validations_metadata_, result, deps_collected,
+                        *targets_walked, *err);
   return walker.Walk(*this, deps_only);
 }
 

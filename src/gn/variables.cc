@@ -1175,6 +1175,25 @@ Example
   defines = [ "AWESOME_FEATURE", "LOG_LEVEL=3" ]
 )";
 
+const char kDepKeys[] = "dep_keys";
+const char kDepKeys_HelpShort[] =
+    "dep_keys: [string list] Metadata keys listing targets to depend on.";
+const char kDepKeys_Help[] =
+    R"(dep_keys: Metadata keys listing targets to depend on.
+
+  Valid on generated_file() targets that collect metadata.
+
+  During the metadata walk, values of these keys are resolved as labels
+  relative to each walked target (which must refer to the walked target itself
+  or one of its direct dependencies, including validations when
+  collect_validations_metadata is true) and added as Ninja dependencies of the
+  generated_file() target. It is an error for a collected target to depend on
+  the generated_file() target itself (cycles spanning multiple generated_file()
+  targets are reported by Ninja).
+
+  See "gn help generated_file" and "gn help walk_deps".
+)";
+
 const char kDepfile[] = "depfile";
 const char kDepfile_HelpShort[] =
     "depfile: [string] File name for input dependencies for actions.";
@@ -2451,6 +2470,21 @@ Examples
     visibility = [ "./*", "//bar/*" ]
 )";
 
+const char kWalkDeps[] = "walk_deps";
+const char kWalkDeps_HelpShort[] =
+    "walk_deps: [label list] Metadata walk roots that are not dependencies.";
+const char kWalkDeps_Help[] =
+    R"(walk_deps: Metadata walk roots that are not dependencies.
+
+  Valid on generated_file() targets that collect metadata.
+
+  The metadata walk starts from these targets in addition to deps and
+  data_deps, without making them Ninja dependencies of the generated_file()
+  target (allowing cycles with deps). Like "gen_deps", listed targets are
+  generated when the generated_file() target is generated. Often paired with
+  "dep_keys".
+)";
+
 const char kWalkKeys[] = "walk_keys";
 const char kWalkKeys_HelpShort[] =
     "walk_keys: [string list] Key(s) for managing the metadata collection "
@@ -2636,6 +2670,7 @@ const VariableInfoMap& GetTargetVariables() {
     INSERT_VARIABLE(DataDeps)
     INSERT_VARIABLE(DataKeys)
     INSERT_VARIABLE(Defines)
+    INSERT_VARIABLE(DepKeys)
     INSERT_VARIABLE(Depfile)
     INSERT_VARIABLE(Deps)
     INSERT_VARIABLE(Mnemonic)
@@ -2680,6 +2715,7 @@ const VariableInfoMap& GetTargetVariables() {
     INSERT_VARIABLE(Testonly)
     INSERT_VARIABLE(Validations)
     INSERT_VARIABLE(Visibility)
+    INSERT_VARIABLE(WalkDeps)
     INSERT_VARIABLE(WalkKeys)
     INSERT_VARIABLE(WeakFrameworks)
     INSERT_VARIABLE(WeakLibraries)

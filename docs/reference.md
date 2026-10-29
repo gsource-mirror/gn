@@ -910,7 +910,7 @@
       "zstd" compresses every Ninja file except build.ninja with zstd, under
       its usual name. Ninja itself can't read them, but Siso can. build.ninja
       stays uncompressed so that scripts can extract its regeneration rules.
-      Defaults to "none".
+      Can't be combined with --clean-stale. Defaults to "none".
 ```
 
 #### **IDE support**

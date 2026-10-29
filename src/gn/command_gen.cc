@@ -566,7 +566,7 @@ General options
       "zstd" compresses every Ninja file except build.ninja with zstd, under
       its usual name. Ninja itself can't read them, but Siso can. build.ninja
       stays uncompressed so that scripts can extract its regeneration rules.
-      Defaults to "none".
+      Can't be combined with --clean-stale. Defaults to "none".
 
 IDE support
 
@@ -817,6 +817,13 @@ int RunGen(const std::vector<std::string>& args) {
     std::string compression =
         command_line->GetSwitchValueString(kSwitchNinjaCompression);
     if (compression == "zstd") {
+      if (command_line->HasSwitch(kSwitchCleanStale)) {
+        Err(Location(), "--clean-stale can't be used with --ninja-compression.",
+            "--clean-stale runs Ninja tools, and Ninja can't read compressed "
+            "Ninja files.")
+            .PrintToStdout();
+        return 1;
+      }
       setup->build_settings().set_compress_ninja_files(true);
     } else if (compression != "none") {
       Err(Location(), "Invalid --ninja-compression value.",

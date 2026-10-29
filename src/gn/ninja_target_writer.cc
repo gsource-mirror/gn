@@ -201,7 +201,8 @@ std::string NinjaTargetWriter::RunAndWriteFile(
     SourceFile ninja_file = GetNinjaFileForTarget(target);
     base::FilePath full_ninja_file =
         settings->build_settings()->GetFullPath(ninja_file);
-    storage.WriteToFileIfChanged(full_ninja_file, nullptr);
+    WriteNinjaFileIfChanged(settings->build_settings(), storage,
+                            full_ninja_file);
 
     EscapeOptions options;
     options.mode = ESCAPE_NINJA;

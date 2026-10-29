@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <string.h>
+
 #include <optional>
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
+#include "base/files/file_util.h"
 #include "gn/commands.h"
 #include "gn/err.h"
 #include "gn/ninja_tools.h"
@@ -27,6 +30,19 @@ bool CleanStaleOneDir(const base::FilePath& ninja_executable,
 
   base::FilePath build_dir(setup->build_settings().GetFullPath(
       SourceDir(setup->build_settings().build_dir().value())));
+
+  // Ninja can't read the files written by gn gen --ninja-compression=zstd.
+  // build.ninja stays plain, but the default toolchain's file doesn't.
+  char magic[4];
+  if (base::ReadFile(build_dir.AppendASCII("toolchain.ninja"), magic,
+                     sizeof(magic)) == sizeof(magic) &&
+      memcmp(magic, "\x28\xb5\x2f\xfd", sizeof(magic)) == 0) {
+    Err(Location(),
+        "Can't clean a build directory with compressed Ninja files.",
+        "Ninja can't read the files written by gn gen --ninja-compression.")
+        .PrintToStdout();
+    return false;
+  }
 
   // The order of operations for these tools is:
   // 1. cleandead - This eliminates old files from the build directory.

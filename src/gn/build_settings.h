@@ -81,6 +81,13 @@ class BuildSettings {
     no_stamp_files_ = no_stamp_files;
   }
 
+  // Whether to compress the Ninja files that build.ninja loads with zstd.
+  // Only Ninja implementations that read zstd can load them.
+  bool compress_ninja_files() const { return compress_ninja_files_; }
+  void set_compress_ninja_files(bool compress) {
+    compress_ninja_files_ = compress;
+  }
+
   const SourceFile& build_config_file() const { return build_config_file_; }
   void set_build_config_file(const SourceFile& f) { build_config_file_ = f; }
 
@@ -197,6 +204,7 @@ class BuildSettings {
   // See 40045b9 for the reason behind using 1.7.2 as the default version.
   Version ninja_required_version_{1, 7, 2};
   bool no_stamp_files_ = true;
+  bool compress_ninja_files_ = false;
   bool experimental_collect_validations_metadata_ = false;
 
   SourceFile build_config_file_;

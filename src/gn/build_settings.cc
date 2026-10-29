@@ -20,6 +20,7 @@ BuildSettings::BuildSettings(const BuildSettings& other)
       python_path_is_relative_to_build_dir_(
           other.python_path_is_relative_to_build_dir_),
       ninja_required_version_(other.ninja_required_version_),
+      compress_ninja_files_(other.compress_ninja_files_),
       build_config_file_(other.build_config_file_),
       arg_file_template_path_(other.arg_file_template_path_),
       build_dir_(other.build_dir_),

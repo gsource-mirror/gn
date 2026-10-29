@@ -919,3 +919,172 @@ group("default") {
     EXPECT_EQ(output_items[2].decoration, DECORATION_NONE);
   }
 }
+
+namespace {
+
+// Writes a project where a generated_file() target :pickles collects the
+// outputs of :pickle by walking :app (which depends on :pickles through
+// :final), and returns the result of running "gn gen" on it.
+// |app_metadata| is added to the definition of :app.
+int RunGenForWalkDepsTest(const base::FilePath& in_path,
+                          const base::FilePath& build_path,
+                          const std::string& app_metadata) {
+  WriteFile(in_path.Append(FILE_PATH_LITERAL(".gn")),
+            "buildconfig = \"//BUILDCONFIG.gn\"\n");
+
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILDCONFIG.gn")),
+            "set_default_toolchain(\"//:toolchain\")\n");
+
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILD.gn")), R"(
+toolchain("toolchain") {
+  tool("stamp") {
+    command = "touch {{output}}"
+  }
+}
+
+action("pickle") {
+  script = "//script.py"
+  outputs = [ "$target_gen_dir/foo.pickle" ]
+  metadata = {
+    pickle_files = [ "$target_gen_dir/foo.pickle" ]
+    pickle_deps = [ ":pickle" ]
+  }
+}
+
+group("lib") {
+  deps = [ ":pickle" ]
+}
+
+generated_file("pickles") {
+  outputs = [ "$target_gen_dir/pickles.txt" ]
+  data_keys = [ "pickle_files" ]
+  dep_keys = [ "pickle_deps" ]
+  rebase = root_build_dir
+  walk_deps = [ ":app" ]
+}
+
+action("final") {
+  script = "//script.py"
+  outputs = [ "$target_gen_dir/final.txt" ]
+  inputs = [ "$target_gen_dir/pickles.txt" ]
+  deps = [ ":pickles" ]
+}
+
+group("app") {
+  deps = [ ":final", ":lib" ]
+)" + app_metadata + R"(
+}
+)");
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("script.py")), "");
+
+  ScopedCommandLineForTest global_cmdline;
+  global_cmdline.get().AppendSwitchPath(switches::kRoot, in_path);
+  global_cmdline.get().AppendSwitch(switches::kQuiet);
+
+  std::vector<std::string> args;
+  args.push_back(FilePathToUTF8(build_path));
+  return commands::RunGen(args);
+}
+
+}  // namespace
+
+// Tests that walk_deps can form a cycle with deps, and that only the targets
+// collected through dep_keys become dependencies of the generated_file().
+TEST(GenCommandTest, WalkDepsAndDepKeys) {
+  MsgLoop msg_loop;
+
+  base::ScopedTempDir in_temp_dir;
+  ASSERT_TRUE(in_temp_dir.CreateUniqueTempDir());
+  base::FilePath in_path = base::MakeAbsoluteFilePath(in_temp_dir.GetPath());
+  base::ScopedTempDir build_temp_dir;
+  ASSERT_TRUE(build_temp_dir.CreateUniqueTempDir());
+
+  EXPECT_EQ(0, RunGenForWalkDepsTest(in_path, build_temp_dir.GetPath(), ""));
+
+  std::string data = ReadFile(
+      build_temp_dir.GetPath().Append(FILE_PATH_LITERAL("gen/pickles.txt")));
+  EXPECT_EQ("gen/foo.pickle\n", data);
+
+  std::string ninja = ReadFile(
+      build_temp_dir.GetPath().Append(FILE_PATH_LITERAL("toolchain.ninja")));
+  EXPECT_NE(std::string::npos,
+            ninja.find("build phony/pickles: phony gen/pickles.txt "
+                       "phony/pickle\n"))
+      << ninja;
+}
+
+// Tests that an error is reported if a target collected through dep_keys
+// depends on the generated_file() target.
+TEST(GenCommandTest, DepKeysCycle) {
+  MsgLoop msg_loop;
+
+  base::ScopedTempDir in_temp_dir;
+  ASSERT_TRUE(in_temp_dir.CreateUniqueTempDir());
+  base::FilePath in_path = base::MakeAbsoluteFilePath(in_temp_dir.GetPath());
+  base::ScopedTempDir build_temp_dir;
+  ASSERT_TRUE(build_temp_dir.CreateUniqueTempDir());
+
+  ScopedBufferedOutput buffered_out;
+  EXPECT_NE(
+      0, RunGenForWalkDepsTest(in_path, build_temp_dir.GetPath(),
+                               "metadata = { pickle_deps = [ \":final\" ] }"));
+
+  std::string output;
+  for (const auto& item : buffered_out.GetItems())
+    output += item.output;
+  EXPECT_NE(std::string::npos, output.find("Dependency cycle via dep_keys."))
+      << output;
+  EXPECT_NE(std::string::npos,
+            output.find("//:final\n"
+                        "was collected through the dep_keys of\n"
+                        "//:pickles\n"
+                        "but depends on it."))
+      << output;
+}
+
+// Tests that an error is reported for an undefined walk_deps target.
+TEST(GenCommandTest, UndefinedWalkDeps) {
+  MsgLoop msg_loop;
+  ScopedCommandLineForTest global_cmdline;
+
+  base::ScopedTempDir in_temp_dir;
+  ASSERT_TRUE(in_temp_dir.CreateUniqueTempDir());
+  base::FilePath in_path = base::MakeAbsoluteFilePath(in_temp_dir.GetPath());
+
+  WriteFile(in_path.Append(FILE_PATH_LITERAL(".gn")),
+            "buildconfig = \"//BUILDCONFIG.gn\"\n");
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILDCONFIG.gn")),
+            "set_default_toolchain(\"//:toolchain\")\n");
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILD.gn")), R"(
+toolchain("toolchain") {
+  tool("stamp") {
+    command = "touch {{output}}"
+  }
+}
+
+generated_file("gen") {
+  outputs = [ "$target_gen_dir/gen.txt" ]
+  data_keys = [ "files" ]
+  walk_deps = [ ":missing" ]
+}
+)");
+
+  base::ScopedTempDir build_temp_dir;
+  ASSERT_TRUE(build_temp_dir.CreateUniqueTempDir());
+
+  global_cmdline.get().AppendSwitchPath(switches::kRoot, in_path);
+  global_cmdline.get().AppendSwitch(switches::kQuiet);
+
+  std::vector<std::string> args;
+  args.push_back(FilePathToUTF8(build_temp_dir.GetPath()));
+
+  ScopedBufferedOutput buffered_out;
+  EXPECT_NE(0, commands::RunGen(args));
+
+  std::string output;
+  for (const auto& item : buffered_out.GetItems())
+    output += item.output;
+  EXPECT_NE(std::string::npos, output.find("//:gen(//:toolchain)\n"
+                                           "  needs //:missing(//:toolchain)"))
+      << output;
+}

@@ -1287,16 +1287,20 @@ struct MetadataWalker {
 
   MetadataWalker(const KeyList& data_keys,
                  const KeyList& walk_keys,
+                 const KeyList& dep_keys,
                  const SourceDir& rebase_dir,
                  bool collect_validations_metadata,
                  std::vector<Value>* result,
+                 UniqueVector<const Target*>* deps_collected,
                  TargetSet& targets_walked,
                  Err& err)
       : data_keys_(data_keys),
         walk_keys_(walk_keys),
+        dep_keys_(dep_keys),
         rebase_dir_(rebase_dir),
         collect_validations_metadata_(collect_validations_metadata),
         result_(result),
+        deps_collected_(deps_collected),
         targets_walked_(targets_walked),
         err_(err) {}
 
@@ -1306,6 +1310,9 @@ struct MetadataWalker {
     // If deps_only, this is the top-level target and thus we don't want to
     // collect its metadata, only that of its deps and data_deps.
     if (deps_only) {
+      // Do not collect its metadata either if the walk leads back to it
+      // (which is possible with walk_deps or validations).
+      targets_walked_.add(&target);
       // Empty string will be converted below to mean all deps and data_deps.
       // Origin is null because this isn't declared anywhere, and should never
       // trigger any errors.
@@ -1320,6 +1327,8 @@ struct MetadataWalker {
               rebase_dir_, &next_walk_labels, &current_result, &err_)) {
         return false;
       }
+      if (!CollectDepKeys(target))
+        return false;
     }
 
     // Gather walk keys and find the appropriate target. Targets identified in
@@ -1370,33 +1379,13 @@ struct MetadataWalker {
       }
 
       bool found_next = false;
-      for (const auto& dep : all_deps) {
-        // Match against the label with the toolchain.
-        if (dep.label.Matches(next_label, toolchain_label)) {
-          // If we haven't walked this dep yet, go down into it.
-          if (targets_walked_.add(dep.ptr)) {
-            if (!Walk(*dep.ptr, false))
-              return false;
-          }
-          // We found it, so we can exit this search now.
-          found_next = true;
-          break;
+      if (const Target* dep = FindDirectDep(target, next_label)) {
+        // If we haven't walked this dep yet, go down into it.
+        if (targets_walked_.add(dep)) {
+          if (!Walk(*dep, false))
+            return false;
         }
-      }
-      if (!found_next && collect_validations_metadata_) {
-        for (const auto& dep : target.validations()) {
-          // Match against the label with the toolchain.
-          if (dep.label.Matches(next_label, toolchain_label)) {
-            // If we haven't walked this dep yet, go down into it.
-            if (targets_walked_.add(dep.ptr)) {
-              if (!Walk(*dep.ptr, false))
-                return false;
-            }
-            // We found it, so we can exit this search now.
-            found_next = true;
-            break;
-          }
-        }
+        found_next = true;
       }
       // If we didn't find the specified dep in the target, that's an error.
       // Propagate it back to the user.
@@ -1412,6 +1401,18 @@ struct MetadataWalker {
         return false;
       }
     }
+
+    // walk_deps are additional roots of the walk. They are only considered
+    // for the top-level target.
+    if (deps_only) {
+      for (const auto& dep : target.walk_deps()) {
+        if (targets_walked_.add(dep.ptr)) {
+          if (!Walk(*dep.ptr, false))
+            return false;
+        }
+      }
+    }
+
     result_->insert(result_->end(),
                     std::make_move_iterator(current_result.begin()),
                     std::make_move_iterator(current_result.end()));
@@ -1419,11 +1420,73 @@ struct MetadataWalker {
   }
 
  private:
+  // Returns the direct dependency of |target| that matches |label| (including
+  // validations when they are walked), or nullptr if there is none.
+  const Target* FindDirectDep(const Target& target, const Label& label) const {
+    const Label& toolchain_label = target.settings()->toolchain_label();
+    for (const auto& dep : target.GetDeps(Target::DEPS_ALL)) {
+      // Match against the label with the toolchain.
+      if (dep.label.Matches(label, toolchain_label))
+        return dep.ptr;
+    }
+    if (collect_validations_metadata_) {
+      for (const auto& dep : target.validations()) {
+        if (dep.label.Matches(label, toolchain_label))
+          return dep.ptr;
+      }
+    }
+    return nullptr;
+  }
+
+  // Resolves the labels listed in |target|'s metadata under |dep_keys_| and
+  // adds the corresponding targets to |deps_collected_|. Labels must refer to
+  // |target| itself or to one of its direct dependencies.
+  bool CollectDepKeys(const Target& target) {
+    if (dep_keys_.empty() || !target.has_metadata())
+      return true;
+
+    const Settings* settings = target.settings();
+    const Label& toolchain_label = settings->toolchain_label();
+    const SourceDir& current_dir = target.label().dir();
+    const Metadata::Contents& contents = target.metadata().contents();
+    for (const auto& key : dep_keys_) {
+      auto iter = contents.find(key);
+      if (iter == contents.end())
+        continue;
+      for (const Value& value : iter->second.list_value()) {
+        if (!value.VerifyTypeIs(Value::STRING, &err_))
+          return false;
+        Label label = Label::Resolve(
+            current_dir, settings->build_settings()->root_path_utf8(),
+            toolchain_label, value, &err_);
+        if (label.is_null())
+          return false;
+
+        const Target* found = target.label().Matches(label, toolchain_label)
+                                  ? &target
+                                  : FindDirectDep(target, label);
+        if (!found) {
+          err_ = Err(value.origin(),
+                     "Invalid label in metadata key \"" + key + "\".",
+                     label.GetUserVisibleName(true) + " must be either " +
+                         target.label().GetUserVisibleName(true) +
+                         " or one of its deps, public_deps or data_deps.");
+          return false;
+        }
+        if (deps_collected_)
+          deps_collected_->push_back(found);
+      }
+    }
+    return true;
+  }
+
   const KeyList& data_keys_;
   const KeyList& walk_keys_;
+  const KeyList& dep_keys_;
   const SourceDir& rebase_dir_;
   bool collect_validations_metadata_;
   std::vector<Value>* result_;
+  UniqueVector<const Target*>* deps_collected_;
   TargetSet& targets_walked_;
   Err& err_;
 };
@@ -1437,9 +1500,23 @@ bool Target::GetMetadata(const std::vector<std::string>& data_keys,
                          std::vector<Value>* result,
                          TargetSet* targets_walked,
                          Err* err) const {
-  MetadataWalker walker(data_keys, walk_keys, rebase_dir,
-                        collect_validations_metadata_, result, *targets_walked,
-                        *err);
+  return GetMetadata(data_keys, walk_keys, std::vector<std::string>(),
+                     rebase_dir, deps_only, result, nullptr, targets_walked,
+                     err);
+}
+
+bool Target::GetMetadata(const std::vector<std::string>& data_keys,
+                         const std::vector<std::string>& walk_keys,
+                         const std::vector<std::string>& dep_keys,
+                         const SourceDir& rebase_dir,
+                         bool deps_only,
+                         std::vector<Value>* result,
+                         UniqueVector<const Target*>* deps_collected,
+                         TargetSet* targets_walked,
+                         Err* err) const {
+  MetadataWalker walker(data_keys, walk_keys, dep_keys, rebase_dir,
+                        collect_validations_metadata_, result, deps_collected,
+                        *targets_walked, *err);
   return walker.Walk(*this, deps_only);
 }
 

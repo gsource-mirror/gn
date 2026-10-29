@@ -30,6 +30,8 @@ class GeneratedFileTargetGenerator : public TargetGenerator {
   bool FillCollectValidationsMetadata();
   bool FillDataKeys();
   bool FillWalkKeys();
+  bool FillWalkDeps();
+  bool FillDepKeys();
   bool FillRebase();
 
   // Returns false if `contents` is defined (i.e. if this target was provided

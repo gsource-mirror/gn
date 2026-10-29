@@ -18,7 +18,6 @@
 #include "gn/compile_commands_writer.h"
 #include "gn/eclipse_writer.h"
 #include "gn/filesystem_utils.h"
-#include "gn/generated_file_writer.h"
 #include "gn/json_project_writer.h"
 #include "gn/label_pattern.h"
 #include "gn/ninja_outputs_writer.h"
@@ -92,8 +91,9 @@ struct TargetWriteInfo {
 
   NinjaOutputsMap ninja_outputs_map;
 
-  // The list of generated_file() targets whose file writes have been
-  // delayed because they have collect_validations_metadata == true.
+  // The list of generated_file() targets whose writes have been delayed
+  // because they require a fully resolved graph (see
+  // Target::RequiresDelayedMetadataWalk()).
   std::vector<const Target*> delayed_generated_file_targets;
 
   std::unique_ptr<ResolvedTargetData> resolved =
@@ -102,8 +102,12 @@ struct TargetWriteInfo {
   void LeakOnPurpose() { (void)resolved.release(); }
 };
 
-// Called on worker thread to write the ninja file.
-void BackgroundDoWrite(TargetWriteInfo* write_info, const Target* target) {
+// Called on worker thread to write the ninja file. If |allow_delay| is true,
+// generated_file() targets that require a fully resolved graph are not written
+// but added to |write_info->delayed_generated_file_targets| instead.
+void BackgroundDoWrite(TargetWriteInfo* write_info,
+                       const Target* target,
+                       bool allow_delay) {
   ResolvedTargetData* resolved = write_info->resolved.get();
   std::vector<OutputFile> target_ninja_outputs;
   std::vector<OutputFile>* ninja_outputs =
@@ -112,10 +116,16 @@ void BackgroundDoWrite(TargetWriteInfo* write_info, const Target* target) {
   bool delayed_generated_file_write = false;
 
   std::string rule = NinjaTargetWriter::RunAndWriteFile(
-      target, resolved, ninja_outputs, &delayed_generated_file_write);
+      target, resolved, ninja_outputs,
+      allow_delay ? &delayed_generated_file_write : nullptr);
 
   {
     std::lock_guard<std::mutex> lock(write_info->lock);
+    if (delayed_generated_file_write) {
+      write_info->delayed_generated_file_targets.push_back(target);
+      return;
+    }
+
     // Even if rule is empty, add it to the map to ensure a corresponding
     // .toolchain file will be generated, otherwise Ninja will complain
     // when the build.ninja file tries to load a non-existent .toolchain
@@ -127,9 +137,6 @@ void BackgroundDoWrite(TargetWriteInfo* write_info, const Target* target) {
       write_info->ninja_outputs_map.emplace(target,
                                             std::move(target_ninja_outputs));
     }
-
-    if (delayed_generated_file_write)
-      write_info->delayed_generated_file_targets.push_back(target);
   }
 }
 
@@ -139,8 +146,9 @@ void ItemResolvedAndGeneratedCallback(TargetWriteInfo* write_info,
   const Item* item = record->item();
   const Target* target = item->AsTarget();
   if (target) {
-    g_scheduler->ScheduleWork(
-        [write_info, target]() { BackgroundDoWrite(write_info, target); });
+    g_scheduler->ScheduleWork([write_info, target]() {
+      BackgroundDoWrite(write_info, target, /*allow_delay=*/true);
+    });
   }
 }
 
@@ -827,7 +835,7 @@ int RunGen(const std::vector<std::string>& args) {
       });
 
   // Set a post-resolution callback that will be used to schedule
-  // the writes of delayed generated_file() outputs which require
+  // the writes of delayed generated_file() targets which require
   // the full resolution of all targets.
   // See https://issuetracker.google.com/566346002
   setup->SetPostResolutionCallback([&write_info](Scheduler& scheduler) -> bool {
@@ -836,11 +844,8 @@ int RunGen(const std::vector<std::string>& args) {
 
     scheduler.IncrementWorkCount();
     for (const Target* target : write_info.delayed_generated_file_targets) {
-      scheduler.ScheduleWork([target, &scheduler]() {
-        Err err;
-        if (!WriteGeneratedFileToDisk(target, &err)) {
-          scheduler.FailWithError(err);
-        }
+      scheduler.ScheduleWork([target, &write_info]() {
+        BackgroundDoWrite(&write_info, target, /*allow_delay=*/false);
       });
     }
     scheduler.DecrementWorkCount();

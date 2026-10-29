@@ -226,3 +226,65 @@ TEST_F(FunctionsTarget, GroupPublicInputs) {
   ASSERT_EQ(1u, target->public_inputs().size());
   EXPECT_EQ("//bar.in", target->public_inputs()[0].value());
 }
+
+// Checks parsing of walk_deps and dep_keys on generated_file().
+TEST_F(FunctionsTarget, GeneratedFileWalkDepsAndDepKeys) {
+  TestWithScope setup;
+
+  Scope::ItemVector item_collector;
+  setup.scope()->set_item_collector(&item_collector);
+
+  TestParseInput input(
+      R"(generated_file("foo") {
+        outputs = [ "$root_out_dir/foo.json" ]
+        data_keys = [ "files" ]
+        dep_keys = [ "file_deps" ]
+        walk_deps = [ "//foo:bar" ]
+      })");
+  ASSERT_FALSE(input.has_error());
+  Err err;
+  input.parsed()->Execute(setup.scope(), &err);
+  ASSERT_SUCCESS(err);
+
+  ASSERT_EQ(1u, item_collector.size());
+  const Target* target = item_collector[0]->AsTarget();
+  ASSERT_TRUE(target);
+  ASSERT_EQ(1u, target->dep_keys().size());
+  EXPECT_EQ("file_deps", target->dep_keys()[0]);
+  ASSERT_EQ(1u, target->walk_deps().size());
+  EXPECT_EQ("//foo:bar",
+            target->walk_deps()[0].label.GetUserVisibleName(false));
+  EXPECT_TRUE(target->RequiresDelayedMetadataWalk());
+}
+
+// Checks that walk_deps and dep_keys cannot be used with contents.
+TEST_F(FunctionsTarget, GeneratedFileWalkDepsWithContents) {
+  TestWithScope setup;
+
+  Scope::ItemVector item_collector;
+  setup.scope()->set_item_collector(&item_collector);
+
+  TestParseInput walk_deps_input(
+      R"(generated_file("foo") {
+        outputs = [ "$root_out_dir/foo.json" ]
+        contents = "foo"
+        walk_deps = [ ":bar" ]
+      })");
+  ASSERT_FALSE(walk_deps_input.has_error());
+  Err err;
+  walk_deps_input.parsed()->Execute(setup.scope(), &err);
+  ASSERT_TRUE(err.has_error());
+  EXPECT_EQ("walk_deps won't be used.", err.message());
+
+  TestParseInput dep_keys_input(
+      R"(generated_file("foo") {
+        outputs = [ "$root_out_dir/foo.json" ]
+        contents = "foo"
+        dep_keys = [ "file_deps" ]
+      })");
+  ASSERT_FALSE(dep_keys_input.has_error());
+  err = Err();
+  dep_keys_input.parsed()->Execute(setup.scope(), &err);
+  ASSERT_TRUE(err.has_error());
+  EXPECT_EQ("dep_keys won't be used.", err.message());
+}

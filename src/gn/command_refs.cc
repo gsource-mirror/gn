@@ -40,6 +40,8 @@ void FillDepMap(Setup* setup, DepMap* dep_map) {
       dep_map->insert(std::make_pair(dep_pair.ptr, target));
     for (const auto& validation_pair : target->validations())
       dep_map->insert(std::make_pair(validation_pair.ptr, target));
+    for (const auto& walk_dep_pair : target->walk_deps())
+      dep_map->insert(std::make_pair(walk_dep_pair.ptr, target));
   }
 }
 

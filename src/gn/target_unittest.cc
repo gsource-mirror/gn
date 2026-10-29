@@ -1467,6 +1467,112 @@ TEST(TargetTest, CollectMetadataWithError) {
       << err.message();
 }
 
+// Tests that walk_deps are used as roots of the metadata walk, and that the
+// targets listed under dep_keys are collected.
+TEST(TargetTest, CollectMetadataWithWalkDepsAndDepKeys) {
+  TestWithScope setup;
+
+  TestTarget pickle(setup, "//foo:pickle", Target::ACTION);
+  Value pickle_files(nullptr, Value::LIST);
+  pickle_files.list_value().push_back(Value(nullptr, "foo.pickle"));
+  pickle.metadata().contents().emplace("files", pickle_files);
+  Value pickle_deps(nullptr, Value::LIST);
+  pickle_deps.list_value().push_back(Value(nullptr, ":pickle"));
+  pickle.metadata().contents().emplace("file_deps", pickle_deps);
+
+  // Lists its direct dependency under dep_keys.
+  TestTarget lib(setup, "//foo:lib", Target::SOURCE_SET);
+  lib.private_deps().push_back(LabelTargetPair(&pickle));
+  Value lib_deps(nullptr, Value::LIST);
+  lib_deps.list_value().push_back(Value(nullptr, "//foo:pickle"));
+  lib.metadata().contents().emplace("file_deps", lib_deps);
+
+  TestTarget app(setup, "//foo:app", Target::GROUP);
+  app.private_deps().push_back(LabelTargetPair(&lib));
+
+  TestTarget gen(setup, "//foo:gen", Target::GENERATED_FILE);
+  gen.walk_deps().push_back(LabelTargetPair(&app));
+
+  std::vector<std::string> data_keys = {"files"};
+  std::vector<std::string> walk_keys = {""};
+  std::vector<std::string> dep_keys = {"file_deps"};
+
+  Err err;
+  std::vector<Value> result;
+  UniqueVector<const Target*> deps_collected;
+  TargetSet targets;
+  gen.GetMetadata(data_keys, walk_keys, dep_keys, SourceDir(), true, &result,
+                  &deps_collected, &targets, &err);
+  EXPECT_SUCCESS(err);
+
+  std::vector<Value> expected = {Value(nullptr, "foo.pickle")};
+  EXPECT_EQ(result, expected);
+  ASSERT_EQ(1u, deps_collected.size());
+  EXPECT_EQ(&pickle, deps_collected[0]);
+}
+
+// Tests that the metadata of the top-level target is not collected when a walk
+// from its walk_deps leads back to it.
+TEST(TargetTest, CollectMetadataWalkDepsCycle) {
+  TestWithScope setup;
+
+  TestTarget gen(setup, "//foo:gen", Target::GENERATED_FILE);
+  Value gen_files(nullptr, Value::LIST);
+  gen_files.list_value().push_back(Value(nullptr, "gen.txt"));
+  gen.metadata().contents().emplace("files", gen_files);
+  Value gen_deps(nullptr, Value::LIST);
+  gen_deps.list_value().push_back(Value(nullptr, ":gen"));
+  gen.metadata().contents().emplace("file_deps", gen_deps);
+
+  TestTarget app(setup, "//foo:app", Target::GROUP);
+  Value app_files(nullptr, Value::LIST);
+  app_files.list_value().push_back(Value(nullptr, "app.txt"));
+  app.metadata().contents().emplace("files", app_files);
+  app.private_deps().push_back(LabelTargetPair(&gen));
+
+  gen.walk_deps().push_back(LabelTargetPair(&app));
+
+  std::vector<std::string> data_keys = {"files"};
+  std::vector<std::string> walk_keys = {""};
+  std::vector<std::string> dep_keys = {"file_deps"};
+
+  Err err;
+  std::vector<Value> result;
+  UniqueVector<const Target*> deps_collected;
+  TargetSet targets;
+  gen.GetMetadata(data_keys, walk_keys, dep_keys, SourceDir(), true, &result,
+                  &deps_collected, &targets, &err);
+  EXPECT_SUCCESS(err);
+
+  std::vector<Value> expected = {Value(nullptr, "app.txt")};
+  EXPECT_EQ(result, expected);
+  EXPECT_TRUE(deps_collected.empty());
+}
+
+TEST(TargetTest, CollectMetadataWithInvalidDepKeys) {
+  TestWithScope setup;
+
+  TestTarget one(setup, "//foo:one", Target::SOURCE_SET);
+  Value deps_value(nullptr, Value::LIST);
+  deps_value.list_value().push_back(Value(nullptr, "//foo:missing"));
+  one.metadata().contents().emplace("file_deps", deps_value);
+
+  std::vector<std::string> data_keys = {"files"};
+  std::vector<std::string> walk_keys = {""};
+  std::vector<std::string> dep_keys = {"file_deps"};
+
+  Err err;
+  std::vector<Value> result;
+  UniqueVector<const Target*> deps_collected;
+  TargetSet targets;
+  one.GetMetadata(data_keys, walk_keys, dep_keys, SourceDir(), false, &result,
+                  &deps_collected, &targets, &err);
+  EXPECT_TRUE(err.has_error());
+  EXPECT_EQ(err.message(), "Invalid label in metadata key \"file_deps\".")
+      << err.message();
+  EXPECT_TRUE(deps_collected.empty());
+}
+
 TEST_F(TargetTest, WriteMetadataCollection) {
   TestWithScope setup;
   Err err;

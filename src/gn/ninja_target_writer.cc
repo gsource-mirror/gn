@@ -165,6 +165,9 @@ std::string NinjaTargetWriter::RunAndWriteFile(
     writer.SetNinjaOutputs(ninja_outputs);
     writer.SetDelayedGeneratedFileWritePtr(delayed_generated_file_write);
     writer.Run();
+    // The caller will run this function again later.
+    if (delayed_generated_file_write && *delayed_generated_file_write)
+      return std::string();
   } else if (target->IsBinary()) {
     needs_file_write = true;
     NinjaBinaryTargetWriter writer(target, storage);

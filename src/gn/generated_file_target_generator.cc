@@ -57,6 +57,10 @@ void GeneratedFileTargetGenerator::DoRun() {
     return;
   if (!FillWalkKeys())
     return;
+  if (!FillWalkDeps())
+    return;
+  if (!FillDepKeys())
+    return;
 
   if (!FillOutputConversion())
     return;
@@ -188,6 +192,33 @@ bool GeneratedFileTargetGenerator::FillWalkKeys() {
     if (!v.VerifyTypeIs(Value::STRING, err_))
       return false;
     target_->walk_keys().push_back(v.string_value());
+  }
+  return true;
+}
+
+bool GeneratedFileTargetGenerator::FillWalkDeps() {
+  const Value* value = scope_->GetValue(variables::kWalkDeps, false);
+  if (!value)
+    return true;
+  if (!IsMetadataCollectionTarget(variables::kWalkDeps, value->origin()))
+    return false;
+  return FillGenericDeps(variables::kWalkDeps, &target_->walk_deps());
+}
+
+bool GeneratedFileTargetGenerator::FillDepKeys() {
+  const Value* value = scope_->GetValue(variables::kDepKeys, true);
+  if (!value)
+    return true;
+  if (!IsMetadataCollectionTarget(variables::kDepKeys, value->origin()))
+    return false;
+  if (!value->VerifyTypeIs(Value::LIST, err_))
+    return false;
+
+  for (const Value& v : value->list_value()) {
+    // Keys must be strings.
+    if (!v.VerifyTypeIs(Value::STRING, err_))
+      return false;
+    target_->dep_keys().push_back(v.string_value());
   }
   return true;
 }

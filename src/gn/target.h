@@ -211,12 +211,28 @@ class Target : public Item {
   bool has_metadata() const { return metadata_.get(); }
 
   // Get metadata from this target and its dependencies. This is intended to
-  // be called after the target is resolved.
+  // be called after the target is resolved. When |deps_only| is true, the
+  // metadata of this target itself is not collected, and the walk also starts
+  // from this target's walk_deps().
   bool GetMetadata(const std::vector<std::string>& data_keys,
                    const std::vector<std::string>& walk_keys,
                    const SourceDir& rebase_dir,
                    bool deps_only,
                    std::vector<Value>* result,
+                   TargetSet* targets_walked,
+                   Err* err) const;
+
+  // Same as above, but additionally, for each walked target, the values of its
+  // metadata keys listed in |dep_keys| are resolved as labels (which must
+  // refer to the walked target itself or to one of its direct dependencies)
+  // and the corresponding targets are added to |deps_collected|.
+  bool GetMetadata(const std::vector<std::string>& data_keys,
+                   const std::vector<std::string>& walk_keys,
+                   const std::vector<std::string>& dep_keys,
+                   const SourceDir& rebase_dir,
+                   bool deps_only,
+                   std::vector<Value>* result,
+                   UniqueVector<const Target*>* deps_collected,
                    TargetSet* targets_walked,
                    Err* err) const;
 
@@ -230,6 +246,9 @@ class Target : public Item {
     SourceDir rebase_;
     std::vector<std::string> data_keys_;
     std::vector<std::string> walk_keys_;
+    std::vector<std::string> dep_keys_;
+    // Additional roots for the metadata walk. These are not dependencies.
+    LabelTargetVector walk_deps_;
   };
   const GeneratedFile& generated_file() const;
   GeneratedFile& generated_file();
@@ -254,6 +273,23 @@ class Target : public Item {
     return generated_file().walk_keys_;
   }
   std::vector<std::string>& walk_keys() { return generated_file().walk_keys_; }
+  const std::vector<std::string>& dep_keys() const {
+    return generated_file().dep_keys_;
+  }
+  std::vector<std::string>& dep_keys() { return generated_file().dep_keys_; }
+  const LabelTargetVector& walk_deps() const {
+    return generated_file().walk_deps_;
+  }
+  LabelTargetVector& walk_deps() { return generated_file().walk_deps_; }
+
+  // Returns true if this is a generated_file() target whose metadata walk can
+  // reach targets that are not (transitive) dependencies of it, i.e. through
+  // walk_deps or validations. Such walks must be delayed until all targets in
+  // the build graph are resolved. See builder_record.h for details.
+  bool RequiresDelayedMetadataWalk() const {
+    return output_type_ == GENERATED_FILE &&
+           (collect_validations_metadata_ || !walk_deps().empty());
+  }
 
   OutputFile write_runtime_deps_output() const {
     return write_runtime_deps_output_;

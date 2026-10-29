@@ -136,6 +136,11 @@ class ParseNode;
 // items in the graph have been resolved, and cannot be performed
 // in the NinjaGeneratedFileTargetWriter::Run() function itself.
 //
+// The `walk_deps` of generated_file() targets are tracked exactly like
+// validations, since they are not real dependencies and can form cycles
+// with them. Metadata walks that start from them are delayed for the
+// same reason.
+//
 class BuilderRecord {
  public:
   using BuilderRecordSet = PointerSet<BuilderRecord>;

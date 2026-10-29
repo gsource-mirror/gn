@@ -15,7 +15,9 @@
 #include "gn/trace.h"
 #include "gn/value.h"
 
-bool WriteGeneratedFileToDisk(const Target* target, Err* err) {
+bool WriteGeneratedFileToDisk(const Target* target,
+                              UniqueVector<const Target*>* deps_collected,
+                              Err* err) {
   const Settings* settings = target->settings();
 
   std::vector<SourceFile> outputs_as_sources;
@@ -42,8 +44,9 @@ bool WriteGeneratedFileToDisk(const Target* target, Err* err) {
                                     target->label());
     metadata_walk_trace.SetToolchain(target->settings()->toolchain_label());
     if (!target->GetMetadata(target->data_keys(), target->walk_keys(),
-                             target->rebase(), /*deps_only = */ true,
-                             &contents.list_value(), &targets_walked, err)) {
+                             target->dep_keys(), target->rebase(),
+                             /*deps_only = */ true, &contents.list_value(),
+                             deps_collected, &targets_walked, err)) {
       return false;
     }
   } else {

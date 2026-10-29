@@ -1175,6 +1175,56 @@ Example
   defines = [ "AWESOME_FEATURE", "LOG_LEVEL=3" ]
 )";
 
+const char kDepKeys[] = "dep_keys";
+const char kDepKeys_HelpShort[] =
+    "dep_keys: [string list] Metadata keys listing targets to depend on.";
+const char kDepKeys_Help[] =
+    R"(dep_keys: Metadata keys listing targets to depend on.
+
+  A list of strings. Only valid for generated_file() targets that perform
+  metadata collection (see "gn help generated_file").
+
+  During the metadata collection walk, the values of these keys in the
+  "metadata" scope of each walked target are interpreted as target labels.
+  Labels are resolved relative to the walked target, and must refer to either
+  the walked target itself, or to one of its deps, public_deps, or data_deps
+  (like "walk_keys", this includes validations when
+  collect_validations_metadata is true).
+
+  The resulting targets are added as dependencies of the generated_file()
+  target's Ninja build statement, so that targets that depend on the
+  generated_file() target will wait for them to be built. This makes it
+  possible to collect the outputs of build steps without depending on all of
+  the targets walked to find them (see "gn help walk_deps").
+
+  It is an error for a collected target to depend (through deps, public_deps
+  or data_deps) on the generated_file() target itself, since this would create
+  a dependency cycle. Cycles that go through the dep_keys of several
+  generated_file() targets are only reported by Ninja.
+
+Example
+
+  action("foo_pickle") {
+    script = "//tools/make_pickle.py"
+    outputs = [ "$target_gen_dir/foo.pickle" ]
+    metadata = {
+      pickle_files = [ "$target_gen_dir/foo.pickle" ]
+      pickle_deps = [ ":foo_pickle" ]
+    }
+  }
+
+  generated_file("all_pickles") {
+    outputs = [ "$target_gen_dir/all_pickles.txt" ]
+    data_keys = [ "pickle_files" ]
+    dep_keys = [ "pickle_deps" ]
+    rebase = root_build_dir
+
+    # Only :foo_pickle (and not :my_app) becomes a dependency of the Ninja
+    # build statement for this target.
+    walk_deps = [ ":my_app" ]
+  }
+)";
+
 const char kDepfile[] = "depfile";
 const char kDepfile_HelpShort[] =
     "depfile: [string] File name for input dependencies for actions.";
@@ -2451,6 +2501,28 @@ Examples
     visibility = [ "./*", "//bar/*" ]
 )";
 
+const char kWalkDeps[] = "walk_deps";
+const char kWalkDeps_HelpShort[] =
+    "walk_deps: [label list] Metadata walk roots that are not dependencies.";
+const char kWalkDeps_Help[] =
+    R"(walk_deps: Metadata walk roots that are not dependencies.
+
+  A list of target labels. Only valid for generated_file() targets that perform
+  metadata collection (see "gn help generated_file").
+
+  The metadata collection walk starts from these targets, in addition to the
+  deps and data_deps of the generated_file() target. Unlike deps, these
+  targets are not dependencies of the generated_file() target's Ninja build
+  statement, and they are allowed to depend on the generated_file() target
+  (or on targets that depend on it) without creating a dependency cycle.
+
+  Like "gen_deps", any target listed here will be generated when the
+  generated_file() target is generated.
+
+  This is typically combined with "dep_keys" to depend only on the build steps
+  that produce the collected files. See "gn help dep_keys" for an example.
+)";
+
 const char kWalkKeys[] = "walk_keys";
 const char kWalkKeys_HelpShort[] =
     "walk_keys: [string list] Key(s) for managing the metadata collection "
@@ -2636,6 +2708,7 @@ const VariableInfoMap& GetTargetVariables() {
     INSERT_VARIABLE(DataDeps)
     INSERT_VARIABLE(DataKeys)
     INSERT_VARIABLE(Defines)
+    INSERT_VARIABLE(DepKeys)
     INSERT_VARIABLE(Depfile)
     INSERT_VARIABLE(Deps)
     INSERT_VARIABLE(Mnemonic)
@@ -2680,6 +2753,7 @@ const VariableInfoMap& GetTargetVariables() {
     INSERT_VARIABLE(Testonly)
     INSERT_VARIABLE(Validations)
     INSERT_VARIABLE(Visibility)
+    INSERT_VARIABLE(WalkDeps)
     INSERT_VARIABLE(WalkKeys)
     INSERT_VARIABLE(WeakFrameworks)
     INSERT_VARIABLE(WeakLibraries)

@@ -4,14 +4,17 @@
 
 #include "gn/string_output_buffer.h"
 
+#include <algorithm>
 #include <fstream>
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
+#include "base/logging.h"
 #include "gn/err.h"
 #include "gn/file_writer.h"
 #include "gn/filesystem_utils.h"
+#include "third_party/zstd/lib/zstd.h"
 
 void StringOutputBuffer::Clear() {
   ro_.clear();
@@ -55,6 +58,60 @@ std::string StringOutputBuffer::str() const {
   }
   if (rw_buf_) {
     result.append(rw_buf_.get(), cur_);
+  }
+  return result;
+}
+
+StringOutputBuffer StringOutputBuffer::CompressZstd() const {
+  std::unique_ptr<ZSTD_CCtx, decltype(&ZSTD_freeCCtx)> cctx(ZSTD_createCCtx(),
+                                                            &ZSTD_freeCCtx);
+  CHECK(cctx);
+  CHECK(!ZSTD_isError(
+      ZSTD_CCtx_setParameter(cctx.get(), ZSTD_c_checksumFlag, 1)));
+
+  StringOutputBuffer result;
+  const size_t chunk_size = ZSTD_CStreamOutSize();
+  auto chunk = std::make_unique_for_overwrite<char[]>(chunk_size);
+  auto compress = [&](const char* data, size_t size, ZSTD_EndDirective mode) {
+    ZSTD_inBuffer input = {data, size, 0};
+    size_t remaining;
+    do {
+      ZSTD_outBuffer output = {chunk.get(), chunk_size, 0};
+      remaining = ZSTD_compressStream2(cctx.get(), &output, &input, mode);
+      CHECK(!ZSTD_isError(remaining)) << ZSTD_getErrorName(remaining);
+      result.Append(chunk.get(), output.pos);
+    } while (mode == ZSTD_e_end ? remaining != 0 : input.pos < input.size);
+  };
+
+  // Start a new frame every kZstdFrameSize bytes, declaring its size.
+  size_t unwritten = size();
+  size_t frame_left = 0;
+  auto start_frame = [&] {
+    frame_left = std::min(kZstdFrameSize, unwritten);
+    CHECK(!ZSTD_isError(ZSTD_CCtx_setPledgedSrcSize(cctx.get(), frame_left)));
+  };
+  auto append = [&](const char* data, size_t size) {
+    while (size > 0) {
+      if (frame_left == 0)
+        start_frame();
+      size_t n = std::min(size, frame_left);
+      frame_left -= n;
+      unwritten -= n;
+      compress(data, n, frame_left == 0 ? ZSTD_e_end : ZSTD_e_continue);
+      data += n;
+      size -= n;
+    }
+  };
+  for (const auto& page : ro_) {
+    append(page.buf.get(), page.size);
+  }
+  if (rw_buf_) {
+    append(rw_buf_.get(), cur_ - rw_buf_.get());
+  }
+  if (result.size() == 0) {
+    // Empty content still takes one frame.
+    start_frame();
+    compress(nullptr, 0, ZSTD_e_end);
   }
   return result;
 }

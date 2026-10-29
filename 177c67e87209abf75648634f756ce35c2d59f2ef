@@ -16,6 +16,24 @@
       "message": "Add bug for starlark support?",
       "revId": "177c67e87209abf75648634f756ce35c2d59f2ef",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ce67e7e_ae2a8adf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-10-29T02:00:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1efec666_ace45d37",
+      "revId": "177c67e87209abf75648634f756ce35c2d59f2ef",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

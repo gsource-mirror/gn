@@ -27,4 +27,4 @@ if [ -z "${CLANG_FORMAT:-}" ]; then
   CLANG_FORMAT="clang/bin/clang-format"
 fi
 
-git ls-files | grep -E '\.(h|cc)$' | xargs "$CLANG_FORMAT" "${clang_format_opts[@]}"
+git ls-files | grep -E '\.(h|cc)$' | grep -v '^src/third_party/' | xargs "$CLANG_FORMAT" "${clang_format_opts[@]}"

@@ -1,0 +1,10 @@
+Name: zstd
+URL: https://github.com/facebook/zstd
+Version: 1.5.7
+License: BSD-3-Clause
+License File: LICENSE
+
+The library sources from the v1.5.7 release tarball (lib/zstd.h,
+lib/zstd_errors.h, lib/common, lib/compress and lib/decompress), unmodified.
+lib/decompress/huf_decompress_amd64.S is left out; build/gen.py builds with
+ZSTD_DISABLE_ASM instead.

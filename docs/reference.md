@@ -905,6 +905,12 @@
       dependency database after the ninja build graph has been generated. This
       option requires a ninja executable of at least version 1.10.0. It can be
       provided by the --ninja-executable switch. Also see "gn help clean_stale".
+
+  --ninja-compression=<none|zstd>
+      "zstd" compresses every Ninja file except build.ninja with zstd, under
+      its usual name. Ninja itself can't read them, but Siso can. build.ninja
+      stays uncompressed so that scripts can extract its regeneration rules.
+      Can't be combined with --clean-stale. Defaults to "none".
 ```
 
 #### **IDE support**

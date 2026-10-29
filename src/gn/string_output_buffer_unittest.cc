@@ -4,11 +4,13 @@
 
 #include "gn/string_output_buffer.h"
 
+#include <algorithm>
 #include <limits>
 
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
+#include "third_party/zstd/lib/zstd.h"
 #include "util/test/test.h"
 
 namespace {
@@ -133,6 +135,103 @@ TEST(StringOutputBuffer, WriteToFile) {
   base::File::Info file_info;
   ASSERT_TRUE(base::GetFileInfo(file_path, &file_info));
   ASSERT_TRUE(buffer.ContentsEqual(file_path));
+}
+
+// Ninja-like content with long binding blocks, "$" continuations (also with
+// CRLF), comments and blank lines, none of which may start a frame.
+std::string CreateNinjaTestString(int statements) {
+  std::string data;
+  for (int n = 0; n < statements; ++n) {
+    std::string i = std::to_string(n);
+    data += "build obj/a" + i + ".o: cxx ../../a" + i + ".cc $\n";
+    data += "    ../../b" + i + ".h $\r\n";
+    data += "    ../../c" + i + ".h\n";
+    for (int b = 0; b < 8; ++b)
+      data += "  defines = -DFOO" + std::to_string(b) + " -DBAR=" + i + "\n";
+    data += "\n# comment " + i + "\n";
+    data += "\tindented" + i + "\n";
+    data += "#another comment\n\r\n";
+  }
+  return data;
+}
+
+// Siso's chunk boundary rule, written independently of the implementation.
+bool IsStatementStart(std::string_view s, size_t i) {
+  if (i == 0 || i >= s.size() || s[i - 1] != '\n')
+    return false;
+  if (i >= 2 && s[i - 2] == '$')
+    return false;
+  if (i >= 3 && s[i - 3] == '$' && s[i - 2] == '\r')
+    return false;
+  return s[i] != ' ' && s[i] != '\t' && s[i] != '#' && s[i] != '\r' &&
+         s[i] != '\n';
+}
+
+// Checks that CompressZstd(frame_size) of |data| decompresses to |data| and
+// that each frame records its size and ends at the first statement start after
+// |frame_size| bytes. Returns the number of frames.
+size_t CheckCompressZstd(std::string_view data, size_t frame_size) {
+  // Tiny appends make the boundary checks straddle page edges.
+  StringOutputBuffer buffer;
+  for (size_t pos = 0; pos < data.size(); pos += 3)
+    buffer.Append(data.substr(pos, 3));
+  std::string compressed = buffer.CompressZstd(frame_size).str();
+
+  std::vector<size_t> frame_ends;
+  size_t end = 0;
+  for (size_t pos = 0; pos < compressed.size();) {
+    const char* frame = compressed.data() + pos;
+    size_t n = ZSTD_findFrameCompressedSize(frame, compressed.size() - pos);
+    EXPECT_FALSE(ZSTD_isError(n)) << ZSTD_getErrorName(n);
+    if (ZSTD_isError(n))
+      return 0;
+    unsigned long long content_size = ZSTD_getFrameContentSize(frame, n);
+    EXPECT_NE(ZSTD_CONTENTSIZE_UNKNOWN, content_size);
+    end += content_size;
+    frame_ends.push_back(end);
+    pos += n;
+  }
+  std::vector<size_t> want_ends;
+  for (size_t want_end = 0; want_end < data.size();) {
+    want_end += frame_size;
+    while (want_end < data.size() && !IsStatementStart(data, want_end))
+      ++want_end;
+    want_end = std::min(want_end, data.size());
+    want_ends.push_back(want_end);
+  }
+  if (data.empty())
+    want_ends.push_back(0);  // Empty content still takes one frame.
+  EXPECT_EQ(want_ends, frame_ends) << frame_size;
+
+  std::string decompressed(data.size(), '\0');
+  size_t n = ZSTD_decompress(decompressed.data(), decompressed.size(),
+                             compressed.data(), compressed.size());
+  EXPECT_FALSE(ZSTD_isError(n)) << ZSTD_getErrorName(n);
+  EXPECT_EQ(data, decompressed);
+
+  // The frames don't depend on how the content is split into pages.
+  StringOutputBuffer one_piece;
+  one_piece.Append(data);
+  EXPECT_EQ(compressed, one_piece.CompressZstd(frame_size).str());
+  return frame_ends.size();
+}
+
+TEST(StringOutputBuffer, CompressZstd) {
+  std::string data = CreateNinjaTestString(200);
+  for (size_t frame_size : {size_t(1), size_t(64), size_t(100), size_t(777),
+                            size_t(4096), StringOutputBuffer::kZstdFrameSize}) {
+    size_t frames = CheckCompressZstd(data, frame_size);
+    if (frame_size < data.size())
+      EXPECT_GT(frames, 1u) << frame_size;
+  }
+
+  EXPECT_EQ(1u, CheckCompressZstd("", 64));
+
+  // Without any later statement, the rest goes into the last frame.
+  std::string no_statements = "build a: b $\n";
+  for (int n = 0; n < 1000; ++n)
+    no_statements += "  x = y\n# z\n\n";
+  EXPECT_EQ(1u, CheckCompressZstd(no_statements, 64));
 }
 
 namespace {

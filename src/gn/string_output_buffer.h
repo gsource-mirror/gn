@@ -121,6 +121,14 @@ class StringOutputBuffer {
     return *this;
   }
 
+  // Return the content of this instance compressed with zstd, as frames that
+  // record their content size, so that readers can decompress them in
+  // parallel. Each frame but the last holds at least |frame_size| bytes and
+  // ends right before a top-level Ninja statement, so that readers can also
+  // parse the frames independently.
+  StringOutputBuffer CompressZstd(size_t frame_size = kZstdFrameSize) const;
+  static constexpr size_t kZstdFrameSize = 16 << 20;
+
   // Compare the content of this instance with that of the file at |file_path|.
   bool ContentsEqual(const base::FilePath& file_path) const;
 

@@ -11,7 +11,12 @@ class BuildSettings;
 class OutputFile;
 class Settings;
 class SourceFile;
+class StringOutputBuffer;
 class Target;
+
+namespace base {
+class FilePath;
+}  // namespace base
 
 // Example: "base/base.ninja". The string version will not be escaped, and
 // will always have slashes for path separators.
@@ -19,6 +24,12 @@ SourceFile GetNinjaFileForTarget(const Target* target);
 
 // Returns the name of the root .ninja file for the given toolchain.
 SourceFile GetNinjaFileForToolchain(const Settings* settings);
+
+// Writes |contents| to the Ninja file at |path| unless the file is up to date,
+// compressing it if the build settings ask for that.
+bool WriteNinjaFileIfChanged(const BuildSettings* build_settings,
+                             const StringOutputBuffer& contents,
+                             const base::FilePath& path);
 
 // Returns the prefix applied to the Ninja rules in a given toolchain so they
 // don't collide with rules from other toolchains.

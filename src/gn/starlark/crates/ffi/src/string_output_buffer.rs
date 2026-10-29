@@ -1,0 +1,157 @@
+// Copyright 2026 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+use std::{fmt, pin::Pin};
+
+use crate::bridge;
+
+/// A reference to the write cursor pointer of an output buffer guaranteed
+/// to have sufficient capacity for writing without bounds checks.
+pub struct BigEnoughBuffer<'a>(&'a mut *mut u8);
+
+impl<'a> BigEnoughBuffer<'a> {
+    /// Creates a new `BigEnoughBuffer` wrapping the given write cursor pointer.
+    ///
+    /// # Safety
+    ///
+    /// The caller is responsible for ensuring that this contains a big enough
+    /// buffer such that writing to it will never fail.
+    pub unsafe fn new(ptr: &'a mut *mut u8) -> Self {
+        Self(ptr)
+    }
+
+    /// Calls `f` with the current write cursor and advances the cursor to the
+    /// returned pointer.
+    pub fn write_custom(&mut self, f: impl FnOnce(*mut u8) -> *mut u8) {
+        *self.0 = f(*self.0);
+    }
+
+    /// Writes a slice of bytes into the buffer and advances the underlying
+    /// pointer in place.
+    pub fn write_slice(&mut self, slice: &[u8]) {
+        self.write_custom(|ptr| {
+            // Safety: This buffer is guaranteed to have sufficient capacity.
+            unsafe {
+                std::ptr::copy_nonoverlapping(slice.as_ptr(), ptr, slice.len());
+                ptr.add(slice.len())
+            }
+        });
+    }
+
+    /// Writes a Copy value into the buffer and advances the underlying
+    /// pointer in place.
+    pub fn write<T: Copy>(&mut self, val: T) {
+        self.write_custom(|ptr| {
+            // Safety: This buffer is guaranteed to have sufficient capacity.
+            unsafe {
+                ptr.cast::<T>().write_unaligned(val);
+                ptr.add(std::mem::size_of::<T>())
+            }
+        });
+    }
+}
+
+/// A trait for types that can serialize themselves directly into a pre-reserved
+/// output buffer.
+///
+/// This mirrors the C++ `Writable` concept in `src/gn/string_output_buffer.h`.
+///
+/// # Safety
+///
+/// Implementations must guarantee that `write_to_buf` never writes more than
+/// `maximum_size()` bytes into `buf`.
+pub unsafe trait Writable {
+    /// Returns the maximum number of bytes this value could write.
+    fn maximum_size(&self) -> usize;
+
+    /// Writes the serialized representation into `buf`.
+    fn write_to_buf(&self, buf: &mut BigEnoughBuffer<'_>);
+}
+
+// Safety: `maximum_size` returns `self.len()`, which matches the exact number of
+// bytes written by `write_slice`.
+unsafe impl Writable for &str {
+    fn maximum_size(&self) -> usize {
+        self.len()
+    }
+
+    fn write_to_buf(&self, buf: &mut BigEnoughBuffer<'_>) {
+        buf.write_slice(self.as_bytes());
+    }
+}
+
+// Safety: `maximum_size` returns 1, and `write` writes exactly 1 byte.
+unsafe impl Writable for u8 {
+    fn maximum_size(&self) -> usize {
+        1
+    }
+
+    fn write_to_buf(&self, buf: &mut BigEnoughBuffer<'_>) {
+        buf.write(*self);
+    }
+}
+
+/// Safe wrapper around a C++ `StringOutputBuffer`.
+pub struct StringOutputBuffer<'a> {
+    inner: Pin<&'a mut bridge::StringOutputBuffer>,
+}
+
+impl<'a> StringOutputBuffer<'a> {
+    /// Creates a new wrapper around a pinned C++ `StringOutputBuffer`.
+    pub fn new(inner: Pin<&'a mut bridge::StringOutputBuffer>) -> Self {
+        Self { inner }
+    }
+
+    /// Reserves at least `additional` bytes in the buffer and returns a write cursor.
+    ///
+    /// # Safety
+    ///
+    /// The caller is responsible for ensuring that we write no more than
+    /// `additional` bytes to the buffer.
+    pub unsafe fn reserve(&mut self, additional: usize) -> BigEnoughBuffer<'_> {
+        // Safety: Reserve guarantees the write cursor is non-null and has at least `additional`
+        // capacity.
+        unsafe { BigEnoughBuffer::new(&mut *bridge::Reserve(self.inner.as_mut(), additional)) }
+    }
+
+    /// Appends a `Writable` value into the buffer.
+    pub fn append<W: Writable>(&mut self, val: W) {
+        // Safety: maximum_size should always be >= #bytes written to the buffer.
+        val.write_to_buf(&mut unsafe { self.reserve(val.maximum_size()) });
+    }
+}
+
+impl<'a> fmt::Display for StringOutputBuffer<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&bridge::StringOutputBufferToString(&self.inner))
+    }
+}
+
+/// Writes one or multiple `Writable` values into an output buffer.
+///
+/// Works the same as chaining appends, but only calls reserve once.
+#[macro_export]
+macro_rules! buf_write {
+    ($buffer:expr, $($arg:expr),+ $(,)?) => {{
+        let buffer: &mut $crate::StringOutputBuffer<'_> = &mut ($buffer);
+        let total = $($crate::Writable::maximum_size(&$arg) +)+ 0;
+        // Safety: maximum size should always be >= #bytes written to the buffer.
+        let mut cursor = unsafe { buffer.reserve(total) };
+        $($crate::Writable::write_to_buf(&$arg, &mut cursor);)+
+    }};
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_string_output_buffer() {
+        let mut raw_buf = bridge::NewStringOutputBuffer();
+        let mut buffer = StringOutputBuffer::new(raw_buf.pin_mut());
+        buffer.append("hello");
+        buf_write!(buffer, " gn", " user", b'\n');
+        assert_eq!(buffer.to_string(), "hello gn user\n");
+    }
+}

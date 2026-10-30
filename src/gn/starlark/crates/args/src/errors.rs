@@ -1,10 +1,6 @@
 /// Errors returned by action command line argument parsing and formatting.
 #[derive(thiserror::Error, Debug)]
 pub(crate) enum Error {
-    #[error("arguments must be a list, tuple, or depset")]
-    ArgumentsMustBeListTupleOrDepset,
-    #[error("map_each must return a list[str], str, or None")]
-    MapEachInvalidReturn,
     #[error("Format string must contain exactly one '%s', got: {0}")]
     InvalidFormatString(String),
     #[error("trying to mutate a frozen Args value")]
@@ -24,6 +20,10 @@ pub(crate) enum Error {
          Otherwise, set allow_closure = True"
     )]
     MapEachRequiresAllowClosure,
+    #[error("arguments must be a list, tuple, or depset")]
+    ArgumentsMustBeListTupleOrDepset,
+    #[error("map_each must return a list[str], str, or None")]
+    MapEachInvalidReturn,
     #[error("None is not allowed unless mapped by map_each")]
     NoneNotAllowed,
 }

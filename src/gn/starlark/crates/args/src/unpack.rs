@@ -1,6 +1,5 @@
 use either::Either;
 use starlark::{
-    eval::Evaluator,
     typing::Ty,
     values::{UnpackValue, Value, ValueTyped, list::ListRef, type_repr::StarlarkTypeRepr},
 };
@@ -40,20 +39,5 @@ impl<'v> UnpackValue<'v> for FrozenArgsSequence<'v> {
                 .map(<Either<&'v str, ValueTyped<'v, FrozenArgs<'v>>>>::unpack_value_err)
                 .collect::<Result<Vec<_>, _>>()?,
         )))
-    }
-}
-
-impl<'v> FrozenArgsSequence<'v> {
-    pub fn expand(&self, eval: &mut Evaluator<'v, '_, '_>) -> starlark::Result<Vec<String>> {
-        let mut command = Vec::new();
-        for item in &self.0 {
-            match item {
-                Either::Left(s) => command.push((*s).to_owned()),
-                Either::Right(args) => {
-                    crate::expand::expand_into(&mut command, args.as_ref(), eval)?;
-                },
-            }
-        }
-        Ok(command)
     }
 }

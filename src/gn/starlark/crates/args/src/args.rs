@@ -6,7 +6,7 @@ use std::{cell::RefCell, fmt, fmt::Display};
 
 use allocative::Allocative;
 use starlark::{
-    environment::{Methods, MethodsBuilder},
+    environment::{GlobalsBuilder, Methods, MethodsBuilder},
     eval::Evaluator,
     starlark_complex_value,
     values::{Freeze, FreezeResult, Freezer, ProvidesStaticType, StarlarkValue, Trace, Value},
@@ -57,7 +57,7 @@ pub struct Args<'v> {
 #[derive(Allocative, Debug, Default, Freeze, NoSerialize, ProvidesStaticType, Trace)]
 pub struct FrozenArgs<'v> {
     /// List of frozen arguments.
-    pub(crate) arguments: Vec<ArgValue<'v>>,
+    pub arguments: Vec<ArgValue<'v>>,
 }
 
 starlark_complex_value!(pub FrozenArgs);
@@ -243,12 +243,14 @@ pub fn args_methods(builder: &mut MethodsBuilder) {
     }
 }
 
-impl<'v> FrozenArgs<'v> {
-    /// Expands the stored arguments list into command-line arguments and input
-    /// files.
-    pub fn expand(&self, eval: &mut Evaluator<'v, '_, '_>) -> starlark::Result<Vec<String>> {
-        let mut command = Vec::new();
-        crate::expand::expand_into(&mut command, self, eval)?;
-        Ok(command)
+/// Registers test globals (`args`, `identity`) for Starlark evaluators in unit tests.
+#[starlark_module]
+pub fn register_args_test_globals(builder: &mut GlobalsBuilder) {
+    fn args<'v>(eval: &mut Evaluator<'v, '_, '_>) -> starlark::Result<Value<'v>> {
+        Ok(eval.heap().alloc(Args::default()))
+    }
+
+    fn identity<'v>(x: Value<'v>) -> starlark::Result<Value<'v>> {
+        Ok(x)
     }
 }

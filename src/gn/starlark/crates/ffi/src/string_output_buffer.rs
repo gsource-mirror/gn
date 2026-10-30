@@ -104,6 +104,14 @@ impl<'a> StringOutputBuffer<'a> {
         Self { inner }
     }
 
+    /// Returns the current write cursor pointer.
+    pub fn cursor(&mut self) -> Cursor {
+        // Safety: Reserve(0) is a no-op that returns a valid pointer to cur_.
+        // It will be optimized away to `return  cur_` because we check if an
+        // *unsigned* value is less than 0.
+        unsafe { (*bridge::Reserve(self.inner.as_mut(), 0)).cast::<u8>() }
+    }
+
     /// Reserves at least `additional` bytes in the buffer and returns a mutable
     /// reference to the write cursor pointer.
     ///

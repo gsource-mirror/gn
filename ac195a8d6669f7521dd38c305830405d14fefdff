@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "641efe87_54c7670d",
+        "filename": "src/gn/starlark/crates/ffi/src/escape.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-30T06:22:39Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Use `///` docstring for `pub struct NinjaCommand` per `AGENTS.md`.",
+      "isAi": true,
+      "revId": "ac195a8d6669f7521dd38c305830405d14fefdff",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c5ab6d1_ff13ff22",
+        "filename": "src/gn/escape.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-10-30T00:45:45Z",
+      "side": 1,
+      "message": "Can we use size of entries or table here?",
+      "range": {
+        "startLine": 47,
+        "startChar": 25,
+        "endLine": 47,
+        "endChar": 28
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "32c20b7f_91cf4c43",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/escape.cc",
+              "range": {
+                "startLine": 47,
+                "startChar": 0,
+                "endLine": 48,
+                "endChar": 0
+              },
+              "replacement": "  for (size_t i \u003d 0; i \u003c std::size(entries); ++i) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "1d05d521686fca085993374179ce5591e2f33467",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -7,7 +7,6 @@ use std::{cell::RefCell, fmt, fmt::Display};
 use allocative::Allocative;
 use starlark::{
     environment::{Methods, MethodsBuilder},
-    eval::Evaluator,
     starlark_complex_value,
     values::{Freeze, FreezeResult, Freezer, ProvidesStaticType, StarlarkValue, Trace, Value},
 };
@@ -240,15 +239,5 @@ pub fn args_methods(builder: &mut MethodsBuilder) {
             uniquify,
         });
         Ok(this)
-    }
-}
-
-impl<'v> FrozenArgs<'v> {
-    /// Expands the stored arguments list into command-line arguments and input
-    /// files.
-    pub fn expand(&self, eval: &mut Evaluator<'v, '_, '_>) -> starlark::Result<Vec<String>> {
-        let mut command = Vec::new();
-        crate::expand::expand_into(&mut command, self, eval)?;
-        Ok(command)
     }
 }

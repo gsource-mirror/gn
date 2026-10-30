@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use std::borrow::Cow;
+
 use depset::Depset;
 use starlark::{
     eval::Evaluator,
@@ -14,12 +16,37 @@ use crate::{
     formatter::Formatter,
 };
 
-/// Helper to process and append a specific `FrozenArgs` object to the action's
-/// command line.
-pub fn expand_into<'v>(
-    command: &mut Vec<String>,
+/// Visitor for receiving string parts and argument completion events.
+pub trait ArgVisitor {
+    fn add_arg_chunk(&mut self, part: &str);
+    fn finish_arg(&mut self);
+
+    fn add_arg(&mut self, arg: &str) {
+        self.add_arg_chunk(arg);
+        self.finish_arg();
+    }
+
+    fn add_formatted(&mut self, formatter: Option<&Formatter>, value: &str) {
+        if let Some(fmt) = formatter {
+            self.add_arg_chunk(&fmt.before);
+            self.add_arg_chunk(value);
+            // It's almost always empty.
+            if !fmt.after.is_empty() {
+                self.add_arg_chunk(&fmt.after);
+            }
+        } else {
+            self.add_arg_chunk(value);
+        }
+        self.finish_arg();
+    }
+}
+
+/// Helper to process a `FrozenArgs` object, invoking `visitor.add_arg_chunk` for each string
+/// component of an argument and `visitor.finish_arg` at each argument boundary.
+pub fn expand_args<'v>(
     args_obj: &FrozenArgs<'v>,
     eval: &mut Evaluator<'v, '_, '_>,
+    visitor: &mut impl ArgVisitor,
 ) -> starlark::Result<()> {
     for arg in &args_obj.arguments {
         match arg {
@@ -29,7 +56,7 @@ pub fn expand_into<'v>(
                 format,
             } => {
                 if !value.is_none() {
-                    handle_arg(arg_name.as_deref(), *value, format.as_ref(), command)?;
+                    handle_arg(arg_name.as_deref(), *value, format.as_ref(), visitor);
                 }
             },
             ArgValue::All {
@@ -42,28 +69,32 @@ pub fn expand_into<'v>(
                 omit_if_empty,
                 uniquify,
             } => {
-                let initial_len = command.len();
-                if let Some(flag) = flag {
-                    command.push(flag.clone());
-                }
+                let mut wrote_any = false;
+                let mut pending_flag = flag.as_deref();
 
-                let start_idx = command.len();
-                handle_many_args(
-                    *values,
-                    *map_each,
-                    format_each.as_ref(),
-                    before_each.as_deref(),
-                    command,
-                    *uniquify,
-                    eval,
-                )?;
-
-                if command.len() > start_idx || !omit_if_empty {
-                    if let Some(term) = terminate_with {
-                        command.push(term.clone());
+                handle_many_args(*values, *map_each, *uniquify, eval, |item| {
+                    if let Some(f) = pending_flag.take() {
+                        visitor.add_arg(f);
                     }
-                } else if flag.is_some() {
-                    command.truncate(initial_len);
+                    if let Some(before) = before_each.as_deref() {
+                        visitor.add_arg(before);
+                    }
+                    visitor.add_formatted(format_each.as_ref(), item);
+                    wrote_any = true;
+                    Ok(())
+                })?;
+
+                if wrote_any {
+                    if let Some(term) = terminate_with.as_deref() {
+                        visitor.add_arg(term);
+                    }
+                } else if !omit_if_empty {
+                    if let Some(f) = pending_flag.take() {
+                        visitor.add_arg(f);
+                    }
+                    if let Some(term) = terminate_with.as_deref() {
+                        visitor.add_arg(term);
+                    }
                 }
             },
             ArgValue::Joined {
@@ -76,27 +107,51 @@ pub fn expand_into<'v>(
                 omit_if_empty,
                 uniquify,
             } => {
-                let mut dest = Vec::new();
-                handle_many_args(
-                    *values,
-                    *map_each,
-                    format_each.as_ref(),
-                    None,
-                    &mut dest,
-                    *uniquify,
-                    eval,
-                )?;
+                let mut wrote_any = false;
+                let mut pending_flag = flag.as_deref();
 
-                if !dest.is_empty() || !omit_if_empty {
-                    if let Some(flag) = flag {
-                        command.push(flag.clone());
+                handle_many_args(*values, *map_each, *uniquify, eval, |item| {
+                    if let Some(f) = pending_flag.take() {
+                        visitor.add_arg(f);
                     }
-                    let joined = dest.join(join_with);
-                    command.push(if let Some(fj) = format_joined {
-                        fj.format(&joined)
+                    if !wrote_any {
+                        if let Some(fj) = format_joined {
+                            visitor.add_arg_chunk(&fj.before);
+                        }
+                        wrote_any = true;
                     } else {
-                        joined
-                    });
+                        visitor.add_arg_chunk(join_with);
+                    }
+                    if let Some(fmt) = format_each {
+                        visitor.add_arg_chunk(&fmt.before);
+                        visitor.add_arg_chunk(item);
+                        if !fmt.after.is_empty() {
+                            visitor.add_arg_chunk(&fmt.after);
+                        }
+                    } else {
+                        visitor.add_arg_chunk(item);
+                    }
+                    Ok(())
+                })?;
+
+                if wrote_any {
+                    if let Some(fj) = format_joined
+                        && !fj.after.is_empty()
+                    {
+                        visitor.add_arg_chunk(&fj.after);
+                    }
+                    visitor.finish_arg();
+                } else if !omit_if_empty {
+                    if let Some(f) = pending_flag.take() {
+                        visitor.add_arg(f);
+                    }
+                    if let Some(fj) = format_joined {
+                        visitor.add_arg_chunk(&fj.before);
+                        if !fj.after.is_empty() {
+                            visitor.add_arg_chunk(&fj.after);
+                        }
+                    }
+                    visitor.finish_arg();
                 }
             },
         }
@@ -108,18 +163,14 @@ fn handle_arg(
     arg_name: Option<&str>,
     value: Value<'_>,
     format: Option<&Formatter>,
-    dest: &mut Vec<String>,
-) -> starlark::Result<()> {
+    visitor: &mut impl ArgVisitor,
+) {
     if let Some(flag) = arg_name {
-        dest.push(flag.to_owned());
+        visitor.add_arg(flag);
     }
 
-    dest.push(if let Some(fmt) = format {
-        fmt.format(&value.to_str())
-    } else {
-        value.to_str()
-    });
-    Ok(())
+    let s = value.to_str();
+    visitor.add_formatted(format, &s);
 }
 
 fn for_each<'v, F>(value: Value<'v>, mut f: F) -> starlark::Result<()>
@@ -149,11 +200,9 @@ where
 fn handle_many_args<'v>(
     value: Value<'v>,
     map_each: Option<Value<'v>>,
-    format_each: Option<&Formatter>,
-    before_each: Option<&str>,
-    dest: &mut Vec<String>,
     uniquify: bool,
     eval: &mut Evaluator<'v, '_, '_>,
+    mut on_item: impl FnMut(&str) -> starlark::Result<()>,
 ) -> starlark::Result<()> {
     let mut seen = starlark::collections::SmallSet::new();
 
@@ -161,20 +210,18 @@ fn handle_many_args<'v>(
         if item.is_none() {
             return Err(Error::NoneNotAllowed.into());
         }
-        let s = item.to_str();
-        if uniquify && !seen.insert(s.clone()) {
-            return Ok(());
-        }
-
-        if let Some(before) = before_each {
-            dest.push(before.to_owned());
-        }
-        dest.push(if let Some(format) = format_each {
-            format.format(&s)
+        if let Some(s) = item.unpack_str() {
+            if uniquify && !seen.insert(Cow::Borrowed(s)) {
+                return Ok(());
+            }
+            on_item(s)
         } else {
-            s
-        });
-        Ok(())
+            let s = item.to_str();
+            if uniquify && !seen.insert(Cow::Owned(s.clone())) {
+                return Ok(());
+            }
+            on_item(&s)
+        }
     };
 
     for_each(value, |v| {

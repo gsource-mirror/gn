@@ -57,6 +57,10 @@ void GeneratedFileTargetGenerator::DoRun() {
     return;
   if (!FillWalkKeys())
     return;
+  if (!FillWalkDeps())
+    return;
+  if (!FillKeys(variables::kDepKeys, &target_->dep_keys()))
+    return;
 
   if (!FillOutputConversion())
     return;
@@ -147,47 +151,41 @@ bool GeneratedFileTargetGenerator::FillRebase() {
 }
 
 bool GeneratedFileTargetGenerator::FillDataKeys() {
-  const Value* value = scope_->GetValue(variables::kDataKeys, true);
-  if (!value)
+  if (!scope_->GetValue(variables::kDataKeys, false))
     return true;
-  if (!IsMetadataCollectionTarget(variables::kDataKeys, value->origin()))
-    return false;
-  if (!value->VerifyTypeIs(Value::LIST, err_))
-    return false;
-
-  for (const Value& v : value->list_value()) {
-    // Keys must be strings.
-    if (!v.VerifyTypeIs(Value::STRING, err_))
-      return false;
-    target_->data_keys().push_back(v.string_value());
-  }
-
   data_keys_defined_ = true;
-  return true;
+  return FillKeys(variables::kDataKeys, &target_->data_keys());
 }
 
 bool GeneratedFileTargetGenerator::FillWalkKeys() {
-  const Value* value = scope_->GetValue(variables::kWalkKeys, true);
-  // If we define this and contents, that's an error.
-  if (value &&
-      !IsMetadataCollectionTarget(variables::kWalkKeys, value->origin()))
-    return false;
-
-  // If we don't define it, we want the default value which is a list
-  // containing the empty string.
-  if (!value) {
+  if (!scope_->GetValue(variables::kWalkKeys, false)) {
     target_->walk_keys().push_back("");
     return true;
   }
+  return FillKeys(variables::kWalkKeys, &target_->walk_keys());
+}
 
-  // Otherwise, pull and validate the specified value.
-  if (!value->VerifyTypeIs(Value::LIST, err_))
+bool GeneratedFileTargetGenerator::FillWalkDeps() {
+  const Value* value = scope_->GetValue(variables::kWalkDeps, false);
+  if (!value)
+    return true;
+  if (!IsMetadataCollectionTarget(variables::kWalkDeps, value->origin()))
+    return false;
+  return FillGenericDeps(variables::kWalkDeps, &target_->walk_deps());
+}
+
+bool GeneratedFileTargetGenerator::FillKeys(std::string_view variable,
+                                            std::vector<std::string>* out) {
+  const Value* value = scope_->GetValue(variable, true);
+  if (!value)
+    return true;
+  if (!IsMetadataCollectionTarget(variable, value->origin()) ||
+      !value->VerifyTypeIs(Value::LIST, err_))
     return false;
   for (const Value& v : value->list_value()) {
-    // Keys must be strings.
     if (!v.VerifyTypeIs(Value::STRING, err_))
       return false;
-    target_->walk_keys().push_back(v.string_value());
+    out->push_back(v.string_value());
   }
   return true;
 }

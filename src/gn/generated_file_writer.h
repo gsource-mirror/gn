@@ -5,10 +5,15 @@
 #ifndef TOOLS_GN_GENERATED_FILE_WRITER_H_
 #define TOOLS_GN_GENERATED_FILE_WRITER_H_
 
+#include "gn/unique_vector.h"
+
 class Err;
 class Target;
 
 // Write the content of a given generated_file() target to disk.
-bool WriteGeneratedFileToDisk(const Target* target, Err* err);
+bool WriteGeneratedFileToDisk(
+    const Target* target,
+    Err* err,
+    UniqueVector<const Target*>* deps_collected = nullptr);
 
 #endif  // TOOLS_GN_GENERATED_FILE_WRITER_H_

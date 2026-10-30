@@ -128,6 +128,7 @@
     *   [data_deps: [label list] Non-linked dependencies.](#var_data_deps)
     *   [data_keys: [string list] Keys from which to collect metadata.](#var_data_keys)
     *   [defines: [string list] C preprocessor defines.](#var_defines)
+    *   [dep_keys: [string list] Metadata keys listing targets to depend on.](#var_dep_keys)
     *   [depfile: [string] File name for input dependencies for actions.](#var_depfile)
     *   [deps: [label list] Private linked dependencies.](#var_deps)
     *   [externs: [scope] Set of Rust crate-dependency pairs.](#var_externs)
@@ -175,6 +176,7 @@
     *   [transparent: [bool] True if the bundle is transparent.](#var_transparent)
     *   [validations: [label list] Validation dependencies.](#var_validations)
     *   [visibility: [label list] A list of labels that can depend on a target.](#var_visibility)
+    *   [walk_deps: [label list] Metadata walk roots that are not dependencies.](#var_walk_deps)
     *   [walk_keys: [string list] Key(s) for managing the metadata collection walk.](#var_walk_keys)
     *   [weak_frameworks: [name list] Name of frameworks that must be weak linked.](#var_weak_frameworks)
     *   [weak_libraries: [file list] File of libraries that must be weak linked.](#var_weak_libraries)
@@ -566,6 +568,7 @@
   configs [--tree] (see below)
   data_keys
   defines [--blame]
+  dep_keys
   depfile
   deps [--all] [--tree] (see below)
   framework_dirs
@@ -587,6 +590,7 @@
   testonly
   validations
   visibility
+  walk_deps
   walk_keys
   weak_frameworks
   weak_libraries
@@ -2170,6 +2174,11 @@
 
   By default, validations dependencies are never visited by metadata collection,
   but setting `collect_validations_metadata = true` changes this behavior.
+
+  The metadata collection walk can also start from targets that are not
+  dependencies of the generated_file() target by listing them in `walk_deps`,
+  and the targets that produce the collected data can be made dependencies of
+  it with `dep_keys`. See `gn help walk_deps` and `gn help dep_keys`.
 ```
 
 #### **Variables**
@@ -2182,7 +2191,7 @@
            output_extension, output_name, public, sources, testonly,
            visibility
   Generated file: contents, data_keys, rebase, walk_keys, output_conversion,
-                  outputs, collect_validations_metadata
+                  outputs, collect_validations_metadata, walk_deps, dep_keys
 ```
 
 #### **Example (metadata collection)**
@@ -6082,6 +6091,21 @@
 ```
   defines = [ "AWESOME_FEATURE", "LOG_LEVEL=3" ]
 ```
+### <a name="var_dep_keys"></a>**dep_keys**: Metadata keys listing targets to depend on.&nbsp;[Back to Top](#gn-reference)
+
+```
+  Valid on generated_file() targets that collect metadata.
+
+  During the metadata walk, values of these keys are resolved as labels
+  relative to each walked target (which must refer to the walked target itself
+  or one of its direct dependencies, including validations when
+  collect_validations_metadata is true) and added as Ninja dependencies of the
+  generated_file() target. It is an error for a collected target to depend on
+  the generated_file() target itself (cycles spanning multiple generated_file()
+  targets are reported by Ninja).
+
+  See "gn help generated_file" and "gn help walk_deps".
+```
 ### <a name="var_depfile"></a>**depfile**: [string] File name for input dependencies for actions.&nbsp;[Back to Top](#gn-reference)
 
 ```
@@ -7426,6 +7450,17 @@
   Any target in the current directory and any subdirectory thereof, plus
   any targets in "//bar/" and any subdirectory thereof.
     visibility = [ "./*", "//bar/*" ]
+```
+### <a name="var_walk_deps"></a>**walk_deps**: Metadata walk roots that are not dependencies.&nbsp;[Back to Top](#gn-reference)
+
+```
+  Valid on generated_file() targets that collect metadata.
+
+  The metadata walk starts from these targets in addition to deps and
+  data_deps, without making them Ninja dependencies of the generated_file()
+  target (allowing cycles with deps). Like "gen_deps", listed targets are
+  generated when the generated_file() target is generated. Often paired with
+  "dep_keys".
 ```
 ### <a name="var_walk_keys"></a>**walk_keys**: Key(s) for managing the metadata collection walk.&nbsp;[Back to Top](#gn-reference)
 

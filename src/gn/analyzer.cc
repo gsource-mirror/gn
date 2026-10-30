@@ -252,6 +252,13 @@ Analyzer::Analyzer(const Builder& builder,
       for (const auto& validation_target_pair : item->AsTarget()->validations())
         dep_map_.insert(std::make_pair(validation_target_pair.ptr, item));
 
+      // The Ninja build statement of a generated_file() can depend on targets
+      // found by walking its walk_deps (see "gn help dep_keys").
+      if (item->AsTarget()->output_type() == Target::GENERATED_FILE) {
+        for (const auto& walk_dep_pair : item->AsTarget()->walk_deps())
+          dep_map_.insert(std::make_pair(walk_dep_pair.ptr, item));
+      }
+
       for (const auto& dep_config_pair : item->AsTarget()->configs())
         dep_map_.insert(std::make_pair(dep_config_pair.ptr, item));
 

@@ -17,6 +17,24 @@
       "isAi": true,
       "revId": "ac195a8d6669f7521dd38c305830405d14fefdff",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97eca6fd_3031690f",
+        "filename": "src/gn/starlark/crates/ffi/src/escape.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-01T23:21:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "641efe87_54c7670d",
+      "revId": "ac195a8d6669f7521dd38c305830405d14fefdff",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

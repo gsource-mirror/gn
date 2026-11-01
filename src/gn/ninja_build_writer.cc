@@ -105,9 +105,12 @@ base::CommandLine GetSelfInvocationCommandLine(
     // Only write arguments we haven't already written. Always skip "args"
     // since those will have been written to the file and will be used
     // implicitly in the future. Keeping --args would mean changes to the file
-    // would be ignored.
+    // would be ignored. Also skip diagnostic switches, which are meant for the
+    // run they were passed to, not for every regeneration.
     if (i->first != switches::kQuiet && i->first != switches::kRoot &&
-        i->first != switches::kDotfile && i->first != switches::kArgs) {
+        i->first != switches::kDotfile && i->first != switches::kArgs &&
+        i->first != switches::kTime && i->first != switches::kTracelog &&
+        i->first != switches::kVerbose) {
       std::string escaped_value =
           EscapeString(FilePathToUTF8(i->second), escape_shell, nullptr);
       cmdline.AppendSwitch(i->first, escaped_value);

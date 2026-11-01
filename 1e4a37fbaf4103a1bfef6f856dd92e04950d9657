@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b80e9f1_25d5e584",
+        "filename": "src/gn/starlark/crates/ffi/src/string_output_buffer.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-01T22:57:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc2446d1_7b9fee9f",
+      "revId": "1e4a37fbaf4103a1bfef6f856dd92e04950d9657",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21eae942_aec99da5",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "[From Jetski review] Bug: In Rust, `char` is a 4-byte Unicode scalar value (1–4 bytes in UTF-8), not a single byte. Casting `*self as u8` silently truncates non-ASCII characters into invalid UTF-8 bytes, which will then cause `StringOutputBufferToString` (`rust::String(buffer.str())`) to throw `std::invalid_argument` across the `noexcept` FFI boundary and abort.\n\nUsing `self.len_utf8()` and `encode_utf8`:\n```rust\nimpl Writable for char {\n    fn maximum_size(\u0026self) -\u003e usize {\n        self.len_utf8()\n    }\n\n    fn write_to_buf(\u0026self, buf: \u0026mut BigEnoughBuffer\u003c\u0027_\u003e) {\n        let mut tmp \u003d [0u8; 4];\n        buf.write_slice(self.encode_utf8(\u0026mut tmp).as_bytes());\n    }\n}\n```\nwill constant-fold to a 1-byte write for ASCII literals like `\u0027\\n\u0027` while handling non-ASCII `char`s safely (and also lets us remove `BigEnoughBuffer::write\u003cT: Copy\u003e`).",
       "isAi": true,
+      "revId": "1e4a37fbaf4103a1bfef6f856dd92e04950d9657",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f941bca1_697f8d8f",
+        "filename": "src/gn/starlark/crates/ffi/src/string_output_buffer.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-01T22:57:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21eae942_aec99da5",
       "revId": "1e4a37fbaf4103a1bfef6f856dd92e04950d9657",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

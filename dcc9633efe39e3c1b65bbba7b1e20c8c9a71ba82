@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f3a1a89_8e3fa384",
+        "filename": "src/gn/starlark/crates/ffi/src/string_output_buffer.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-02T05:33:25Z",
+      "side": 1,
+      "message": "[From Jetski review] Soundness: `write_custom` should be marked `pub unsafe fn` (with a `# Safety` section documenting that the returned pointer must remain within the reserved buffer range). Currently, safe code can overwrite the underlying C++ write cursor with an arbitrary or out-of-bounds pointer without writing `unsafe` (e.g. `buf.write_custom(|_| std::ptr::null_mut())`), leading to UB.",
+      "isAi": true,
+      "revId": "dcc9633efe39e3c1b65bbba7b1e20c8c9a71ba82",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "757240b4_4a52eee7",
+        "filename": "src/gn/starlark/crates/ffi/src/string_output_buffer.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-02T05:33:25Z",
+      "side": 1,
+      "message": "[From Jetski review] Soundness: Similar to `write_custom`, having safe `pub fn write_slice` and `pub fn write\u003cT: Copy\u003e` on `BigEnoughBuffer` allows safe functions given a `\u0026mut BigEnoughBuffer` to call them repeatedly and write past the reserved capacity without `unsafe`. Additionally, `write\u003cT: Copy\u003e` allows passing a `Copy` struct with padding bytes, copying uninitialized memory into the C++ `char[]` buffer (UB when later read by `str()` / `WriteToFile()`).\n\nSince only single-byte writes (`u8`) are needed right now, consider replacing `write\u003cT: Copy\u003e` with `write_byte(\u0026mut self, val: u8)` and marking the write methods `unsafe fn` (or keeping them private to this module).",
+      "isAi": true,
+      "revId": "dcc9633efe39e3c1b65bbba7b1e20c8c9a71ba82",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2266ff56_7cb34ac4",
+        "filename": "src/gn/starlark/crates/ffi/src/string_output_buffer.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-02T05:33:25Z",
+      "side": 1,
+      "message": "[From Jetski review] Soundness / double evaluation: `buf_write!` evaluates each `$arg` twice — once for `maximum_size(\u0026$arg)` and again for `write_to_buf(\u0026$arg, \u0026mut cursor)`. If safe code passes an expression with interior state or side effects (e.g. `iter.next().unwrap()`), the second evaluation can return a larger value than what was reserved, causing an out-of-bounds write (UB) from purely safe code.\n\nBinding the arguments once upfront in a `match` tuple avoids double evaluation (and using `checked_add` prevents size wraparound in release builds).",
+      "isAi": true,
+      "revId": "dcc9633efe39e3c1b65bbba7b1e20c8c9a71ba82",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00dc94d5_f03b0cfe",
+        "filename": "src/gn/string_output_buffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-02T05:33:25Z",
+      "side": 1,
+      "message": "[From Jetski review] Strict aliasing concern: `cur_` has type `char*`, and casting `\u0026cur_` (`char**`) to `uint8_t**` (`unsigned char**`) and modifying it through `*mut u8` on the Rust side violates C++ strict aliasing rules (the character-type aliasing exception does not extend to pointer-to-pointer types like `char**` vs `unsigned char**`, and `build/gen.py` does not pass `-fno-strict-aliasing`). Especially with cross-language LTO enabled in CL 28100, could we change `rw_buf_` / `cur_` / `end_` to `uint8_t*` (or use `c_char` on the FFI bridge) so no pointer-to-pointer `reinterpret_cast` is needed?",
+      "isAi": true,
+      "revId": "dcc9633efe39e3c1b65bbba7b1e20c8c9a71ba82",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

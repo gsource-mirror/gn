@@ -68,6 +68,24 @@
       "parentUuid": "80c638e6_194dbed4",
       "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e2f2668_75b72d85",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001342
+      },
+      "writtenOn": "2026-11-02T02:49:31Z",
+      "side": 1,
+      "message": "@digit@google.com thoughts on the above, thanks!",
+      "parentUuid": "99926ef5_1e97033c",
+      "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

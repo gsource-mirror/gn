@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d12a1f64_cc23695c",
+        "filename": "src/gn/starlark/crates/ffi/src/string_output_buffer.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-02T06:07:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f3a1a89_8e3fa384",
+      "revId": "dcc9633efe39e3c1b65bbba7b1e20c8c9a71ba82",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "757240b4_4a52eee7",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "[From Jetski review] Soundness: Similar to `write_custom`, having safe `pub fn write_slice` and `pub fn write\u003cT: Copy\u003e` on `BigEnoughBuffer` allows safe functions given a `\u0026mut BigEnoughBuffer` to call them repeatedly and write past the reserved capacity without `unsafe`. Additionally, `write\u003cT: Copy\u003e` allows passing a `Copy` struct with padding bytes, copying uninitialized memory into the C++ `char[]` buffer (UB when later read by `str()` / `WriteToFile()`).\n\nSince only single-byte writes (`u8`) are needed right now, consider replacing `write\u003cT: Copy\u003e` with `write_byte(\u0026mut self, val: u8)` and marking the write methods `unsafe fn` (or keeping them private to this module).",
       "isAi": true,
+      "revId": "dcc9633efe39e3c1b65bbba7b1e20c8c9a71ba82",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0afbd285_45ab2471",
+        "filename": "src/gn/starlark/crates/ffi/src/string_output_buffer.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-02T06:07:01Z",
+      "side": 1,
+      "message": "The point of a BigEnoughBuffer is that the buffer is \"Big enough\". For this reason, new is unsafe, but write and write_slice should be safe.",
+      "parentUuid": "757240b4_4a52eee7",
       "revId": "dcc9633efe39e3c1b65bbba7b1e20c8c9a71ba82",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -55,6 +91,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "76b35855_14589abb",
+        "filename": "src/gn/starlark/crates/ffi/src/string_output_buffer.rs",
+        "patchSetId": 6
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-02T06:07:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2266ff56_7cb34ac4",
+      "revId": "dcc9633efe39e3c1b65bbba7b1e20c8c9a71ba82",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "00dc94d5_f03b0cfe",
@@ -69,6 +123,24 @@
       "side": 1,
       "message": "[From Jetski review] Strict aliasing concern: `cur_` has type `char*`, and casting `\u0026cur_` (`char**`) to `uint8_t**` (`unsigned char**`) and modifying it through `*mut u8` on the Rust side violates C++ strict aliasing rules (the character-type aliasing exception does not extend to pointer-to-pointer types like `char**` vs `unsigned char**`, and `build/gen.py` does not pass `-fno-strict-aliasing`). Especially with cross-language LTO enabled in CL 28100, could we change `rw_buf_` / `cur_` / `end_` to `uint8_t*` (or use `c_char` on the FFI bridge) so no pointer-to-pointer `reinterpret_cast` is needed?",
       "isAi": true,
+      "revId": "dcc9633efe39e3c1b65bbba7b1e20c8c9a71ba82",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2345ec38_7db09c36",
+        "filename": "src/gn/string_output_buffer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-02T06:07:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00dc94d5_f03b0cfe",
       "revId": "dcc9633efe39e3c1b65bbba7b1e20c8c9a71ba82",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

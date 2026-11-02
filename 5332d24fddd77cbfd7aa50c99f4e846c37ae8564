@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e21e0f5_464d598e",
+        "filename": "src/gn/starlark/crates/args/src/expand.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-02T05:30:45Z",
+      "side": 1,
+      "message": "[From Jetski review] Per `AGENTS.md` (\"Anything marked as `pub` should have a docstring\"), please add `///` docstrings to the public methods on `ArgVisitor` (`add_arg_chunk`, `finish_arg`, `add_arg`, `add_formatted`). In particular, it would be helpful to document that `finish_arg` may be called with zero preceding `add_arg_chunk` calls when emitting an empty argument (e.g. `add_joined` with `omit_if_empty \u003d False` and no `format_joined`).",
+      "isAi": true,
+      "revId": "5332d24fddd77cbfd7aa50c99f4e846c37ae8564",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3776a3d_263cdc77",
+        "filename": "src/gn/starlark/crates/args/src/expand.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-02T05:30:45Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: This chunk-emission logic (`fmt.before`, `item`, and non-empty `fmt.after`) duplicates `ArgVisitor::add_formatted` above (minus `finish_arg()`). Consider extracting a helper method on `ArgVisitor` (e.g. `add_formatted_chunks`) and having `add_formatted` call it followed by `self.finish_arg()`.",
+      "isAi": true,
+      "revId": "5332d24fddd77cbfd7aa50c99f4e846c37ae8564",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

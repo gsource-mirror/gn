@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc3c520a_7e8ae44c",
+        "filename": "src/gn/starlark/crates/args/src/expand.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-02T05:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e21e0f5_464d598e",
+      "revId": "5332d24fddd77cbfd7aa50c99f4e846c37ae8564",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b3776a3d_263cdc77",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: This chunk-emission logic (`fmt.before`, `item`, and non-empty `fmt.after`) duplicates `ArgVisitor::add_formatted` above (minus `finish_arg()`). Consider extracting a helper method on `ArgVisitor` (e.g. `add_formatted_chunks`) and having `add_formatted` call it followed by `self.finish_arg()`.",
       "isAi": true,
+      "revId": "5332d24fddd77cbfd7aa50c99f4e846c37ae8564",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "047652fe_d7759748",
+        "filename": "src/gn/starlark/crates/args/src/expand.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-02T05:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3776a3d_263cdc77",
       "revId": "5332d24fddd77cbfd7aa50c99f4e846c37ae8564",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

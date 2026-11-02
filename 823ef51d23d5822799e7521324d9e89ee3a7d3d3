@@ -104,6 +104,24 @@
       "parentUuid": "4e2f2668_75b72d85",
       "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da9069df_8e74f447",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001342
+      },
+      "writtenOn": "2026-11-02T18:40:35Z",
+      "side": 1,
+      "message": "2) It was just a case of possible user misconfiguration where a target set `write_compile_flags \u003d \"$target_gen_dir/flags.json\"` in `BUILD.gn` and the user also ran `gn gen out/Default --ide\u003djson --json-file-name\u003dgen/path/flags.json` pointing to the exact same file path and since `RunIdeWriter()` runs at the end of `RunGen()` after target resolution, it silently overwrites the target\u0027s flags file with the IDE project JSON. However, the same is already true for `generated_file()` and `write_runtime_deps`. I agree this doesn\u0027t justify special handling in GN.\n\nI\u0027ve uploaded a new patchset addressing your feedback:\n- Removed `materialize-compile-flags`.\n- Moved the file write into `ninja_binary_target_writer.cc`.\n- Updated the JSON output to cover all `config()` data fields, omitting empty fields.\n- Updated the documentation.",
+      "parentUuid": "543384a5_7c66e02f",
+      "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

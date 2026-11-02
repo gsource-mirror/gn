@@ -86,6 +86,24 @@
       "parentUuid": "99926ef5_1e97033c",
       "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "543384a5_7c66e02f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-02T12:05:56Z",
+      "side": 1,
+      "message": "1. That sounds like a problem in your build actions, not something that justifies embedding data into the Ninja build plan and \"materialize it\". If you could come up with a simple and deterministic example that reproduces the issue, this could be reconsider. So far I see no reason to implement this feature, either for this type of generate_file() targets, or others.\n\n3. That is what `$root_out_dir` is for, and doesn\u0027t seem something that justifies a new code paths. I don\u0027t understand the issue for `--ide\u003djson` / `--json-file-name\u003d`, can you provide an example that illustrates the problem you are referring to?\n\nApart from that, writing at `gn gen` time in `ninja_binary_target_writer.cc` should be ok. The JSON schema should reflect the whole `config()` data fields (and make keys optionals to avoid a large number of empty lists / strings). I am adding a few other GN maintainers for confirmation.",
+      "parentUuid": "4e2f2668_75b72d85",
+      "revId": "823ef51d23d5822799e7521324d9e89ee3a7d3d3",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -2532,6 +2532,120 @@ const char kWriteOutputConversion_Help[] =
   See `gn help io_conversion`.
 )";
 
+const char kWriteCompileFlags[] = "write_compile_flags";
+const char kWriteCompileFlags_HelpShort[] =
+    "write_compile_flags: [file name] Writes the target's resolved config "
+    "values as JSON.";
+const char kWriteCompileFlags_Help[] =
+    R"*(write_compile_flags: [file name] Writes the target's resolved config values as JSON.
+
+  On a binary target, writes the target's resolved config values (see "gn help
+  config") as a JSON object to the given path during generation.
+
+  If the file exists and the contents are identical to that being written, the
+  file will not be updated. This will prevent unnecessary rebuilds of targets
+  that depend on this file.
+
+  Path must be within the output directory.
+
+  This allows action targets (such as header, binding, or metadata generators)
+  to consume a binary target's resolved compiler flags, defines, and include
+  directories as an input file without duplicating configs or invoking "gn desc"
+  during the build. If the binary target depends on the action, the action can
+  list the binary target in "gen_deps" (see "gn help gen_deps") so the binary
+  target is resolved and its compile flags file is written without creating a
+  circular build dependency.
+
+JSON schema
+
+  The file contains a JSON object with the following fields (fields marked
+  optional are omitted when empty):
+
+   - "target": A string containing the full label of the target, including its
+     toolchain (e.g. "//foo:bar(//build/toolchain:default)").
+
+   - "toolchain": A string containing the label of the target's toolchain
+     (e.g. "//build/toolchain:default").
+
+   - "arflags", "asmflags", "cflags", "cflags_c", "cflags_cc", "cflags_objc",
+     "cflags_objcc", "ldflags", "rustenv", "rustflags", "swiftflags"
+     (optional): A list of strings containing the resolved flags for the
+     corresponding config variable in config evaluation order (see "gn help
+     config"), preserving duplicates.
+
+   - "defines" (optional): A list of strings containing deduplicated
+     preprocessor definitions in config evaluation order, without "-D"
+     prefixes.
+
+   - "include_dirs", "framework_dirs", "lib_dirs" (optional): A list of strings
+     containing deduplicated directory paths formatted as GN source-relative
+     paths (e.g. "//path/to/dir/") or system-absolute paths.
+
+   - "inputs" (optional): A list of strings containing input file paths from
+     the target's configs, formatted as GN source-relative paths.
+
+   - "libs" (optional): A list of strings containing deduplicated library names
+     or GN source-relative library file paths (see "gn help libs").
+
+   - "frameworks", "weak_frameworks", "weak_libraries" (optional): A list of
+     strings containing deduplicated Darwin framework and weak library names.
+
+   - "c_additional_outputs" (optional): A list of strings containing
+     deduplicated compiler additional output substitution patterns (see
+     "gn help c_additional_outputs").
+
+   - "externs" (optional): A JSON object mapping Rust crate names (strings) to
+     their library paths (strings).
+
+   - "precompiled_header" (optional): A string containing the precompiled
+     header name (see "gn help precompiled_header").
+
+   - "precompiled_source" (optional): A string containing the precompiled
+     source file path formatted as a GN source-relative path (see "gn help
+     precompiled_source").
+
+Example
+
+  Given the following targets defined in //foo/BUILD.gn:
+
+    config("dep_config") {
+      defines = [ "ENABLE_BAR" ]
+      include_dirs = [ "include" ]
+    }
+
+    source_set("dep") {
+      public_configs = [ ":dep_config" ]
+    }
+
+    source_set("foo") {
+      sources = [ "foo.cc" ]
+      cflags_cc = [ "-std=c++20" ]
+      write_compile_flags = "$target_gen_dir/foo_compile_flags.json"
+      deps = [
+        ":dep",
+        ":gen_header",
+      ]
+    }
+
+    action("gen_header") {
+      script = "gen_header.py"
+      gen_deps = [ ":foo" ]
+      inputs = [ "$target_gen_dir/foo_compile_flags.json" ]
+      outputs = [ "$target_gen_dir/generated.h" ]
+      args = rebase_path(inputs + outputs, root_build_dir)
+    }
+
+  The following will be written to "$target_gen_dir/foo_compile_flags.json":
+
+    {
+       "cflags_cc": [ "-std=c++20" ],
+       "defines": [ "ENABLE_BAR" ],
+       "include_dirs": [ "//foo/include/" ],
+       "target": "//foo:foo(//build/toolchain:default)",
+       "toolchain": "//build/toolchain:default"
+    }
+)*";
+
 const char kWriteRuntimeDeps[] = "write_runtime_deps";
 const char kWriteRuntimeDeps_HelpShort[] =
     "write_runtime_deps: Writes the target's runtime_deps to the given path.";
@@ -2686,6 +2800,7 @@ const VariableInfoMap& GetTargetVariables() {
     INSERT_VARIABLE(WriteOutputConversion)
     INSERT_VARIABLE(WriteValueContents)
     INSERT_VARIABLE(WriteRuntimeDeps)
+    INSERT_VARIABLE(WriteCompileFlags)
     INSERT_VARIABLE(XcodeExtraAttributes)
     InsertRustVariables(&info_map);
     InsertSwiftVariables(&info_map);

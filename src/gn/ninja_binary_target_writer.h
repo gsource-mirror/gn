@@ -23,6 +23,7 @@ class NinjaBinaryTargetWriter : public NinjaTargetWriter {
   void Run() override;
   void WritePublicModuleMap(StringOutputBuffer& out, const SourceDir& out_dir);
   void WritePrivateModuleMap(StringOutputBuffer& out, const SourceDir& out_dir);
+  void WriteCompileFlags(StringOutputBuffer& out);
 
  protected:
   // Structure used to return the classified deps from |GetDeps| method.
@@ -81,6 +82,8 @@ class NinjaBinaryTargetWriter : public NinjaTargetWriter {
 
   void AddSourceSetFiles(const Target* source_set,
                          UniqueVector<OutputFile>* obj_files) const;
+
+  bool WriteCompileFlagsFile(Err* err);
 
   // Cached version of the prefix used for rule types for this toolchain.
   std::string rule_prefix_;

@@ -7,10 +7,15 @@
 #include <algorithm>
 #include <unordered_set>
 
+#include "base/json/json_writer.h"
+#include "base/logging.h"
 #include "base/strings/string_util.h"
+#include "base/values.h"
 #include "gn/builtin_tool.h"
 #include "gn/config_values_extractors.h"
 #include "gn/deps_iterator.h"
+#include "gn/desc_builder.h"
+#include "gn/err.h"
 #include "gn/filesystem_utils.h"
 #include "gn/general_tool.h"
 #include "gn/ninja_c_binary_target_writer.h"
@@ -18,11 +23,13 @@
 #include "gn/ninja_target_command_util.h"
 #include "gn/ninja_utils.h"
 #include "gn/pool.h"
+#include "gn/scheduler.h"
 #include "gn/settings.h"
 #include "gn/string_output_buffer.h"
 #include "gn/string_utils.h"
 #include "gn/substitution_writer.h"
 #include "gn/target.h"
+#include "gn/trace.h"
 #include "gn/variables.h"
 
 namespace {
@@ -99,6 +106,14 @@ NinjaBinaryTargetWriter::NinjaBinaryTargetWriter(const Target* target,
 NinjaBinaryTargetWriter::~NinjaBinaryTargetWriter() = default;
 
 void NinjaBinaryTargetWriter::Run() {
+  if (!target_->write_compile_flags_output().value().empty()) {
+    Err err;
+    if (!WriteCompileFlagsFile(&err)) {
+      g_scheduler->FailWithError(err);
+      return;
+    }
+  }
+
   if (target_->source_types_used().RustSourceUsed()) {
     NinjaRustBinaryTargetWriter writer(target_, out_);
     writer.SetResolvedTargetData(GetResolvedTargetData());
@@ -111,6 +126,33 @@ void NinjaBinaryTargetWriter::Run() {
   writer.SetResolvedTargetData(GetResolvedTargetData());
   writer.SetNinjaOutputs(ninja_outputs_);
   writer.Run();
+}
+
+bool NinjaBinaryTargetWriter::WriteCompileFlagsFile(Err* err) {
+  SourceFile file = target_->write_compile_flags_output().AsSourceFile(
+      settings_->build_settings());
+  ScopedTrace trace(TraceItem::TRACE_FILE_WRITE_GENERATED, file.value());
+  trace.SetToolchain(settings_->toolchain_label());
+
+  StringOutputBuffer storage;
+  WriteCompileFlags(storage);
+
+  base::FilePath output_path = settings_->build_settings()->GetFullPath(file);
+  if (!storage.WriteToFileIfChanged(output_path, err))
+    return false;
+
+  if (g_scheduler)
+    g_scheduler->AddWrittenFile(file);
+  return true;
+}
+
+void NinjaBinaryTargetWriter::WriteCompileFlags(StringOutputBuffer& out) {
+  std::unique_ptr<base::DictionaryValue> flags =
+      DescBuilder::CompileFlagsForTarget(target_, GetResolvedTargetData());
+  std::string json;
+  CHECK(base::JSONWriter::WriteWithOptions(
+      *flags, base::JSONWriter::OPTIONS_PRETTY_PRINT, &json));
+  out << json;
 }
 
 void NinjaBinaryTargetWriter::WritePublicModuleMap(StringOutputBuffer& out,

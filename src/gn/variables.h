@@ -390,6 +390,10 @@ extern const char kWriteRuntimeDeps[];
 extern const char kWriteRuntimeDeps_HelpShort[];
 extern const char kWriteRuntimeDeps_Help[];
 
+extern const char kWriteCompileFlags[];
+extern const char kWriteCompileFlags_HelpShort[];
+extern const char kWriteCompileFlags_Help[];
+
 extern const char kXcodeExtraAttributes[];
 extern const char kXcodeExtraAttributes_HelpShort[];
 extern const char kXcodeExtraAttributes_Help[];

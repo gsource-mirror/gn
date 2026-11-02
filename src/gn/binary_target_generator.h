@@ -34,6 +34,7 @@ class BinaryTargetGenerator : public TargetGenerator {
   bool ValidateSources();
   bool FillModuleName();
   bool FillModuleType();
+  bool FillWriteCompileFlags();
 
   Target::OutputType output_type_;
 

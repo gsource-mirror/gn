@@ -206,3 +206,26 @@ TEST_F(BinaryTargetGeneratorTest, AllowCircularIncludesAllowlist) {
     EXPECT_TRUE(err.has_error());
   }
 }
+
+TEST_F(BinaryTargetGeneratorTest, WriteCompileFlags) {
+  for (const char* invalid_value : {"17", "\"\"", "\"//flags.json\""}) {
+    TestWithScope setup;
+    Err err;
+    EXPECT_FALSE(setup.ExecuteSnippet(
+        std::string("source_set(\"library\") { write_compile_flags = ") +
+            invalid_value + " }",
+        &err));
+    EXPECT_TRUE(err.has_error());
+  }
+
+  TestWithScope setup;
+  Err err;
+  ASSERT_TRUE(setup.ExecuteSnippet(
+      "source_set(\"library\") {\n"
+      "  write_compile_flags = \"//out/Debug/gen/flags.json\"\n"
+      "}\n",
+      &err));
+  const Target* target = setup.items().back()->AsTarget();
+  ASSERT_TRUE(target);
+  EXPECT_EQ("gen/flags.json", target->write_compile_flags_output().value());
+}

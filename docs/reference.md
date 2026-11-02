@@ -178,6 +178,7 @@
     *   [walk_keys: [string list] Key(s) for managing the metadata collection walk.](#var_walk_keys)
     *   [weak_frameworks: [name list] Name of frameworks that must be weak linked.](#var_weak_frameworks)
     *   [weak_libraries: [file list] File of libraries that must be weak linked.](#var_weak_libraries)
+    *   [write_compile_flags: [file name] Writes the target's resolved config values as JSON.](#var_write_compile_flags)
     *   [write_runtime_deps: Writes the target's runtime_deps to the given path.](#var_write_runtime_deps)
     *   [xcasset_compiler_flags: [string list] Flags passed to xcassets compiler](#var_xcasset_compiler_flags)
     *   [xcode_extra_attributes: [scope] Extra attributes for Xcode projects.](#var_xcode_extra_attributes)
@@ -7512,6 +7513,119 @@
 
 ```
   weak_libraries = [ rebase_path("//path/to/libOnlyOnNewerOSes.dylib") ]
+```
+### <a name="var_write_compile_flags"></a>**write_compile_flags**: [file name] Writes the target's resolved config values as JSON.&nbsp;[Back to Top](#gn-reference)
+
+```
+  On a binary target, writes the target's resolved config values (see "gn help
+  config") as a JSON object to the given path during generation.
+
+  If the file exists and the contents are identical to that being written, the
+  file will not be updated. This will prevent unnecessary rebuilds of targets
+  that depend on this file.
+
+  Path must be within the output directory.
+
+  This allows action targets (such as header, binding, or metadata generators)
+  to consume a binary target's resolved compiler flags, defines, and include
+  directories as an input file without duplicating configs or invoking "gn desc"
+  during the build. If the binary target depends on the action, the action can
+  list the binary target in "gen_deps" (see "gn help gen_deps") so the binary
+  target is resolved and its compile flags file is written without creating a
+  circular build dependency.
+```
+
+#### **JSON schema**
+
+```
+  The file contains a JSON object with the following fields (fields marked
+  optional are omitted when empty):
+
+   - "target": A string containing the full label of the target, including its
+     toolchain (e.g. "//foo:bar(//build/toolchain:default)").
+
+   - "toolchain": A string containing the label of the target's toolchain
+     (e.g. "//build/toolchain:default").
+
+   - "arflags", "asmflags", "cflags", "cflags_c", "cflags_cc", "cflags_objc",
+     "cflags_objcc", "ldflags", "rustenv", "rustflags", "swiftflags"
+     (optional): A list of strings containing the resolved flags for the
+     corresponding config variable in config evaluation order (see "gn help
+     config"), preserving duplicates.
+
+   - "defines" (optional): A list of strings containing deduplicated
+     preprocessor definitions in config evaluation order, without "-D"
+     prefixes.
+
+   - "include_dirs", "framework_dirs", "lib_dirs" (optional): A list of strings
+     containing deduplicated directory paths formatted as GN source-relative
+     paths (e.g. "//path/to/dir/") or system-absolute paths.
+
+   - "inputs" (optional): A list of strings containing input file paths from
+     the target's configs, formatted as GN source-relative paths.
+
+   - "libs" (optional): A list of strings containing deduplicated library names
+     or GN source-relative library file paths (see "gn help libs").
+
+   - "frameworks", "weak_frameworks", "weak_libraries" (optional): A list of
+     strings containing deduplicated Darwin framework and weak library names.
+
+   - "c_additional_outputs" (optional): A list of strings containing
+     deduplicated compiler additional output substitution patterns (see
+     "gn help c_additional_outputs").
+
+   - "externs" (optional): A JSON object mapping Rust crate names (strings) to
+     their library paths (strings).
+
+   - "precompiled_header" (optional): A string containing the precompiled
+     header name (see "gn help precompiled_header").
+
+   - "precompiled_source" (optional): A string containing the precompiled
+     source file path formatted as a GN source-relative path (see "gn help
+     precompiled_source").
+```
+
+#### **Example**
+
+```
+  Given the following targets defined in //foo/BUILD.gn:
+
+    config("dep_config") {
+      defines = [ "ENABLE_BAR" ]
+      include_dirs = [ "include" ]
+    }
+
+    source_set("dep") {
+      public_configs = [ ":dep_config" ]
+    }
+
+    source_set("foo") {
+      sources = [ "foo.cc" ]
+      cflags_cc = [ "-std=c++20" ]
+      write_compile_flags = "$target_gen_dir/foo_compile_flags.json"
+      deps = [
+        ":dep",
+        ":gen_header",
+      ]
+    }
+
+    action("gen_header") {
+      script = "gen_header.py"
+      gen_deps = [ ":foo" ]
+      inputs = [ "$target_gen_dir/foo_compile_flags.json" ]
+      outputs = [ "$target_gen_dir/generated.h" ]
+      args = rebase_path(inputs + outputs, root_build_dir)
+    }
+
+  The following will be written to "$target_gen_dir/foo_compile_flags.json":
+
+    {
+       "cflags_cc": [ "-std=c++20" ],
+       "defines": [ "ENABLE_BAR" ],
+       "include_dirs": [ "//foo/include/" ],
+       "target": "//foo:foo(//build/toolchain:default)",
+       "toolchain": "//build/toolchain:default"
+    }
 ```
 ### <a name="var_write_runtime_deps"></a>**write_runtime_deps**: Writes the target's runtime_deps to the given path.&nbsp;[Back to Top](#gn-reference)
 

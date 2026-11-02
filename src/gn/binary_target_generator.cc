@@ -79,6 +79,9 @@ void BinaryTargetGenerator::DoRun() {
   if (!FillModuleType())
     return;
 
+  if (!FillWriteCompileFlags())
+    return;
+
   if (target_->source_types_used().RustSourceUsed()) {
     RustValuesGenerator rustgen(target_, scope_, function_call_, err_);
     rustgen.Run();
@@ -148,6 +151,25 @@ bool BinaryTargetGenerator::FillCompleteStaticLib() {
       return false;
     target_->set_complete_static_lib(value->boolean_value());
   }
+  return true;
+}
+
+bool BinaryTargetGenerator::FillWriteCompileFlags() {
+  const Value* value = scope_->GetValue(variables::kWriteCompileFlags, true);
+  if (!value)
+    return true;
+
+  // Compute the file name and make sure it's in the output dir.
+  SourceFile source_file = scope_->GetSourceDir().ResolveRelativeFile(
+      *value, err_, GetBuildSettings()->root_path_utf8());
+  if (err_->has_error())
+    return false;
+  if (!EnsureStringIsInOutputDir(GetBuildSettings()->build_dir(),
+                                 source_file.value(), value->origin(), err_))
+    return false;
+  OutputFile output_file(GetBuildSettings(), source_file);
+  target_->set_write_compile_flags_output(output_file);
+
   return true;
 }
 

@@ -510,57 +510,7 @@ class TargetDescBuilder : public BaseDescBuilder {
       FillInBundle(res.get());
 
     if (is_binary_output) {
-#define CONFIG_VALUE_ARRAY_HANDLER(name, type, config)                    \
-  if (what(#name)) {                                                      \
-    ValuePtr ptr = RenderConfigValues<type>(config, &ConfigValues::name); \
-    if (ptr) {                                                            \
-      res->SetWithoutPathExpansion(#name, std::move(ptr));                \
-    }                                                                     \
-  }
-      CONFIG_VALUE_ARRAY_HANDLER(arflags, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(asmflags, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(cflags, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(cflags_c, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(cflags_cc, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(cflags_objc, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(cflags_objcc, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(rustflags, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(rustenv, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(defines, std::string,
-                                 kRecursiveWriterSkipDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(include_dirs, SourceDir,
-                                 kRecursiveWriterSkipDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(inputs, SourceFile,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(ldflags, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-      CONFIG_VALUE_ARRAY_HANDLER(swiftflags, std::string,
-                                 kRecursiveWriterKeepDuplicates)
-#undef CONFIG_VALUE_ARRAY_HANDLER
-
-      // Libs and lib_dirs are handled specially below.
-
-      if (what(variables::kExterns)) {
-        base::DictionaryValue externs;
-        for (ConfigValuesIterator iter(target_); !iter.done(); iter.Next()) {
-          const ConfigValues& cur = iter.cur();
-          for (const auto& e : cur.externs()) {
-            externs.SetKey(e.first, base::Value(e.second.value()));
-          }
-        }
-        res->SetKey(variables::kExterns, std::move(externs));
-      }
-
-      FillInPrecompiledHeader(res.get(), target_->config_values());
+      FillInConfigValues(res.get(), /*omit_empty_externs=*/false);
     }
 
     // GeneratedFile vars.
@@ -606,6 +556,97 @@ class TargetDescBuilder : public BaseDescBuilder {
     if (what_.find("runtime_deps") != what_.end())
       res->SetWithoutPathExpansion("runtime_deps", RenderRuntimeDeps());
 
+    FillInLibAndFrameworkValues(res.get());
+
+    return res;
+  }
+
+  std::unique_ptr<base::DictionaryValue> BuildCompileFlags() {
+    auto res = std::make_unique<base::DictionaryValue>();
+    res->SetKey("target",
+                base::Value(target_->label().GetUserVisibleName(true)));
+    res->SetKey(
+        "toolchain",
+        base::Value(
+            target_->label().GetToolchainLabel().GetUserVisibleName(false)));
+    FillInConfigValues(res.get(), /*omit_empty_externs=*/true);
+    FillInLibAndFrameworkValues(res.get());
+    return res;
+  }
+
+ private:
+  void FillInConfigValues(base::DictionaryValue* res, bool omit_empty_externs) {
+#define CONFIG_VALUE_ARRAY_HANDLER(name, type, config)                    \
+  if (what(#name)) {                                                      \
+    ValuePtr ptr = RenderConfigValues<type>(config, &ConfigValues::name); \
+    if (ptr) {                                                            \
+      res->SetWithoutPathExpansion(#name, std::move(ptr));                \
+    }                                                                     \
+  }
+    CONFIG_VALUE_ARRAY_HANDLER(arflags, std::string,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(asmflags, std::string,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(cflags, std::string,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(cflags_c, std::string,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(cflags_cc, std::string,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(cflags_objc, std::string,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(cflags_objcc, std::string,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(rustflags, std::string,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(rustenv, std::string,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(defines, std::string,
+                               kRecursiveWriterSkipDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(include_dirs, SourceDir,
+                               kRecursiveWriterSkipDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(inputs, SourceFile,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(ldflags, std::string,
+                               kRecursiveWriterKeepDuplicates)
+    CONFIG_VALUE_ARRAY_HANDLER(swiftflags, std::string,
+                               kRecursiveWriterKeepDuplicates)
+#undef CONFIG_VALUE_ARRAY_HANDLER
+
+    if (omit_empty_externs && what(variables::kCAdditionalOutputs)) {
+      auto list = std::make_unique<base::ListValue>();
+      std::set<std::string> seen;
+      for (ConfigValuesIterator iter(target_); !iter.done(); iter.Next()) {
+        for (const auto& pattern : iter.cur().c_additional_outputs()) {
+          std::string str = pattern.AsString();
+          if (seen.insert(str).second)
+            list->AppendString(str);
+        }
+      }
+      if (!list->empty()) {
+        res->SetWithoutPathExpansion(variables::kCAdditionalOutputs,
+                                     std::move(list));
+      }
+    }
+
+    // Libs and lib_dirs are handled specially below.
+
+    if (what(variables::kExterns)) {
+      base::DictionaryValue externs;
+      for (ConfigValuesIterator iter(target_); !iter.done(); iter.Next()) {
+        const ConfigValues& cur = iter.cur();
+        for (const auto& e : cur.externs()) {
+          externs.SetKey(e.first, base::Value(e.second.value()));
+        }
+      }
+      if (!omit_empty_externs || !externs.empty())
+        res->SetKey(variables::kExterns, std::move(externs));
+    }
+
+    FillInPrecompiledHeader(res, target_->config_values());
+  }
+
+  void FillInLibAndFrameworkValues(base::DictionaryValue* res) {
     // libs and lib_dirs are special in that they're inherited. We don't
     // currently implement a blame feature for this since the bottom-up
     // inheritance makes this difficult.
@@ -679,11 +720,7 @@ class TargetDescBuilder : public BaseDescBuilder {
                                      std::move(framework_dirs));
       }
     }
-
-    return res;
   }
-
- private:
   // Prints dependencies of the given target (not the target itself). If the
   // set is non-null, new targets encountered will be added to the set, and if
   // a dependency is in the set already, it will not be recused into. When the
@@ -996,4 +1033,11 @@ std::unique_ptr<base::DictionaryValue> DescBuilder::DescriptionForConfig(
     w.insert(what);
   ConfigDescBuilder b(config, w);
   return b.BuildDescription();
+}
+
+std::unique_ptr<base::DictionaryValue> DescBuilder::CompileFlagsForTarget(
+    const Target* target,
+    ResolvedTargetData* resolved) {
+  TargetDescBuilder b(target, {}, false, false, false, resolved);
+  return b.BuildCompileFlags();
 }

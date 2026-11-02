@@ -1,0 +1,63 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "267e12c5_cb1f0da9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-02T05:35:13Z",
+      "side": 1,
+      "message": "Do we have some number for this?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 11
+      },
+      "revId": "280de0498c41c5a0a5d64e9bc6e3fbbc8b361a43",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f116c829_b80ba8d1",
+        "filename": "build/ninja_file.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-02T05:35:13Z",
+      "side": 1,
+      "message": "[From Jetski review] Should `$ar` be quoted as `\"$ar\"` here (and on line 163)? In `build/gen.py` (e.g. `ar \u003d os.environ.get(\"AR\", \"ar -X64\")` on AIX, or user-supplied `AR` values with flags/spaces), unquoted `$ar` expands into multiple shell words and shifts all subsequent positional arguments in `run_cargo.py`.",
+      "isAi": true,
+      "revId": "280de0498c41c5a0a5d64e9bc6e3fbbc8b361a43",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8efcfb9d_2af52102",
+        "filename": "build/run_cargo.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-02T05:35:13Z",
+      "side": 1,
+      "message": "[From Jetski review] Consider checking `any(flag \u003d\u003d \"-flto\" or flag.startswith(\"-flto\u003d\") for flag in ldflags.split())` so that `LDFLAGS\u003d-flto\u003dthin` (or a future switch to ThinLTO in `build/gen.py`) also enables the matching Rust LTO flags instead of silently causing LLD LTO unit splitting errors.",
+      "isAi": true,
+      "revId": "280de0498c41c5a0a5d64e9bc6e3fbbc8b361a43",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

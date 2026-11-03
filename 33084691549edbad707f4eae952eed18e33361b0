@@ -16,6 +16,23 @@
       "message": "PTAL. Could you also set CQ+1?",
       "revId": "33084691549edbad707f4eae952eed18e33361b0",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78249587_5a12e385",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-11-03T16:58:13Z",
+      "side": 1,
+      "message": "lgtm",
+      "revId": "33084691549edbad707f4eae952eed18e33361b0",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

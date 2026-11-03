@@ -33,6 +33,23 @@
       "message": "lgtm",
       "revId": "33084691549edbad707f4eae952eed18e33361b0",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b978b8f_2b51f7d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-03T17:02:20Z",
+      "side": 1,
+      "message": "Adding second reviewer. Andrew: PTAL.",
+      "revId": "33084691549edbad707f4eae952eed18e33361b0",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

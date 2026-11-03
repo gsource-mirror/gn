@@ -6,6 +6,7 @@ use args::FrozenArgsSequence;
 use depset::UnpackFileDepset;
 use starlark::{
     collections::SmallMap,
+    eval::Evaluator,
     typing::Ty,
     values::{
         Heap, OwnedFrozen, ProvidesStaticType, StarlarkValue, UnpackValue as _, Value,
@@ -68,6 +69,21 @@ impl Providers {
     ) -> R {
         self.owned
             .by_ref(|inner| f(&inner.substitutions, &inner.value))
+    }
+
+    /// Returns the substitutions, accessible to the evaluator.
+    pub fn substitutions<'v, R>(
+        &self,
+        eval: &mut Evaluator<'v, '_, '_>,
+        f: impl FnOnce(&SmallMap<String, FrozenArgsSequence<'v>>, &mut Evaluator<'v, '_, '_>) -> R,
+    ) -> R {
+        let heap = eval.heap();
+        self.owned
+            .by_ref_with_reconstructor(|inner, reconstructor| {
+                let edge = reconstructor.edge(heap);
+                let inner = edge.rebrand_ref(inner);
+                f(&inner.substitutions, eval)
+            })
     }
 
     /// Looks up a provider instance by provider type value.

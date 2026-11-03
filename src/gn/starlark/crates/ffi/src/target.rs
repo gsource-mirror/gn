@@ -6,7 +6,7 @@ use std::cell::OnceCell;
 
 use providers::Providers;
 
-use crate::{TargetRef, eval_context::EvalContext};
+use crate::{StringOutputBuffer, TargetRef, eval_context::EvalContext};
 
 /// The results of running the rule implementation on a target.
 #[derive(Debug)]
@@ -51,6 +51,34 @@ impl Target {
             phony
         } else {
             ""
+        }
+    }
+
+    /// Writes the substitutions declared by GnSubstitutionsInfo to the ninja file.
+    pub fn write_substitutions(
+        &self,
+        buffer: std::pin::Pin<&mut crate::bridge::StringOutputBuffer>,
+        platform: crate::bridge::EscapingPlatform,
+        mut err: std::pin::Pin<&mut crate::bridge::Err>,
+    ) {
+        if let Some(evaluated) = self.evaluated.get() {
+            let mut buf = StringOutputBuffer::new(buffer);
+            starlark::environment::Module::with_temp_heap(|module| {
+                let mut eval = starlark::eval::Evaluator::new(&module);
+                evaluated
+                    .providers
+                    .substitutions(&mut eval, |substitutions, eval| {
+                        for (name, args) in substitutions {
+                            buf.append(("starlark_", name.as_str(), " = "));
+                            if let Err(e) = crate::args::write_args(&mut buf, eval, args, platform)
+                            {
+                                err.as_mut().fill(&e);
+                                return;
+                            }
+                            buf.append(b'\n');
+                        }
+                    });
+            });
         }
     }
 

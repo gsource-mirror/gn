@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80d80c63_7c684b04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-03T12:45:26Z",
+      "side": 1,
+      "message": "PTAL. Could you also set CQ+1?",
+      "revId": "33084691549edbad707f4eae952eed18e33361b0",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

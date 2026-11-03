@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c53be08d_7ba961e2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-03T03:35:25Z",
+      "side": 1,
+      "message": "From memory, my micro-benchmarks it was showing something like 40%. Macro-benchmarks not yet available since we\u0027re not calling the code that we had LTO enabled on",
+      "parentUuid": "267e12c5_cb1f0da9",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 11
+      },
+      "revId": "280de0498c41c5a0a5d64e9bc6e3fbbc8b361a43",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f116c829_b80ba8d1",
@@ -42,6 +66,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c757824_5f3edac6",
+        "filename": "build/ninja_file.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-03T03:35:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f116c829_b80ba8d1",
+      "revId": "280de0498c41c5a0a5d64e9bc6e3fbbc8b361a43",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8efcfb9d_2af52102",
@@ -56,6 +98,24 @@
       "side": 1,
       "message": "[From Jetski review] Consider checking `any(flag \u003d\u003d \"-flto\" or flag.startswith(\"-flto\u003d\") for flag in ldflags.split())` so that `LDFLAGS\u003d-flto\u003dthin` (or a future switch to ThinLTO in `build/gen.py`) also enables the matching Rust LTO flags instead of silently causing LLD LTO unit splitting errors.",
       "isAi": true,
+      "revId": "280de0498c41c5a0a5d64e9bc6e3fbbc8b361a43",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48fe152f_22519f6b",
+        "filename": "build/run_cargo.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-03T03:35:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8efcfb9d_2af52102",
       "revId": "280de0498c41c5a0a5d64e9bc6e3fbbc8b361a43",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

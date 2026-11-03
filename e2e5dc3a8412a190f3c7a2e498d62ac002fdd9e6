@@ -33,6 +33,23 @@
       "message": "lgtm\n\nCan we add an unittest in `src/gn/ninja_build_writer_unittest.cc`?",
       "revId": "e2e5dc3a8412a190f3c7a2e498d62ac002fdd9e6",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d48989d_839c83b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-03T12:43:11Z",
+      "side": 1,
+      "message": "Hi Sylvain, sorry for letting this sit for so long. I found that regeneration still broke for list files outside the build directory and I also wanted to address Dirk\u0027s comment about making paths relative to the current directory and source-absolute paths work, and documenting them. I\u0027m splitting the work into several CLs, and there\u0027s already a precursor at https://gn-review.googlesource.com/c/gn/+/28400. I\u0027ll update this CL once the precursors have landed.",
+      "revId": "e2e5dc3a8412a190f3c7a2e498d62ac002fdd9e6",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

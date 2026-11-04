@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cb39a25_35372342",
+        "filename": "src/gn/substitution_pattern.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-04T04:36:30Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Move GetStarlarkSubstitution inside the anonymous namespace above since it is only used within this translation unit (and consider taking const std::string\u0026 to avoid an extra copy on cache hits).",
+      "isAi": true,
+      "revId": "06dfe50c8391acbf8018efd2e3aaeb35f02cc944",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6224b540_6a2df2e9",
+        "filename": "src/gn/substitution_pattern.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-04T04:36:30Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Since the check on line 112 only allows lowercase ASCII letters (\u0027a\u0027-\u0027z\u0027) and \u0027_\u0027, consider updating the error message to say \"must contain only lowercase letters and _.\"",
+      "isAi": true,
+      "revId": "06dfe50c8391acbf8018efd2e3aaeb35f02cc944",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

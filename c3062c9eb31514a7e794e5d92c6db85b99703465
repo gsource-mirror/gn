@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfa6e0a2_d67a3f05",
+        "filename": "src/gn/starlark/crates/rule/src/implementation.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-04T04:03:17Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Instead of #[allow(clippy::type_complexity)], could CtxState::rule_impl_complete() return starlark::Result\u003cVec\u003c(File, Vec\u003cFile\u003e)\u003e\u003e (or could we define a private type alias type TargetRef\u003cC\u003e \u003d \u003cC::Session as Session\u003e::TargetRef;)? Since callers only use state.phonies, returning the phonies Vec directly from rule_impl_complete() (or using a TargetRef\u003cC\u003e alias) would avoid the clippy warning and make the signature simpler.",
+      "isAi": true,
+      "revId": "c3062c9eb31514a7e794e5d92c6db85b99703465",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

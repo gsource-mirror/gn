@@ -17,6 +17,24 @@
       "isAi": true,
       "revId": "c3062c9eb31514a7e794e5d92c6db85b99703465",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92f738c9_75e978c6",
+        "filename": "src/gn/starlark/crates/rule/src/implementation.rs",
+        "patchSetId": 7
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-04T04:58:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfa6e0a2_d67a3f05",
+      "revId": "c3062c9eb31514a7e794e5d92c6db85b99703465",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

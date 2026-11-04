@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f881ff0_6dd8134f",
+        "filename": "src/gn/substitution_pattern.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-04T04:45:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cb39a25_35372342",
+      "revId": "06dfe50c8391acbf8018efd2e3aaeb35f02cc944",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6224b540_6a2df2e9",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: Since the check on line 112 only allows lowercase ASCII letters (\u0027a\u0027-\u0027z\u0027) and \u0027_\u0027, consider updating the error message to say \"must contain only lowercase letters and _.\"",
       "isAi": true,
+      "revId": "06dfe50c8391acbf8018efd2e3aaeb35f02cc944",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ea4f627_48fdf57d",
+        "filename": "src/gn/substitution_pattern.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-04T04:45:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6224b540_6a2df2e9",
       "revId": "06dfe50c8391acbf8018efd2e3aaeb35f02cc944",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac9c5dee_67ec85b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-04T23:25:31Z",
+      "side": 1,
+      "message": "Please ignore substitution_pattern and substitution_type, both are part of the merge base.",
+      "revId": "a78e45a689ee67a37f201b15f424e50b48e08f4e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

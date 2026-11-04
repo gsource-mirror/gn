@@ -1,0 +1,58 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c431ce5_4e86f649",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-04T04:35:57Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: s/GnSubstitutionInfo/GnSubstitutionsInfo/ in the commit subject. Also, consider updating the doc comment on BuiltinProviders in src/gn/starlark/crates/providers/src/builtins.rs (lines 39-40) to reflect the \"starlark_foo \u003d ...\" / \"{{starlark:foo}}\" naming.",
+      "isAi": true,
+      "revId": "99a730fc3eef4706acb1375bbf0f6172bcada12a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad76f89b_20bbd33b",
+        "filename": "src/gn/starlark/crates/ffi/src/target.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-04T04:35:57Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Would it be worth checking if substitutions is empty before calling Module::with_temp_heap and creating an Evaluator (or moving Module::with_temp_heap inside Providers::substitutions after checking !inner.substitutions.is_empty()), so targets without GnSubstitutionsInfo don\u0027t pay the overhead of spinning up a temporary Starlark heap and evaluator?",
+      "isAi": true,
+      "revId": "99a730fc3eef4706acb1375bbf0f6172bcada12a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db91d521_ebf15581",
+        "filename": "src/gn/starlark/crates/providers/src/providers.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-04T04:35:57Z",
+      "side": 1,
+      "message": "[From Jetski review] In https://gn-review.googlesource.com/c/gn/+/28380, {{starlark:\u003cname\u003e}} only allows lowercase ASCII letters (\u0027a\u0027-\u0027z\u0027) and \u0027_\u0027. Should we validate k here with the same rule (or allow digits in both places) so users get an early error if they pass a field name in GnSubstitutionsInfo that cannot be referenced by {{starlark:...}}?",
+      "isAi": true,
+      "revId": "99a730fc3eef4706acb1375bbf0f6172bcada12a",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

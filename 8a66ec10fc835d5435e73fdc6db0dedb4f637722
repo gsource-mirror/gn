@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a53c4fc_f140522f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-11-05T15:51:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "daa58415_301c8c59",
+      "revId": "8a66ec10fc835d5435e73fdc6db0dedb4f637722",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9d74d3fa_12a7e1ad",
@@ -37,6 +55,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f41879cb_1227e625",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-11-05T15:51:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d74d3fa_12a7e1ad",
+      "revId": "8a66ec10fc835d5435e73fdc6db0dedb4f637722",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3589e0e9_bcabae00",
@@ -51,6 +87,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: Builder::GetAllResolvedTargets() iterates over all builder records and sorts all targets by label on every call. Previously RunCheck called it once, whereas now it is called both inside GetTargetsToCheck() (line 251 or inside ResolveFromCommandLineInput) and again here on line 323. Consider fetching all_targets once or reusing targets-\u003ecandidates when label_patterns is empty.",
       "isAi": true,
+      "revId": "8a66ec10fc835d5435e73fdc6db0dedb4f637722",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c3b95b1_8b9fc6ed",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-11-05T15:51:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3589e0e9_bcabae00",
       "revId": "8a66ec10fc835d5435e73fdc6db0dedb4f637722",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

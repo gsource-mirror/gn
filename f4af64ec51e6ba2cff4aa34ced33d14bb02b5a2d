@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e30423b9_2a329a9a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-05T05:30:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2b6516e_b0280833",
+      "revId": "f4af64ec51e6ba2cff4aa34ced33d14bb02b5a2d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cc40a9c_ad5fcd12",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: Since GN builds with C++23, consider taking std::string_view here and enabling heterogeneous lookup on g_starlark_substitutions (either via a transparent hash/std::equal_to\u003c\u003e on std::unordered_map, or by using std::map\u003cstd::string, std::unique_ptr\u003cSubstitution\u003e, std::less\u003c\u003e\u003e) so line 123 can pass name directly without allocating a temporary std::string on cache hits.",
       "isAi": true,
+      "revId": "f4af64ec51e6ba2cff4aa34ced33d14bb02b5a2d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8211765_9242d990",
+        "filename": "src/gn/substitution_pattern.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-05T05:30:58Z",
+      "side": 1,
+      "message": "Not worth the extra complexity - this is only called maybe a dozen times per build.",
+      "parentUuid": "0cc40a9c_ad5fcd12",
       "revId": "f4af64ec51e6ba2cff4aa34ced33d14bb02b5a2d",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

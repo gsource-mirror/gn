@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "805687a8_0f305758",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T07:33:01Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Since rust::Str has an implicit constructor from const std::string\u0026, you can pass output.value() directly here just like in ninja_binary_target_writer.cc:401.",
+      "isAi": true,
+      "revId": "469584571d94deddb6e64356a7e7364f94f733a2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2a3dd1a_8a42753e",
+        "filename": "src/gn/starlark/crates/ffi/src/target.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T07:33:01Z",
+      "side": 1,
+      "message": "[From Jetski review] If a build line has multiple outputs matching the same suffix in inputs_phony, calling write_input in a loop over outputs will emit the same phony input multiple times on the same Ninja build line. Should write_input take the list of outputs (or deduplicate matched phonies) so each phony is only written once per build line?",
+      "isAi": true,
+      "revId": "469584571d94deddb6e64356a7e7364f94f733a2",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

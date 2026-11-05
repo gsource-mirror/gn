@@ -1,0 +1,58 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "daa58415_301c8c59",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T05:51:41Z",
+      "side": 1,
+      "message": "[From Jetski review] Could you split the support for multiple \u003clabel_pattern\u003e arguments into a separate precursor CL from adding --with-transitive-deps?",
+      "isAi": true,
+      "revId": "8a66ec10fc835d5435e73fdc6db0dedb4f637722",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d74d3fa_12a7e1ad",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T05:51:41Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Should we also include [--with-transitive-deps] in the synopsis line here (and in docs/reference.md via tools/update_reference.sh)?",
+      "isAi": true,
+      "revId": "8a66ec10fc835d5435e73fdc6db0dedb4f637722",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3589e0e9_bcabae00",
+        "filename": "src/gn/command_check.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T05:51:41Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Builder::GetAllResolvedTargets() iterates over all builder records and sorts all targets by label on every call. Previously RunCheck called it once, whereas now it is called both inside GetTargetsToCheck() (line 251 or inside ResolveFromCommandLineInput) and again here on line 323. Consider fetching all_targets once or reusing targets-\u003ecandidates when label_patterns is empty.",
+      "isAi": true,
+      "revId": "8a66ec10fc835d5435e73fdc6db0dedb4f637722",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

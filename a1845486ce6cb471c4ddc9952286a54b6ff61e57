@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3348992a_56a4c394",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T06:14:11Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Since this block is duplicated identically right after WriteSharedVars(subst) in both NinjaCBinaryTargetWriter and NinjaRustBinaryTargetWriter, consider moving it into NinjaTargetWriter::WriteSharedVars (or a shared helper on NinjaBinaryTargetWriter). Placing it before the trailing newline in WriteSharedVars would also keep starlark_* grouped with the other header variables and separated from the build line by a blank line in custom_shared.ninja.",
+      "isAi": true,
+      "revId": "a1845486ce6cb471c4ddc9952286a54b6ff61e57",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75a042be_6acf71e2",
+        "filename": "src/gn/target.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T06:14:11Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Unnecessary reordering of rust_target(const Session\u0026) here?",
+      "isAi": true,
+      "revId": "a1845486ce6cb471c4ddc9952286a54b6ff61e57",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

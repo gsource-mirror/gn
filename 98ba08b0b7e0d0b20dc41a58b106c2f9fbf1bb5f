@@ -1,0 +1,64 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4003db57_76864180",
+        "filename": "src/gn/starlark/crates/args/src/args_list.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T07:46:43Z",
+      "side": 1,
+      "message": "[From Jetski review] `ArgsLike\u003c\u0027v\u003e` implements `Freeze`, but `ArgsList\u003c\u0027v\u003e` is missing `#[derive(Freeze, Trace)]` (and `ArgsLike\u003c\u0027v\u003e` is also missing `Trace`). Without `Freeze` on `ArgsList`, there is currently no way to freeze an `ArgsList` containing unfrozen `ArgsLike::Args` into `ArgsLike::FrozenArgs` before calling `expand()`.\n\nAlso, per the crate encapsulation guidelines in `AGENTS.md`, can `ArgsLike` (and `mod args_list` in `lib.rs`) be `pub(crate)` instead of `pub`? That would also prevent external callers from constructing `ArgsLike::FrozenArgs(args, upto)` with an out-of-bounds `upto`.",
+      "isAi": true,
+      "revId": "98ba08b0b7e0d0b20dc41a58b106c2f9fbf1bb5f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4547256_f58fbad6",
+        "filename": "src/gn/starlark/crates/args/src/args_list.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T07:46:43Z",
+      "side": 1,
+      "message": "[From Jetski review] Because this uses `ArgsLike::unpack_value_opt` and returns `Ok(None)` when an element fails to unpack, passing a list with an invalid element (like `[123]` in `providers.rs`) now reports:\n`Expected list[Args | str], but got list (repr: [123])`\ninstead of the more specific element error that `FrozenArgsSequence` used to produce:\n`Expected Args | str, but got int (repr: 123)`\n\nIf we want to keep the element-level error message while still reporting `Expected list[Args | str]` for non-lists, we can use `type Error \u003d starlark::Error;` and `ArgsLike::unpack_value_err` after checking `ListRef`:\n```rust\nimpl\u003c\u0027v\u003e UnpackValue\u003c\u0027v\u003e for ArgsList\u003c\u0027v\u003e {\n    type Error \u003d starlark::Error;\n\n    fn unpack_value_impl(value: Value\u003c\u0027v\u003e) -\u003e Result\u003cOption\u003cSelf\u003e, Self::Error\u003e {\n        let Some(list) \u003d \u003c\u0026ListRef\u003e::unpack_value_opt(value) else {\n            return Ok(None);\n        };\n        Ok(Some(Self(\n            list.iter()\n                .map(ArgsLike::unpack_value_err)\n                .collect::\u003cResult\u003cVec\u003c_\u003e, _\u003e\u003e()?,\n        )))\n    }\n}\n```\nConversely, if returning `Ok(None)` (`Infallible`) is intentional, this implementation is equivalent to `Ok(UnpackList::\u003cArgsLike\u003c\u0027v\u003e\u003e::unpack_value_opt(value).map(|l| Self(l.items)))`.",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "98ba08b0b7e0d0b20dc41a58b106c2f9fbf1bb5f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13a5dbd1_9f7c3877",
+        "filename": "src/gn/starlark/crates/args/src/args_list.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T07:46:43Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: typo in panic message: `\"expand should never be called on a non-frozen ArgsList\"` (missing `should` / `must`).\n\nAlso, since `unpack.rs` was removed, the `either \u003d { workspace \u003d true }` dependency in `src/gn/starlark/crates/args/Cargo.toml` is no longer used and can be removed.",
+      "isAi": true,
+      "revId": "98ba08b0b7e0d0b20dc41a58b106c2f9fbf1bb5f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

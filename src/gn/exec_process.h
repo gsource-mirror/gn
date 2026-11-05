@@ -16,6 +16,9 @@ class FilePath;
 
 namespace internal {
 
+// Runs `cmdline` in `startup_dir`, returning what it prints in `std_out` and
+// `std_err`, and its exit code in `exit_code`. If the program can't be
+// started, returns false with the reason in `std_err`.
 bool ExecProcess(const base::CommandLine& cmdline,
                  const base::FilePath& startup_dir,
                  std::string* std_out,

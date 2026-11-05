@@ -7,6 +7,7 @@
 #include <stddef.h>
 
 #include <memory>
+#include <tuple>
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
@@ -105,6 +106,8 @@ bool ExecProcess(const std::u16string& cmdline_str,
           TRUE,  // Handles are inherited.
           NORMAL_PRIORITY_CLASS, nullptr, base::ToWCharT(&startup_dir.value()),
           &start_info, &temp_process_info)) {
+    *std_err =
+        logging::SystemErrorCodeToString(logging::GetLastSystemErrorCode());
     return false;
   }
   base::win::ScopedProcessInformation proc_info(temp_process_info);
@@ -190,19 +193,38 @@ bool ExecProcess(const base::CommandLine& cmdline,
   fd_shuffle1.reserve(3);
   fd_shuffle2.reserve(3);
 
-  if (pipe(out_fd) < 0)
+  if (pipe(out_fd) < 0) {
+    *std_err = logging::SystemErrorCodeToString(errno);
     return false;
+  }
   base::ScopedFD out_read(out_fd[0]), out_write(out_fd[1]);
 
-  if (pipe(err_fd) < 0)
+  if (pipe(err_fd) < 0) {
+    *std_err = logging::SystemErrorCodeToString(errno);
     return false;
+  }
   base::ScopedFD err_read(err_fd[0]), err_write(err_fd[1]);
 
   if (out_read.get() >= FD_SETSIZE || err_read.get() >= FD_SETSIZE)
     return false;
 
+  // If the program can't be started, the child writes `errno` to this pipe.
+  // Both ends are closed on exec, so the parent reads end of file when the
+  // program starts.
+  int exec_fd[2];
+  if (pipe(exec_fd) < 0) {
+    *std_err = logging::SystemErrorCodeToString(errno);
+    return false;
+  }
+  base::ScopedFD exec_read(exec_fd[0]), exec_write(exec_fd[1]);
+  if (!base::SetCloseOnExec(exec_read.get()) ||
+      !base::SetCloseOnExec(exec_write.get())) {
+    return false;
+  }
+
   switch (pid = fork()) {
     case -1:  // error
+      *std_err = logging::SystemErrorCodeToString(errno);
       return false;
     case 0:  // child
     {
@@ -253,12 +275,25 @@ bool ExecProcess(const base::CommandLine& cmdline,
         argv_cstr[i] = const_cast<char*>(argv[i].c_str());
       argv_cstr[argv.size()] = nullptr;
       execvp(argv_cstr[0], argv_cstr.get());
+      int error = errno;
+      std::ignore =
+          HANDLE_EINTR(write(exec_write.get(), &error, sizeof(error)));
       _exit(127);
       // Avoid `fall through` warning on some gcc versions.
       break;
     }
     default:  // parent
     {
+      // Wait for the child to start the program, or to send why it couldn't.
+      exec_write.reset();
+      int error;
+      if (HANDLE_EINTR(read(exec_read.get(), &error, sizeof(error))) ==
+          sizeof(error)) {
+        HANDLE_EINTR(waitpid(pid, nullptr, 0));
+        *std_err = logging::SystemErrorCodeToString(error);
+        return false;
+      }
+
       // Close our writing end of pipe now. Otherwise later read would not
       // be able to detect end of child's output (in theory we could still
       // write to the pipe).

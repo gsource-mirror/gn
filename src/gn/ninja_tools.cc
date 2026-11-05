@@ -35,8 +35,9 @@ bool RunNinja(const base::CommandLine& cmdline,
   if (!internal::ExecProcess(cmdline, startup_dir, output, &stderr_output,
                              &exit_code)) {
     *err = Err(Location(), "Could not execute Ninja.",
-               "I was trying to execute \"" +
-                   FilePathToUTF8(cmdline.GetProgram()) + "\".");
+               "When trying to execute \"" +
+                   FilePathToUTF8(cmdline.GetProgram()) + "\"" +
+                   (stderr_output.empty() ? "." : ":\n    " + stderr_output));
     return false;
   }
 

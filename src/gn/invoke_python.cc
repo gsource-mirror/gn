@@ -42,7 +42,8 @@ bool InvokePython(const BuildSettings* build_settings,
                              &exit_code)) {
     *err =
         Err(Location(), "Could not execute python.",
-            "I was trying to execute \"" + FilePathToUTF8(python_path) + "\".");
+            "When trying to execute \"" + FilePathToUTF8(python_path) + "\"" +
+                (stderr_output.empty() ? "." : ":\n    " + stderr_output));
     return false;
   }
 

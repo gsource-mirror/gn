@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2b6516e_b0280833",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T05:10:55Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Could you briefly explain in the commit message how {{starlark:$NAME}} is used end-to-end (i.e. allowing GN toolchain definitions to reference starlark_\u003cname\u003e Ninja variables populated by Starlark rules returning GnSubstitutionsInfo)? Also, \"Note that this modifies the tools\" seems outdated now that the toolchain BUILD.gn changes were moved to https://gn-review.googlesource.com/c/gn/+/28381.",
+      "isAi": true,
+      "revId": "f4af64ec51e6ba2cff4aa34ced33d14bb02b5a2d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cc40a9c_ad5fcd12",
+        "filename": "src/gn/substitution_pattern.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T05:10:55Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Since GN builds with C++23, consider taking std::string_view here and enabling heterogeneous lookup on g_starlark_substitutions (either via a transparent hash/std::equal_to\u003c\u003e on std::unordered_map, or by using std::map\u003cstd::string, std::unique_ptr\u003cSubstitution\u003e, std::less\u003c\u003e\u003e) so line 123 can pass name directly without allocating a temporary std::string on cache hits.",
+      "isAi": true,
+      "revId": "f4af64ec51e6ba2cff4aa34ced33d14bb02b5a2d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "619ca4a7_e3536139",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-05T05:21:55Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Could you add a commit message body explaining what this CL does (e.g. exposing RustTarget::write_substitutions over FFI to write GnSubstitutionsInfo fields as \"starlark_\u003cname\u003e \u003d \u003cexpanded args\u003e\" Ninja variable definitions into a StringOutputBuffer, and enabling LibraryExtension::StructType in Session so .scl files can construct structs)?",
+      "isAi": true,
+      "revId": "83ac5ba75ec0767278bf77987d44dc938f8b136e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

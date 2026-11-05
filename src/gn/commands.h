@@ -416,6 +416,32 @@ bool ResolveFromCommandLineInput(
     UniqueVector<const Toolchain*>* toolchain_matches,
     UniqueVector<SourceFile>* file_matches);
 
+// The targets that "gn check" checks. See GetTargetsToCheck().
+struct TargetsToCheck {
+  // All targets if no label pattern is given, or else the targets matching the
+  // label patterns and, with --with-transitive-deps, their transitive public,
+  // private and data deps.
+  std::vector<const Target*> candidates;
+
+  // The candidates allowed by check_targets or no_check_targets in the .gn
+  // file.
+  std::vector<const Target*> to_check;
+
+  // The targets in |to_check| that match no_check_generated_targets.
+  std::vector<const Target*> no_check_generated;
+};
+
+// Computes the targets that "gn check" checks. Label patterns without
+// |with_transitive_deps| bypass the .gn lists: |to_check| gets all candidates
+// and |no_check_generated| stays empty.
+//
+// On failure, prints the error and returns std::nullopt.
+std::optional<TargetsToCheck> GetTargetsToCheck(
+    Setup* setup,
+    const std::vector<std::string>& label_patterns,
+    bool with_transitive_deps,
+    bool default_toolchain_only);
+
 // Runs the header checker. All targets in the build should be given in
 // all_targets, and the specific targets to check should be in to_check.
 //

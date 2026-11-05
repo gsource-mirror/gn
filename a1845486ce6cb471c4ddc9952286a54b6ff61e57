@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "715afb8f_76b7fe9f",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-05T06:48:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3348992a_56a4c394",
+      "revId": "a1845486ce6cb471c4ddc9952286a54b6ff61e57",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "75a042be_6acf71e2",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: Unnecessary reordering of rust_target(const Session\u0026) here?",
       "isAi": true,
+      "revId": "a1845486ce6cb471c4ddc9952286a54b6ff61e57",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5286cbf5_a5f0a865",
+        "filename": "src/gn/target.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-05T06:48:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75a042be_6acf71e2",
       "revId": "a1845486ce6cb471c4ddc9952286a54b6ff61e57",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

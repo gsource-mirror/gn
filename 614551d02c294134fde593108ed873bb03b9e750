@@ -24,6 +24,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "497e354f_66d85653",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-06T04:06:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a9c6b5f_dcc5ba27",
+      "range": {
+        "startLine": 400,
+        "startChar": 4,
+        "endLine": 400,
+        "endChar": 16
+      },
+      "revId": "614551d02c294134fde593108ed873bb03b9e750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1fbad3e8_6310d044",
@@ -47,6 +71,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "44c1deab_c5d3e5c0",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-06T04:06:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1fbad3e8_6310d044",
+      "range": {
+        "startLine": 721,
+        "startChar": 7,
+        "endLine": 721,
+        "endChar": 17
+      },
+      "revId": "614551d02c294134fde593108ed873bb03b9e750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "de78311d_8f396c4d",
@@ -60,6 +108,30 @@
       "writtenOn": "2026-11-06T04:01:38Z",
       "side": 1,
       "message": "This is not used after here?",
+      "range": {
+        "startLine": 723,
+        "startChar": 4,
+        "endLine": 723,
+        "endChar": 14
+      },
+      "revId": "614551d02c294134fde593108ed873bb03b9e750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e7c4e5a_dadfd58e",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 723,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-06T04:06:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de78311d_8f396c4d",
       "range": {
         "startLine": 723,
         "startChar": 4,

@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ab16cad_fda3d928",
+        "filename": "src/gn/starlark/crates/args/src/args_list.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-06T00:06:12Z",
+      "side": 1,
+      "message": "ArgsLike can\u0027t be private because it\u0027s exposed as part of ArgsList::Canonical. But done the rest.",
+      "parentUuid": "4003db57_76864180",
+      "revId": "98ba08b0b7e0d0b20dc41a58b106c2f9fbf1bb5f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4547256_f58fbad6",
@@ -43,6 +61,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5c6c127_0c228669",
+        "filename": "src/gn/starlark/crates/args/src/args_list.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-06T00:06:12Z",
+      "side": 1,
+      "message": "It is intentional. The previous version was erroneous. unpack is supposed to return Ok(None) if the type doesn\u0027t match, and Err only if the type matched but there was an error unpacking. The old version fails an assertion with a newer version of starlark-rs that I\u0027m about to update to.",
+      "parentUuid": "d4547256_f58fbad6",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 9999
+      },
+      "revId": "98ba08b0b7e0d0b20dc41a58b106c2f9fbf1bb5f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "13a5dbd1_9f7c3877",
@@ -57,6 +99,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: typo in panic message: `\"expand should never be called on a non-frozen ArgsList\"` (missing `should` / `must`).\n\nAlso, since `unpack.rs` was removed, the `either \u003d { workspace \u003d true }` dependency in `src/gn/starlark/crates/args/Cargo.toml` is no longer used and can be removed.",
       "isAi": true,
+      "revId": "98ba08b0b7e0d0b20dc41a58b106c2f9fbf1bb5f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "524cc771_a1ca0bff",
+        "filename": "src/gn/starlark/crates/args/src/args_list.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-06T00:06:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13a5dbd1_9f7c3877",
       "revId": "98ba08b0b7e0d0b20dc41a58b106c2f9fbf1bb5f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

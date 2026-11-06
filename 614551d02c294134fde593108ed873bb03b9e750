@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a9c6b5f_dcc5ba27",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-06T04:01:38Z",
+      "side": 1,
+      "message": "This is not used after here?",
+      "range": {
+        "startLine": 400,
+        "startChar": 4,
+        "endLine": 400,
+        "endChar": 16
+      },
+      "revId": "614551d02c294134fde593108ed873bb03b9e750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de78311d_8f396c4d",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 723,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-06T04:01:38Z",
+      "side": 1,
+      "message": "This is not used after here?",
+      "range": {
+        "startLine": 723,
+        "startChar": 4,
+        "endLine": 723,
+        "endChar": 14
+      },
+      "revId": "614551d02c294134fde593108ed873bb03b9e750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

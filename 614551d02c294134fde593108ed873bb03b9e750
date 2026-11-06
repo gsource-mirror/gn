@@ -26,6 +26,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1fbad3e8_6310d044",
+        "filename": "src/gn/ninja_c_binary_target_writer.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-06T04:03:33Z",
+      "side": 1,
+      "message": "has_implicit_inputs might be more clear name?",
+      "range": {
+        "startLine": 721,
+        "startChar": 7,
+        "endLine": 721,
+        "endChar": 17
+      },
+      "revId": "614551d02c294134fde593108ed873bb03b9e750",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "de78311d_8f396c4d",
         "filename": "src/gn/ninja_c_binary_target_writer.cc",
         "patchSetId": 8

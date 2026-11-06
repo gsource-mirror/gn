@@ -29,7 +29,7 @@ use starlark_derive::{Freeze, NoSerialize, Trace, starlark_module, starlark_valu
 /// * Path::new(&str) is a zero cost transmute and always succeeds
 /// * Path::new(&str).to_string_lossy() always returns the input str but has to perform an error
 ///   check.
-#[derive(Allocative, Clone, Debug, Freeze, NoSerialize, ProvidesStaticType, Trace)]
+#[derive(Allocative, Clone, Copy, Debug, Freeze, NoSerialize, ProvidesStaticType, Trace)]
 pub struct File(
     #[freeze(identity)]
     #[allocative(skip)]

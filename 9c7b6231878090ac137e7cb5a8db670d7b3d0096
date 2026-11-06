@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc214bd8_4b32cedc",
+        "filename": "src/gn/starlark/crates/depset/src/globals.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-06T05:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85be4a76_5cc888ea",
+      "revId": "9c7b6231878090ac137e7cb5a8db670d7b3d0096",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f3d5177_d83b78ed",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-11-06T05:00:17Z",
       "side": 1,
       "message": "[From Jetski review] Nit: typo `supporst` -\u003e `supports`.",
+      "revId": "9c7b6231878090ac137e7cb5a8db670d7b3d0096",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "430205df_7ba1d73f",
+        "filename": "src/gn/starlark/crates/types/src/file.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-06T05:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f3d5177_d83b78ed",
       "revId": "9c7b6231878090ac137e7cb5a8db670d7b3d0096",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

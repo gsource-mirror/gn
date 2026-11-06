@@ -16,6 +16,24 @@
       "message": "Can we rather change the behavior to check transtivie deps targets by default without giving flag to control the behavior?\n\nI think we don\u0027t have the case we want to check targets without transitive deps for now.",
       "revId": "8d9347fa3871bf9ad1e9b1fffd239363b304e850",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b02a397_9fa22010",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1003017
+      },
+      "writtenOn": "2026-11-06T05:32:30Z",
+      "side": 1,
+      "message": "@msta@google.com WDYT about the Takuto\u0027s suggestion?\n\nI also don\u0027t know other projects (e.g Fuchsia) are already using `gn check`.",
+      "parentUuid": "0680b7d9_6c523f0e",
+      "revId": "8d9347fa3871bf9ad1e9b1fffd239363b304e850",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

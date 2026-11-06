@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0680b7d9_6c523f0e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-06T04:42:44Z",
+      "side": 1,
+      "message": "Can we rather change the behavior to check transtivie deps targets by default without giving flag to control the behavior?\n\nI think we don\u0027t have the case we want to check targets without transitive deps for now.",
+      "revId": "8d9347fa3871bf9ad1e9b1fffd239363b304e850",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

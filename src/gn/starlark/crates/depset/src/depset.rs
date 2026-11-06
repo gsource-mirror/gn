@@ -121,7 +121,7 @@ impl<'v> Depset<'v> {
         state: &mut types::CtxState<T>,
     ) -> Self {
         let phony = if direct.len() == 1 {
-            Some(direct[0].clone())
+            Some(direct[0])
         } else if !direct.is_empty() {
             Some(state.new_phony(direct.clone()))
         } else {

@@ -631,6 +631,127 @@ script_executable = "//third_party/python/bin/python3"
           .NormalizePathSeparatorsTo('/'));
 }
 
+TEST_F(SetupTest, ScriptExecutableList) {
+  base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
+
+  const char kDotfileContents[] = R"(
+buildconfig = "//BUILDCONFIG.gn"
+script_executable = [ "//third_party/python/bin/python3", "-s", "-B" ]
+)";
+
+  base::ScopedTempDir in_temp_dir;
+  ASSERT_TRUE(in_temp_dir.CreateUniqueTempDir());
+  base::FilePath in_path = base::MakeAbsoluteFilePath(in_temp_dir.GetPath());
+  WriteFile(in_path.Append(FILE_PATH_LITERAL(".gn")), kDotfileContents);
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILDCONFIG.gn")), "");
+  cmdline.AppendSwitchPath(switches::kRoot, in_path);
+
+  base::FilePath build_dir = in_path.Append(FILE_PATH_LITERAL("out"))
+                                 .Append(FILE_PATH_LITERAL("default"));
+
+  Setup setup;
+  Err err;
+  ASSERT_TRUE(
+      setup.DoSetupWithErr(FilePathToUTF8(build_dir), true, cmdline, &err));
+  EXPECT_TRUE(setup.build_settings().python_path_is_relative_to_build_dir());
+  EXPECT_EQ(
+      setup.build_settings().python_path(),
+      base::FilePath(FILE_PATH_LITERAL("../../third_party/python/bin/python3"))
+          .NormalizePathSeparatorsTo('/'));
+  std::vector<std::string> expected_args = {"-s", "-B"};
+  EXPECT_EQ(setup.build_settings().python_args(), expected_args);
+}
+
+TEST_F(SetupTest, ScriptExecutableEmptyList) {
+  base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
+
+  const char kDotfileContents[] = R"(
+buildconfig = "//BUILDCONFIG.gn"
+script_executable = []
+)";
+
+  base::ScopedTempDir in_temp_dir;
+  ASSERT_TRUE(in_temp_dir.CreateUniqueTempDir());
+  base::FilePath in_path = base::MakeAbsoluteFilePath(in_temp_dir.GetPath());
+  WriteFile(in_path.Append(FILE_PATH_LITERAL(".gn")), kDotfileContents);
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILDCONFIG.gn")), "");
+  cmdline.AppendSwitchPath(switches::kRoot, in_path);
+
+  base::ScopedTempDir build_temp_dir;
+  ASSERT_TRUE(build_temp_dir.CreateUniqueTempDir());
+
+  Setup setup;
+  Err err;
+  ASSERT_TRUE(setup.DoSetupWithErr(FilePathToUTF8(build_temp_dir.GetPath()),
+                                   true, cmdline, &err));
+  EXPECT_TRUE(setup.build_settings().python_path().empty());
+  EXPECT_TRUE(setup.build_settings().python_args().empty());
+}
+
+TEST_F(SetupTest, ScriptExecutableInvalidValues) {
+  const char* kInvalidCases[] = {
+      "script_executable = 42\n",
+      "script_executable = [ \"//bin/python3\", 42 ]\n",
+      "script_executable = [ \"\" ]\n",
+      "script_executable = [ \"\", \"-s\" ]\n",
+  };
+
+  base::ScopedTempDir in_temp_dir;
+  ASSERT_TRUE(in_temp_dir.CreateUniqueTempDir());
+  base::FilePath in_path = base::MakeAbsoluteFilePath(in_temp_dir.GetPath());
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILDCONFIG.gn")), "");
+  std::string build_dir =
+      FilePathToUTF8(in_path.Append(FILE_PATH_LITERAL("out")));
+
+  base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
+  cmdline.AppendSwitchPath(switches::kRoot, in_path);
+
+  for (const char* invalid_line : kInvalidCases) {
+    WriteFile(
+        in_path.Append(FILE_PATH_LITERAL(".gn")),
+        std::string("buildconfig = \"//BUILDCONFIG.gn\"\n") + invalid_line);
+
+    Setup setup;
+    Err err;
+    EXPECT_FALSE(setup.DoSetupWithErr(build_dir, true, cmdline, &err))
+        << invalid_line;
+    EXPECT_TRUE(err.has_error()) << invalid_line;
+  }
+}
+
+TEST_F(SetupTest, ScriptExecutableSwitchOverridesList) {
+  base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
+
+  const char kDotfileContents[] = R"(
+buildconfig = "//BUILDCONFIG.gn"
+script_executable = [ "//third_party/python/bin/python3", "-s" ]
+)";
+
+  base::ScopedTempDir in_temp_dir;
+  ASSERT_TRUE(in_temp_dir.CreateUniqueTempDir());
+  base::FilePath in_path = base::MakeAbsoluteFilePath(in_temp_dir.GetPath());
+  WriteFile(in_path.Append(FILE_PATH_LITERAL(".gn")), kDotfileContents);
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILDCONFIG.gn")), "");
+
+  base::ScopedTempDir other_temp_dir;
+  ASSERT_TRUE(other_temp_dir.CreateUniqueTempDir());
+  base::FilePath override_exe =
+      other_temp_dir.GetPath().Append(FILE_PATH_LITERAL("python3"));
+
+  cmdline.AppendSwitchPath(switches::kRoot, in_path);
+  cmdline.AppendSwitchPath(switches::kScriptExecutable, override_exe);
+
+  base::FilePath build_dir = in_path.Append(FILE_PATH_LITERAL("out"));
+
+  Setup setup;
+  Err err;
+  ASSERT_TRUE(
+      setup.DoSetupWithErr(FilePathToUTF8(build_dir), true, cmdline, &err));
+  EXPECT_EQ(setup.build_settings().python_path(),
+            override_exe.NormalizePathSeparatorsTo('/'));
+  EXPECT_TRUE(setup.build_settings().python_args().empty());
+}
+
 TEST_F(SetupTest, HostOsAndHostCpuInDotFile) {
   base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
 
@@ -919,3 +1040,65 @@ group("default") {
     EXPECT_EQ(output_items[2].decoration, DECORATION_NONE);
   }
 }
+
+#if !defined(OS_WIN)
+TEST(GenCommandTest, ScriptExecutableList) {
+  MsgLoop msg_loop;
+  ScopedCommandLineForTest global_cmdline;
+
+  base::ScopedTempDir in_temp_dir;
+  ASSERT_TRUE(in_temp_dir.CreateUniqueTempDir());
+  base::FilePath in_path = base::MakeAbsoluteFilePath(in_temp_dir.GetPath());
+
+  WriteFile(in_path.Append(FILE_PATH_LITERAL(".gn")),
+            "buildconfig = \"//BUILDCONFIG.gn\"\n"
+            "script_executable = [ \"python3\", \"-s\" ]\n");
+
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILDCONFIG.gn")),
+            "set_default_toolchain(\"//:toolchain\")\n");
+
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("check_no_user_site.py")),
+            "import sys\n"
+            "assert sys.flags.no_user_site == 1\n"
+            "if len(sys.argv) > 1:\n"
+            "  with open(sys.argv[1] + '.checked', 'w') as f:\n"
+            "    f.write('ok')\n"
+            "else:\n"
+            "  print(sys.flags.no_user_site)\n");
+
+  WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILD.gn")),
+            R"(
+toolchain("toolchain") {
+  tool("stamp") {
+    command = "touch {{output}}"
+  }
+}
+
+val = exec_script("check_no_user_site.py", [], "trim string")
+assert(val == "1")
+
+action("act") {
+  script = "check_no_user_site.py"
+  outputs = [ "$target_out_dir/act.out" ]
+}
+)");
+
+  base::ScopedTempDir build_temp_dir;
+  ASSERT_TRUE(build_temp_dir.CreateUniqueTempDir());
+
+  global_cmdline.get().AppendSwitchPath(switches::kRoot, in_path);
+  global_cmdline.get().AppendSwitch(switches::kQuiet);
+  global_cmdline.get().AppendSwitch("ninja-outputs-file", "outputs.json");
+  global_cmdline.get().AppendSwitch("ninja-outputs-script",
+                                    "//check_no_user_site.py");
+
+  std::vector<std::string> args = {FilePathToUTF8(build_temp_dir.GetPath())};
+  EXPECT_EQ(0, commands::RunGen(args));
+
+  EXPECT_EQ("ok", ReadFile(build_temp_dir.GetPath().Append(
+                      FILE_PATH_LITERAL("outputs.json.checked"))));
+  std::string toolchain_ninja = ReadFile(
+      build_temp_dir.GetPath().Append(FILE_PATH_LITERAL("toolchain.ninja")));
+  EXPECT_NE(std::string::npos, toolchain_ninja.find("command = python3 -s "));
+}
+#endif  // !defined(OS_WIN)

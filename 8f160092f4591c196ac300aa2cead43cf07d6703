@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4226fba_9cb17ec9",
+        "filename": "src/gn/starlark/crates/args/src/args_list.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-10T06:15:45Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: `#[track_caller]` does not propagate into closures, so panics from `unwrap()` / `assert_eq!` inside `with_temp_heap` will point here instead of the caller. Returning `Ok(visitor.args)` from the closure and running `unwrap()` + `assert_eq!` outside preserves caller location.",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "8f160092f4591c196ac300aa2cead43cf07d6703",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ebcfff1_3e8f63cb",
+        "filename": "src/gn/starlark/crates/rule/src/actions.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-10T06:15:45Z",
+      "side": 1,
+      "message": "[From Jetski review] Unused variable `actions_self` (since `push_action` returns `()`), which triggers an unused variable warning. Also please fix the indentation inside this macro block.",
+      "range": {
+        "startLine": 217,
+        "startChar": 0,
+        "endLine": 226,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "8f160092f4591c196ac300aa2cead43cf07d6703",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ae2c48a_c0a534a1",
+        "filename": "src/gn/starlark/src/testdata/rules/actions.scl",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-10T06:15:45Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: Could we also pass `tools` (e.g. both a `File` and a `depset` in `tools`) in `test_actions_run` to cover the `tools` unpacking and deduplication path?",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "8f160092f4591c196ac300aa2cead43cf07d6703",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

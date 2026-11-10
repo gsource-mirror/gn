@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4aa9af7e_fc9ed24f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-10T01:58:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0978b02_6324f354",
+      "revId": "cbf6c6786826c9091744b244501a21c63dc17415",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d16d6331_f1bfaf84",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-11-09T07:55:34Z",
       "side": 1,
       "message": "[From Jetski review] Nit: Use `///` for doc comment to match `Ref` above.",
+      "revId": "cbf6c6786826c9091744b244501a21c63dc17415",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d0a2bb7_d7ea5576",
+        "filename": "src/gn/starlark/crates/args/src/formatter.rs",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-10T01:58:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d16d6331_f1bfaf84",
       "revId": "cbf6c6786826c9091744b244501a21c63dc17415",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

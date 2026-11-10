@@ -16,6 +16,30 @@
       "message": "PTAL.",
       "revId": "68e263906c64d3d5ef317ea6f91d20cfc8eadd01",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93a776fc_a7d2e4ee",
+        "filename": "src/gn/ninja_build_writer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-10T09:29:16Z",
+      "side": 1,
+      "message": "[From Jetski review] Could we add a unit test case in `NinjaBuildWriterTest.GetSelfInvocationCommandLine` (in `src/gn/ninja_build_writer_unittest.cc`) verifying that `--time`, `--tracelog`, and `-v` are omitted (while regular switches are preserved), e.g. by temporarily saving/restoring `*base::CommandLine::ForCurrentProcess()` like `ScopedCommandLineForTest` in `setup_unittest.cc`?",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "68e263906c64d3d5ef317ea6f91d20cfc8eadd01",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

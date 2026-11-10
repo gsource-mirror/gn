@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "753c2874_6a0ba04c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-10T09:45:51Z",
+      "side": 1,
+      "message": "From the bug, this CL seems for gn gen optimization right?\n\nIf so, can I ask you to show how the performance difference we can get by using \u0027-s\u0027 flag?",
+      "revId": "abca2e1bbda044a60151ec506de63c704da0b870",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

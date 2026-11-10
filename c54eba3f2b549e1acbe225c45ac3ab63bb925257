@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "805956f0_acd88fab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-10T21:36:30Z",
+      "side": 1,
+      "message": "PTAL and set CQ+1.",
+      "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

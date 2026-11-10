@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f5aeb54_45d8d0ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-11-10T21:19:49Z",
+      "side": 1,
+      "message": "Thanks both for an excellent review! This isn\u0027t a part of GN I\u0027ve touched before, so didn\u0027t realize how questionable it was. I think the way it\u0027s been split now helps a lot.\n\nAttached AI comments, which agreed with all your findings.",
+      "revId": "9fdda4dbc9109421517c9b2a1318124aa9c70530",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

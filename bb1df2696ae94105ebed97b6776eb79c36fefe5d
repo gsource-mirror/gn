@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "151bf3eb_648f0566",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-10T23:28:28Z",
+      "side": 1,
+      "message": "global unresolved comment",
+      "revId": "bb1df2696ae94105ebed97b6776eb79c36fefe5d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "731e30d3_2270f859",
+        "filename": "integration_tests/starlark/actions.scl",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-10T23:28:28Z",
+      "side": 1,
+      "message": "unresolved comment",
+      "revId": "bb1df2696ae94105ebed97b6776eb79c36fefe5d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1ec29f9_9ec80dc0",
+        "filename": "integration_tests/starlark/actions.scl",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-10T23:28:28Z",
+      "side": 1,
+      "message": "unresolved comment chain 1",
+      "revId": "bb1df2696ae94105ebed97b6776eb79c36fefe5d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f74638f_2c0dad46",
+        "filename": "integration_tests/starlark/actions.scl",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-10T23:28:28Z",
+      "side": 1,
+      "message": "resolved comment",
+      "revId": "bb1df2696ae94105ebed97b6776eb79c36fefe5d",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

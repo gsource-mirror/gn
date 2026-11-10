@@ -88,6 +88,30 @@
       },
       "revId": "68e263906c64d3d5ef317ea6f91d20cfc8eadd01",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d8987b7_f1a059e0",
+        "filename": "src/gn/ninja_build_writer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-10T15:17:29Z",
+      "side": 1,
+      "message": "Done. Though it doesn\u0027t use `string_view`, since that requires changing all switches definitions to use `constexpr`. Perhaps I can do that in a precursor, if preferred.",
+      "parentUuid": "ef5fcee6_9b1811d5",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 9999
+      },
+      "revId": "68e263906c64d3d5ef317ea6f91d20cfc8eadd01",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

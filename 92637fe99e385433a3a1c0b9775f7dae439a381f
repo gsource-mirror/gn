@@ -61,6 +61,41 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "918cb96b_72ba805a",
+        "filename": "src/gn/builder_record.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-10T13:05:22Z",
+      "side": 1,
+      "message": "This has the potential of significantly slowing down the Fuchsia `gn gen` time. I will experiment with this CL and report later.\n\nApart from that, this CL is far too complex for human review, and I don\u0027t trust Gemini enough for subtle algorithmic changes like this one. Please split it into more manageable and focused chunks first.At a minimum one CL to change the builder / write_info handling only, and a second one that adds the walk_deps / dep_keys feature on top of it.",
+      "fixSuggestions": [
+        {
+          "fixId": "5baaa396_096f8ae5",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/builder_record.h",
+              "range": {
+                "startLine": 138,
+                "startChar": 0,
+                "endLine": 142,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "92637fe99e385433a3a1c0b9775f7dae439a381f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f679c8cd_75006242",
         "filename": "src/gn/command_gen.cc",
         "patchSetId": 3

@@ -1496,6 +1496,55 @@ TEST(TargetTest, CollectMetadataWithWalkDeps) {
   EXPECT_EQ(result, std::vector<Value>{Value(nullptr, "foo.pickle")});
 }
 
+// Tests that targets listed under dep_keys are resolved relative to the walked
+// target, and must be the walked target itself or one of its direct deps.
+TEST(TargetTest, CollectMetadataWithDepKeys) {
+  TestWithScope setup;
+
+  // Lists itself under dep_keys.
+  TestTarget pickle(setup, "//foo:pickle", Target::ACTION);
+  Value pickle_deps(nullptr, Value::LIST);
+  pickle_deps.list_value().push_back(Value(nullptr, ":pickle"));
+  pickle.metadata().contents().emplace("file_deps", pickle_deps);
+
+  TestTarget other(setup, "//foo:other", Target::ACTION);
+
+  // Lists its direct dependency under dep_keys.
+  TestTarget lib(setup, "//foo:lib", Target::SOURCE_SET);
+  lib.private_deps().push_back(LabelTargetPair(&pickle));
+  lib.private_deps().push_back(LabelTargetPair(&other));
+  Value lib_deps(nullptr, Value::LIST);
+  lib_deps.list_value().push_back(Value(nullptr, "//foo:other"));
+  lib.metadata().contents().emplace("file_deps", lib_deps);
+
+  TestTarget gen(setup, "//foo:gen", Target::GENERATED_FILE);
+  gen.private_deps().push_back(LabelTargetPair(&lib));
+  gen.dep_keys().push_back("file_deps");
+
+  Err err;
+  std::vector<Value> result;
+  UniqueVector<const Target*> deps_collected;
+  TargetSet targets;
+  gen.GetMetadata({"files"}, {""}, SourceDir(), true, &result, &targets, &err,
+                  &deps_collected);
+  EXPECT_SUCCESS(err);
+  ASSERT_EQ(2u, deps_collected.size());
+  EXPECT_EQ(&other, deps_collected[0]);
+  EXPECT_EQ(&pickle, deps_collected[1]);
+
+  // A label in dep_keys that is not the target itself or a direct dep fails.
+  Value bad_deps(nullptr, Value::LIST);
+  bad_deps.list_value().push_back(Value(nullptr, "//foo:missing"));
+  other.metadata().contents().emplace("file_deps", bad_deps);
+  targets.clear();
+  deps_collected.clear();
+  gen.GetMetadata({"files"}, {""}, SourceDir(), true, &result, &targets, &err,
+                  &deps_collected);
+  EXPECT_TRUE(err.has_error());
+  EXPECT_EQ(0u, err.message().find("I was expecting //foo:missing"))
+      << err.message();
+}
+
 // walk_deps are subject to the same visibility and testonly checks as deps.
 TEST_F(TargetTest, WalkDepsVisibilityAndTestonly) {
   TestWithScope setup;
@@ -1650,15 +1699,24 @@ TEST(TargetTest, CollectValidationsMetadataFlag) {
   a.validations().push_back(LabelTargetPair(&b));
   a.set_collect_validations_metadata(true);
 
+  // dep_keys can then also refer to validations.
+  Value a_deps(nullptr, Value::LIST);
+  a_deps.list_value().push_back(Value(nullptr, ":b"));
+  a.metadata().contents().emplace("deps", a_deps);
+  a.dep_keys().push_back("deps");
+
   std::vector<std::string> data_keys = {"walk"};
   std::vector<std::string> walk_keys;
   std::vector<Value> result;
+  UniqueVector<const Target*> deps_collected;
   TargetSet targets;
   Err err;
   a.GetMetadata(data_keys, walk_keys, SourceDir(), false, &result, &targets,
-                &err);
+                &err, &deps_collected);
   EXPECT_SUCCESS(err);
 
   std::vector<Value> expected = {Value(nullptr, "bar"), Value(nullptr, "foo")};
   EXPECT_EQ(result, expected);
+  ASSERT_EQ(1u, deps_collected.size());
+  EXPECT_EQ(&b, deps_collected[0]);
 }

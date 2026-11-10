@@ -75,6 +75,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "793e9aa6_ce26a9bb",
+        "filename": "src/gn/setup_unittest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-10T11:15:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a460d7b_06386fcc",
+      "range": {
+        "startLine": 24,
+        "startChar": 35,
+        "endLine": 24,
+        "endChar": 40
+      },
+      "revId": "ad59bb7593d5b327dec5864bc2fd6a4a8ba10d3f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aea9c174_d1598789",
@@ -92,6 +116,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "16588bfa_2085fcab",
+        "filename": "src/gn/setup_unittest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-10T11:15:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aea9c174_d1598789",
+      "revId": "ad59bb7593d5b327dec5864bc2fd6a4a8ba10d3f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0e426c5f_3fd5509d",
@@ -105,6 +147,30 @@
       "writtenOn": "2026-11-10T10:12:40Z",
       "side": 1,
       "message": "Can we use string_view for this?",
+      "range": {
+        "startLine": 179,
+        "startChar": 38,
+        "endLine": 179,
+        "endChar": 49
+      },
+      "revId": "ad59bb7593d5b327dec5864bc2fd6a4a8ba10d3f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af980418_9d4dafd4",
+        "filename": "src/gn/setup_unittest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-10T11:15:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e426c5f_3fd5509d",
       "range": {
         "startLine": 179,
         "startChar": 38,

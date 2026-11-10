@@ -35,6 +35,23 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d8703ac_ce68b95f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-10T10:50:29Z",
+      "side": 1,
+      "message": "Thanks, please address Takuto\u0027s comments.",
+      "revId": "ad59bb7593d5b327dec5864bc2fd6a4a8ba10d3f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7a460d7b_06386fcc",

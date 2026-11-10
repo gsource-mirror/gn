@@ -112,6 +112,30 @@
       },
       "revId": "68e263906c64d3d5ef317ea6f91d20cfc8eadd01",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "072409fc_4d17dff9",
+        "filename": "src/gn/ninja_build_writer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-11-10T17:25:47Z",
+      "side": 1,
+      "message": "It\u0027s okay. Thank you.",
+      "parentUuid": "3d8987b7_f1a059e0",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 9999
+      },
+      "revId": "68e263906c64d3d5ef317ea6f91d20cfc8eadd01",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -64,6 +64,30 @@
       },
       "revId": "68e263906c64d3d5ef317ea6f91d20cfc8eadd01",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef5fcee6_9b1811d5",
+        "filename": "src/gn/ninja_build_writer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1000070
+      },
+      "writtenOn": "2026-11-10T12:40:13Z",
+      "side": 1,
+      "message": "Can we add an helper `SkipArgumentForSelfInvocation(std::string_view)`?\n\n```\nbool SkipSwitchForSelfInvocation(std::string_view switch) {\n  static constexpr auto kSkippedSwitches \u003d std::to_array\u003cstd::string_view\u003e({\n      switches::kQuiet,\n      switches::kRoot,\n      ...\n  });\n  static_assert(std::ranges::is_sorted(kSkippedSwitches));\n  return std::binary_search(kSkippedSwitches.begin(), kSkippedSwitches.end(), switch);\n}\n```\n\nand then\n\n```\n    if (!SkipSwitchForSelfInvocation(i-\u003efirst)) {\n      ...\n    }\n```",
+      "parentUuid": "bd7bd0fa_3b109869",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 9999
+      },
+      "revId": "68e263906c64d3d5ef317ea6f91d20cfc8eadd01",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -218,6 +218,7 @@ NinjaBuildWriter::~NinjaBuildWriter() = default;
 bool NinjaBuildWriter::Run(Err* err) {
   WriteNinjaRules();
   WriteAllPools();
+  WriteActionRules();
   return WriteSubninjas(err) && WritePhonyAndAllRules(err);
 }
 
@@ -417,6 +418,12 @@ void NinjaBuildWriter::WriteAllPools() {
     out_ << "pool " << name << '\n'
          << "  depth = " << pool->depth() << '\n'
          << '\n';
+  }
+}
+
+void NinjaBuildWriter::WriteActionRules() {
+  if (build_settings_->has_starlark_session()) {
+    build_settings_->starlark_session().write_all_rules(out_);
   }
 }
 

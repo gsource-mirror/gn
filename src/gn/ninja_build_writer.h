@@ -80,6 +80,7 @@ class NinjaBuildWriter {
   // rule to refer to the first statement.
   void WriteNinjaRules();
   void WriteAllPools();
+  void WriteActionRules();
   bool WriteSubninjas(Err* err);
   bool WritePhonyAndAllRules(Err* err);
 

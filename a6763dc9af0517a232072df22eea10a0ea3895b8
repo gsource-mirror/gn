@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ece2201_4357cd7f",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-11T13:24:29Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: A non-default GN toolchain named `toolchain(\"action\")` emits `rule action_cc`, `rule action_cxx`, `rule action_link`, etc. in its `toolchain.ninja` (`GetNinjaRulePrefixForToolchain` + lowercase tool name), which would shadow `rule action_cc` in that subninja scope if a Starlark action uses `mnemonic \u003d \"CC\"`. Keeping `mnemonic` uppercase here (e.g. `rule action_TOOL` / `rule action_CC`, since built-in GN tool names are always lowercase) or using a distinct prefix like `starlark_action_` (or `__starlark_action_`) would avoid any collision and also avoid the `to_lowercase()` `String` allocation.",
+      "range": {
+        "startLine": 209,
+        "startChar": 0,
+        "endLine": 210,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "a6763dc9af0517a232072df22eea10a0ea3895b8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

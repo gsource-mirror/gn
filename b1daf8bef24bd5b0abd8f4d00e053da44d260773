@@ -48,6 +48,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6b427d9_4aafd551",
+        "filename": "src/base/test/scoped_command_line.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-11T09:52:24Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "9825f42c_f43e485f",
+      "range": {
+        "startLine": 1,
+        "startChar": 13,
+        "endLine": 1,
+        "endChar": 17
+      },
+      "revId": "b1daf8bef24bd5b0abd8f4d00e053da44d260773",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e38939fc_92923cb8",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "The file is almost a verbatim copy of Chromium\u0027s version.",
       "parentUuid": "e38939fc_92923cb8",
+      "range": {
+        "startLine": 1,
+        "startChar": 13,
+        "endLine": 1,
+        "endChar": 17
+      },
+      "revId": "b1daf8bef24bd5b0abd8f4d00e053da44d260773",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7dc3f2a7_5aa4cc63",
+        "filename": "src/base/test/scoped_command_line.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-11T09:52:24Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "3d9f6730_2fdb1ef4",
       "range": {
         "startLine": 1,
         "startChar": 13,

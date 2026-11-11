@@ -1162,6 +1162,7 @@ static_assert(static_cast<::std::uint8_t>(EscapingPlatform::ESCAPE_PLATFORM_WIN)
 struct RustTarget final : public ::rust::Opaque {
   ::rust::Str execute_rule_impl(::Session const &session, ::Err &err) const noexcept;
   void write_phonies(::StringOutputBuffer &buffer) const noexcept;
+  void write_actions(::StringOutputBuffer &buffer) const noexcept;
   void write_substitutions(::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) const noexcept;
   bool write_inputs(::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) const noexcept;
   ~RustTarget() = delete;
@@ -1525,6 +1526,8 @@ void cxxbridge1$196$Value$starlark_value(::Value const &self, ::OwnedFrozenValue
 
 void cxxbridge1$196$RustTarget$write_phonies(::RustTarget const &self, ::StringOutputBuffer &buffer) noexcept;
 
+void cxxbridge1$196$RustTarget$write_actions(::RustTarget const &self, ::StringOutputBuffer &buffer) noexcept;
+
 void cxxbridge1$196$RustTarget$write_substitutions(::RustTarget const &self, ::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) noexcept;
 
 bool cxxbridge1$196$RustTarget$write_inputs(::RustTarget const &self, ::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) noexcept;
@@ -1568,6 +1571,10 @@ void cxxbridge1$196$OwnedFrozenValue$invoke(::OwnedFrozenValue const &self, ::Se
 
 void RustTarget::write_phonies(::StringOutputBuffer &buffer) const noexcept {
   cxxbridge1$196$RustTarget$write_phonies(*this, buffer);
+}
+
+void RustTarget::write_actions(::StringOutputBuffer &buffer) const noexcept {
+  cxxbridge1$196$RustTarget$write_actions(*this, buffer);
 }
 
 void RustTarget::write_substitutions(::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) const noexcept {

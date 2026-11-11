@@ -354,6 +354,7 @@ mod dummy {
             err: Pin<&mut Err>,
         ) -> &'static str;
         fn write_phonies(self: &Target, buffer: Pin<&mut StringOutputBuffer>);
+        fn write_actions(self: &Target, buffer: Pin<&mut StringOutputBuffer>);
         fn write_substitutions(
             self: &Target,
             buffer: Pin<&mut StringOutputBuffer>,

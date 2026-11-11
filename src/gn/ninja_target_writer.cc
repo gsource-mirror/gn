@@ -199,6 +199,11 @@ std::string NinjaTargetWriter::RunAndWriteFile(
 
   if (const auto* rust = target->rust_target()) {
     rust->write_phonies(storage);
+    // If there are no actions, then there are no scopes to worry about, so we
+    // can just write directly to toolchain.ninja.
+    auto before = storage.size();
+    rust->write_actions(storage);
+    needs_file_write |= storage.size() > before;
   }
 
   if (needs_file_write) {

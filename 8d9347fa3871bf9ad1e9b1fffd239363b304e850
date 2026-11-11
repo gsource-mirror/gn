@@ -70,6 +70,24 @@
       "parentUuid": "52cb2ba9_b47b2dd4",
       "revId": "8d9347fa3871bf9ad1e9b1fffd239363b304e850",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc24a3eb_cca79af5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-11-11T16:49:34Z",
+      "side": 1,
+      "message": "Sure, I will handle adding TODO via a follow-up CL.",
+      "parentUuid": "816faed6_a141325a",
+      "revId": "8d9347fa3871bf9ad1e9b1fffd239363b304e850",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

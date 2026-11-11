@@ -257,13 +257,23 @@ TEST_F(CommandsGenTest, InvalidGeneratedInputErrors) {
 
   TestTarget gen_alpha(setup, "//gen:alpha", Target::ACTION);
   gen_alpha.action_values().outputs() =
-      SubstitutionList::MakeForTest("//out/Debug/z.cc");
+      SubstitutionList::MakeForTest("//out/Debug/z.h", "//out/Debug/z.cc");
   ASSERT_TRUE(gen_alpha.OnResolved(&err));
 
   TestTarget gen_beta(setup, "//gen:beta", Target::ACTION);
   gen_beta.action_values().outputs() =
-      SubstitutionList::MakeForTest("//out/Debug/b.cc", "//out/Debug/a.cc");
+      SubstitutionList::MakeForTest("//out/Debug/b.h", "//out/Debug/a.h");
   ASSERT_TRUE(gen_beta.OnResolved(&err));
+
+  TestTarget gen_gamma(setup, "//gen:gamma", Target::ACTION);
+  gen_gamma.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/priv.cc");
+  ASSERT_TRUE(gen_gamma.OnResolved(&err));
+
+  TestTarget gen_pub(setup, "//gen:pub", Target::ACTION);
+  gen_pub.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/pub.h");
+  ASSERT_TRUE(gen_pub.OnResolved(&err));
 
   Target alt_gen(&alt_settings, Label(SourceDir("//gen/"), "alt_gen",
                                       alt_toolchain.label().dir(),
@@ -272,19 +282,44 @@ TEST_F(CommandsGenTest, InvalidGeneratedInputErrors) {
   alt_gen.set_output_type(Target::ACTION);
   ASSERT_TRUE(alt_gen.SetToolchain(&alt_toolchain, &err));
   alt_gen.action_values().outputs() =
-      SubstitutionList::MakeForTest("//out/Debug/alt/alt.cc");
+      SubstitutionList::MakeForTest("//out/Debug/alt/alt.h");
   ASSERT_TRUE(alt_gen.OnResolved(&err));
 
-  TestTarget single_missing(setup, "//a:single_missing", Target::SOURCE_SET);
-  single_missing.sources().emplace_back("//out/Debug/z.cc");
-  ASSERT_TRUE(single_missing.OnResolved(&err));
+  TestTarget mid(setup, "//b:mid", Target::SOURCE_SET);
+  mid.private_deps().push_back(LabelTargetPair(&gen_pub));
+  ASSERT_TRUE(mid.OnResolved(&err));
 
-  TestTarget grouped_by_gen(setup, "//b:grouped_by_gen", Target::SOURCE_SET);
-  grouped_by_gen.sources().emplace_back("//out/Debug/missing.cc");
-  grouped_by_gen.sources().emplace_back("//out/Debug/b.cc");
-  grouped_by_gen.sources().emplace_back("//out/Debug/z.cc");
-  grouped_by_gen.sources().emplace_back("//out/Debug/a.cc");
-  ASSERT_TRUE(grouped_by_gen.OnResolved(&err));
+  TestTarget from_priv_dep(setup, "//a:from_priv_dep", Target::SOURCE_SET);
+  from_priv_dep.set_check_includes_strict(true);
+  from_priv_dep.sources().emplace_back("//out/Debug/b.h");
+  from_priv_dep.sources().emplace_back("//out/Debug/a.h");
+  from_priv_dep.private_deps().push_back(LabelTargetPair(&gen_beta));
+  ASSERT_TRUE(from_priv_dep.OnResolved(&err));
+
+  TestTarget indirect_priv_dep(setup, "//b:indirect_priv_dep",
+                               Target::SOURCE_SET);
+  indirect_priv_dep.set_check_includes_strict(true);
+  indirect_priv_dep.sources().emplace_back("//out/Debug/pub.h");
+  indirect_priv_dep.public_deps().push_back(LabelTargetPair(&mid));
+  ASSERT_TRUE(indirect_priv_dep.OnResolved(&err));
+
+  TestTarget with_ungenerated_pub(setup, "//c:with_ungenerated_pub",
+                                  Target::SOURCE_SET);
+  with_ungenerated_pub.set_check_includes_strict(true);
+  with_ungenerated_pub.sources().emplace_back("//out/Debug/missing.h");
+  with_ungenerated_pub.sources().emplace_back("//out/Debug/pub.h");
+  ASSERT_TRUE(with_ungenerated_pub.OnResolved(&err));
+
+  TestTarget combined(setup, "//d:combined", Target::SOURCE_SET);
+  combined.set_check_includes_strict(true);
+  combined.set_all_headers_public(false);
+  combined.public_headers().emplace_back("//out/Debug/z.h");
+  combined.public_headers().emplace_back("//out/Debug/a.h");
+  combined.private_deps().push_back(LabelTargetPair(&gen_beta));
+  combined.sources().emplace_back("//out/Debug/missing.cc");
+  combined.sources().emplace_back("//out/Debug/priv.cc");
+  combined.sources().emplace_back("//out/Debug/z.cc");
+  ASSERT_TRUE(combined.OnResolved(&err));
 
   Target multi_tc_alt(&alt_settings, Label(SourceDir("//e/"), "multi_tc",
                                            alt_toolchain.label().dir(),
@@ -296,7 +331,8 @@ TEST_F(CommandsGenTest, InvalidGeneratedInputErrors) {
   ASSERT_TRUE(multi_tc_alt.OnResolved(&err));
 
   TestTarget multi_tc_default(setup, "//e:multi_tc", Target::SOURCE_SET);
-  multi_tc_default.sources().emplace_back("//out/Debug/alt/alt.cc");
+  multi_tc_default.set_check_includes_strict(true);
+  multi_tc_default.sources().emplace_back("//out/Debug/alt/alt.h");
   ASSERT_TRUE(multi_tc_default.OnResolved(&err));
 
   Target alt_only(&alt_settings, Label(SourceDir("//f/"), "alt_only",
@@ -313,64 +349,105 @@ TEST_F(CommandsGenTest, InvalidGeneratedInputErrors) {
       &alt_only,
       &multi_tc_default,
       &multi_tc_alt,
-      &grouped_by_gen,
-      &single_missing,
+      &combined,
+      &with_ungenerated_pub,
+      &indirect_priv_dep,
+      &from_priv_dep,
+      &mid,
       &alt_gen,
+      &gen_pub,
+      &gen_gamma,
       &gen_beta,
       &gen_alpha,
   });
-  ASSERT_EQ(4u, errors.size());
+  ASSERT_EQ(6u, errors.size());
 
-  // Single missing file uses singular phrasing.
-  EXPECT_EQ("Input to target not generated by a dependency.",
+  // Multiple public headers generated by a direct private dep.
+  EXPECT_EQ("Public header generated by a private dependency.",
             errors[0].message());
   EXPECT_EQ(
       "The target:\n"
-      "  //a:single_missing\n"
-      "has an input or source not generated by any dependencies:\n"
-      "  //out/Debug/z.cc (generated by //gen:alpha)\n"
+      "  //a:from_priv_dep\n"
+      "has public headers generated by private dependencies:\n"
+      "  //out/Debug/a.h (generated by //gen:beta)\n"
+      "  //out/Debug/b.h (generated by //gen:beta)\n"
+      "Strict include checking requires public headers to be generated by\n"
+      "public_deps rather than deps.\n"
       "\n"
       "To fix this, run:\n"
-      "  gn edit \"add deps //gen:alpha\" //a:single_missing",
+      "  gn edit \"move deps public_deps //gen:beta\" //a:from_priv_dep",
       errors[0].help_text());
 
-  // Files are grouped by generator target, sorted by path, with ungenerated
-  // files last.
-  EXPECT_EQ("Input to target not generated by a dependency.",
+  // Public header reachable only indirectly through public_deps -> deps.
+  EXPECT_EQ("Public header not generated by a public dependency.",
             errors[1].message());
   EXPECT_EQ(
       "The target:\n"
-      "  //b:grouped_by_gen\n"
-      "has inputs or sources not generated by any dependencies:\n"
-      "  //out/Debug/z.cc (generated by //gen:alpha)\n"
-      "  //out/Debug/a.cc (generated by //gen:beta)\n"
-      "  //out/Debug/b.cc (generated by //gen:beta)\n"
-      "  //out/Debug/missing.cc (not generated by any target)\n"
+      "  //b:indirect_priv_dep\n"
+      "has a public header not generated by any public_deps:\n"
+      "  //out/Debug/pub.h (generated by //gen:pub)\n"
       "\n"
       "To fix this, run:\n"
-      "  gn edit \"add deps //gen:alpha //gen:beta\" //b:grouped_by_gen",
+      "  gn edit \"add public_deps //gen:pub\" //b:indirect_priv_dep",
       errors[1].help_text());
 
-  // Toolchain deduplication prefers default toolchain and prints dep toolchain.
+  // Generated + ungenerated public headers fall back to the generic title.
   EXPECT_EQ("Input to target not generated by a dependency.",
             errors[2].message());
   EXPECT_EQ(
       "The target:\n"
-      "  //e:multi_tc\n"
-      "has an input or source not generated by any dependencies:\n"
-      "  //out/Debug/alt/alt.cc (generated by //gen:alt_gen(//aaa:alt))\n"
+      "  //c:with_ungenerated_pub\n"
+      "has public headers not generated by any public_deps:\n"
+      "  //out/Debug/pub.h (generated by //gen:pub)\n"
+      "  //out/Debug/missing.h (not generated by any target)\n"
       "\n"
       "To fix this, run:\n"
-      "  gn edit \"add deps //gen:alt_gen(//aaa:alt)\" //e:multi_tc",
+      "  gn edit \"add public_deps //gen:pub\" //c:with_ungenerated_pub",
       errors[2].help_text());
+
+  // Combined sections, generator-grouped ordering, and add deps deduplication.
+  EXPECT_EQ("Input to target not generated by a dependency.",
+            errors[3].message());
+  EXPECT_EQ(
+      "The target:\n"
+      "  //d:combined\n"
+      "has a public header generated by a private dependency:\n"
+      "  //out/Debug/a.h (generated by //gen:beta)\n"
+      "and has a public header not generated by any public_deps:\n"
+      "  //out/Debug/z.h (generated by //gen:alpha)\n"
+      "and has inputs or sources not generated by any dependencies:\n"
+      "  //out/Debug/z.cc (generated by //gen:alpha)\n"
+      "  //out/Debug/priv.cc (generated by //gen:gamma)\n"
+      "  //out/Debug/missing.cc (not generated by any target)\n"
+      "Strict include checking requires public headers to be generated by\n"
+      "public_deps rather than deps.\n"
+      "\n"
+      "To fix this, run:\n"
+      "  gn edit \"add deps //gen:gamma\" //d:combined\n"
+      "  gn edit \"move deps public_deps //gen:beta\" //d:combined\n"
+      "  gn edit \"add public_deps //gen:alpha\" //d:combined",
+      errors[3].help_text());
+
+  // Toolchain deduplication prefers default toolchain and prints dep toolchain.
+  EXPECT_EQ("Public header not generated by a public dependency.",
+            errors[4].message());
+  EXPECT_EQ(
+      "The target:\n"
+      "  //e:multi_tc\n"
+      "has a public header not generated by any public_deps:\n"
+      "  //out/Debug/alt/alt.h (generated by //gen:alt_gen(//aaa:alt))\n"
+      "\n"
+      "To fix this, run:\n"
+      "  gn edit \"add public_deps //gen:alt_gen(//aaa:alt)\" //e:multi_tc",
+      errors[4].help_text());
 
   // Non-default target with only ungenerated inputs omits gn edit instructions.
   EXPECT_EQ("Input to target not generated by a dependency.",
-            errors[3].message());
+            errors[5].message());
   EXPECT_EQ(
       "The target:\n"
       "  //f:alt_only(//aaa:alt)\n"
       "has an input or source not generated by any dependencies:\n"
       "  //out/Debug/alt/missing.cc (not generated by any target)",
-      errors[3].help_text());
+      errors[5].help_text());
 }

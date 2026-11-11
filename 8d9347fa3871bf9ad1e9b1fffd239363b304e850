@@ -52,6 +52,24 @@
       "parentUuid": "2b02a397_9fa22010",
       "revId": "8d9347fa3871bf9ad1e9b1fffd239363b304e850",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "816faed6_a141325a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-11T08:11:49Z",
+      "side": 1,
+      "message": "I see. Then, can we leave TODO to flip default?",
+      "parentUuid": "52cb2ba9_b47b2dd4",
+      "revId": "8d9347fa3871bf9ad1e9b1fffd239363b304e850",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -21,16 +21,21 @@ namespace {
 
 // Asserts that the current global scheduler has a single unknown generated
 // file with the given name from the given target.
-void AssertSchedulerHasOneUnknownFileMatching(const Target* target,
-                                              const SourceFile& file) {
+void AssertSchedulerHasOneUnknownFileMatching(
+    const Target* target,
+    const SourceFile& file,
+    bool requires_public_dep = false) {
   auto unknown = g_scheduler->GetUnknownGeneratedInputs();
-  ASSERT_EQ(1u, unknown.size());  // Should be one unknown file.
-  auto found = unknown.find(file);
-  ASSERT_TRUE(found != unknown.end()) << file.value();
-  EXPECT_TRUE(target == found->second)
-      << "Target doesn't match. Expected\n  "
-      << target->label().GetUserVisibleName(false) << "\nBut got\n  "
-      << found->second->label().GetUserVisibleName(false);
+  ASSERT_EQ(1u, unknown.size());  // Should be one unknown value.
+  auto first = unknown.begin();
+  EXPECT_EQ(file, first->first);
+  EXPECT_EQ(target, first->second.first)
+      << "Target doesn't match: expected "
+      << target->label().GetUserVisibleName(false) << ", got "
+      << first->second.first->label().GetUserVisibleName(false);
+  Scheduler::DepType expected_dep =
+      requires_public_dep ? Scheduler::PUBLIC_DEP : Scheduler::PRIVATE_DEP;
+  EXPECT_EQ(expected_dep, first->second.second);
 }
 
 }  // namespace
@@ -1600,4 +1605,107 @@ TEST(TargetTest, CollectValidationsMetadataFlag) {
 
   std::vector<Value> expected = {Value(nullptr, "bar"), Value(nullptr, "foo")};
   EXPECT_EQ(result, expected);
+}
+
+TEST_F(TargetTest, GeneratedPublicHeadersCheckIncludesStrict) {
+  TestWithScope setup;
+  Err err;
+
+  SourceFile gen_cc("//out/Debug/gen.cc");
+  SourceFile pub_h("//out/Debug/pub.h");
+  SourceFile priv_h("//out/Debug/priv.h");
+
+  TestTarget pub_gen(setup, "//foo:pub_gen", Target::ACTION);
+  pub_gen.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/pub.h");
+  ASSERT_TRUE(pub_gen.OnResolved(&err));
+
+  TestTarget priv_gen(setup, "//foo:priv_gen", Target::ACTION);
+  priv_gen.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/gen.cc", "//out/Debug/priv.h");
+  ASSERT_TRUE(priv_gen.OnResolved(&err));
+
+  TestTarget pub_mid(setup, "//foo:pub_mid", Target::SOURCE_SET);
+  pub_mid.public_deps().push_back(LabelTargetPair(&pub_gen));
+  ASSERT_TRUE(pub_mid.OnResolved(&err));
+
+  TestTarget priv_mid(setup, "//foo:priv_mid", Target::SOURCE_SET);
+  priv_mid.private_deps().push_back(LabelTargetPair(&priv_gen));
+  ASSERT_TRUE(priv_mid.OnResolved(&err));
+
+  // Public header generated via public_deps (directly or transitively) and
+  // private sources/headers generated via deps pass check_includes_strict.
+  TestTarget valid_explicit(setup, "//foo:valid_explicit", Target::SOURCE_SET);
+  valid_explicit.set_check_includes_strict(true);
+  valid_explicit.set_all_headers_public(false);
+  valid_explicit.public_headers().push_back(pub_h);
+  valid_explicit.sources().push_back(gen_cc);
+  valid_explicit.sources().push_back(priv_h);
+  valid_explicit.public_deps().push_back(LabelTargetPair(&pub_gen));
+  valid_explicit.private_deps().push_back(LabelTargetPair(&priv_gen));
+  EXPECT_TRUE(valid_explicit.OnResolved(&err));
+  EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
+
+  TestTarget valid_transitive(setup, "//foo:valid_transitive",
+                              Target::SOURCE_SET);
+  valid_transitive.set_check_includes_strict(true);
+  valid_transitive.sources().push_back(pub_h);
+  valid_transitive.public_deps().push_back(LabelTargetPair(&pub_mid));
+  EXPECT_TRUE(valid_transitive.OnResolved(&err));
+  EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
+
+  // Header in public fails when generated only through private deps.
+  TestTarget invalid_explicit(setup, "//foo:invalid_explicit",
+                              Target::SOURCE_SET);
+  invalid_explicit.set_check_includes_strict(true);
+  invalid_explicit.set_all_headers_public(false);
+  invalid_explicit.public_headers().push_back(priv_h);
+  invalid_explicit.private_deps().push_back(LabelTargetPair(&priv_gen));
+  EXPECT_TRUE(invalid_explicit.OnResolved(&err));
+  AssertSchedulerHasOneUnknownFileMatching(&invalid_explicit, priv_h,
+                                           /*requires_public_dep=*/true);
+  scheduler().ClearUnknownGeneratedInputsAndWrittenFiles();
+
+  // Header in public fails when public_deps only reaches it via a dependency's
+  // private deps.
+  TestTarget invalid_transitive(setup, "//foo:invalid_transitive",
+                                Target::SOURCE_SET);
+  invalid_transitive.set_check_includes_strict(true);
+  invalid_transitive.sources().push_back(priv_h);
+  invalid_transitive.public_deps().push_back(LabelTargetPair(&priv_mid));
+  EXPECT_TRUE(invalid_transitive.OnResolved(&err));
+  AssertSchedulerHasOneUnknownFileMatching(&invalid_transitive, priv_h,
+                                           /*requires_public_dep=*/true);
+  scheduler().ClearUnknownGeneratedInputsAndWrittenFiles();
+
+  // With all_headers_public = true, checking a .cc source from a private dep
+  // sets cursor to that dep; a subsequent .h from the same private dep must use
+  // the separate public cursor and still fail.
+  TestTarget invalid_cursor(setup, "//foo:invalid_cursor", Target::SOURCE_SET);
+  invalid_cursor.set_check_includes_strict(true);
+  invalid_cursor.sources().push_back(gen_cc);
+  invalid_cursor.sources().push_back(priv_h);
+  invalid_cursor.private_deps().push_back(LabelTargetPair(&priv_gen));
+  EXPECT_TRUE(invalid_cursor.OnResolved(&err));
+  AssertSchedulerHasOneUnknownFileMatching(&invalid_cursor, priv_h,
+                                           /*requires_public_dep=*/true);
+  scheduler().ClearUnknownGeneratedInputsAndWrittenFiles();
+
+  // With check_includes_strict = false, private deps are allowed for public
+  // headers.
+  TestTarget non_strict(setup, "//foo:non_strict", Target::SOURCE_SET);
+  non_strict.set_check_includes_strict(false);
+  non_strict.set_all_headers_public(false);
+  non_strict.public_headers().push_back(priv_h);
+  non_strict.private_deps().push_back(LabelTargetPair(&priv_gen));
+  EXPECT_TRUE(non_strict.OnResolved(&err));
+  EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
+
+  // Non-binary targets can consume generated headers in sources via deps.
+  TestTarget copy_target(setup, "//foo:copy_target", Target::COPY_FILES);
+  copy_target.set_check_includes_strict(true);
+  copy_target.sources().push_back(priv_h);
+  copy_target.private_deps().push_back(LabelTargetPair(&priv_gen));
+  EXPECT_TRUE(copy_target.OnResolved(&err));
+  EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
 }

@@ -14,6 +14,7 @@
 #include "gn/config_values_extractors.h"
 #include "gn/deps_iterator.h"
 #include "gn/input_file.h"
+#include "gn/ninja_module_writer_util.h"
 #include "gn/ninja_rust_binary_target_writer.h"
 #include "gn/parse_tree.h"
 #include "gn/resolved_target_data.h"
@@ -66,6 +67,7 @@
 //   "crate_root" : "root file of a Rust target"
 //   "aliased_deps" : { dependency label: crate name passed to --extern }
 //   "rust_link_inputs" : [ native files rustc passes to the linker ]
+//   "clang_modules" : [ Clang modules that the target's compiles load ]
 //   "crate_name" : "name of a Rust target"
 //   "rebase" : true or false
 //   "output_conversion" : "string for output conversion"
@@ -767,6 +769,33 @@ class TargetDescBuilder : public BaseDescBuilder {
             file.AsSourceFile(target_->settings()->build_settings()));
       if (!files.empty())
         res->SetWithoutPathExpansion("rust_link_inputs", RenderValue(files));
+    }
+
+    // The Clang modules behind {{module_deps}}, in command-line order: the
+    // target's own module and those of its dependencies. Writers outside GN
+    // can't derive them from the other fields, because they come from GN's
+    // walk of the public dependency chain.
+    if (what("clang_modules") && target_->IsBinary()) {
+      auto modules = std::make_unique<base::ListValue>();
+      for (const ClangModuleDep& dep :
+           GetModuleDepsInformation(target_, resolved)) {
+        auto module = std::make_unique<base::DictionaryValue>();
+        module->SetKey("name", base::Value(dep.module_name));
+        if (dep.modulemap)
+          module->SetKey("modulemap", base::Value(dep.modulemap->value()));
+        if (dep.pcm) {
+          module->SetKey(
+              "pcm", base::Value(dep.pcm
+                                     ->AsSourceFile(
+                                         target_->settings()->build_settings())
+                                     .value()));
+        }
+        if (dep.is_self)
+          module->SetKey("self", base::Value(true));
+        modules->Append(std::move(module));
+      }
+      if (!modules->empty())
+        res->SetWithoutPathExpansion("clang_modules", std::move(modules));
     }
 
     // Libs can be part of any target and get recursively pushed up the chain,

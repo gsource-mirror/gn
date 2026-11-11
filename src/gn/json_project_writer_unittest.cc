@@ -358,6 +358,50 @@ TEST_F(JSONWriter, RustAliasedDepsAndLinkInputs) {
   commands::CommandSwitches::Set(commands::CommandSwitches());
 }
 
+// Tests that a target exports the Clang modules that {{module_deps}} passes
+// to its compiles: its own and that of its dependency.
+TEST_F(JSONWriter, ClangModules) {
+  Err err;
+  TestWithScope setup;
+  commands::CommandSwitches::Init(
+      base::CommandLine(base::CommandLine::NO_PROGRAM));
+
+  Target lib(setup.settings(), Label(SourceDir("//foo/"), "lib"));
+  lib.set_output_type(Target::SOURCE_SET);
+  lib.set_module_name("foo_lib");
+  lib.visibility().SetPublic();
+  lib.sources().push_back(SourceFile("//foo/lib.modulemap"));
+  lib.source_types_used().Set(SourceFile::SOURCE_MODULEMAP);
+  lib.set_module_type(1 << Target::HAS_MODULEMAP);
+  lib.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(lib.OnResolved(&err));
+
+  Target user(setup.settings(), Label(SourceDir("//foo/"), "user"));
+  user.set_output_type(Target::SOURCE_SET);
+  user.visibility().SetPublic();
+  user.sources().push_back(SourceFile("//foo/user.cc"));
+  user.source_types_used().Set(SourceFile::SOURCE_CPP);
+  user.private_deps().push_back(LabelTargetPair(&lib));
+  user.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(user.OnResolved(&err));
+
+  std::vector<const Target*> targets = {&lib, &user};
+  std::string out =
+      JSONProjectWriter::RenderJSON(setup.build_settings(), targets);
+  const char kModule[] =
+      R"_("modulemap": "//foo/lib.modulemap",
+            "name": "foo_lib",
+            "pcm": "//out/Debug/obj/foo/lib.lib.pcm")_";
+  // The user loads the module file; the library also marks it as its own.
+  size_t first = out.find(kModule);
+  ASSERT_NE(first, std::string::npos) << out;
+  EXPECT_NE(out.find(kModule, first + 1), std::string::npos) << out;
+  EXPECT_NE(out.find(R"_("self": true)_"), std::string::npos) << out;
+  EXPECT_EQ(out.find(R"_("self": true)_"), out.rfind(R"_("self": true)_"))
+      << out;
+  commands::CommandSwitches::Set(commands::CommandSwitches());
+}
+
 TEST_F(JSONWriter, RustTarget) {
   Err err;
   TestWithScope setup;

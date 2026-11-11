@@ -29,6 +29,7 @@ class JSONProjectWriter {
   FRIEND_TEST_ALL_PREFIXES(JSONWriter, ForEachWithResponseFile);
   FRIEND_TEST_ALL_PREFIXES(JSONWriter, RustTarget);
   FRIEND_TEST_ALL_PREFIXES(JSONWriter, RustAliasedDepsAndLinkInputs);
+  FRIEND_TEST_ALL_PREFIXES(JSONWriter, ClangModules);
   FRIEND_TEST_ALL_PREFIXES(JSONWriter, FilterTargetsWithDataDeps);
   FRIEND_TEST_ALL_PREFIXES(JSONWriter, GroupWithData);
 

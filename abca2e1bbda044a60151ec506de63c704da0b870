@@ -16,6 +16,24 @@
       "message": "From the bug, this CL seems for gn gen optimization right?\n\nIf so, can I ask you to show how the performance difference we can get by using \u0027-s\u0027 flag?",
       "revId": "abca2e1bbda044a60151ec506de63c704da0b870",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e576672_f9be28d7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-11-11T02:08:54Z",
+      "side": 1,
+      "message": "Filed a dedicated bug for this: b/584439163.\n\nIn short - 2.5ms per action, but more importantly, we should be able to delete [this](https://source.chromium.org/chromium/chromium/src/+/main:build/print_python_deps.py;bpv\u003d1;bpt\u003d1;l\u003d24?gsn\u003d_ProtobufPathFinder\u0026gs\u003dKYTHE%3A%2F%2Fkythe%3A%2F%2Fchromium.googlesource.com%2Fcodesearch%2Fchromium%2Fsrc%2F%2Fmain%3Flang%3Dpython%3Fpath%3Dbuild%2Fprint_python_deps.py%23module._ProtobufPathFinder)",
+      "parentUuid": "753c2874_6a0ba04c",
+      "revId": "abca2e1bbda044a60151ec506de63c704da0b870",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

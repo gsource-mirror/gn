@@ -4,11 +4,13 @@
 
 #include "gn/desc_builder.h"
 
+#include <algorithm>
 #include <memory>
 #include <set>
 
 #include "base/json/json_writer.h"
 #include "base/strings/string_number_conversions.h"
+#include "gn/c_tool.h"
 #include "gn/commands.h"
 #include "gn/config.h"
 #include "gn/config_values_extractors.h"
@@ -1009,11 +1011,37 @@ class TargetDescBuilder : public BaseDescBuilder {
         target_->action_values().outputs().required_types().empty())
       return;  // Constant output.
 
+    // The c_additional_outputs of the target's configs, such as the .dwo file
+    // of a compile with split DWARF. The ninja writer adds them to the
+    // outputs of the C, C++, Objective C and Objective C++ compilers.
+    std::vector<SubstitutionPattern> c_additional_outputs;
+    if (target_->IsBinary()) {
+      std::set<std::string> seen_patterns;
+      for (ConfigValuesIterator iter(target_); !iter.done(); iter.Next()) {
+        for (const auto& pattern : iter.cur().c_additional_outputs()) {
+          if (seen_patterns.insert(pattern.AsString()).second)
+            c_additional_outputs.push_back(pattern);
+        }
+      }
+    }
+
     auto dict = std::make_unique<base::DictionaryValue>();
     for (const auto& source : target_->sources()) {
       std::vector<OutputFile> outputs;
       const char* tool_name = Tool::kToolNone;
       if (target_->GetOutputFilesForSource(source, &tool_name, &outputs)) {
+        if (tool_name == CTool::kCToolCc || tool_name == CTool::kCToolCxx ||
+            tool_name == CTool::kCToolObjC || tool_name == CTool::kCToolObjCxx) {
+          for (const auto& pattern : c_additional_outputs) {
+            OutputFile extra =
+                SubstitutionWriter::ApplyPatternToCompilerAsOutputFile(
+                    target_, source, pattern);
+            if (!extra.value().empty() &&
+                std::find(outputs.begin(), outputs.end(), extra) ==
+                    outputs.end())
+              outputs.push_back(std::move(extra));
+          }
+        }
         auto list = std::make_unique<base::ListValue>();
         for (const auto& output : outputs)
           list->AppendString(output.value());

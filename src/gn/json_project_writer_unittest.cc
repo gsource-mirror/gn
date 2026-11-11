@@ -7,6 +7,7 @@
 #include "base/command_line.h"
 #include "base/strings/string_util.h"
 #include "gn/commands.h"
+#include "gn/config.h"
 #include "gn/substitution_list.h"
 #include "gn/target.h"
 #include "gn/test_with_scheduler.h"
@@ -355,6 +356,42 @@ TEST_F(JSONWriter, RustAliasedDepsAndLinkInputs) {
       << out;
   // An rlib links nothing, so it exports no link inputs.
   EXPECT_EQ(out.find("rust_link_inputs"), out.rfind("rust_link_inputs")) << out;
+  commands::CommandSwitches::Set(commands::CommandSwitches());
+}
+
+// Tests that source_outputs lists the outputs that a config adds to a
+// compile with c_additional_outputs, as the ninja writer does.
+TEST_F(JSONWriter, SourceOutputsWithAdditionalOutputs) {
+  Err err;
+  TestWithScope setup;
+  commands::CommandSwitches::Init(
+      base::CommandLine(base::CommandLine::NO_PROGRAM));
+
+  Config config(setup.settings(), Label(SourceDir("//foo/"), "split_dwarf"));
+  config.visibility().SetPublic();
+  SubstitutionPattern pattern;
+  ASSERT_TRUE(pattern.Parse(
+      Value(nullptr, "{{target_out_dir}}/{{source_name_part}}.dwo"), &err));
+  config.own_values().c_additional_outputs().push_back(std::move(pattern));
+  ASSERT_TRUE(config.OnResolved(&err));
+
+  Target target(setup.settings(), Label(SourceDir("//foo/"), "bar"));
+  target.set_output_type(Target::SOURCE_SET);
+  target.visibility().SetPublic();
+  target.sources().push_back(SourceFile("//foo/input1.cc"));
+  target.source_types_used().Set(SourceFile::SOURCE_CPP);
+  target.configs().push_back(LabelConfigPair(&config));
+  target.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(target.OnResolved(&err));
+
+  std::vector<const Target*> targets = {&target};
+  std::string out =
+      JSONProjectWriter::RenderJSON(setup.build_settings(), targets);
+  EXPECT_NE(
+      out.find(
+          R"_("//foo/input1.cc": [ "obj/foo/bar.input1.o", "obj/foo/input1.dwo" ])_"),
+      std::string::npos)
+      << out;
   commands::CommandSwitches::Set(commands::CommandSwitches());
 }
 

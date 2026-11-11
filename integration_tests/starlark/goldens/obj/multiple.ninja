@@ -1,0 +1,1 @@
+build phony/$:multiple_0: phony ../second.txt ../third.txt

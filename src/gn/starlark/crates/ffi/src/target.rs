@@ -70,6 +70,18 @@ impl Target {
         }
     }
 
+    /// Writes out Ninja actions declared by this target into the provided buffer.
+    pub fn write_actions(&self, buffer: std::pin::Pin<&mut crate::bridge::StringOutputBuffer>) {
+        if let Some(evaluated) = self.evaluated.get() {
+            let mut buf = StringOutputBuffer::new(buffer);
+            evaluated.by_ref(|evaluated| {
+                if !evaluated.actions.is_empty() {
+                    buf.append("# TODO\n");
+                }
+            });
+        }
+    }
+
     /// Writes the substitutions declared by GnSubstitutionsInfo to the ninja file.
     pub fn write_substitutions(
         &self,

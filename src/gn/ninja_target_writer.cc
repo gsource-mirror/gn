@@ -198,7 +198,10 @@ std::string NinjaTargetWriter::RunAndWriteFile(
   WriteHardDepsStampOrPhony(target, resolved, storage);
 
   if (const auto* rust = target->rust_target()) {
+    auto before = storage.size();
     rust->write_phonies(storage);
+    rust->write_actions(storage);
+    needs_file_write |= storage.size() > before;
   }
 
   if (needs_file_write) {

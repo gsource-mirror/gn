@@ -4,8 +4,11 @@
 
 #include "gn/ninja_target_writer.h"
 
+#include "base/files/file_util.h"
+#include "base/files/scoped_temp_dir.h"
 #include "gn/ninja_action_target_writer.h"
 #include "gn/ninja_group_target_writer.h"
+#include "gn/ninja_utils.h"
 #include "gn/string_output_buffer.h"
 #include "gn/target.h"
 #include "gn/test_with_scope.h"
@@ -947,4 +950,44 @@ TEST(NinjaTargetWriter, HardDeps) {
     EXPECT_EQ("phony/foo/action3", deps.order_only[1].value());
     EXPECT_EQ("phony/foo/mid.harddeps", deps.order_only[2].value());
   }
+}
+
+TEST(NinjaTargetWriter, NoopSeparateFile) {
+  base::ScopedTempDir temp_dir;
+  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
+
+  TestWithScope setup;
+  setup.build_settings()->SetRootPath(temp_dir.GetPath());
+  Err err;
+
+  // Empty NOOP targets emit nothing and skip writing a separate file.
+  Target empty_noop(setup.settings(), Label(SourceDir("//foo/"), "empty"));
+  empty_noop.set_output_type(Target::NOOP);
+  empty_noop.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(empty_noop.OnResolved(&err));
+
+  ResolvedTargetData resolved;
+  EXPECT_EQ("", NinjaTargetWriter::RunAndWriteFile(&empty_noop, &resolved));
+  EXPECT_FALSE(base::PathExists(
+      setup.build_settings()->GetFullPath(GetNinjaFileForTarget(&empty_noop))));
+
+  // Non-empty NOOP targets write a per-target .ninja file and return subninja.
+  Target noop_with_inputs(setup.settings(),
+                          Label(SourceDir("//foo/"), "with_inputs"));
+  noop_with_inputs.set_output_type(Target::NOOP);
+  noop_with_inputs.public_inputs().push_back(SourceFile("//foo/header.h"));
+  noop_with_inputs.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(noop_with_inputs.OnResolved(&err));
+
+  EXPECT_EQ("subninja obj/foo/with_inputs.ninja\n",
+            NinjaTargetWriter::RunAndWriteFile(&noop_with_inputs, &resolved));
+
+  base::FilePath ninja_path = setup.build_settings()->GetFullPath(
+      GetNinjaFileForTarget(&noop_with_inputs));
+  std::string ninja_contents;
+  ASSERT_TRUE(base::ReadFileToString(ninja_path, &ninja_contents));
+  EXPECT_EQ(
+      "build phony/foo/with_inputs.public_inputs: phony "
+      "../../foo/header.h\n\n",
+      ninja_contents);
 }

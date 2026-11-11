@@ -34,6 +34,24 @@
       "parentUuid": "0680b7d9_6c523f0e",
       "revId": "8d9347fa3871bf9ad1e9b1fffd239363b304e850",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52cb2ba9_b47b2dd4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 4563436
+      },
+      "writtenOn": "2026-11-11T04:57:23Z",
+      "side": 1,
+      "message": "Chatted offline. This keeps the existing behavior, so it\u0027s the safe choice for now, and we can flip the default in a follow-up. Let\u0027s proceed with this CL.",
+      "parentUuid": "2b02a397_9fa22010",
+      "revId": "8d9347fa3871bf9ad1e9b1fffd239363b304e850",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

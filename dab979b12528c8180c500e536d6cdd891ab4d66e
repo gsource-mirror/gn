@@ -16,6 +16,24 @@
       "message": "If this CL is related to strict deps, could you add bug label for that?",
       "revId": "dab979b12528c8180c500e536d6cdd891ab4d66e",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5e2e38a_369437ca",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-12T03:57:28Z",
+      "side": 1,
+      "message": "It\u0027s not - it\u0027s just a cleanup.",
+      "parentUuid": "3dd4e28e_5912aece",
+      "revId": "dab979b12528c8180c500e536d6cdd891ab4d66e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

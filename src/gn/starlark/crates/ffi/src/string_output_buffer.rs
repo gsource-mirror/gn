@@ -63,6 +63,22 @@ unsafe impl Writable for u8 {
     }
 }
 
+// Safety: `maximum_size` returns 10 (`u32::MAX` has 10 decimal digits), and
+// `format_into` produces at most 10 bytes, which `<&str as Writable>::write_to_buf`
+// copies and returns the cursor advanced by that length.
+unsafe impl Writable for u32 {
+    fn maximum_size(&self) -> usize {
+        10
+    }
+
+    unsafe fn write_to_buf(&self, cursor: Cursor) -> Cursor {
+        let mut buf = fmt::NumBuffer::new();
+        // Safety: Caller guarantees `cursor` has capacity for at least 10 bytes,
+        // which covers any formatted `u32`.
+        unsafe { self.format_into(&mut buf).write_to_buf(cursor) }
+    }
+}
+
 // To write a tuple, we just combine the maximum sizes and then write them all one by one.
 macro_rules! impl_writable_for_tuple {
     ($($idx:tt: $T:ident),+) => {
@@ -143,5 +159,14 @@ mod tests {
         buffer.append("hello");
         buffer.append((" gn", " user", b'\n'));
         assert_eq!(buffer.to_string(), "hello gn user\n");
+    }
+
+    #[test]
+    fn test_string_output_buffer_u32() {
+        let mut raw_buf = bridge::NewStringOutputBuffer();
+        let mut buffer = StringOutputBuffer::new(raw_buf.pin_mut());
+        buffer.append(0u32);
+        buffer.append((" ", 7u32, " ", 42u32, " ", u32::MAX));
+        assert_eq!(buffer.to_string(), "0 7 42 4294967295");
     }
 }

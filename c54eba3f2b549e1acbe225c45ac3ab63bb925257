@@ -69,6 +69,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "114e000f_774ece9b",
+        "filename": "src/gn/exec_process.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-12T13:37:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04e00592_48ff3453",
+      "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "341d1cbd_6714c9c9",
@@ -82,6 +100,24 @@
       "writtenOn": "2026-11-12T03:03:00Z",
       "side": 1,
       "message": "[AI] Nit: `pipe()` followed by `SetCloseOnExec()` isn\u0027t atomic. Another thread forking for its own `exec_script()` in between would leak `exec_write` into that child, and this `read()` would block until it exits. `pipe2(exec_fd, O_CLOEXEC)` where available would close the window.",
+      "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1068e5d2_0cb25f0c",
+        "filename": "src/gn/exec_process.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-12T13:37:19Z",
+      "side": 1,
+      "message": "Not sure if it\u0027s worth overcomplicating this particular instance given that `pipe2` is not available everywhere and the stdout and stderr pipes already have the same problem today, without close-on-exec at all. This should probably be addressed at https://issues.chromium.org/issues/41202131 by adopting something like [`base::CloseSuperfluousFds`](https://source.chromium.org/chromium/chromium/src/+/main:base/process/launch_posix.cc;l\u003d216;drc\u003de13869cd76e6f561cb39517715fb640d331b0f9b).",
+      "parentUuid": "341d1cbd_6714c9c9",
       "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -103,6 +139,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cfa889d9_e4c8f6b2",
+        "filename": "src/gn/exec_process.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-12T13:37:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2352dbce_b43807cc",
+      "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "71e10945_8bb2d7c8",
@@ -116,6 +170,24 @@
       "writtenOn": "2026-11-12T03:03:00Z",
       "side": 1,
       "message": "[AI] `WaitForExit()` also returns false when the program was killed by a signal, and by then `std_err` holds the program\u0027s own stderr. So a script that crashes is now reported as \"Could not execute script. When trying to execute \"…/crash.sh\":\" followed by everything it printed, with only the first line indented. This also contradicts the new header comment, which says false means the program couldn\u0027t be started.\n\nCould we either return true with a synthetic exit code (e.g. `128 + WTERMSIG(status)`) so callers take their normal non-zero-exit path, or keep the \"couldn\u0027t start\" reason separate from the captured stderr?",
+      "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6652707_c2df9f42",
+        "filename": "src/gn/exec_process.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-12T13:37:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71e10945_8bb2d7c8",
       "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -139,6 +211,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b7bdf209_435a8524",
+        "filename": "src/gn/exec_process_unittest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-12T13:37:19Z",
+      "side": 1,
+      "message": "This does not look correct. I tested on Windows, but if you set CQ+1 we\u0027ll just get the answer.",
+      "parentUuid": "0ce7f65c_e268f8ac",
+      "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "75239a2a_aeabf1a6",
         "filename": "src/gn/function_exec_script.cc",
         "patchSetId": 1
@@ -150,6 +240,24 @@
       "writtenOn": "2026-11-12T03:03:00Z",
       "side": 1,
       "message": "[AI] This `\"When trying to execute \\\"…\\\"\" + (stderr_output.empty() ? \".\" : \":\\n    \" + stderr_output)` expression is now repeated in three files. Could it be a shared helper next to `ExecProcess()`? If every `return false` path set `std_err`, the empty case could go away too.",
+      "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8b989f9_e31b2b7d",
+        "filename": "src/gn/function_exec_script.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-12T13:37:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75239a2a_aeabf1a6",
       "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

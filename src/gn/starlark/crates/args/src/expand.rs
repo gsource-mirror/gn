@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Write as _};
 
 use depset::Depset;
 use starlark::{
@@ -23,6 +23,9 @@ pub trait ArgVisitor {
     /// calls to emit an empty argument (`""`), for example when `add_joined` has empty
     /// values and `omit_if_empty = false` without `format_joined`.
     fn finish_arg(&mut self);
+
+    /// Called when all args have been written.
+    fn done(&mut self);
 
     /// Appends a complete single-chunk argument and completes it.
     fn add_arg(&mut self, arg: &str) {
@@ -46,26 +49,50 @@ pub trait ArgVisitor {
 
     /// Emits a completed formatted argument, calling [`finish_arg`](Self::finish_arg) afterwards.
     fn add_formatted(&mut self, formatter: Option<&Formatter<'_>>, value: &str) {
-        self.add_formatted_chunks(formatter, value);
-        self.finish_arg();
+        if formatter.is_some() {
+            self.add_formatted_chunks(formatter, value);
+            self.finish_arg();
+        } else {
+            // Can be more efficient than calling add_formatted_chunks then finish_arg.
+            self.add_arg(value);
+        }
     }
+
+    /// Writes raw, unescaped text directly to the output without argument escaping or boundaries.
+    fn write_unescaped(&mut self, part: &str);
+
+    /// Writes an unescaped decimal `u32` directly to the output without argument escaping or
+    /// boundaries.
+    fn write_u32(&mut self, n: u32);
 }
 
 /// Helper visitor for testing argument expansion.
 #[derive(Debug, Default, Eq, PartialEq)]
 pub struct TestArgVisitor {
     /// Collected arguments.
-    pub args: Vec<String>,
-    current: String,
+    pub args: String,
 }
 
 impl ArgVisitor for TestArgVisitor {
     fn add_arg_chunk(&mut self, part: &str) {
-        self.current.push_str(part);
+        self.args.push_str(part);
     }
 
     fn finish_arg(&mut self) {
-        self.args.push(std::mem::take(&mut self.current));
+        self.args.push(' ');
+    }
+
+    fn write_unescaped(&mut self, s: &str) {
+        self.args.push_str(s);
+    }
+
+    fn write_u32(&mut self, n: u32) {
+        write!(self.args, "{n}").unwrap();
+    }
+
+    fn done(&mut self) {
+        assert!(self.args.is_empty() || self.args.ends_with(' '));
+        self.args.pop();
     }
 }
 

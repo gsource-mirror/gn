@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c7be154_73f3ed1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-12T10:22:52Z",
+      "side": 1,
+      "message": "Thank you, this is great and I confirm that this doesn\u0027t impact Fuchsia `gn gen` time at all after all!",
+      "revId": "6151c6d6cd6013a3ab04bce1a76583400c50d5b8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

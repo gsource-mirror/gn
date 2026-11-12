@@ -23,6 +23,30 @@
       "isAi": true,
       "revId": "a6763dc9af0517a232072df22eea10a0ea3895b8",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "929cb665_c0422aba",
+        "filename": "src/gn/starlark/crates/ffi/src/session.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-12T02:33:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ece2201_4357cd7f",
+      "range": {
+        "startLine": 209,
+        "startChar": 0,
+        "endLine": 210,
+        "endChar": 9999
+      },
+      "revId": "a6763dc9af0517a232072df22eea10a0ea3895b8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

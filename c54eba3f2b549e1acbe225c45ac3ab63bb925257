@@ -122,6 +122,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "69207fb4_2809d715",
+        "filename": "src/gn/exec_process.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-11-12T18:07:16Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "1068e5d2_0cb25f0c",
+      "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2352dbce_b43807cc",
@@ -223,6 +241,24 @@
       "side": 1,
       "message": "This does not look correct. I tested on Windows, but if you set CQ+1 we\u0027ll just get the answer.",
       "parentUuid": "0ce7f65c_e268f8ac",
+      "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fea06ce7_01df5f9d",
+        "filename": "src/gn/exec_process_unittest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-11-12T18:07:16Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "b7bdf209_435a8524",
       "revId": "c54eba3f2b549e1acbe225c45ac3ab63bb925257",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },

@@ -15,6 +15,7 @@
 
 void StringOutputBuffer::Clear() {
   ro_.clear();
+  completed_page_size_ = 0;
   cur_ = rw_buf_.get();
 }
 
@@ -26,6 +27,7 @@ void StringOutputBuffer::ReserveSlow(size_t n) {
           .buf = std::move(rw_buf_),
           .size = page_size,
       });
+      completed_page_size_ += page_size;
     }
   }
 
@@ -37,14 +39,6 @@ void StringOutputBuffer::ReserveSlow(size_t n) {
   rw_buf_ = std::make_unique_for_overwrite<char[]>(capacity);
   cur_ = rw_buf_.get();
   end_ = cur_ + capacity;
-}
-
-size_t StringOutputBuffer::size() const {
-  size_t total = rw_buf_ ? static_cast<size_t>(cur_ - rw_buf_.get()) : 0;
-  for (const auto& page : ro_) {
-    total += page.size;
-  }
-  return total;
 }
 
 std::string StringOutputBuffer::str() const {

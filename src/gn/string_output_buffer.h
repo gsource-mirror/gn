@@ -105,7 +105,9 @@ class StringOutputBuffer {
   std::string str() const;
 
   // Return the number of characters stored in this instance.
-  size_t size() const;
+  size_t size() const {
+    return completed_page_size_ + static_cast<size_t>(cur_ - rw_buf_.get());
+  }
 
   // Append a value to this instance.
   void Append(const Writable auto& value) {
@@ -164,6 +166,7 @@ class StringOutputBuffer {
 
   // Completed read-only pages.
   std::vector<Page> ro_;
+  size_t completed_page_size_ = 0;
 };
 
 std::string Pretty(const StringOutputBuffer& buffer);

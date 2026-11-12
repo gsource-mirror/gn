@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eaabb5f9_51586e69",
+        "filename": "src/gn/command_gen.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-12T05:42:34Z",
+      "side": 1,
+      "message": "Append period?",
+      "range": {
+        "startLine": 228,
+        "startChar": 71,
+        "endLine": 228,
+        "endChar": 77
+      },
+      "revId": "a036303399fbe359d99109f63ae65fa76026e594",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

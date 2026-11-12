@@ -21,6 +21,14 @@ impl ArgVisitor for PosixWriter<'_, '_> {
     fn finish_arg(&mut self) {
         self.buffer.append(b' ');
     }
+
+    fn write_unescaped(&mut self, part: &str) {
+        self.buffer.append(part);
+    }
+
+    fn write_u32(&mut self, n: u32) {
+        self.buffer.append(n);
+    }
 }
 
 // Windows can't perform zero-copy escaping because we don't know whether we
@@ -39,6 +47,14 @@ impl ArgVisitor for WinWriter<'_, '_> {
         self.buffer
             .append((crate::escape::NinjaCommandWindows(&self.token), b' '));
         self.token.clear();
+    }
+
+    fn write_unescaped(&mut self, part: &str) {
+        self.buffer.append(part);
+    }
+
+    fn write_u32(&mut self, n: u32) {
+        self.buffer.append(n);
     }
 }
 

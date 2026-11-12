@@ -125,15 +125,16 @@ impl<'v> ArgsList<'v> {
     pub fn assert_eq(
         &self,
         reconstructor: &starlark::values::OwnedFrozenReconstructor<'v>,
-        values: &[&str],
+        value: &str,
     ) {
         let expanded = starlark::environment::Module::with_temp_heap(|module| {
             let mut eval = Evaluator::new(&module);
             let edge = reconstructor.edge(eval.heap());
             let args = edge.rebrand_ref(self);
             let mut visitor = crate::TestArgVisitor::default();
-            args.expand(&mut eval, &mut visitor).map(|_| visitor.args)
+            args.expand(&mut eval, &mut visitor)?;
+            starlark::Result::Ok(visitor.args().to_owned())
         });
-        assert_eq!(expanded.unwrap(), values);
+        assert_eq!(expanded.unwrap(), value);
     }
 }

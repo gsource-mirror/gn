@@ -46,12 +46,12 @@ impl ArgsAssert {
             let seq = <ArgsList>::unpack_value_err(val_ref)?;
             let mut collector = TestArgVisitor::default();
             seq.expand(&mut eval, &mut collector)?;
-            Ok(collector.args)
+            Ok(collector.args().to_owned())
         });
 
         match expected {
             Ok(expected_cmd) => {
-                assert_eq!(res.unwrap(), expected_cmd);
+                assert_eq!(res.unwrap(), expected_cmd.join(" "));
             },
             Err(expected_err) => {
                 let err_str = res.unwrap_err().to_string();

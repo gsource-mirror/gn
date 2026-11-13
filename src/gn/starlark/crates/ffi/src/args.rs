@@ -4,10 +4,9 @@
 
 //! Expansion of Starlark `Args` into command-line strings inside `StringOutputBuffer`.
 
-use args::{ArgVisitor, ArgsList};
-use starlark::eval::Evaluator;
+use args::ArgVisitor;
 
-use crate::{Cursor, StringOutputBuffer, escape::EscapingPlatform};
+use crate::{Cursor, StringOutputBuffer};
 
 fn backspace_if_moved(buffer: &mut StringOutputBuffer<'_>, start: Cursor) {
     // Safety: `reserve(0)` is safe as long as you don't advance it.
@@ -23,13 +22,13 @@ fn backspace_if_moved(buffer: &mut StringOutputBuffer<'_>, start: Cursor) {
     }
 }
 
-struct PosixWriter<'a, 'b> {
+pub(crate) struct PosixWriter<'a, 'b> {
     buffer: &'a mut StringOutputBuffer<'b>,
     start: Cursor,
 }
 
 impl<'a, 'b> PosixWriter<'a, 'b> {
-    fn new(buffer: &'a mut StringOutputBuffer<'b>) -> Self {
+    pub(crate) fn new(buffer: &'a mut StringOutputBuffer<'b>) -> Self {
         // Safety: We never write to this cursor.
         let start = unsafe { *buffer.reserve(0) };
         Self { buffer, start }
@@ -60,14 +59,14 @@ impl ArgVisitor for PosixWriter<'_, '_> {
 
 // Windows can't perform zero-copy escaping because we don't know whether we
 // need to add quotes until we read the entire arg.
-struct WinWriter<'a, 'b> {
+pub(crate) struct WinWriter<'a, 'b> {
     buffer: &'a mut StringOutputBuffer<'b>,
     token: String,
     start: Cursor,
 }
 
 impl<'a, 'b> WinWriter<'a, 'b> {
-    fn new(buffer: &'a mut StringOutputBuffer<'b>) -> Self {
+    pub(crate) fn new(buffer: &'a mut StringOutputBuffer<'b>) -> Self {
         // Safety: We never write to this cursor.
         let start = unsafe { *buffer.reserve(0) };
         Self {
@@ -108,40 +107,18 @@ impl ArgVisitor for WinWriter<'_, '_> {
     }
 }
 
-/// Processes and writes an `ArgsList` directly into `buffer`.
-pub fn write_args<'v>(
-    buffer: &mut StringOutputBuffer<'_>,
-    eval: &mut Evaluator<'v, '_, '_>,
-    args: &ArgsList<'v>,
-    platform: EscapingPlatform,
-) -> starlark::Result<()> {
-    match platform {
-        EscapingPlatform::Posix => {
-            let mut writer = PosixWriter::new(buffer);
-            args.expand(eval, &mut writer)?;
-            writer.done();
-        },
-        EscapingPlatform::Win => {
-            let mut writer = WinWriter::new(buffer);
-            args.expand(eval, &mut writer)?;
-            writer.done();
-        },
-        _ => unreachable!(),
-    }
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
     use args::Args;
     use starlark::{
         environment::GlobalsBuilder,
-        values::{UnpackValue as _, Value},
+        eval::Evaluator,
+        values::{HeapEdge, UnpackValue as _, Value},
     };
     use starlark_derive::starlark_module;
 
     use super::*;
-    use crate::bridge;
+    use crate::{bridge, escape::EscapingPlatform};
 
     #[starlark_module]
     fn register_args_test_globals(builder: &mut GlobalsBuilder) {
@@ -166,17 +143,55 @@ mod tests {
 
         #[track_caller]
         fn assert_expands_to(&mut self, code: &str, platform: EscapingPlatform, expected: &str) {
+            fn write_all<'m, 'v>(
+                eval: &mut Evaluator<'m, '_, '_>,
+                edge: HeapEdge<'m, 'v>,
+                seq: &args::ArgsList<'v>,
+                plans: &args::ArgSharingPlans<'v>,
+                writer: &mut impl ArgVisitor,
+            ) -> starlark::Result<()> {
+                for arg in seq.items() {
+                    plans.write(arg, eval, edge, writer)?;
+                }
+                writer.done();
+                Ok(())
+            }
+
             let val = self.assert.pass(code);
 
-            let res = starlark::environment::Module::with_temp_heap(|module| {
-                let mut eval = starlark::eval::Evaluator::new(&module);
-                let val_ref = val.as_ref().add_to_heap(module.heap());
-                let seq = <args::ArgsList>::unpack_value_err(val_ref).unwrap();
-                let mut raw_buf = bridge::NewStringOutputBuffer();
-                let mut buffer = StringOutputBuffer::new(raw_buf.pin_mut());
-                write_args(&mut buffer, &mut eval, &seq, platform)?;
-                starlark::Result::Ok(buffer.to_string())
-            });
+            let res: starlark::Result<_> =
+                val.by_ref_with_reconstructor(|val_ref, reconstructor| {
+                    let seq = <args::ArgsList>::unpack_value_err(*val_ref)?;
+                    let plans = args::ArgSharingPlans::new(seq.items().iter());
+                    starlark::environment::Module::with_temp_heap(|module| {
+                        let mut eval = Evaluator::new(&module);
+                        let edge = reconstructor.edge(module.heap());
+                        let mut raw_buf = bridge::NewStringOutputBuffer();
+                        let mut buffer = StringOutputBuffer::new(raw_buf.pin_mut());
+                        match platform {
+                            EscapingPlatform::Posix => {
+                                write_all(
+                                    &mut eval,
+                                    edge,
+                                    &seq,
+                                    &plans,
+                                    &mut PosixWriter::new(&mut buffer),
+                                )?;
+                            },
+                            EscapingPlatform::Win => {
+                                write_all(
+                                    &mut eval,
+                                    edge,
+                                    &seq,
+                                    &plans,
+                                    &mut WinWriter::new(&mut buffer),
+                                )?;
+                            },
+                            _ => unreachable!(),
+                        }
+                        Ok(buffer.to_string())
+                    })
+                });
 
             assert_eq!(res.unwrap(), expected);
         }

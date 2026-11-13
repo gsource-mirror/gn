@@ -16,6 +16,23 @@
       "message": "David: PTAL.",
       "revId": "1b1e458c047a8a04fe271de045da3daf2c58f487",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b53a1f97_d4ded96d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-13T17:02:16Z",
+      "side": 1,
+      "message": "thanks",
+      "revId": "1b1e458c047a8a04fe271de045da3daf2c58f487",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

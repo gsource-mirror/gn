@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca9a5544_3daaed0b",
+        "filename": "src/gn/command_gen.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-13T02:09:10Z",
+      "side": 1,
+      "message": "This can only happen if you have\n```\npublic \u003d [\"$target_gen_dir/foo.h\"]\nsources \u003d [\"$target_gen_dir/foo.h\"]\n```\n\nWhich shouldn\u0027t be happening anyway, so this is a non-issue. It\u0027s also already suppressed in the GN edit fix anyway, it only shows up in the list of foo.h in the body of the error.",
+      "parentUuid": "6bef1c1f_8bec604e",
+      "revId": "1f746bfa90a2619f21d8559cd30d7613b9efa136",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cea699e4_359590d4",
@@ -37,6 +55,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "188ff830_658886fb",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1272,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-13T02:09:10Z",
+      "side": 1,
+      "message": "I considered it but decided against it. `check_includes_strict_exceptions` says:\n```\n      A list of scopes containing exceptions for strict dependencies checking.\n      Each scope in this list specifies an exception rule:\n          includer \u003d \u003cfrom_pattern\u003e\n          included \u003d \u003cto_label\u003e [optional]\n      which waives check_includes_strict violations from targets matching\n      \u003cfrom_pattern\u003e trying to include headers from \u003cto_label\u003e\n      (or to headers from any target if included is omitted).\n```\n\nThat doesn\u0027t cover this use case. Of course, we could add this and change the documentation accordingly, but for something that\u0027s as easy to fix as this, I\u0027d rather we just require people to fix it properly. The only reason we had to have an exception list was because we had 200k issues pop up.",
+      "parentUuid": "cea699e4_359590d4",
+      "revId": "1f746bfa90a2619f21d8559cd30d7613b9efa136",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "486a9b2a_0090b9a1",
@@ -51,6 +87,24 @@
       "side": 1,
       "message": "[From Jetski review] Nit: typo `seperate` -\u003e `separate`.",
       "isAi": true,
+      "revId": "1f746bfa90a2619f21d8559cd30d7613b9efa136",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ee60805_dcd8df93",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1276,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-13T02:09:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "486a9b2a_0090b9a1",
       "revId": "1f746bfa90a2619f21d8559cd30d7613b9efa136",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

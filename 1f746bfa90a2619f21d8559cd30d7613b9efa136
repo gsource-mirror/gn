@@ -1,0 +1,58 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6bef1c1f_8bec604e",
+        "filename": "src/gn/command_gen.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-13T01:54:12Z",
+      "side": 1,
+      "message": "[From Jetski review] If a target specifies `public \u003d [ \"$target_gen_dir/foo.h\" ]` (so `all_headers_public_` is `false`) and also lists the same generated header in `sources` (or `inputs`), and has no dependency on its generator at all, `Target::CheckSourcesGenerated()` will record `foo.h` twice: once as `PUBLIC_DEP` (from `public_headers_`) and once as `PRIVATE_DEP` (from `sources_` hitting the `else` branch).\n\nHere, `foo.h` will end up in both `missing.needs_public_dep[generator]` and `missing.needs_private_dep[generator]`, causing the same file to be printed twice under two different sections in the error message.\n\nConsider either skipping files in `sources_` that are already in `public_headers_`, or filtering out files already present in `missing.needs_public_dep` (or `should_be_public`) from `missing.needs_private_dep`.",
+      "isAi": true,
+      "revId": "1f746bfa90a2619f21d8559cd30d7613b9efa136",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cea699e4_359590d4",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1272,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-13T01:54:12Z",
+      "side": 1,
+      "message": "[From Jetski review] Should this also respect `check_includes_strict_exceptions` (similar to `ResolvedTargetData::OnlyForwardsPublicHardDeps()` checking `!settings()-\u003ebuild_settings()-\u003echeck_includes_strict_exceptions().HasExceptionFrom(label())`)?\n\nSince `check_includes_strict` now defaults to `true` for targets with public headers, repositories using `check_includes_strict_exceptions` in `.gn` (e.g. `includer \u003d \"//*\"` during rollout) still forward private `hard_deps` for exempted targets and might otherwise start failing `gn gen` on those exempted targets.",
+      "isAi": true,
+      "revId": "1f746bfa90a2619f21d8559cd30d7613b9efa136",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "486a9b2a_0090b9a1",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1276,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-13T01:54:12Z",
+      "side": 1,
+      "message": "[From Jetski review] Nit: typo `seperate` -\u003e `separate`.",
+      "isAi": true,
+      "revId": "1f746bfa90a2619f21d8559cd30d7613b9efa136",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a28840ef_739ffee7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-13T09:08:30Z",
+      "side": 1,
+      "message": "Sylvain: your approval was reverted. PTAL.",
+      "revId": "fde1d996655247d8d3631b99a8accb805c2ecf0c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

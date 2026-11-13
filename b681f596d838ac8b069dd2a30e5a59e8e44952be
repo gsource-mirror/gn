@@ -22,6 +22,30 @@
       },
       "revId": "b681f596d838ac8b069dd2a30e5a59e8e44952be",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6550d81_9118154e",
+        "filename": "src/gn/ninja_binary_target_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2026-11-13T02:29:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5842f6a2_93e80e44",
+      "range": {
+        "startLine": 163,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 3
+      },
+      "revId": "b681f596d838ac8b069dd2a30e5a59e8e44952be",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

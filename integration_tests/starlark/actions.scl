@@ -10,19 +10,27 @@ def _action_rules_impl(ctx):
     mnemonic = "TOOL",
   )
 
+  args = ctx.actions.args().add("-a", a)
+
   b = ctx.actions.declare_file(ctx.label.name + ".b")
   ctx.actions.run(
     outputs = [b],
     executable = "tool",
     mnemonic = "TOOL",
+    inputs = [a],
+    arguments = [args],
   )
+
+  args.add("-b", b)
 
   c = ctx.actions.declare_file(ctx.label.name + ".c")
   ctx.actions.run(
     outputs = [c],
     executable = "tool",
+    inputs = [a, b],
+    arguments = [args],
   )
-  return [DefaultInfo(files = depset([a]))]
+  return [DefaultInfo(files = depset([c]))]
 
 action_rules = rule(
   implementation = _action_rules_impl,

@@ -41,6 +41,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fb1a01f_4b57dac3",
+        "filename": "src/gn/setup.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 959,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-11-16T17:41:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1a0e6ba_3f05349c",
+      "range": {
+        "startLine": 959,
+        "startChar": 45,
+        "endLine": 959,
+        "endChar": 58
+      },
+      "revId": "c362eb940b42cf5f8bc32b5b1616c033f35a0136",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "94eb8b78_410e6022",
@@ -54,6 +78,30 @@
       "writtenOn": "2026-11-16T05:41:33Z",
       "side": 1,
       "message": "Can we use contains?",
+      "range": {
+        "startLine": 1102,
+        "startChar": 47,
+        "endLine": 1102,
+        "endChar": 51
+      },
+      "revId": "c362eb940b42cf5f8bc32b5b1616c033f35a0136",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95554bd6_de026041",
+        "filename": "src/gn/setup_unittest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1102,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-11-16T17:41:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94eb8b78_410e6022",
       "range": {
         "startLine": 1102,
         "startChar": 47,

@@ -9,7 +9,6 @@ import os
 from pathlib import Path
 import re
 import shlex
-import shutil
 import sys
 
 COLOR_GREEN = '\033[32m'
@@ -37,10 +36,17 @@ def get_ninja_files(directory: Path) -> set[Path]:
   return ninja_files
 
 
+def normalize_output(path: Path) -> str:
+  text = path.read_text(encoding='utf-8', errors='replace')
+  if path.name == 'compile_commands.json':
+    return re.sub(r'^\s+"directory": .*\n', '', text, flags=re.MULTILINE)
+  if path.name == 'build.ninja':
+    return STRIP_REGEN_COMMAND.sub('', text)
+  return text
+
+
 def compare_files(want: Path, got: Path, update) -> bool:
-  got_text = STRIP_REGEN_COMMAND.sub(
-      '', got.read_text(encoding='utf-8', errors='replace')
-  )
+  got_text = normalize_output(got)
   want_text = want.read_text(encoding='utf-8', errors='replace')
 
   diff = list(
@@ -105,7 +111,7 @@ def main():
     elif f not in want_files:
       if args.update:
         os.makedirs(want.parent, exist_ok=True)
-        shutil.copy2(got, want)
+        want.write_text(normalize_output(got))
       else:
         print(f'Error: Unexpected generated file: {f}', file=sys.stderr)
         return_code = 1

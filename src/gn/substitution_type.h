@@ -5,6 +5,7 @@
 #ifndef TOOLS_GN_SUBSTITUTION_TYPE_H_
 #define TOOLS_GN_SUBSTITUTION_TYPE_H_
 
+#include <string_view>
 #include <vector>
 
 #include "base/containers/flat_set.h"
@@ -21,6 +22,10 @@ struct Substitution {
       : name(name), ninja_name(ninja_name) {}
   Substitution(const Substitution&) = delete;
   Substitution& operator=(const Substitution&) = delete;
+
+  // Returns the `<name>` from a `{{starlark:<name>}}` substitution. Only valid
+  // on Starlark substitutions.
+  std::string_view starlark_name() const;
 };
 
 using SubstitutionTypes = const std::vector<const Substitution*>;

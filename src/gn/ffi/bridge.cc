@@ -1163,6 +1163,7 @@ struct RustTarget final : public ::rust::Opaque {
   ::rust::Str execute_rule_impl(::Session const &session, ::Err &err) const noexcept;
   void write_phonies(::StringOutputBuffer &buffer) const noexcept;
   void write_ninja(::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) const noexcept;
+  void write_compilation_database_substitution(::rust::Str name, ::StringOutputBuffer &buffer, ::Err &err) const noexcept;
   bool write_inputs(::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) const noexcept;
   ~RustTarget() = delete;
 
@@ -1394,6 +1395,11 @@ char **cxxbridge1$196$Reserve(::StringOutputBuffer &buffer, ::std::size_t n) noe
   return EscapeNinjaCommandWindows$(str, out);
 }
 
+::std::uint8_t *cxxbridge1$196$EscapeCompilationDatabase(::rust::Str str, ::std::uint8_t *out) noexcept {
+  ::std::uint8_t *(*EscapeCompilationDatabase$)(::rust::Str, ::std::uint8_t *) = ::EscapeCompilationDatabase;
+  return EscapeCompilationDatabase$(str, out);
+}
+
 void cxxbridge1$196$NewScope(::Scope &parent_scope, ::rust::Slice<::rust::Str const> keys, ::std::unique_ptr<::Scope> &out_scope, ::SliceAny *return$) noexcept {
   ::SliceAny (*NewScope$)(::Scope &, ::rust::Slice<::rust::Str const>, ::std::unique_ptr<::Scope> &) = ::NewScope;
   new (return$) ::SliceAny(NewScope$(parent_scope, keys, out_scope));
@@ -1527,6 +1533,8 @@ void cxxbridge1$196$RustTarget$write_phonies(::RustTarget const &self, ::StringO
 
 void cxxbridge1$196$RustTarget$write_ninja(::RustTarget const &self, ::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) noexcept;
 
+void cxxbridge1$196$RustTarget$write_compilation_database_substitution(::RustTarget const &self, ::rust::Str name, ::StringOutputBuffer &buffer, ::Err &err) noexcept;
+
 bool cxxbridge1$196$RustTarget$write_inputs(::RustTarget const &self, ::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) noexcept;
 ::std::size_t cxxbridge1$196$Session$operator$sizeof() noexcept;
 ::std::size_t cxxbridge1$196$Session$operator$alignof() noexcept;
@@ -1572,6 +1580,10 @@ void RustTarget::write_phonies(::StringOutputBuffer &buffer) const noexcept {
 
 void RustTarget::write_ninja(::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) const noexcept {
   cxxbridge1$196$RustTarget$write_ninja(*this, buffer, platform, err);
+}
+
+void RustTarget::write_compilation_database_substitution(::rust::Str name, ::StringOutputBuffer &buffer, ::Err &err) const noexcept {
+  cxxbridge1$196$RustTarget$write_compilation_database_substitution(*this, name, buffer, err);
 }
 
 bool RustTarget::write_inputs(::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) const noexcept {

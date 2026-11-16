@@ -116,7 +116,7 @@ class NinjaFile:
             # longer generated, it is actually deleted.
             self.python('tools/clean.py', '$path/out'),
             f'{self.build_prefix}{self._gn_exe} gen $path/out --quiet'
-            ' --root=$path',
+            ' --root=$path --export-compile-commands',
             self.python('tools/touch.py', '$out'),
         ),
         description='RUN GN $out',

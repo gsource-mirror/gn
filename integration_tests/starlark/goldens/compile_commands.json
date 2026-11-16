@@ -1,0 +1,6 @@
+[
+  {
+    "file": "../shared.cc",
+    "command": "cxx --depfile= obj/libcustom_shared.shared.o.d DEFINES  INCLUDE_DIRS  CFLAGS  CFLAGS_CC  -DFOO=bar SOURCE ../shared.cc OUTPUT  obj/libcustom_shared.shared.o"
+  }
+]

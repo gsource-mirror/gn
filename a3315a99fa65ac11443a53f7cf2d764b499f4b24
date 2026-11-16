@@ -17,6 +17,24 @@
       "isAi": true,
       "revId": "a3315a99fa65ac11443a53f7cf2d764b499f4b24",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8aaf4a4_608d4f58",
+        "filename": "src/gn/ninja_target_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-16T22:47:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6e69bd4_bfb99e70",
+      "revId": "a3315a99fa65ac11443a53f7cf2d764b499f4b24",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

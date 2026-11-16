@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1db66ba4_6a943890",
+        "filename": "src/gn/starlark/crates/args/src/arg_sharing.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-16T07:51:50Z",
+      "side": 1,
+      "message": "Does the assumption that `size` is monotonically non-decreasing across the iterator always hold, and do we actually need prefix sharing across mutated `Args` (`parent` / `prev_size`)?\n\n1. **Ordering assumption can fail and panic:**\n   In the next CL (https://gn-review.googlesource.com/c/gn/+/28940), `write_ninja_for_platform` chains `substitutions` before `actions`. If a rule does:\n   ```python\n   a \u003d ctx.actions.args().add(\"--common\")\n   ctx.actions.run(..., arguments \u003d [a])      # captured in `actions` with size \u003d 1\n   a.add(\"--extra\")\n   return [GnSubstitutionsInfo(cflags \u003d [a])] # captured in `substitutions` with size \u003d 2\n   ```\n   then `ArgSharingPlans::new` sees `(a, 2)` first and `(a, 1)` second. Because `size \u003e state.size` (`1 \u003e 2`) is false on line 101, `(a, 1)` is never inserted into `plans`, causing `self.plans.get(\u0026(FrozenArgsId(v), size)).unwrap()` on line 171 to panic. (Similarly, if the iterator sees `(a, 1)`, `(a, 2)`, and then `(a, 1)` again, the second `(a, 1)` will mistakenly promote `state.size` \u003d 2.)\n\n2. **Simpler alternative without `prev_size` / `parent`:**\n   If we only share identical `(FrozenArgsId, size)` slices (which covers the primary `common_args` loop use case in the commit message, since users can pass `arguments \u003d [common_args, extra_args]` rather than mutating `common_args` after passing it to an action), we can drop `prev_size`, `parent`, `ArgState`, and `ArgPlan` altogether in favor of `plans: SmallMap\u003c(FrozenArgsId\u003c\u0027v\u003e, usize), Option\u003cu32\u003e\u003e`, which is also order-independent.",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "68aac997575f33b6d10715ca9f5fbe337f873432",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

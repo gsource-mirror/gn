@@ -154,6 +154,12 @@ TEST(FilesystemUtils, MakeAbsolutePathRelativeIfPossible) {
   EXPECT_TRUE(
       MakeAbsolutePathRelativeIfPossible("c:\\base", "C:\\base\\foo\\", &dest));
   EXPECT_EQ("//foo\\", dest);
+  EXPECT_TRUE(
+      MakeAbsolutePathRelativeIfPossible("C:\\base", "C:\\base", &dest));
+  EXPECT_EQ("//", dest);
+  EXPECT_TRUE(
+      MakeAbsolutePathRelativeIfPossible("C:\\base", "/C:/base", &dest));
+  EXPECT_EQ("//", dest);
 
   EXPECT_FALSE(MakeAbsolutePathRelativeIfPossible("C:\\base", "C:\\ba", &dest));
   EXPECT_FALSE(MakeAbsolutePathRelativeIfPossible("C:\\base",
@@ -167,6 +173,8 @@ TEST(FilesystemUtils, MakeAbsolutePathRelativeIfPossible) {
   EXPECT_TRUE(
       MakeAbsolutePathRelativeIfPossible("/base/", "/base/foo/", &dest));
   EXPECT_EQ("//foo/", dest);
+  EXPECT_TRUE(MakeAbsolutePathRelativeIfPossible("/base", "/base", &dest));
+  EXPECT_EQ("//", dest);
 
   EXPECT_FALSE(MakeAbsolutePathRelativeIfPossible("/base", "/ba", &dest));
   EXPECT_FALSE(

@@ -16,6 +16,52 @@
       "message": "ping",
       "revId": "c362eb940b42cf5f8bc32b5b1616c033f35a0136",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1a0e6ba_3f05349c",
+        "filename": "src/gn/setup.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 959,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-16T05:41:33Z",
+      "side": 1,
+      "message": "Can we use string_view or pass by value?",
+      "range": {
+        "startLine": 959,
+        "startChar": 45,
+        "endLine": 959,
+        "endChar": 58
+      },
+      "revId": "c362eb940b42cf5f8bc32b5b1616c033f35a0136",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94eb8b78_410e6022",
+        "filename": "src/gn/setup_unittest.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1102,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-16T05:41:33Z",
+      "side": 1,
+      "message": "Can we use contains?",
+      "range": {
+        "startLine": 1102,
+        "startChar": 47,
+        "endLine": 1102,
+        "endChar": 51
+      },
+      "revId": "c362eb940b42cf5f8bc32b5b1616c033f35a0136",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

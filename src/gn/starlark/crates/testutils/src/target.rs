@@ -5,14 +5,14 @@
 use std::{
     collections::{HashMap, HashSet},
     ops::Deref,
-    sync::Arc,
+    sync::{Arc, OnceLock},
 };
 
 use allocative::Allocative;
 use attr::Attr;
 use starlark::{
     starlark_simple_value,
-    values::{Heap, ProvidesStaticType, StarlarkValue, Value},
+    values::{Heap, OwnedFrozen, ProvidesStaticType, StarlarkValue, Value, ValueTyped},
 };
 use starlark_derive::{NoSerialize, starlark_value};
 use types::{File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, TargetRef};
@@ -35,6 +35,9 @@ pub struct FakeTarget {
     /// Registered target dependencies.
     #[allocative(skip)]
     pub dependencies: HashSet<(Label, Label)>,
+    /// Cached rule evaluation result containing returned providers.
+    #[allocative(skip)]
+    pub evaluated: OnceLock<OwnedFrozen<ValueTyped<'static, rule::EvaluatedTarget<'static>>>>,
 }
 
 impl PartialEq for FakeTarget {
@@ -185,5 +188,12 @@ impl types::TargetMut for FakeTarget {
 impl attr::TargetAttrExt for FakeTargetRef {
     fn attrs(&self) -> &[Attr] {
         &self.get().attrs
+    }
+
+    fn has_provider(&self, id: providers::ProviderId) -> bool {
+        self.get()
+            .evaluated
+            .get()
+            .is_some_and(|evaluated| evaluated.by_ref(|e| e.providers.contains_id(id)))
     }
 }

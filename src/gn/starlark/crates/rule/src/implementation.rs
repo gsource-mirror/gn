@@ -6,7 +6,7 @@ use std::fmt;
 
 use allocative::Allocative;
 use attr::{TargetAttrExt, traits::EvalContextAttrExt};
-use providers::Providers;
+use providers::{ProviderType, Providers};
 use starlark::{
     any::ProvidesStaticType,
     environment::Module,
@@ -85,6 +85,7 @@ where
                     rule.output_type,
                     target.builtin_attrs(rule_context.session(), &eval.heap()),
                     &eval.heap(),
+                    |attr, dep, required| verify_providers(target, attr, dep, required),
                 )?,
                 rule,
                 eval.heap().alloc(target.label().to_owned()),
@@ -121,4 +122,43 @@ where
 
         module.freeze()?.extra_value().unwrap().downcast_starlark()
     })
+}
+
+fn verify_providers<C: EvalContextAttrExt>(
+    target: &impl TargetAttrExt<Rule = Rule<'static, C>>,
+    attr: &str,
+    dep: &impl TargetAttrExt,
+    required: &[Vec<ProviderType>],
+) -> starlark::Result<()> {
+    if required.is_empty()
+        || required
+            .iter()
+            .any(|group| group.iter().all(|p| dep.has_provider(p.id())))
+    {
+        return Ok(());
+    }
+    let missing = required
+        .iter()
+        .map(|group| {
+            let mut names: Vec<_> = group
+                .iter()
+                .filter(|p| !dep.has_provider(p.id()))
+                .map(|p| format!("'{p}'"))
+                .collect();
+            if names.len() == 1 {
+                names.pop().unwrap()
+            } else {
+                format!("({})", names.join(" and "))
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" or ");
+    Err(crate::Error::MissingRequiredProviders {
+        attr: attr.to_owned(),
+        rule: target.rule().name().to_owned(),
+        target: target.label().to_owned(),
+        dep: dep.label().to_owned(),
+        missing,
+    }
+    .into())
 }

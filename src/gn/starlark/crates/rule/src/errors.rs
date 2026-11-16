@@ -33,6 +33,16 @@ pub enum Error {
         target: Label,
         provider: ProviderType,
     },
+    #[error(
+        "In '{attr}' attribute of '{rule}' rule {target}: '{dep}' does not have mandatory providers: {missing}"
+    )]
+    MissingRequiredProviders {
+        attr: String,
+        rule: String,
+        target: Label,
+        dep: Label,
+        missing: String,
+    },
 }
 
 impl From<Error> for starlark::Error {

@@ -194,6 +194,12 @@ impl attr::TargetAttrExt for TargetRef {
     fn attrs(&self) -> &[attr::Attr] {
         self.0.attrs.as_slice()
     }
+
+    fn has_provider(&self, id: providers::ProviderId) -> bool {
+        self.0
+            .evaluated()
+            .by_ref(|evaluated| evaluated.providers.contains_id(id))
+    }
 }
 
 impl types::TargetMut for crate::bridge::CxxTarget {

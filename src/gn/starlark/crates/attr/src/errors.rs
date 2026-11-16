@@ -46,6 +46,8 @@ pub(crate) enum Error {
     OnlyLabelTypesMayBeOverridden(String),
     #[error("attribute {0}: types of parent and child's attributes mismatch")]
     AttributeTypeMismatch(String),
+    #[error("provider group cannot be empty")]
+    EmptyProviderGroup,
 }
 
 impl From<Error> for starlark::Error {

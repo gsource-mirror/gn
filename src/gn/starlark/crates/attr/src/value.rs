@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 use allocative::Allocative;
+use providers::ProviderType;
 use starlark::{
     collections::{SmallMap, SmallSet},
     values::{Heap, Value, dict::Dict},
@@ -34,10 +35,17 @@ impl Attr {
         session: &S,
         current_toolchain: &LabelRef,
         heap: &Heap<'v>,
+        validate_providers: impl Fn(&S::TargetRef, &[Vec<ProviderType>]) -> starlark::Result<()>,
     ) -> starlark::Result<AttrValue<'v>> {
         let mut unique_files = SmallSet::new();
-        let attr =
-            self.resolve_and_collect(schema, session, current_toolchain, heap, &mut unique_files)?;
+        let attr = self.resolve_and_collect(
+            schema,
+            session,
+            current_toolchain,
+            heap,
+            &mut unique_files,
+            &validate_providers,
+        )?;
 
         let files_list: Vec<Value<'v>> = unique_files.into_iter().map(|f| heap.alloc(f)).collect();
 
@@ -79,6 +87,7 @@ impl Attr {
         current_toolchain: &LabelRef,
         heap: &Heap<'v>,
         files: &mut SmallSet<File>,
+        validate_providers: &impl Fn(&S::TargetRef, &[Vec<ProviderType>]) -> starlark::Result<()>,
     ) -> starlark::Result<Value<'v>> {
         match self {
             Self::Bool(b) => Ok(Value::new_bool(*b)),
@@ -97,9 +106,15 @@ impl Attr {
                 Ok(heap.alloc(Dict::new(res)))
             },
             Self::Label(None) => Ok(Value::new_none()),
-            Self::Label(Some(lf)) => {
-                Self::resolve_label_or_file(lf, schema, session, current_toolchain, heap, files)
-            },
+            Self::Label(Some(lf)) => Self::resolve_label_or_file(
+                lf,
+                schema,
+                session,
+                current_toolchain,
+                heap,
+                files,
+                validate_providers,
+            ),
             Self::LabelList(l) => {
                 let resolved_list = l
                     .iter()
@@ -111,6 +126,7 @@ impl Attr {
                             current_toolchain,
                             heap,
                             files,
+                            validate_providers,
                         )
                     })
                     .collect::<starlark::Result<Vec<_>>>()?;
@@ -137,6 +153,7 @@ impl Attr {
                             current_toolchain,
                             heap,
                             files,
+                            validate_providers,
                         )?
                         .get_hashed()?,
                         heap.alloc(v.as_str()),
@@ -156,6 +173,7 @@ impl Attr {
                             current_toolchain,
                             heap,
                             files,
+                            validate_providers,
                         )?,
                     );
                 }
@@ -174,6 +192,7 @@ impl Attr {
                                 current_toolchain,
                                 heap,
                                 files,
+                                validate_providers,
                             )
                         })
                         .collect::<starlark::Result<Vec<_>>>()?;
@@ -198,10 +217,12 @@ impl Attr {
         current_toolchain: &LabelRef,
         heap: &Heap<'v>,
         files: &mut SmallSet<File>,
+        validate_providers: impl FnOnce(&S::TargetRef, &[Vec<ProviderType>]) -> starlark::Result<()>,
     ) -> starlark::Result<Value<'v>> {
         match lf {
             crate::LabelOrFile::Label(lbl) => {
                 let target = session.get_target(lbl.as_ref(), *current_toolchain);
+                validate_providers(&target, &schema.providers)?;
                 if let Some(matcher) = schema.file_matcher()
                     && let crate::allow_files::AllowFiles::Some(exts) = matcher
                     && !target.outputs().iter().any(|f| matcher.matches(f.as_str()))
@@ -254,6 +275,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::None,
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -265,6 +287,7 @@ mod tests {
                     &session,
                     &session.default_toolchain.as_ref(),
                     &heap,
+                    |_, _| Ok(()),
                 )
                 .unwrap();
 
@@ -291,6 +314,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::None,
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -305,6 +329,7 @@ mod tests {
                 &session,
                 &session.default_toolchain.as_ref(),
                 &heap,
+                |_, _| Ok(()),
             )
             .unwrap();
 
@@ -331,6 +356,7 @@ mod tests {
                 &session,
                 &session.default_toolchain.as_ref(),
                 &heap,
+                |_, _| Ok(()),
             )
             .unwrap();
 
@@ -363,6 +389,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::Many(AllowFiles::All),
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -378,6 +405,7 @@ mod tests {
                 &session,
                 &session.default_toolchain.as_ref(),
                 &heap,
+                |_, _| Ok(()),
             )
             .unwrap();
 
@@ -426,6 +454,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::Single(AllowFiles::All),
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -460,6 +489,7 @@ mod tests {
                     &session,
                     &session.default_toolchain.as_ref(),
                     &heap,
+                    |_, _| Ok(()),
                 )
                 .unwrap();
 
@@ -488,6 +518,7 @@ mod tests {
                     &session,
                     &session.default_toolchain.as_ref(),
                     &heap,
+                    |_, _| Ok(()),
                 )
                 .unwrap();
 
@@ -511,6 +542,7 @@ mod tests {
                 &session,
                 &session.default_toolchain.as_ref(),
                 &heap,
+                |_, _| Ok(()),
             );
             assert_eq!(
                 res.unwrap_err().to_string(),
@@ -526,6 +558,7 @@ mod tests {
                 &session,
                 &session.default_toolchain.as_ref(),
                 &heap,
+                |_, _| Ok(()),
             );
             assert_eq!(
                 res_empty.unwrap_err().to_string(),
@@ -545,6 +578,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::None,
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -563,6 +597,7 @@ mod tests {
                     &session,
                     &session.default_toolchain.as_ref(),
                     &heap,
+                    |_, _| Ok(()),
                 )
                 .unwrap();
 
@@ -598,6 +633,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::Many(AllowFiles::Some(vec![".cc".to_owned()])),
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -614,6 +650,7 @@ mod tests {
                 &session,
                 &session.default_toolchain.as_ref(),
                 &heap,
+                |_, _| Ok(()),
             )
             .unwrap();
 
@@ -633,6 +670,7 @@ mod tests {
                 &session,
                 &session.default_toolchain.as_ref(),
                 &heap,
+                |_, _| Ok(()),
             );
 
             assert_eq!(

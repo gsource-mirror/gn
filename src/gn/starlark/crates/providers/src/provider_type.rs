@@ -73,6 +73,14 @@ pub struct ProviderType {
 
 starlark_simple_value!(ProviderType);
 
+impl PartialEq for ProviderType {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl Eq for ProviderType {}
+
 impl Display for ProviderType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(

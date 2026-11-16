@@ -8,6 +8,8 @@ use std::{
 };
 
 use allocative::Allocative;
+use either::Either;
+use providers::ProviderType;
 use starlark::{
     eval::ParametersSpecParam,
     starlark_simple_value,
@@ -58,6 +60,8 @@ pub struct AttrSchema {
     pub(crate) disallow_empty: bool,
     pub(crate) allow_files: AllowFilesSchema,
     pub(crate) cfg: AttrCfg,
+    // The outer layer represents ANY while the inner layer represents ALL.
+    pub(crate) providers: Vec<Vec<ProviderType>>,
     pub(crate) doc: String,
 }
 
@@ -106,6 +110,20 @@ impl AttrSchema {
                 _ => return Err(crate::Error::AllowFilesMutuallyExclusive.into()),
             },
             cfg: args.cfg.unwrap_or(AttrCfg::CurrentToolchain),
+            providers: match args.providers {
+                None => Vec::new(),
+                Some(Either::Left(lists)) => {
+                    if lists.items.iter().any(|ps| ps.items.is_empty()) {
+                        return Err(crate::Error::EmptyProviderGroup.into());
+                    }
+                    lists
+                        .items
+                        .into_iter()
+                        .map(|ps| ps.items.into_iter().cloned().collect())
+                        .collect()
+                },
+                Some(Either::Right(ps)) => vec![ps.items.into_iter().cloned().collect()],
+            },
             doc: match args.doc {
                 None | Some(NoneOr::None) => String::new(),
                 Some(NoneOr::Other(s)) => s,
@@ -179,6 +197,7 @@ impl AttrSchema {
             || self.disallow_empty != child.disallow_empty
             || self.allow_files != child.allow_files
             || self.cfg != child.cfg
+            || self.providers != child.providers
         {
             return Err(crate::Error::AttributeTypeMismatch(name.to_owned()).into());
         }
@@ -241,6 +260,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -261,6 +281,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: "An integer".to_string(),
             },
         );
@@ -286,6 +307,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -314,6 +336,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::Many(AllowFiles::All),
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -327,6 +350,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -345,6 +369,7 @@ mod tests {
                 disallow_empty: true,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -372,6 +397,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -420,6 +446,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::Many(AllowFiles::All),
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );

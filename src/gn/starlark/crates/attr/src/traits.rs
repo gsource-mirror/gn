@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use providers::ProviderId;
 /// Re-export the traits from types so caller crates can access them seamlessly.
 pub use types::{EvalContext, OutputType, Session, TargetRef};
 
@@ -10,6 +11,9 @@ pub use types::{EvalContext, OutputType, Session, TargetRef};
 pub trait TargetAttrExt: TargetRef {
     /// Returns the resolved custom attributes of the target.
     fn attrs(&self) -> &[crate::Attr];
+
+    /// Returns `true` if this target provides the given provider type.
+    fn has_provider(&self, id: ProviderId) -> bool;
 }
 
 /// Extension trait for EvalContext to support target creation.

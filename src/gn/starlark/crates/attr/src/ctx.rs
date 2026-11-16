@@ -5,6 +5,7 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use allocative::Allocative;
+use providers::ProviderType;
 use starlark::{
     any::ProvidesStaticType,
     collections::SmallMap,
@@ -120,6 +121,7 @@ impl<'v> CtxAttrSchema<'v> {
 
     /// Constructs the record values for `ctx.attr`, `ctx.file`, and `ctx.files`
     /// from the resolved attribute values.
+    #[expect(clippy::too_many_arguments)]
     pub fn create_ctx_fields<S: Session>(
         &self,
         fields: &[Attr],
@@ -128,6 +130,7 @@ impl<'v> CtxAttrSchema<'v> {
         output_type: Option<OutputType>,
         mut ctx_attr: Vec<Value<'v>>,
         heap: &Heap<'v>,
+        validate_providers: impl Fn(&str, &S::TargetRef, &[Vec<ProviderType>]) -> starlark::Result<()>,
     ) -> starlark::Result<CtxAttr<'v>> {
         let (builtin_files, builtin_attrs) = output_type.map(|b| b.attrs()).unwrap_or_default();
         debug_assert!(builtin_files.len() + builtin_attrs.len() == ctx_attr.len());
@@ -141,7 +144,9 @@ impl<'v> CtxAttrSchema<'v> {
         debug_assert!(fields.len() == self.attrs.len());
         for ((name, schema), attr) in self.attrs.iter().zip(fields.iter()) {
             let AttrValue { attr, file, files } = attr
-                .to_value(schema, session, current_toolchain, heap)
+                .to_value(schema, session, current_toolchain, heap, |dep, required| {
+                    validate_providers(name, dep, required)
+                })
                 .map_err(|e| e.with_context(format!("for attribute `{name}`")))?;
 
             ctx_attr.push(attr);
@@ -230,6 +235,7 @@ mod tests {
                 None,
                 Vec::new(),
                 &eval.heap(),
+                |_, _, _| Ok(()),
             )?;
 
             Ok(eval.heap().alloc((ctx.attr, ctx.files, ctx.file)))

@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6e69bd4_bfb99e70",
+        "filename": "src/gn/ninja_target_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-16T08:49:33Z",
+      "side": 1,
+      "message": "Nit: typo: `seperately` -\u003e `separately`, `scope-dependant` -\u003e `scope-dependent`.",
+      "isAi": true,
+      "revId": "a3315a99fa65ac11443a53f7cf2d764b499f4b24",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

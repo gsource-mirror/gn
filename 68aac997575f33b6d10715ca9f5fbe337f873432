@@ -23,6 +23,30 @@
       "isAi": true,
       "revId": "68aac997575f33b6d10715ca9f5fbe337f873432",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f07e8584_288747f0",
+        "filename": "src/gn/starlark/crates/args/src/arg_sharing.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-16T22:47:40Z",
+      "side": 1,
+      "message": "We can make that assumption if we fix the child CL, but upon thinking about it, I think your simpler alternative is better. It\u0027s a rather niche use case to do it that way, so it probably isn\u0027t worth the additional complexity.",
+      "parentUuid": "1db66ba4_6a943890",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 9999
+      },
+      "revId": "68aac997575f33b6d10715ca9f5fbe337f873432",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

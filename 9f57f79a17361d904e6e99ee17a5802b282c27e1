@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29e1adb8_57c83e92",
+        "filename": "src/gn/starlark/crates/rule/tests/providers.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-17T05:32:36Z",
+      "side": 1,
+      "message": "nit: Consider listing `provides \u003d [ChildInfo, ParentInfo]` here (or adding a small case) so `uniquify_small_vec(\u0026mut provides)` when merging parent/child `provides` is also exercised by this test.",
+      "isAi": true,
+      "revId": "9f57f79a17361d904e6e99ee17a5802b282c27e1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

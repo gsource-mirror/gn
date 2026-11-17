@@ -8,6 +8,7 @@
 
 #include <algorithm>
 
+#include "gn/output_file.h"
 #include "util/test/test.h"
 
 TEST(UniqueVector, PushBack) {
@@ -125,4 +126,42 @@ TEST(UniqueVector, Release) {
   EXPECT_EQ(std::string("a"), v[0]);
   EXPECT_EQ(std::string("b"), v[1]);
   EXPECT_EQ(std::string("c"), v[2]);
+}
+
+namespace {
+
+struct CountedKey {
+  int value;
+  size_t* hash_calls;
+
+  bool operator==(const CountedKey& other) const {
+    return value == other.value;
+  }
+};
+
+struct CountedKeyHash {
+  size_t operator()(const CountedKey& key) const {
+    ++(*key.hash_calls);
+    return std::hash<int>()(key.value);
+  }
+};
+
+}  // namespace
+
+TEST(UniqueVector, PushBackMoveHashesOnce) {
+  size_t hash_calls = 0;
+  UniqueVector<CountedKey, CountedKeyHash> vect;
+  EXPECT_TRUE(vect.push_back(CountedKey{1, &hash_calls}));
+  EXPECT_EQ(1u, hash_calls);
+
+  EXPECT_FALSE(vect.push_back(CountedKey{1, &hash_calls}));
+  EXPECT_EQ(2u, hash_calls);
+}
+
+TEST(UniqueVector, OutputFileHash) {
+  UniqueVector<OutputFile> files;
+  EXPECT_TRUE(files.push_back(OutputFile("foo.o")));
+  EXPECT_FALSE(files.push_back(OutputFile("foo.o")));
+  EXPECT_TRUE(files.push_back(OutputFile("bar.o")));
+  EXPECT_EQ(std::hash<OutputFile>()(files[0]), files[0].hash());
 }

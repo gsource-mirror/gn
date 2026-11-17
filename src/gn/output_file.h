@@ -38,6 +38,8 @@ class OutputFile {
   bool operator==(const OutputFile& other) const = default;
   std::strong_ordering operator<=>(const OutputFile& other) const = default;
 
+  size_t hash() const { return value_.hash(); }
+
  private:
   StringAtom value_;
 };
@@ -48,9 +50,7 @@ namespace std {
 
 template <>
 struct hash<OutputFile> {
-  std::size_t operator()(const OutputFile& v) const {
-    return hash<std::string_view>()(v.value());
-  }
+  std::size_t operator()(const OutputFile& v) const { return v.hash(); }
 };
 
 }  // namespace std

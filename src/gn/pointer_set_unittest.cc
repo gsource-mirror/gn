@@ -180,3 +180,19 @@ TEST(PointerSet, ToVector) {
   EXPECT_NE(std::find(vector.begin(), vector.end(), kFoo2), vector.end());
   EXPECT_NE(std::find(vector.begin(), vector.end(), kFoo3), vector.end());
 }
+
+TEST(PointerSet, Equality) {
+  TestPointerSet set1;
+  set1.add(kFoo1);
+  set1.add(kFoo2);
+
+  TestPointerSet set2;
+  set2.add(kFoo2);
+  set2.add(kFoo1);
+  EXPECT_EQ(set1, set2);
+
+  TestPointerSet set3;
+  set3.add(kFoo1);
+  set3.add(kFoo3);
+  EXPECT_FALSE(set1 == set3);
+}

@@ -109,28 +109,10 @@ class UniqueVector {
 
   // Returns true if the item was appended, false if it already existed (and
   // thus the vector was not modified).
-  bool push_back(const T& t) {
-    size_t hash;
-    auto* node = Lookup(t, &hash);
-    if (node->is_valid()) {
-      return false;  // Already have this one.
-    }
-    vector_.push_back(t);
-    set_.Insert(node, hash, vector_.size() - 1);
-    return true;
-  }
+  bool push_back(const T& t) { return PushBackWithIndex(t).first; }
 
   // Same as above, but moves the item into the vector if possible.
-  bool push_back(T&& t) {
-    size_t hash = Hash()(t);
-    auto* node = Lookup(t, &hash);
-    if (node->is_valid()) {
-      return false;  // Already have this one.
-    }
-    vector_.push_back(std::move(t));
-    set_.Insert(node, hash, vector_.size() - 1);
-    return true;
-  }
+  bool push_back(T&& t) { return PushBackWithIndex(std::move(t)).first; }
 
   // Construct an item in-place if possible. Return true if it was
   // appended, false otherwise.

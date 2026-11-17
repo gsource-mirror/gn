@@ -192,10 +192,6 @@ class PointerSet : public HashTableBase<PointerSetNode> {
       if (!other.contains(*iter))
         return false;
 
-    for (const_iterator iter = other.begin(); iter.valid(); ++iter)
-      if (!contains(*iter))
-        return false;
-
     return true;
   }
 

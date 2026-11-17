@@ -16,6 +16,23 @@
       "message": "PTAL. This CL comes from my impression after adding some of you as reviewers on my recent CLs. Please let me know if I got it wrong and I’ll adjust accordingly.",
       "revId": "489558cba7bb7178fbad631480c99322e48e4a69",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d33915dd_132d5633",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000402
+      },
+      "writtenOn": "2026-11-17T17:49:47Z",
+      "side": 1,
+      "message": "Andrew: PTAL.",
+      "revId": "489558cba7bb7178fbad631480c99322e48e4a69",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

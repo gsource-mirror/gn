@@ -9,6 +9,8 @@
 #include <io.h>
 #include <stdint.h>
 
+#include <bit>
+
 #include "base/logging.h"
 #include "base/win/win_util.h"
 
@@ -180,11 +182,9 @@ bool File::GetInfo(Info* info) {
   info->is_directory =
       (file_info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
   info->is_symbolic_link = false;  // Windows doesn't have symbolic links.
-  info->last_modified =
-      *reinterpret_cast<uint64_t*>(&file_info.ftLastWriteTime);
-  info->last_accessed =
-      *reinterpret_cast<uint64_t*>(&file_info.ftLastAccessTime);
-  info->creation_time = *reinterpret_cast<uint64_t*>(&file_info.ftCreationTime);
+  info->last_modified = std::bit_cast<uint64_t>(file_info.ftLastWriteTime);
+  info->last_accessed = std::bit_cast<uint64_t>(file_info.ftLastAccessTime);
+  info->creation_time = std::bit_cast<uint64_t>(file_info.ftCreationTime);
   return true;
 }
 

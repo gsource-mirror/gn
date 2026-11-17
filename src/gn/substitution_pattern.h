@@ -22,7 +22,6 @@ class SubstitutionPattern {
     Subrange();
     explicit Subrange(const Substitution* t,
                       const std::string& l = std::string());
-    ~Subrange();
 
     inline bool operator==(const Subrange& other) const {
       return type == other.type && literal == other.literal;

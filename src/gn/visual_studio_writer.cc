@@ -280,9 +280,6 @@ VisualStudioWriter::SourceFileCompileTypePair::SourceFileCompileTypePair(
     const char* _compile_type)
     : file(_file), compile_type(_compile_type) {}
 
-VisualStudioWriter::SourceFileCompileTypePair::~SourceFileCompileTypePair() =
-    default;
-
 VisualStudioWriter::VisualStudioWriter(const BuildSettings* build_settings,
                                        const char* config_platform,
                                        Version version,

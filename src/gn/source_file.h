@@ -54,8 +54,6 @@ class SourceFile {
   explicit SourceFile(std::string&& value);
   explicit SourceFile(StringAtom value);
 
-  ~SourceFile() = default;
-
   bool is_null() const { return value_.empty(); }
   const std::string& value() const { return value_.str(); }
   Type GetType() const;

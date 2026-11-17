@@ -568,7 +568,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
     ])
 
     if is_gcc(cxx):
-      cflags.append('-Wno-redundant-move')
       # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104336
       cflags.append('-Wno-restrict')
     # flags not supported by gcc/g++.
@@ -583,16 +582,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
 
       if not options.no_static_libstdcpp:
         ldflags.append('-static-libstdc++')
-
-      cflags.extend([
-        '-Wno-deprecated-copy',
-        '-Wno-implicit-fallthrough',
-        '-Wno-redundant-move',
-        '-Wno-unused-variable',
-        '-Wno-format',             # Use of %llx, which is supported by _UCRT, false positive
-        '-Wno-strict-aliasing',    # Dereferencing punned pointer
-        '-Wno-cast-function-type', # Casting FARPROC to RegDeleteKeyExPtr
-      ])
 
     elif platform.is_darwin():
       # Feel free to bump this value whenever you want, as long as all non-EOL

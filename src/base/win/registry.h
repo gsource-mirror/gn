@@ -126,13 +126,6 @@ class RegKey {
   HKEY Handle() const { return key_; }
 
  private:
-  // Calls RegDeleteKeyEx on supported platforms, alternatively falls back to
-  // RegDeleteKey.
-  static LONG RegDeleteKeyExWrapper(HKEY hKey,
-                                    const char16_t* lpSubKey,
-                                    REGSAM samDesired,
-                                    DWORD Reserved);
-
   // Recursively deletes a key and all of its subkeys.
   static LONG RegDelRecurse(HKEY root_key,
                             const std::u16string& name,

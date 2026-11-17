@@ -18,6 +18,10 @@
 class ConfigValues {
  public:
   ConfigValues();
+  ConfigValues(const ConfigValues&);
+  ConfigValues(ConfigValues&&) noexcept;
+  ConfigValues& operator=(const ConfigValues&);
+  ConfigValues& operator=(ConfigValues&&) noexcept;
   ~ConfigValues();
 
   // Appends the values from the given config to this one.

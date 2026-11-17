@@ -91,7 +91,6 @@ class VisualStudioWriter {
 
   struct SourceFileCompileTypePair {
     SourceFileCompileTypePair(const SourceFile* file, const char* compile_type);
-    ~SourceFileCompileTypePair();
 
     // Source file.
     const SourceFile* file;

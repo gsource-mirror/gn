@@ -31,8 +31,8 @@ bool IsLongPathsSupportEnabled() {
       HINSTANCE ntdll_lib = GetModuleHandleW(L"ntdll");
       if (ntdll_lib) {
         using FunctionType = BOOLEAN(WINAPI*)();
-        auto func_ptr = reinterpret_cast<FunctionType>(
-            GetProcAddress(ntdll_lib, "RtlAreLongPathsEnabled"));
+        auto func_ptr = reinterpret_cast<FunctionType>(reinterpret_cast<void*>(
+            GetProcAddress(ntdll_lib, "RtlAreLongPathsEnabled")));
         if (func_ptr) {
           supported = func_ptr();
           return;

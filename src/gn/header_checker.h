@@ -125,9 +125,9 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
     //
     // ```
     //     A
-    //    / \
+    //    / \      (A depends on B and C)
     //   B   C
-    //    \ /
+    //    \ /      (B and C both depend on D)
     //     D
     // ```
     //

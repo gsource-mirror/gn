@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <bit>
 #include <limits>
 
 #include "base/logging.h"
@@ -58,7 +59,7 @@ int64_t FileEnumerator::FileInfo::GetSize() const {
 }
 
 Ticks FileEnumerator::FileInfo::GetLastModifiedTime() const {
-  return *reinterpret_cast<const uint64_t*>(&find_data_.ftLastWriteTime);
+  return std::bit_cast<uint64_t>(find_data_.ftLastWriteTime);
 }
 
 // FileEnumerator --------------------------------------------------------------

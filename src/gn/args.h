@@ -31,7 +31,6 @@ class Args {
   struct ValueWithOverride {
     ValueWithOverride();
     ValueWithOverride(const Value& def_val);
-    ~ValueWithOverride();
 
     Value default_value;  // Default value given in declare_args.
 

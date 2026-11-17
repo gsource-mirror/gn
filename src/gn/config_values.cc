@@ -17,7 +17,10 @@ void VectorAppend(std::vector<T>* append_to,
 }  // namespace
 
 ConfigValues::ConfigValues() = default;
-
+ConfigValues::ConfigValues(const ConfigValues&) = default;
+ConfigValues::ConfigValues(ConfigValues&&) noexcept = default;
+ConfigValues& ConfigValues::operator=(const ConfigValues&) = default;
+ConfigValues& ConfigValues::operator=(ConfigValues&&) noexcept = default;
 ConfigValues::~ConfigValues() = default;
 
 void ConfigValues::AppendValues(const ConfigValues& append) {

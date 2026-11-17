@@ -41,6 +41,8 @@ class FileEnumerator {
   class FileInfo {
    public:
     FileInfo();
+    FileInfo(const FileInfo& that) = default;
+    FileInfo& operator=(const FileInfo& that) = default;
     ~FileInfo();
 
     bool IsDirectory() const;

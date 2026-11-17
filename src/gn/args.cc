@@ -95,8 +95,6 @@ Args::ValueWithOverride::ValueWithOverride()
 Args::ValueWithOverride::ValueWithOverride(const Value& def_val)
     : default_value(def_val), has_override(false), override_value() {}
 
-Args::ValueWithOverride::~ValueWithOverride() = default;
-
 Args::Args() = default;
 
 Args::Args(const Args& other)

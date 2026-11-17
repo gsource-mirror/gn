@@ -21,6 +21,7 @@
 #include <time.h>
 
 #include <algorithm>
+#include <bit>
 #include <iterator>
 #include <limits>
 #include <string>
@@ -153,11 +154,12 @@ DWORD DoDeleteFile(const FilePath& path, bool recursive) {
 
 std::string RandomDataToGUIDString(const uint64_t bytes[2]) {
   return base::StringPrintf(
-      "%08x-%04x-%04x-%04x-%012llx", static_cast<unsigned int>(bytes[0] >> 32),
+      "%08x-%04x-%04x-%04x-%04x%08x", static_cast<unsigned int>(bytes[0] >> 32),
       static_cast<unsigned int>((bytes[0] >> 16) & 0x0000ffff),
       static_cast<unsigned int>(bytes[0] & 0x0000ffff),
       static_cast<unsigned int>(bytes[1] >> 48),
-      bytes[1] & 0x0000ffff'ffffffffULL);
+      static_cast<unsigned int>((bytes[1] >> 32) & 0x0000ffff),
+      static_cast<unsigned int>(bytes[1]));
 }
 
 void RandBytes(void* output, size_t output_length) {
@@ -205,16 +207,7 @@ FilePath MakeAbsoluteFilePath(const FilePath& input) {
 }
 
 bool DeleteFile(const FilePath& path, bool recursive) {
-  static constexpr char kRecursive[] = "DeleteFile.Recursive";
-  static constexpr char kNonRecursive[] = "DeleteFile.NonRecursive";
-  const std::string_view operation(recursive ? kRecursive : kNonRecursive);
-
-  // Metrics for delete failures tracked in https://crbug.com/599084. Delete may
-  // fail for a number of reasons. Log some metrics relating to failures in the
-  // current code so that any improvements or regressions resulting from
-  // subsequent code changes can be detected.
-  const DWORD error = DoDeleteFile(path, recursive);
-  return error == ERROR_SUCCESS;
+  return DoDeleteFile(path, recursive) == ERROR_SUCCESS;
 }
 
 bool DeleteFileAfterReboot(const FilePath& path) {
@@ -560,9 +553,9 @@ bool GetFileInfo(const FilePath& file_path, File::Info* results) {
 
   results->is_directory =
       (attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-  results->last_modified = *reinterpret_cast<uint64_t*>(&attr.ftLastWriteTime);
-  results->last_accessed = *reinterpret_cast<uint64_t*>(&attr.ftLastAccessTime);
-  results->creation_time = *reinterpret_cast<uint64_t*>(&attr.ftCreationTime);
+  results->last_modified = std::bit_cast<uint64_t>(attr.ftLastWriteTime);
+  results->last_accessed = std::bit_cast<uint64_t>(attr.ftLastAccessTime);
+  results->creation_time = std::bit_cast<uint64_t>(attr.ftCreationTime);
 
   return true;
 }

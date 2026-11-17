@@ -170,7 +170,7 @@ class BaseDescBuilder {
     base::ListValue res;
     for (const auto& v : vector)
       res.GetList().emplace_back(ToBaseValue(v));
-    return std::move(res);
+    return res;
   }
 
   base::Value ToBaseValue(const Scope* scope) {
@@ -179,7 +179,7 @@ class BaseDescBuilder {
     scope->GetCurrentScopeValues(&map);
     for (const auto& v : map)
       res.SetKey(v.first, ToBaseValue(v.second));
-    return std::move(res);
+    return res;
   }
 
   base::Value ToBaseValue(const Value& val) {

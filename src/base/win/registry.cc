@@ -228,7 +228,7 @@ LONG RegKey::DeleteEmptyKey(const char16_t* name) {
     return result;
 
   if (count == 0)
-    return RegDeleteKeyExWrapper(key_, name, wow64access_, 0);
+    return RegDeleteKeyEx(key_, ToWCharT(name), wow64access_, 0);
 
   return ERROR_DIR_NOT_EMPTY;
 }
@@ -368,30 +368,11 @@ LONG RegKey::WriteValue(const char16_t* name,
 }
 
 // static
-LONG RegKey::RegDeleteKeyExWrapper(HKEY hKey,
-                                   const char16_t* lpSubKey,
-                                   REGSAM samDesired,
-                                   DWORD Reserved) {
-  typedef LSTATUS(WINAPI * RegDeleteKeyExPtr)(HKEY, LPCWSTR, REGSAM, DWORD);
-
-  RegDeleteKeyExPtr reg_delete_key_ex_func =
-      reinterpret_cast<RegDeleteKeyExPtr>(
-          GetProcAddress(GetModuleHandleA("advapi32.dll"), "RegDeleteKeyExW"));
-
-  if (reg_delete_key_ex_func)
-    return reg_delete_key_ex_func(hKey, ToWCharT(lpSubKey), samDesired,
-                                  Reserved);
-
-  // Windows XP does not support RegDeleteKeyEx, so fallback to RegDeleteKey.
-  return RegDeleteKey(hKey, ToWCharT(lpSubKey));
-}
-
-// static
 LONG RegKey::RegDelRecurse(HKEY root_key,
                            const std::u16string& name,
                            REGSAM access) {
   // First, see if the key can be deleted without having to recurse.
-  LONG result = RegDeleteKeyExWrapper(root_key, name.c_str(), access, 0);
+  LONG result = RegDeleteKeyEx(root_key, ToWCharT(&name), access, 0);
   if (result == ERROR_SUCCESS)
     return result;
 
@@ -435,7 +416,7 @@ LONG RegKey::RegDelRecurse(HKEY root_key,
   RegCloseKey(target_key);
 
   // Try again to delete the key.
-  result = RegDeleteKeyExWrapper(root_key, name.c_str(), access, 0);
+  result = RegDeleteKeyEx(root_key, ToWCharT(&name), access, 0);
 
   return result;
 }

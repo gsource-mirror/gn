@@ -18,8 +18,6 @@ SubstitutionPattern::Subrange::Subrange(const Substitution* t,
                                         const std::string& l)
     : type(t), literal(l) {}
 
-SubstitutionPattern::Subrange::~Subrange() = default;
-
 SubstitutionPattern::SubstitutionPattern() : origin_(nullptr) {}
 
 SubstitutionPattern::SubstitutionPattern(const SubstitutionPattern& other) =

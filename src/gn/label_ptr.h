@@ -32,8 +32,6 @@ struct LabelPtrPair {
   // automatically from a given pointer.
   explicit LabelPtrPair(const T* p) : label(p->label()), ptr(p) {}
 
-  ~LabelPtrPair() = default;
-
   Label label;
   const T* ptr = nullptr;
 

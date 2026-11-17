@@ -500,9 +500,8 @@ std::string SourcePathFromBuildSettings(const BuildSettings* build_settings) {
 }
 
 // Returns the default attributes for the project from settings.
-PBXAttributes ProjectAttributesFromBuildSettings(
+std::optional<PBXAttributes> ProjectAttributesFromBuildSettings(
     const BuildSettings* build_settings,
-    const ParseNode* node,
     Err* err) {
   const TargetOsType target_os = GetTargetOs(build_settings->build_args());
 
@@ -510,9 +509,10 @@ PBXAttributes ProjectAttributesFromBuildSettings(
   switch (target_os) {
     case WRITER_TARGET_OS_IOS: {
       const std::optional<TargetXcodePlatformType> target_xcode_platform =
-          GetTargetXcodePlatform(build_settings->build_args(), node, err);
+          GetTargetXcodePlatform(build_settings->build_args(),
+                                 /*node=*/nullptr, err);
       if (!target_xcode_platform)
-        return {};
+        return std::nullopt;
       if (*target_xcode_platform == WRITER_TARGET_XCODE_PLATFORM_TVOS) {
         attributes["SDKROOT"] = "appletvos";
         attributes["TARGETED_DEVICE_FAMILY"] = "3";
@@ -717,7 +717,8 @@ bool XcodeWorkspace::WriteSettingsFile(const std::string& name,
 class XcodeProject {
  public:
   XcodeProject(const BuildSettings* build_settings,
-               XcodeWriter::Options options);
+               XcodeWriter::Options options,
+               PBXAttributes attributes);
   ~XcodeProject();
 
   // Recursively finds "source" files from |builder| and adds them to the
@@ -785,15 +786,14 @@ class XcodeProject {
 };
 
 XcodeProject::XcodeProject(const BuildSettings* build_settings,
-                           XcodeWriter::Options options)
+                           XcodeWriter::Options options,
+                           PBXAttributes attributes)
     : build_settings_(build_settings),
       options_(options),
       project_(options.project_name,
                ConfigListFromOptions(options.configurations),
                SourcePathFromBuildSettings(build_settings),
-               ProjectAttributesFromBuildSettings(build_settings,
-                                                  /*node=*/nullptr,
-                                                  /*err=*/nullptr)) {}
+               std::move(attributes)) {}
 
 XcodeProject::~XcodeProject() = default;
 
@@ -1228,7 +1228,12 @@ bool XcodeWriter::RunAndWriteFiles(const BuildSettings* build_settings,
                                    const Builder& builder,
                                    Options options,
                                    Err* err) {
-  XcodeProject project(build_settings, options);
+  std::optional<PBXAttributes> attributes =
+      ProjectAttributesFromBuildSettings(build_settings, err);
+  if (!attributes)
+    return false;
+
+  XcodeProject project(build_settings, options, std::move(*attributes));
   if (!project.AddSourcesFromBuilder(builder, err))
     return false;
 

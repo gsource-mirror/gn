@@ -43,8 +43,6 @@ class Crate {
         label_(label),
         edition_(edition) {}
 
-  ~Crate() = default;
-
   // Add a config item to the crate.
   void AddConfigItem(std::string cfg_item) { configs_.push_back(cfg_item); }
 

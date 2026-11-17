@@ -16,6 +16,23 @@
       "message": "Also did a couple of small simplifications that AI found.",
       "revId": "062210676506563374fb1794da9c4e972051f6de",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2403379e_4d9d59bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-17T16:38:00Z",
+      "side": 1,
+      "message": "Thanks",
+      "revId": "062210676506563374fb1794da9c4e972051f6de",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

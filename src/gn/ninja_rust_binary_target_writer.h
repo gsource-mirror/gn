@@ -26,9 +26,7 @@ class NinjaRustBinaryTargetWriter : public NinjaBinaryTargetWriter {
   };
 
   void WriteCompilerVars();
-  void WriteExternsAndDeps(const std::vector<const Target*>& deps,
-                           const std::vector<ExternCrate>& transitive_rust_deps,
-                           const std::vector<OutputFile>& rustdeps,
+  void WriteExternsAndDeps(const std::vector<ExternCrate>& transitive_rust_deps,
                            const std::vector<OutputFile>& nonrustdeps,
                            const std::vector<OutputFile>& swiftmodules);
   // Unlike C/C++, Rust compiles all sources of a crate in one command.

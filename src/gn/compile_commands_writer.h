@@ -42,11 +42,9 @@ class CompileCommandsWriter {
   // Collects all the targets whose commands should get written as part of
   // RunAndWriteFiles() (separated out for unit testing).
   static std::vector<const Target*> CollectTargets(
-      const BuildSettings* build_setting,
       const std::vector<const Target*>& all_targets,
       const std::vector<LabelPattern>& patterns,
-      const std::optional<std::string>& legacy_target_filters,
-      Err* err);
+      const std::optional<std::string>& legacy_target_filters);
 
   static std::string RenderJSON(const BuildSettings* build_settings,
                                 std::vector<const Target*>& all_targets);

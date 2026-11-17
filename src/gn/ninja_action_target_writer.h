@@ -55,11 +55,6 @@ class NinjaActionTargetWriter : public NinjaTargetWriter {
   // of whether they're associated with a specific source file.
   void WriteNinjaVariablesForAction();
 
-  // Path output writer that doesn't do any escaping or quoting. It does,
-  // however, convert slashes.  Used for
-  // computing intermediate strings.
-  PathOutput path_output_no_escaping_;
-
   NinjaActionTargetWriter(const NinjaActionTargetWriter&) = delete;
   NinjaActionTargetWriter& operator=(const NinjaActionTargetWriter&) = delete;
 };

@@ -1022,6 +1022,53 @@ TEST_F(TargetTest, GeneratedInputs) {
   EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
 }
 
+TEST_F(TargetTest, ExperimentalSkipGeneratedPublicHeadersCheck) {
+  TestWithScope setup;
+  setup.build_settings()->set_experimental_skip_generated_public_headers_check(
+      true);
+  Err err;
+
+  SourceFile generated_file("//out/Debug/generated.cc");
+  SourceFile generated_header("//out/Debug/generated.h");
+
+  TestTarget generator(setup, "//foo:generator", Target::ACTION);
+  generator.action_values().outputs() = SubstitutionList::MakeForTest(
+      "//out/Debug/generated.cc", "//out/Debug/generated.h");
+  EXPECT_TRUE(generator.OnResolved(&err)) << err.message();
+
+  // Skipping generated public header checks skips public_headers() entirely.
+  TestTarget skip_public_header(setup, "//foo:skip_public_header",
+                                Target::SOURCE_SET);
+  skip_public_header.set_check_includes_strict(true);
+  skip_public_header.set_all_headers_public(false);
+  skip_public_header.public_headers().push_back(generated_header);
+  EXPECT_TRUE(skip_public_header.OnResolved(&err)) << err.message();
+  EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
+
+  // Generated headers in sources() only require private deps even with
+  // check_includes_strict = true.
+  TestTarget skip_strict_sources(setup, "//foo:skip_strict_sources",
+                                 Target::SOURCE_SET);
+  skip_strict_sources.set_check_includes_strict(true);
+  skip_strict_sources.sources().push_back(generated_file);
+  skip_strict_sources.sources().push_back(generated_header);
+  skip_strict_sources.private_deps().push_back(LabelTargetPair(&generator));
+  EXPECT_TRUE(skip_strict_sources.OnResolved(&err)) << err.message();
+  EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
+
+  // Generated headers in sources() with no dependency at all are still
+  // checked as normal sources (requiring a private dep).
+  TestTarget missing_source_header(setup, "//foo:missing_source_header",
+                                   Target::SOURCE_SET);
+  missing_source_header.set_check_includes_strict(true);
+  missing_source_header.sources().push_back(generated_header);
+  EXPECT_TRUE(missing_source_header.OnResolved(&err)) << err.message();
+  AssertSchedulerHasOneUnknownFileMatching(&missing_source_header,
+                                           generated_header,
+                                           /*requires_public_dep=*/false);
+  scheduler().ClearUnknownGeneratedInputsAndWrittenFiles();
+}
+
 // This is sort of a Scheduler test, but is related to the above test more.
 TEST_F(TargetTest, WriteFileGeneratedInputs) {
   TestWithScope setup;

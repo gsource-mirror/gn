@@ -188,6 +188,16 @@ class BuildSettings {
     experimental_collect_validations_metadata_ = value;
   }
 
+  // If true, Target::CheckSourcesGenerated() skips checking public_headers()
+  // and does not require public_deps for generated public headers in
+  // sources().
+  bool experimental_skip_generated_public_headers_check() const {
+    return experimental_skip_generated_public_headers_check_;
+  }
+  void set_experimental_skip_generated_public_headers_check(bool value) {
+    experimental_skip_generated_public_headers_check_ = value;
+  }
+
  private:
   Label root_target_label_;
   std::vector<LabelPattern> root_patterns_;
@@ -203,6 +213,7 @@ class BuildSettings {
   Version ninja_required_version_{1, 7, 2};
   bool no_stamp_files_ = true;
   bool experimental_collect_validations_metadata_ = false;
+  bool experimental_skip_generated_public_headers_check_ = false;
 
   SourceFile build_config_file_;
   SourceFile arg_file_template_path_;

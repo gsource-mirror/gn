@@ -763,6 +763,52 @@ if (host_os != "nonexistent_os") {
   EXPECT_FALSE(err.has_error());
 }
 
+TEST_F(SetupTest, ExperimentalSkipGeneratedPublicHeadersCheck) {
+  {
+    base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
+    base::ScopedTempDir in_temp_dir;
+    base::FilePath in_path = CreateSourceRoot(&in_temp_dir, kMinimalDotfile);
+    cmdline.AppendSwitchPath(switches::kRoot, in_path);
+
+    base::ScopedTempDir build_temp_dir;
+    ASSERT_TRUE(build_temp_dir.CreateUniqueTempDir());
+
+    Setup setup;
+    Err err;
+    ASSERT_TRUE(setup.DoSetupWithErr(FilePathToUTF8(build_temp_dir.GetPath()),
+                                     true, cmdline, &err));
+    EXPECT_FALSE(setup.build_settings()
+                     .experimental_skip_generated_public_headers_check());
+  }
+
+  {
+    base::CommandLine cmdline(base::CommandLine::NO_PROGRAM);
+    const char kDotfileContents[] = R"(
+buildconfig = "//BUILDCONFIG.gn"
+experimental_skip_generated_public_headers_check = true
+)";
+    base::ScopedTempDir in_temp_dir;
+    base::FilePath in_path = CreateSourceRoot(&in_temp_dir, kDotfileContents);
+    cmdline.AppendSwitchPath(switches::kRoot, in_path);
+
+    base::ScopedTempDir build_temp_dir;
+    ASSERT_TRUE(build_temp_dir.CreateUniqueTempDir());
+
+    Setup setup;
+    Err err;
+    ASSERT_TRUE(setup.DoSetupWithErr(FilePathToUTF8(build_temp_dir.GetPath()),
+                                     true, cmdline, &err))
+        << err.message();
+    EXPECT_TRUE(setup.build_settings()
+                    .experimental_skip_generated_public_headers_check());
+  }
+
+  RunDotfileErrorTest(
+      "buildconfig = \"//BUILDCONFIG.gn\"\n"
+      "experimental_skip_generated_public_headers_check = 1\n",
+      "This is not a boolean.");
+}
+
 // A test that verifies that generated_file() generation doesn't crash.
 // See the commands in builder_record.h regarding metadata walks
 // requiring all items in the graph to be fully resolved to run safely.
@@ -1133,3 +1179,70 @@ action("act") {
   EXPECT_TRUE(toolchain_ninja.contains("command = python3 -s "));
 }
 #endif  // !defined(OS_WIN)
+
+TEST(GenCommandTest, ExperimentalSkipGeneratedPublicHeadersCheck) {
+  auto run_gen = [](bool skip_check) -> int {
+    base::ScopedTempDir in_temp_dir;
+    CHECK(in_temp_dir.CreateUniqueTempDir());
+    base::FilePath in_path = base::MakeAbsoluteFilePath(in_temp_dir.GetPath());
+
+    std::string dotfile =
+        "buildconfig = \"//BUILDCONFIG.gn\"\n"
+        "script_executable = \"\"\n";
+    if (skip_check) {
+      dotfile += "experimental_skip_generated_public_headers_check = true\n";
+    }
+    WriteFile(in_path.Append(FILE_PATH_LITERAL(".gn")), dotfile);
+    WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILDCONFIG.gn")),
+              kToolchainBuildConfig);
+    WriteFile(in_path.Append(FILE_PATH_LITERAL("script.py")), "");
+    WriteFile(in_path.Append(FILE_PATH_LITERAL("BUILD.gn")), R"(
+toolchain("toolchain") {
+  tool("cxx") {
+    command = "cxx"
+    outputs = [ "{{source_out_dir}}/{{source_file_part}}.o" ]
+  }
+  tool("stamp") {
+    command = "touch {{output}}"
+  }
+}
+
+action("gen") {
+  script = "//script.py"
+  outputs = [ "$target_gen_dir/gen.h" ]
+}
+
+source_set("pub") {
+  public = [ "$target_gen_dir/gen.h" ]
+}
+
+source_set("strict_priv") {
+  sources = [ "$target_gen_dir/gen.h" ]
+  deps = [ ":gen" ]
+}
+
+group("default") {
+  deps = [
+    ":pub",
+    ":strict_priv",
+  ]
+}
+)");
+
+    base::ScopedTempDir build_temp_dir;
+    CHECK(build_temp_dir.CreateUniqueTempDir());
+
+    base::test::ScopedCommandLine global_cmdline;
+    base::CommandLine* cmdline = global_cmdline.GetProcessCommandLine();
+    cmdline->AppendSwitchPath(switches::kRoot, in_path);
+    cmdline->AppendSwitch(switches::kQuiet);
+    MsgLoop msg_loop;
+    return commands::RunGen({FilePathToUTF8(build_temp_dir.GetPath())});
+  };
+
+  {
+    ScopedBufferedOutput buffered_out;
+    EXPECT_NE(0, run_gen(/*skip_check=*/false));
+  }
+  EXPECT_EQ(0, run_gen(/*skip_check=*/true));
+}

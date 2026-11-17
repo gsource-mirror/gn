@@ -73,10 +73,6 @@ class Token {
                  location_.column_number() + static_cast<int>(value_.size())));
   }
 
-  // Helper functions for comparing this token to something.
-  bool IsIdentifierEqualTo(const char* v) const;
-  bool IsStringEqualTo(const char* v) const;
-
  private:
   Type type_;
   std::string_view value_;

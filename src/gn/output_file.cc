@@ -24,19 +24,6 @@ SourceFile OutputFile::AsSourceFile(const BuildSettings* build_settings) const {
   return SourceFile(std::move(path));
 }
 
-SourceDir OutputFile::AsSourceDir(const BuildSettings* build_settings) const {
-  std::string_view val = value();
-  if (!val.empty()) {
-    // Empty means the root build dir. Otherwise, we expect it to end in a
-    // slash.
-    DCHECK(val.back() == '/');
-  }
-  std::string path = build_settings->build_dir().value();
-  path.append(val);
-  NormalizePath(&path);
-  return SourceDir(std::move(path));
-}
-
 std::string Pretty(const OutputFile& file) {
   return std::string(file.value());
 }

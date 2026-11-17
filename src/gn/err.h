@@ -258,48 +258,4 @@ inline E GetError(std::expected<T, E>&& exp) {
   }                                                                    \
   lhs = std::move(*expected_val)
 
-// Usage: In a legacy function returning void, call
-//   RETURN_IF_ERROR_VOID(err_ptr, new_style_function())
-#define RETURN_IF_ERROR_VOID(err_ptr, expr)                              \
-  _RETURN_IF_ERROR_VOID_IMPL(_STATUS_CONCAT(_status_value, __COUNTER__), \
-                             err_ptr, expr)
-
-#define _RETURN_IF_ERROR_VOID_IMPL(status_val, err_ptr, expr) \
-  do {                                                        \
-    auto status_val = (expr);                                 \
-    if (status_val.has_error()) {                             \
-      *(err_ptr) = internal::GetError(std::move(status_val)); \
-      return;                                                 \
-    }                                                         \
-  } while (0)
-
-// Usage: In a legacy function returning a pointer or bool, call
-//   ASSIGN_OR_RETURN_PTR(foo, err_ptr, new_style_function())
-#define ASSIGN_OR_RETURN_PTR(lhs, err_ptr, rexpr)                          \
-  _ASSIGN_OR_RETURN_PTR_IMPL(_STATUS_CONCAT(_expected_value, __COUNTER__), \
-                             lhs, err_ptr, rexpr)
-
-#define _ASSIGN_OR_RETURN_PTR_IMPL(expected_val, lhs, err_ptr, rexpr) \
-  auto expected_val = (rexpr);                                        \
-  if (!expected_val) {                                                \
-    *(err_ptr) = std::move(expected_val).error();                     \
-    return {};                                                        \
-  }                                                                   \
-  lhs = std::move(*expected_val)
-
-// Usage: In a legacy function returning a pointer or bool, call
-//   RETURN_IF_ERROR_PTR(err_ptr, new_style_function())
-#define RETURN_IF_ERROR_PTR(err_ptr, expr)                              \
-  _RETURN_IF_ERROR_PTR_IMPL(_STATUS_CONCAT(_status_value, __COUNTER__), \
-                            err_ptr, expr)
-
-#define _RETURN_IF_ERROR_PTR_IMPL(status_val, err_ptr, expr)  \
-  do {                                                        \
-    auto status_val = (expr);                                 \
-    if (status_val.has_error()) {                             \
-      *(err_ptr) = internal::GetError(std::move(status_val)); \
-      return {};                                              \
-    }                                                         \
-  } while (0)
-
 #endif  // TOOLS_GN_ERR_H_

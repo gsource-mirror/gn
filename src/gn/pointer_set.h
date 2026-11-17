@@ -155,9 +155,6 @@ class PointerSet : public HashTableBase<PointerSetNode> {
 
   // Only provide const interators for pointer sets.
   struct const_iterator : public NodeIterator {
-    T* const* operator->() const {
-      return &const_cast<T*>(static_cast<const T*>(node_->ptr_));
-    }
     T* operator*() const {
       return const_cast<T*>(static_cast<const T*>(node_->ptr_));
     }

@@ -33,9 +33,10 @@ using TargetVector = std::vector<const Target*>;
 // Maps targets to the list of targets that depend on them.
 using DepMap = std::multimap<const Target*, const Target*>;
 
-// Populates the reverse dependency map for the targets in the Setup.
-void FillDepMap(Setup* setup, DepMap* dep_map) {
-  for (auto* target : setup->builder().GetAllResolvedTargets()) {
+// Populates the reverse dependency map for the given resolved targets.
+void FillDepMap(const std::vector<const Target*>& all_targets,
+                DepMap* dep_map) {
+  for (auto* target : all_targets) {
     for (const auto& dep_pair : target->GetDeps(Target::DEPS_ALL))
       dep_map->insert(std::make_pair(dep_pair.ptr, target));
     for (const auto& validation_pair : target->validations())
@@ -177,7 +178,7 @@ size_t DoTreeOutput(const DepMap& dep_map,
     count += RecursivePrintTargetDeps(dep_map, target, &seen_targets, all, 0);
 
   // Explicit targets appear in the output.
-  for (const Target* target : implicit_target_matches)
+  for (const Target* target : explicit_target_matches)
     count += RecursivePrintTarget(dep_map, target, &seen_targets, all, 0);
 
   return count;
@@ -461,17 +462,20 @@ int RunRefs(const std::vector<std::string>& args) {
     return 1;
   }
 
-  // Construct the reverse dependency tree.
-  DepMap dep_map;
-  FillDepMap(setup, &dep_map);
-
   size_t cnt = 0;
-  if (tree)
-    cnt = DoTreeOutput(dep_map, target_matches, explicit_target_matches, all);
-  else if (all)
-    cnt = DoAllListOutput(dep_map, target_matches, explicit_target_matches);
-  else
-    cnt = DoDirectListOutput(dep_map, target_matches, explicit_target_matches);
+  if (tree) {
+    cnt = PrintRefsTree(all_targets, target_matches, explicit_target_matches,
+                        all);
+  } else {
+    // Construct the reverse dependency tree.
+    DepMap dep_map;
+    FillDepMap(all_targets, &dep_map);
+    if (all)
+      cnt = DoAllListOutput(dep_map, target_matches, explicit_target_matches);
+    else
+      cnt =
+          DoDirectListOutput(dep_map, target_matches, explicit_target_matches);
+  }
 
   // If you ask for the references of a valid target, but that target has
   // nothing referencing it, we'll get here without having printed anything.
@@ -479,6 +483,16 @@ int RunRefs(const std::vector<std::string>& args) {
     OutputString("Nothing references this.\n", DECORATION_YELLOW);
 
   return 0;
+}
+
+size_t PrintRefsTree(const std::vector<const Target*>& all_targets,
+                     const UniqueVector<const Target*>& implicit_target_matches,
+                     const UniqueVector<const Target*>& explicit_target_matches,
+                     bool all) {
+  DepMap dep_map;
+  FillDepMap(all_targets, &dep_map);
+  return DoTreeOutput(dep_map, implicit_target_matches, explicit_target_matches,
+                      all);
 }
 
 }  // namespace commands

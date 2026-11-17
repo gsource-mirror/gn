@@ -563,6 +563,16 @@ void GetTargetsContainingFile(Setup* setup,
                               bool default_toolchain_only,
                               std::vector<TargetContainingFile>* matches);
 
+// Prints reverse dependency trees for `gn refs --tree`. Targets in
+// |implicit_target_matches| have only their dependents printed, while targets
+// in |explicit_target_matches| (e.g. from file or config inputs) are printed
+// as roots of their reverse dependency trees. Returns the number of items
+// printed.
+size_t PrintRefsTree(const std::vector<const Target*>& all_targets,
+                     const UniqueVector<const Target*>& implicit_target_matches,
+                     const UniqueVector<const Target*>& explicit_target_matches,
+                     bool all);
+
 // Extra help from command_check.cc
 extern const char kNoGnCheck_Help[];
 

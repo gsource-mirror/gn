@@ -234,7 +234,7 @@ bool HeaderChecker::Run(const std::vector<const Target*>& to_check,
   std::unordered_set<const Target*> no_check_generated_set(
       no_check_generated.begin(), no_check_generated.end());
   std::vector<FileInformation> files =
-      FilesToCheck(to_check_set, no_check_generated_set);
+      FilesToCheck(to_check_set, no_check_generated_set, force_check);
 
   WorkerPool pool;
   {
@@ -272,7 +272,8 @@ bool HeaderChecker::Run(const std::vector<const Target*>& to_check,
 
 std::vector<HeaderChecker::FileInformation> HeaderChecker::FilesToCheck(
     const std::unordered_set<const Target*>& to_check,
-    const std::unordered_set<const Target*>& no_check_generated) const {
+    const std::unordered_set<const Target*>& no_check_generated,
+    bool force_check) const {
   std::vector<FileInformation> files;
   files.reserve(file_map_.size());
 
@@ -300,7 +301,7 @@ std::vector<HeaderChecker::FileInformation> HeaderChecker::FilesToCheck(
     TargetVector targets_to_check;
     for (const auto& vect_i : info.targets) {
       if (vect_i.target->IsBinary() && to_check.contains(vect_i.target) &&
-          vect_i.target->check_includes() &&
+          (force_check || vect_i.target->check_includes()) &&
           !(in_output_dir && no_check_generated.contains(vect_i.target))) {
         targets_to_check.push_back(vect_i);
       }

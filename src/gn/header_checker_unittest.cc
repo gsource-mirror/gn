@@ -634,9 +634,9 @@ TEST_F(HeaderCheckerTest, NoCheckGenerated) {
       [&](bool check_generated,
           const std::unordered_set<const Target*>& no_check_generated) {
         Files result;
-        for (const auto& info :
-             CreateChecker(check_generated)
-                 ->FilesToCheck(to_check, no_check_generated))
+        for (const auto& info : CreateChecker(check_generated)
+                                    ->FilesToCheck(to_check, no_check_generated,
+                                                   /*force_check=*/false))
           result.insert(info.file);
         return result;
       };
@@ -653,6 +653,22 @@ TEST_F(HeaderCheckerTest, NoCheckGenerated) {
 
   // Listing another target does not affect A.
   EXPECT_EQ(files_to_check(true, {&b_}), (Files{handwritten, generated}));
+}
+
+TEST_F(HeaderCheckerTest, ForceCheck) {
+  const SourceFile a_cc("//a/a.cc");
+  a_.sources().push_back(a_cc);
+  a_.set_check_includes(false);
+
+  std::unordered_set<const Target*> to_check(targets_.begin(), targets_.end());
+  auto checker = CreateChecker();
+
+  EXPECT_TRUE(
+      checker->FilesToCheck(to_check, {}, /*force_check=*/false).empty());
+
+  auto forced = checker->FilesToCheck(to_check, {}, /*force_check=*/true);
+  ASSERT_EQ(1u, forced.size());
+  EXPECT_EQ(a_cc, forced[0].file);
 }
 
 TEST_F(HeaderCheckerTest, CheckIncludesStrictExceptions) {

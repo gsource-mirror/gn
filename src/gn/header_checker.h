@@ -252,6 +252,7 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
   FRIEND_TEST_ALL_PREFIXES(HeaderCheckerTest,
                            CheckIncludesStrictSameTargetPrivateHeader);
   FRIEND_TEST_ALL_PREFIXES(HeaderCheckerTest, CheckIncludesStrictExceptions);
+  FRIEND_TEST_ALL_PREFIXES(HeaderCheckerTest, ForceCheck);
   FRIEND_TEST_ALL_PREFIXES(HeaderCheckerTest, NoCheckGenerated);
 
   ~HeaderChecker();
@@ -295,7 +296,8 @@ class HeaderChecker : public base::RefCountedThreadSafe<HeaderChecker> {
   // the targets in no_check_generated.
   std::vector<FileInformation> FilesToCheck(
       const std::unordered_set<const Target*>& to_check,
-      const std::unordered_set<const Target*>& no_check_generated) const;
+      const std::unordered_set<const Target*>& no_check_generated,
+      bool force_check) const;
 
   // Backend for Run() that checks the given files. The errors_ list will be
   // populated on failure.

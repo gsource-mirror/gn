@@ -1281,24 +1281,32 @@ void Target::CheckSourcesGenerated() const {
   //
   // See Scheduler::AddUnknownGeneratedInput's declaration for more.
   CheckSourceGeneratedCursor cursor;
-  bool check_private_deps = !check_includes_strict_;
-  // Cursor could be pointing to a private dep, in which case if you attempt to
-  // call it with check_private_deps=false, it would still try to take the
-  // shortcut and check the private dep.
-  // So we have a separate cursor we use when check_private_deps=false.
-  CheckSourceGeneratedCursor public_cursor;
-  CheckSourceGeneratedCursor* header_cursor =
-      check_private_deps ? &cursor : &public_cursor;
-  for (const SourceFile& file : public_headers_) {
-    CheckSourceGenerated(this, file, check_private_deps, header_cursor);
-  }
-
-  for (const SourceFile& file : sources_) {
-    if (IsBinary() && all_headers_public_ &&
-        file.GetType() == SourceFile::SOURCE_H) {
-      CheckSourceGenerated(this, file, check_private_deps, header_cursor);
-    } else {
+  if (settings()
+          ->build_settings()
+          ->experimental_skip_generated_public_headers_check()) {
+    for (const SourceFile& file : sources_) {
       CheckSourceGenerated(this, file, /*check_private_deps=*/true, &cursor);
+    }
+  } else {
+    bool check_private_deps = !check_includes_strict_;
+    // Cursor could be pointing to a private dep, in which case if you attempt
+    // to call it with check_private_deps=false, it would still try to take the
+    // shortcut and check the private dep.
+    // So we have a separate cursor we use when check_private_deps=false.
+    CheckSourceGeneratedCursor public_cursor;
+    CheckSourceGeneratedCursor* header_cursor =
+        check_private_deps ? &cursor : &public_cursor;
+    for (const SourceFile& file : public_headers_) {
+      CheckSourceGenerated(this, file, check_private_deps, header_cursor);
+    }
+
+    for (const SourceFile& file : sources_) {
+      if (IsBinary() && all_headers_public_ &&
+          file.GetType() == SourceFile::SOURCE_H) {
+        CheckSourceGenerated(this, file, check_private_deps, header_cursor);
+      } else {
+        CheckSourceGenerated(this, file, /*check_private_deps=*/true, &cursor);
+      }
     }
   }
 

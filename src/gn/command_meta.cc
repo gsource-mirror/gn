@@ -133,33 +133,17 @@ int RunMeta(const std::vector<std::string>& args) {
   // TODO(juliehockett): We should have better dep tracing and error support for
   // this. Also possibly data about where different values came from.
   OutputString("\nExtracted from:\n", DECORATION_DIM);
-  bool first = true;
-  for (const auto* target : targets_walked) {
-    if (!first) {
-      first = false;
-      OutputString(", ", DECORATION_DIM);
-    }
+  for (const auto* target : targets_walked)
     OutputString(target->label().GetUserVisibleName(true) + "\n");
-  }
+
   OutputString("\nusing data keys:\n", DECORATION_DIM);
-  first = true;
-  for (const auto& key : data_keys) {
-    if (!first) {
-      first = false;
-      OutputString(", ");
-    }
+  for (const auto& key : data_keys)
     OutputString(key + "\n");
-  }
+
   if (!walk_keys.empty()) {
     OutputString("\nand using walk keys:\n", DECORATION_DIM);
-    first = true;
-    for (const auto& key : walk_keys) {
-      if (!first) {
-        first = false;
-        OutputString(", ");
-      }
+    for (const auto& key : walk_keys)
       OutputString(key + "\n");
-    }
   }
   return 0;
 }

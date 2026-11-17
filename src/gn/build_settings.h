@@ -31,7 +31,8 @@ class BuildSettings {
   using PrintCallback = std::function<void(const std::string&)>;
 
   BuildSettings();
-  BuildSettings(const BuildSettings& other);
+  BuildSettings(const BuildSettings&) = delete;
+  BuildSettings& operator=(const BuildSettings&) = delete;
 
   // Root target label.
   const Label& root_target_label() const { return root_target_label_; }
@@ -213,8 +214,6 @@ class BuildSettings {
       std::make_unique<SourceFileSet>();
   std::unique_ptr<std::vector<LabelPattern>>
       allow_circular_includes_from_allowlist_;
-
-  BuildSettings& operator=(const BuildSettings&) = delete;
 };
 
 #endif  // TOOLS_GN_BUILD_SETTINGS_H_

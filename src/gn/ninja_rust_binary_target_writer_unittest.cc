@@ -711,6 +711,49 @@ TEST_F(NinjaRustBinaryTargetWriterTest, GroupOrderOnlyDeps) {
 
     EXPECT_EQ(expected, out);
   }
+
+  // Rust library G (depender on group E). An rlib doesn't wait for non-Rust
+  // source sets, even if they are reached through a group (see also the
+  // NonRustDeps test).
+  Target target_g(setup.settings(), Label(SourceDir("//foo/"), "g"));
+  target_g.set_output_type(Target::RUST_LIBRARY);
+  SourceFile lib("//foo/lib.rs");
+  target_g.sources().push_back(lib);
+  target_g.source_types_used().Set(SourceFile::SOURCE_RS);
+  target_g.rust_values().set_crate_root(lib);
+  target_g.rust_values().crate_name() = "g_crate";
+  target_g.private_deps().push_back(LabelTargetPair(&target_e));
+  target_g.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(target_g.OnResolved(&err)) << err.message();
+
+  {
+    StringOutputBuffer out;
+    NinjaRustBinaryTargetWriter writer(&target_g, out);
+    writer.Run();
+
+    const char expected[] =
+        "crate_name = g_crate\n"
+        "crate_type = rlib\n"
+        "output_extension = .rlib\n"
+        "output_dir = \n"
+        "rustflags =\n"
+        "rustenv =\n"
+        "root_out_dir = .\n"
+        "target_gen_dir = gen/foo\n"
+        "target_out_dir = obj/foo\n"
+        "target_output_name = libg\n"
+        "\n"
+        "build obj/foo/libg.rlib: rust_rlib ../../foo/lib.rs | "
+        "../../foo/lib.rs\n"
+        "  source_file_part = lib.rs\n"
+        "  source_name_part = lib\n"
+        "  externs =\n"
+        "  rustdeps =\n"
+        "  ldflags =\n"
+        "  sources = ../../foo/lib.rs\n";
+
+    EXPECT_EQ(expected, out);
+  }
 }
 
 TEST_F(NinjaRustBinaryTargetWriterTest, RenamedDeps) {
@@ -992,8 +1035,9 @@ TEST_F(NinjaRustBinaryTargetWriterTest, NonRustDeps) {
   }
 
   // An rlib is not linked by rustc, so its non-Rust dependencies are neither
-  // passed to rustc nor implicit dependencies of the rlib. This avoids
-  // compiling the rlib having to wait for C/C++ code to be compiled/linked.
+  // passed to rustc nor dependencies of the rlib (not even order-only
+  // dependencies on the `.linkdeps` of source sets). This avoids compiling the
+  // rlib having to wait for C/C++ code to be compiled/linked.
   Target rlib_with_nonrust(setup.settings(), Label(SourceDir("//qux/"), "qux"));
   rlib_with_nonrust.set_output_type(Target::RUST_LIBRARY);
   rlib_with_nonrust.visibility().SetPublic();
@@ -1029,8 +1073,7 @@ TEST_F(NinjaRustBinaryTargetWriterTest, NonRustDeps) {
         "target_output_name = libqux\n"
         "\n"
         "build obj/qux/libqux.rlib: rust_rlib ../../qux/lib.rs | "
-        "../../qux/lib.rs obj/bar/libmylib.rlib "
-        "|| phony/baz/sourceset.linkdeps\n"
+        "../../qux/lib.rs obj/bar/libmylib.rlib\n"
         "  source_file_part = lib.rs\n"
         "  source_name_part = lib\n"
         "  externs = --extern mylib=obj/bar/libmylib.rlib\n"
@@ -1086,6 +1129,123 @@ TEST_F(NinjaRustBinaryTargetWriterTest, NonRustDeps) {
         "  sources = ../../qux/main.rs\n";
     EXPECT_EQ(expected, out);
   }
+}
+
+// An rlib doesn't wait for the object files of non-Rust source sets, but it
+// still waits for the actions that they depend on (e.g. an action that
+// generates a `.rs` file which the rlib `include!`s).
+TEST_F(NinjaRustBinaryTargetWriterTest, RlibHardDepsThroughNonRustSourceSet) {
+  Err err;
+  TestWithScope setup;
+
+  Target action(setup.settings(), Label(SourceDir("//foo/"), "gen"));
+  action.set_output_type(Target::ACTION);
+  action.visibility().SetPublic();
+  action.action_values().set_script(SourceFile("//foo/gen.py"));
+  action.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/gen/foo/generated.rs");
+  action.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(action.OnResolved(&err));
+
+  Target csourceset(setup.settings(), Label(SourceDir("//foo/"), "cpp"));
+  csourceset.set_output_type(Target::SOURCE_SET);
+  csourceset.visibility().SetPublic();
+  csourceset.sources().push_back(SourceFile("//foo/cpp.cc"));
+  csourceset.source_types_used().Set(SourceFile::SOURCE_CPP);
+  csourceset.public_deps().push_back(LabelTargetPair(&action));
+  csourceset.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(csourceset.OnResolved(&err));
+
+  Target rlib(setup.settings(), Label(SourceDir("//foo/"), "mylib"));
+  rlib.set_output_type(Target::RUST_LIBRARY);
+  rlib.visibility().SetPublic();
+  SourceFile lib("//foo/lib.rs");
+  rlib.sources().push_back(lib);
+  rlib.source_types_used().Set(SourceFile::SOURCE_RS);
+  rlib.rust_values().set_crate_root(lib);
+  rlib.rust_values().crate_name() = "mylib";
+  rlib.private_deps().push_back(LabelTargetPair(&csourceset));
+  rlib.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(rlib.OnResolved(&err));
+
+  StringOutputBuffer out;
+  NinjaRustBinaryTargetWriter writer(&rlib, out);
+  writer.Run();
+
+  const char expected[] =
+      "crate_name = mylib\n"
+      "crate_type = rlib\n"
+      "output_extension = .rlib\n"
+      "output_dir = \n"
+      "rustflags =\n"
+      "rustenv =\n"
+      "root_out_dir = .\n"
+      "target_gen_dir = gen/foo\n"
+      "target_out_dir = obj/foo\n"
+      "target_output_name = libmylib\n"
+      "\n"
+      "build obj/foo/libmylib.rlib: rust_rlib ../../foo/lib.rs | "
+      "../../foo/lib.rs || phony/foo/gen\n"
+      "  source_file_part = lib.rs\n"
+      "  source_name_part = lib\n"
+      "  externs =\n"
+      "  rustdeps =\n"
+      "  ldflags =\n"
+      "  sources = ../../foo/lib.rs\n";
+  EXPECT_EQ(expected, out);
+}
+
+// Building an rlib still builds its `data_deps`, even if they are non-Rust
+// source sets (unlike the non-Rust source sets in `deps`).
+TEST_F(NinjaRustBinaryTargetWriterTest, RlibDataDepsOnNonRustSourceSet) {
+  Err err;
+  TestWithScope setup;
+
+  Target csourceset(setup.settings(), Label(SourceDir("//foo/"), "cpp"));
+  csourceset.set_output_type(Target::SOURCE_SET);
+  csourceset.visibility().SetPublic();
+  csourceset.sources().push_back(SourceFile("//foo/cpp.cc"));
+  csourceset.source_types_used().Set(SourceFile::SOURCE_CPP);
+  csourceset.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(csourceset.OnResolved(&err));
+
+  Target rlib(setup.settings(), Label(SourceDir("//foo/"), "mylib"));
+  rlib.set_output_type(Target::RUST_LIBRARY);
+  rlib.visibility().SetPublic();
+  SourceFile lib("//foo/lib.rs");
+  rlib.sources().push_back(lib);
+  rlib.source_types_used().Set(SourceFile::SOURCE_RS);
+  rlib.rust_values().set_crate_root(lib);
+  rlib.rust_values().crate_name() = "mylib";
+  rlib.data_deps().push_back(LabelTargetPair(&csourceset));
+  rlib.SetToolchain(setup.toolchain());
+  ASSERT_TRUE(rlib.OnResolved(&err));
+
+  StringOutputBuffer out;
+  NinjaRustBinaryTargetWriter writer(&rlib, out);
+  writer.Run();
+
+  const char expected[] =
+      "crate_name = mylib\n"
+      "crate_type = rlib\n"
+      "output_extension = .rlib\n"
+      "output_dir = \n"
+      "rustflags =\n"
+      "rustenv =\n"
+      "root_out_dir = .\n"
+      "target_gen_dir = gen/foo\n"
+      "target_out_dir = obj/foo\n"
+      "target_output_name = libmylib\n"
+      "\n"
+      "build obj/foo/libmylib.rlib: rust_rlib ../../foo/lib.rs | "
+      "../../foo/lib.rs || phony/foo/cpp.linkdeps\n"
+      "  source_file_part = lib.rs\n"
+      "  source_name_part = lib\n"
+      "  externs =\n"
+      "  rustdeps =\n"
+      "  ldflags =\n"
+      "  sources = ../../foo/lib.rs\n";
+  EXPECT_EQ(expected, out);
 }
 
 TEST_F(NinjaRustBinaryTargetWriterTest, RlibInLibrary) {

@@ -101,6 +101,40 @@ impl Target {
         }
     }
 
+    /// Writes the expanded arguments for the given Starlark substitution name
+    /// in compilation database format into `buffer`.
+    pub fn write_compilation_database_substitution(
+        &self,
+        name: &str,
+        buffer: std::pin::Pin<&mut crate::bridge::StringOutputBuffer>,
+        mut err: std::pin::Pin<&mut crate::bridge::Err>,
+    ) {
+        let Some(evaluated) = self.evaluated.get() else {
+            return;
+        };
+        let mut buf = StringOutputBuffer::new(buffer);
+        evaluated.by_ref_with_reconstructor(|evaluated, reconstructor| {
+            let Some((_, args)) = evaluated
+                .providers
+                .substitutions
+                .iter()
+                .find(|(sub_name, _)| sub_name == name)
+            else {
+                return;
+            };
+            err.as_mut()
+                .handle(starlark::environment::Module::with_temp_heap(|module| {
+                    let mut eval = starlark::eval::Evaluator::new(&module);
+                    let edge = reconstructor.edge(eval.heap());
+                    args.expand(
+                        &mut eval,
+                        edge,
+                        &mut crate::args::CompilationDatabaseWriter::new(&mut buf),
+                    )
+                }));
+        });
+    }
+
     /// Writes the inputs for `outputs` declared by GnInputsInfo to the ninja
     /// file.
     pub fn write_inputs(

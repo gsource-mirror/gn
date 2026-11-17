@@ -63,6 +63,23 @@ unsafe impl<'a> Writable for NinjaCommandWindows<'a> {
     }
 }
 
+/// Escapes strings for JSON compilation database command lines.
+pub struct CompilationDatabase<'a>(pub &'a str);
+
+// Safety: `maximum_size` returns `self.0.len() * 2 + 2`, which matches the maximum bytes
+// written by `bridge::EscapeCompilationDatabase`.
+unsafe impl<'a> Writable for CompilationDatabase<'a> {
+    fn maximum_size(&self) -> usize {
+        self.0.len() * 2 + 2
+    }
+
+    unsafe fn write_to_buf(&self, cursor: Cursor) -> Cursor {
+        // Safety: bridge::EscapeCompilationDatabase writes at most maximum_size() bytes and
+        // advances cursor.
+        unsafe { bridge::EscapeCompilationDatabase(self.0, cursor) }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -105,5 +122,22 @@ mod tests {
             b'\n',
         ));
         assert_eq!(buffer.to_string(), "\"my$ tool\" --input=\"foo$ bar.cc\"\n");
+    }
+
+    #[test]
+    fn test_escape_compilation_database() {
+        let mut raw_buf = bridge::NewStringOutputBuffer();
+        let mut buffer = StringOutputBuffer::new(raw_buf.pin_mut());
+        buffer.append((
+            CompilationDatabase("-DFOO=bar"),
+            b' ',
+            CompilationDatabase("-DSTR=\"ABCD 1\""),
+            b' ',
+            CompilationDatabase("a\\b"),
+        ));
+        assert_eq!(
+            buffer.to_string(),
+            "-DFOO=bar \"-DSTR=\\\"ABCD 1\\\"\" \"a\\\\b\""
+        );
     }
 }

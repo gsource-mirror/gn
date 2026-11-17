@@ -478,6 +478,15 @@ TEST(Functions, DeclareArgs) {
   reading_from_same_call.parsed()->Execute(setup.scope(), &err);
   ASSERT_TRUE(err.has_error());
 
+  TestParseInput reading_braced_from_same_call(R"(
+      declare_args() {
+        foo = "abc"
+        bar = "${foo}/def"
+      })");
+  err = Err();
+  reading_braced_from_same_call.parsed()->Execute(setup.scope(), &err);
+  ASSERT_TRUE(err.has_error());
+
   TestParseInput reading_from_outside_call(R"(
       declare_args() {
         foo = true

@@ -10,6 +10,7 @@
 
 #include "base/strings/string_number_conversions.h"
 #include "gn/err.h"
+#include "gn/functions.h"
 #include "gn/input_file.h"
 #include "gn/parser.h"
 #include "gn/scope.h"
@@ -113,16 +114,27 @@ bool AppendInterpolatedIdentifier(Scope* scope,
                                   const char* input,
                                   size_t begin_offset,
                                   size_t end_offset,
+                                  bool check_declare_args,
                                   std::string* output,
                                   Err* err) {
   std::string_view identifier(&input[begin_offset], end_offset - begin_offset);
-  const Value* value = scope->GetValue(identifier, true);
+  const Scope* found_in_scope = nullptr;
+  const Value* value =
+      scope->GetValueWithScope(identifier, true, &found_in_scope);
   if (!value) {
     // We assume the input points inside the token.
     *err = ErrInsideStringToken(
         token, identifier.data() - token.value().data() - 1, identifier.size(),
         "Undefined identifier in string expansion.",
         std::string("\"") + identifier + "\" is not currently in scope.");
+    return false;
+  }
+
+  if (check_declare_args && !EnsureNotReadingFromSameDeclareArgs(
+                                nullptr, scope, found_in_scope, err)) {
+    *err = ErrInsideStringToken(
+        token, identifier.data() - token.value().data() - 1, identifier.size(),
+        err->message(), err->help_text());
     return false;
   }
 
@@ -158,7 +170,7 @@ bool AppendStringInterpolation(Scope* scope,
     // invalid names just won't be found later.
     bool has_non_ident_chars = false;
     while (*i < size && input[*i] != '}') {
-      has_non_ident_chars |= Tokenizer::IsIdentifierContinuingChar(input[*i]);
+      has_non_ident_chars |= !Tokenizer::IsIdentifierContinuingChar(input[*i]);
       (*i)++;
     }
     if (*i == size) {
@@ -172,7 +184,8 @@ bool AppendStringInterpolation(Scope* scope,
     // in this case.
     if (!has_non_ident_chars) {
       return AppendInterpolatedIdentifier(scope, token, input, begin_offset, *i,
-                                          output, err);
+                                          /*check_declare_args=*/true, output,
+                                          err);
     }
     return AppendInterpolatedExpression(scope, token, input, begin_offset, *i,
                                         output, err);
@@ -195,7 +208,8 @@ bool AppendStringInterpolation(Scope* scope,
   size_t end_offset = *i;
   (*i)--;  // Back up to mark the last character consumed.
   return AppendInterpolatedIdentifier(scope, token, input, begin_offset,
-                                      end_offset, output, err);
+                                      end_offset, /*check_declare_args=*/false,
+                                      output, err);
 }
 
 // Handles a hex literal: $0xFF

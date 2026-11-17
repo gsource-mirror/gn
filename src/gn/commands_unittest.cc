@@ -237,3 +237,64 @@ TEST(Commands, ApplyTypeFilter) {
     commands::CommandSwitches::Set(empty_switches);
   }
 }
+
+TEST(Commands, PrintRefsTree) {
+  TestWithScope setup;
+
+  Target leaf(setup.settings(), Label(SourceDir("//foo/"), "leaf"));
+  Target mid(setup.settings(), Label(SourceDir("//foo/"), "mid"));
+  Target app(setup.settings(), Label(SourceDir("//foo/"), "app"));
+  mid.private_deps().push_back(LabelTargetPair(&leaf));
+  app.private_deps().push_back(LabelTargetPair(&mid));
+
+  std::vector<const Target*> all_targets = {&leaf, &mid, &app};
+
+  auto collect_output = [](ScopedBufferedOutput& buf) {
+    std::string result;
+    for (const auto& item : buf.GetItems())
+      result += item.output;
+    return result;
+  };
+
+  // Implicit target match (target label input): prints dependents only, not
+  // the queried target itself.
+  {
+    ScopedBufferedOutput buffered_output;
+    UniqueVector<const Target*> implicit_matches;
+    implicit_matches.push_back(&leaf);
+    UniqueVector<const Target*> explicit_matches;
+
+    size_t count = commands::PrintRefsTree(all_targets, implicit_matches,
+                                           explicit_matches, /*all=*/false);
+    EXPECT_EQ(2u, count);
+    EXPECT_EQ("//foo:mid\n  //foo:app\n", collect_output(buffered_output));
+  }
+
+  // Unreferenced implicit target match: prints nothing and returns 0.
+  {
+    ScopedBufferedOutput buffered_output;
+    UniqueVector<const Target*> implicit_matches;
+    implicit_matches.push_back(&app);
+    UniqueVector<const Target*> explicit_matches;
+
+    size_t count = commands::PrintRefsTree(all_targets, implicit_matches,
+                                           explicit_matches, /*all=*/false);
+    EXPECT_EQ(0u, count);
+    EXPECT_EQ("", collect_output(buffered_output));
+  }
+
+  // Explicit target match (file or config input): prints the matching target
+  // itself along with its reverse dependency tree.
+  {
+    ScopedBufferedOutput buffered_output;
+    UniqueVector<const Target*> implicit_matches;
+    UniqueVector<const Target*> explicit_matches;
+    explicit_matches.push_back(&leaf);
+
+    size_t count = commands::PrintRefsTree(all_targets, implicit_matches,
+                                           explicit_matches, /*all=*/false);
+    EXPECT_EQ(3u, count);
+    EXPECT_EQ("//foo:leaf\n  //foo:mid\n    //foo:app\n",
+              collect_output(buffered_output));
+  }
+}

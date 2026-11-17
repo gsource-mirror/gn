@@ -46,6 +46,7 @@ void NinjaCopyTargetWriter::Run() {
                   "\n used by target " +
                   target_->label().GetUserVisibleName(false) +
                   "\n doesn't define a \"stamp\" tool."));
+      return;
     }
     required_bits.MergeFrom(stamp_tool->substitution_bits());
   }

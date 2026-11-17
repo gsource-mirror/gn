@@ -9,6 +9,7 @@
 #include "gn/string_output_buffer.h"
 #include "gn/substitution_list.h"
 #include "gn/target.h"
+#include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
 #include "util/test/test.h"
 
@@ -249,4 +250,38 @@ TEST(NinjaCopyTargetWriter, CopyWithValidations) {
       "\n"
       "build phony/foo/bar: phony input1.out |@ phony/foo/val\n";
   EXPECT_EQ(expected_linux, out);
+}
+
+using NinjaCopyTargetWriterSchedulerTest = TestWithScheduler;
+
+TEST_F(NinjaCopyTargetWriterSchedulerTest, MissingStampToolFailsCleanly) {
+  Err err;
+  TestWithScope setup;
+  setup.build_settings()->set_no_stamp_files(false);
+
+  Toolchain toolchain(setup.settings(), Label(SourceDir("//tc/"), "no_stamp"));
+  std::unique_ptr<Tool> copy_tool =
+      Tool::CreateTool(GeneralTool::kGeneralToolCopy);
+  TestWithScope::SetCommandForTool("cp {{source}} {{output}}", copy_tool.get());
+  toolchain.SetTool(std::move(copy_tool));
+  toolchain.ToolchainSetupComplete();
+
+  Target target(setup.settings(), Label(SourceDir("//foo/"), "bar"));
+  target.set_output_type(Target::COPY_FILES);
+  target.sources().push_back(SourceFile("//foo/input1.txt"));
+  target.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/{{source_name_part}}.out");
+  target.SetToolchain(&toolchain);
+  ASSERT_TRUE(target.OnResolved(&err));
+
+  EXPECT_FALSE(scheduler().is_failed());
+  scheduler().SuppressOutputForTesting(true);
+
+  StringOutputBuffer out;
+  NinjaCopyTargetWriter writer(&target, out);
+  writer.Run();
+
+  scheduler().SuppressOutputForTesting(false);
+  EXPECT_TRUE(scheduler().is_failed());
+  EXPECT_EQ("", out);
 }

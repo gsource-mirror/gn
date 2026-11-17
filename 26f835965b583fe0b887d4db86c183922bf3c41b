@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3b1e42c_60c117b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-17T21:56:05Z",
+      "side": 1,
+      "message": "When I wrote that change, I understood that it would be backwards incompatible. My intent was that we would get GN roll failures (which we did get for chromium, v8, webrtc, etc., and are now in the middle of addressing). I figured it was fine because you can just address them relatively easily and then perform the roll afterwards.\n\nIs there any particular reason you need a temporary flag instead of just postponing the roll until it works? I\u0027m very hesitant to commit this because:\n* This isn\u0027t a feature you should be able to turn off - It identifies real errors that cause flakes in the build (though of course I completely understand the rollout thing)\n* \"temporary\" commits are often not temporary. If you feel that you have to submit this commit, I wouldn\u0027t be comfortable submitting it until you create a bug and assign it to bugjuggler to remind you later to revert this.",
+      "revId": "26f835965b583fe0b887d4db86c183922bf3c41b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -5,6 +5,7 @@
 #ifndef TOOLS_GN_SCOPE_H_
 #define TOOLS_GN_SCOPE_H_
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <ranges>
@@ -94,7 +95,7 @@ class Scope {
     bool mark_dest_used;
 
     // When set, those variables are not merged.
-    std::set<std::string> excluded_values;
+    std::set<std::string, std::less<>> excluded_values;
   };
 
   // Details about a Scope's creation as a template invocation
@@ -217,7 +218,7 @@ class Scope {
   // Marks the given identifier as (un)used in the current scope.
   void MarkUsed(std::string_view ident);
   void MarkAllUsed();
-  void MarkAllUsed(const std::set<std::string>& excluded_values);
+  void MarkAllUsed(const std::set<std::string, std::less<>>& excluded_values);
   void MarkUnused(std::string_view ident);
 
   // Checks to see if the scope has a var set that hasn't been used. This is

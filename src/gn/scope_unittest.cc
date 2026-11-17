@@ -333,3 +333,15 @@ TEST(Scope, RemovePrivateIdentifiers) {
   EXPECT_TRUE(setup.scope()->GetValue("a"));
   EXPECT_FALSE(setup.scope()->GetValue("_b"));
 }
+
+TEST(Scope, MarkAllUsedWithExcludedValues) {
+  TestWithScope setup;
+  setup.scope()->SetValue("used_var", Value(nullptr, true), nullptr);
+  setup.scope()->SetValue("excluded_var", Value(nullptr, true), nullptr);
+
+  std::set<std::string, std::less<>> excluded = {"excluded_var"};
+  setup.scope()->MarkAllUsed(excluded);
+
+  EXPECT_FALSE(setup.scope()->IsSetButUnused("used_var"));
+  EXPECT_TRUE(setup.scope()->IsSetButUnused("excluded_var"));
+}

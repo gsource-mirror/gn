@@ -41,7 +41,7 @@ bool ComputeBuildLocationFromDep(const Value& input_value,
 
   *result =
       current_dir.ResolveRelativeDir(input_value, input, err, source_root);
-  return true;
+  return !err->has_error();
 }
 
 // Given the separated-out target name (after the colon) computes the final

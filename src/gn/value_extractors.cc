@@ -105,7 +105,7 @@ struct RelativeDirConverter {
   bool operator()(const Value& v, SourceDir* out, Err* err) const {
     *out = current_dir.ResolveRelativeDir(v, err,
                                           build_settings->root_path_utf8());
-    return true;
+    return !err->has_error();
   }
   const BuildSettings* build_settings;
   const SourceDir& current_dir;

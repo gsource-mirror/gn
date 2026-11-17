@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "gn/test_with_scope.h"
+#include "gn/value_extractors.h"
 #include "util/test/test.h"
 
 TEST(Value, ToString) {
@@ -78,4 +79,39 @@ TEST(Value, ListEquality) {
   empty_list1.list_value().push_back(Value(nullptr, "foo"));
   EXPECT_FALSE(empty_list1 == empty_list2);
   EXPECT_FALSE(empty_list2 == empty_list1);
+}
+
+TEST(Value, ExtractListOfRelativeDirs) {
+  TestWithScope setup;
+  SourceDir current_dir("//cur/");
+
+  // Valid directory list succeeds.
+  {
+    Value list(nullptr, Value::LIST);
+    list.list_value().push_back(Value(nullptr, "sub"));
+    list.list_value().push_back(Value(nullptr, "//abs/dir"));
+
+    std::vector<SourceDir> dest;
+    Err err;
+    EXPECT_TRUE(ExtractListOfRelativeDirs(setup.build_settings(), list,
+                                          current_dir, &dest, &err));
+    EXPECT_FALSE(err.has_error());
+    ASSERT_EQ(2u, dest.size());
+    EXPECT_EQ("//cur/sub/", dest[0].value());
+    EXPECT_EQ("//abs/dir/", dest[1].value());
+  }
+
+  // Invalid element returns false immediately and preserves the first error.
+  {
+    Value list(nullptr, Value::LIST);
+    list.list_value().push_back(Value(nullptr, ""));
+    list.list_value().push_back(Value(nullptr, static_cast<int64_t>(42)));
+
+    std::vector<SourceDir> dest;
+    Err err;
+    EXPECT_FALSE(ExtractListOfRelativeDirs(setup.build_settings(), list,
+                                           current_dir, &dest, &err));
+    EXPECT_TRUE(err.has_error());
+    EXPECT_EQ("Empty directory path.", err.message());
+  }
 }

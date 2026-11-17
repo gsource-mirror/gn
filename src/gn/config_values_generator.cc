@@ -54,8 +54,9 @@ void GetDirList(Scope* scope,
     return;  // No value, empty input and succeed.
 
   std::vector<SourceDir> result;
-  ExtractListOfRelativeDirs(scope->settings()->build_settings(), *value,
-                            input_dir, &result, err);
+  if (!ExtractListOfRelativeDirs(scope->settings()->build_settings(), *value,
+                                 input_dir, &result, err))
+    return;
   (config_values->*accessor)().swap(result);
 }
 

@@ -1,0 +1,39 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e58f2c6d_e9a5c8cd",
+        "filename": "docs/reference.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 6120,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-17T16:11:28Z",
+      "side": 1,
+      "message": "nit: this paragraph is a little unclear. Clarify that the resolved labels *must* be part of the transitive dependencies of the generated_file() target, computed from its `deps`, `data` and `walk_deps`. Moreoever if `collect_validations_metadata` is true, then this also includes the transitive `validations` dependencies from it.\n\nBy the way it is unclear what happens if such a label resolves to something that is not in the transitive closure(). I don\u0027t see a specific check for it in the change, not a unit-test to verify that the right error is generated (and one should test with and without `collect_validation_metadata \u003d true` too)",
+      "fixSuggestions": [
+        {
+          "fixId": "88c3f228_5b24b448",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "docs/reference.md",
+              "range": {
+                "startLine": 6116,
+                "startChar": 0,
+                "endLine": 6119,
+                "endChar": 0
+              },
+              "replacement": "  relative to each walked target (which must be part of the transitive\n  dependencies of the generated_file() target, computed from its deps, data,\n  and walk_deps; moreover, if collect_validations_metadata is true, then this\n  also includes transitive validations dependencies) and added as Ninja dependencies of the\n"
+            }
+          ]
+        }
+      ],
+      "revId": "ccd333ade35b28c8d9f7ce21780cdac741478a97",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

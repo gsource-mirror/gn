@@ -151,13 +151,6 @@ class Printer {
     kSequenceStyleBracedBlockAlreadyOpen,
   };
 
-  struct Metrics {
-    Metrics() : first_length(-1), longest_length(-1), multiline(false) {}
-    int first_length;
-    int longest_length;
-    bool multiline;
-  };
-
   // Add to output.
   void Print(std::string_view str);
 
@@ -336,7 +329,6 @@ void Printer::PrintTokensWrapped(const std::vector<Token>& comments) {
   struct Paragraph {
     std::vector<Token> tokens;
     bool should_reflow = false;
-    bool is_preformatted = false;
   };
   std::vector<Paragraph> paragraphs;
   Paragraph current_paragraph;
@@ -405,8 +397,6 @@ void Printer::PrintTokensWrapped(const std::vector<Token>& comments) {
       Paragraph p;
       p.tokens.push_back(c);
       p.should_reflow = false;
-      p.is_preformatted = in_preformatted_block || is_single_word ||
-                          is_indented || has_url || is_list || is_pragma;
       paragraphs.push_back(p);
     } else {
       if (margin() + trimmed.size() > format_width_) {

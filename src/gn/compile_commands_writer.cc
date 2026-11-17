@@ -333,10 +333,8 @@ bool CompileCommandsWriter::RunAndWriteFiles(
     const std::optional<std::string>& legacy_target_filters,
     const base::FilePath& output_path,
     Err* err) {
-  std::vector<const Target*> to_write = CollectTargets(
-      build_settings, all_targets, patterns, legacy_target_filters, err);
-  if (err->has_error())
-    return false;
+  std::vector<const Target*> to_write =
+      CollectTargets(all_targets, patterns, legacy_target_filters);
 
   StringOutputBuffer json;
   OutputJSON(build_settings, to_write, json);
@@ -345,11 +343,9 @@ bool CompileCommandsWriter::RunAndWriteFiles(
 }
 
 std::vector<const Target*> CompileCommandsWriter::CollectTargets(
-    const BuildSettings* build_setting,
     const std::vector<const Target*>& all_targets,
     const std::vector<LabelPattern>& patterns,
-    const std::optional<std::string>& legacy_target_filters,
-    Err* err) {
+    const std::optional<std::string>& legacy_target_filters) {
   if (legacy_target_filters && legacy_target_filters->empty()) {
     // The legacy filter was specified but has no parameter. This matches
     // everything and we can skip any other kinds of matching.

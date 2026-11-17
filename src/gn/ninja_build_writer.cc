@@ -685,8 +685,6 @@ bool NinjaBuildWriter::WritePhonyAndAllRules(Err* err) {
   if (!default_toolchain_targets_.empty()) {
     out_ << "\nbuild all: phony";
 
-    EscapeOptions ninja_escape;
-    ninja_escape.mode = ESCAPE_NINJA;
     for (const Target* target : default_toolchain_targets_) {
       if (target->has_dependency_output()) {
         out_ << " $\n    ";

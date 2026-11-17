@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstring>
 
+#include "base/logging.h"
 #include "gn/c_substitution_type.h"
 #include "gn/err.h"
 #include "gn/rust_substitution_type.h"
@@ -52,6 +53,9 @@ const SubstitutionTypes GeneralSubstitutions = {
 
     &SubstitutionRspFileName,
 };
+
+constexpr std::string_view kStarlarkPrefix = "{{starlark:";
+constexpr std::string_view kStarlarkSuffix = "}}";
 
 const Substitution SubstitutionLiteral = {"<<literal>>", nullptr};
 
@@ -186,7 +190,8 @@ bool IsValidToolSubstitution(const Substitution* type) {
          type == &SubstitutionTargetGenDir ||
          type == &SubstitutionTargetOutDir ||
          type == &SubstitutionTargetOutputName ||
-         (type && std::string_view(type->name).starts_with("{{starlark:"));
+         (type && type->name &&
+          std::string_view(type->name).starts_with(kStarlarkPrefix));
 }
 
 bool IsValidCopySubstitution(const Substitution* type) {
@@ -214,4 +219,15 @@ bool EnsureValidSubstitutions(const std::vector<const Substitution*>& types,
     }
   }
   return true;
+}
+
+std::string_view Substitution::starlark_name() const {
+  DCHECK(name);
+  std::string_view view(name);
+  DCHECK(view.starts_with(kStarlarkPrefix))
+      << "Unsupported substitution: " << name;
+  DCHECK(view.ends_with(kStarlarkSuffix));
+  view.remove_prefix(kStarlarkPrefix.size());
+  view.remove_suffix(kStarlarkSuffix.size());
+  return view;
 }

@@ -414,3 +414,53 @@ TEST(Operators, PlusEqualsUsed) {
   EXPECT_FALSE(setup.scope()->IsSetButUnused(foo));
   EXPECT_TRUE(nested.IsSetButUnused(foo));
 }
+
+TEST(Operators, InPlaceListModify) {
+  Err err;
+  TestWithScope setup;
+
+  const char foo[] = "foo";
+  Value initial_list(nullptr, Value::LIST);
+  initial_list.list_value().reserve(8);
+  initial_list.list_value().push_back(Value(nullptr, "a"));
+  setup.scope()->SetValue(foo, std::move(initial_list), nullptr);
+  EXPECT_TRUE(setup.scope()->IsSetButUnused(foo));
+
+  const Value* existing = setup.scope()->GetValue(foo, false);
+  ASSERT_TRUE(existing);
+  const Value* initial_buffer = existing->list_value().data();
+
+  // Appending in the same scope should mutate in-place without reallocating
+  // (capacity is 8) and preserve the long-standing behavior of marking "foo"
+  // as used.
+  TestBinaryOpNode plus_eq(Token::PLUS_EQUALS, "+=");
+  plus_eq.SetLeftToIdentifier(foo);
+  plus_eq.SetRightToListOfValue(Value(nullptr, "b"), Value(nullptr, "a"));
+  plus_eq.Execute(setup.scope(), &err);
+  ASSERT_SUCCESS(err);
+
+  EXPECT_FALSE(setup.scope()->IsSetButUnused(foo));
+  existing = setup.scope()->GetValue(foo, false);
+  ASSERT_EQ(3u, existing->list_value().size());
+  EXPECT_EQ(initial_buffer, existing->list_value().data());
+
+  // Removing in the same scope should also mutate in-place.
+  TestBinaryOpNode minus_eq(Token::MINUS_EQUALS, "-=");
+  minus_eq.SetLeftToIdentifier(foo);
+  minus_eq.SetRightToListOfValue(Value(nullptr, "a"));
+  minus_eq.Execute(setup.scope(), &err);
+  ASSERT_SUCCESS(err);
+
+  existing = setup.scope()->GetValue(foo, false);
+  ASSERT_EQ(1u, existing->list_value().size());
+  EXPECT_EQ("b", existing->list_value()[0].string_value());
+  EXPECT_EQ(initial_buffer, existing->list_value().data());
+
+  // Removing an item that isn't present should fail.
+  TestParseNode missing_elem(Value(nullptr, "missing"));
+  Value missing_list(nullptr, Value::LIST);
+  missing_list.list_value().push_back(Value(&missing_elem, "missing"));
+  minus_eq.SetRightToValue(missing_list);
+  minus_eq.Execute(setup.scope(), &err);
+  EXPECT_TRUE(err.has_error());
+}

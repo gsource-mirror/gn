@@ -8,6 +8,8 @@
 
 #include <algorithm>
 #include <iterator>
+#include <utility>
+#include <vector>
 
 #include "base/strings/string_number_conversions.h"
 #include "gn/err.h"
@@ -41,8 +43,8 @@ class ValueDestination {
   // is for implementing += and -=.
   //
   // If it exists, this will mark the origin of the value to be the passed-in
-  // node, and the value will be also marked unused (if possible) under the
-  // assumption that it will be modified in-place.
+  // node, and mark the variable as used in the current scope (matching the
+  // long-standing behavior of += and -= on same-scope variables).
   Value* GetExistingMutableValueIfExists(const ParseNode* origin);
 
   // Returns a pointer to the value that was set.
@@ -163,12 +165,12 @@ Value* ValueDestination::GetExistingMutableValueIfExists(
     const ParseNode* origin) {
   if (type_ == SCOPE) {
     Value* value = scope_->GetMutableValue(name_token_->value(),
-                                           Scope::SEARCH_CURRENT, false);
+                                           Scope::SEARCH_CURRENT, true);
     if (value) {
-      // The value will be written to, reset its tracking information.
+      // The value will be written to, update its origin tracking.
       value->set_origin(origin);
-      scope_->MarkUnused(name_token_->value());
     }
+    return value;
   }
   if (type_ == LIST)
     return &list_->list_value()[index_];
@@ -268,16 +270,7 @@ void RemoveMatchesFromList(const BinaryOpNode* op_node,
     case Value::INTEGER:  // Filter out the individual int/string.
     case Value::STRING:
     case Value::SCOPE: {
-      bool found_match = false;
-      for (size_t i = 0; i < v.size(); /* nothing */) {
-        if (v[i] == to_remove) {
-          found_match = true;
-          v.erase(v.begin() + i);
-        } else {
-          i++;
-        }
-      }
-      if (!found_match) {
+      if (std::erase(v, to_remove) == 0) {
         *err = Err(to_remove.origin()->GetRange(), "Item not found",
                    "You were trying to remove " + to_remove.ToString(true) +
                        "\nfrom the list but it wasn't there.");

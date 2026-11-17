@@ -276,6 +276,7 @@ mod dummy {
         unsafe fn EscapeNinja(str: &str, out: *mut u8) -> *mut u8;
         unsafe fn EscapeNinjaCommandPosix(str: &str, out: *mut u8) -> *mut u8;
         unsafe fn EscapeNinjaCommandWindows(str: &str, out: *mut u8) -> *mut u8;
+        unsafe fn EscapeCompilationDatabase(str: &str, out: *mut u8) -> *mut u8;
 
         type Scope;
         // Constructs a new child Scope, populates placeholder Values for the given
@@ -358,6 +359,12 @@ mod dummy {
             self: &Target,
             buffer: Pin<&mut StringOutputBuffer>,
             platform: EscapingPlatform,
+            err: Pin<&mut Err>,
+        );
+        fn write_compilation_database_substitution(
+            self: &Target,
+            name: &str,
+            buffer: Pin<&mut StringOutputBuffer>,
             err: Pin<&mut Err>,
         );
         fn write_inputs(

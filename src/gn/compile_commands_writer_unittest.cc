@@ -9,7 +9,11 @@
 #include <utility>
 #include <vector>
 
+#include "base/files/file_util.h"
+#include "base/files/scoped_temp_dir.h"
+#include "base/strings/stringprintf.h"
 #include "gn/config.h"
+#include "gn/filesystem_utils.h"
 #include "gn/ninja_target_command_util.h"
 #include "gn/scheduler.h"
 #include "gn/target.h"
@@ -849,4 +853,130 @@ TEST_F(CompileCommandsTest, CollectTargets) {
   EXPECT_EQ(&target1, output[2]);
   EXPECT_EQ(&target2, output[3]);
   EXPECT_EQ(&icu_target, output[4]);
+}
+
+TEST_F(CompileCommandsTest, StarlarkSubstitutions) {
+  base::ScopedTempDir temp_dir;
+  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
+
+  static constexpr char kScl[] = R"scl(
+load("//builtins:providers.scl", "GnSubstitutionsInfo")
+load("//builtins:rules.scl", "source_set")
+
+def _impl(ctx):
+  cflags = ctx.actions.args()
+  cflags.add("-DFOO=bar")
+  cflags.add_joined("--joined", ["first", "second value"], join_with = ",")
+  return [
+    GnSubstitutionsInfo(substitutions = struct(
+      cflags = [cflags],
+    )),
+  ]
+
+custom_source_set = rule(
+  implementation = _impl,
+  parent = source_set,
+)
+)scl";
+  ASSERT_NE(base::WriteFile(temp_dir.GetPath().AppendASCII("custom.scl"), kScl,
+                            sizeof(kScl) - 1),
+            -1);
+
+  TestWithScope setup;
+  setup.build_settings()->SetRootPath(temp_dir.GetPath());
+  setup.scope()->set_source_dir(SourceDir("//"));
+
+  Toolchain custom_toolchain(setup.settings(), setup.toolchain()->label());
+  std::unique_ptr<Tool> cxx = Tool::CreateTool(CTool::kCToolCxx);
+  CTool* cxx_tool = cxx->AsC();
+  TestWithScope::SetCommandForTool(
+      "c++ {{source}} {{starlark:cflags}} {{starlark:unused}} -o {{output}}",
+      cxx_tool);
+  cxx_tool->set_outputs(SubstitutionList::MakeForTest(
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o"));
+  custom_toolchain.SetTool(std::move(cxx));
+  custom_toolchain.ToolchainSetupComplete();
+
+  TestParseInput input(
+      R"gn(
+        load(":custom.scl", "custom_source_set")
+        custom_source_set("custom") {
+          sources = [
+            "a.cc",
+            "b.cc",
+          ]
+        }
+        source_set("plain") {
+          sources = [ "plain.cc" ]
+        }
+      )gn");
+  ASSERT_FALSE(input.has_error()) << input.message();
+
+  Err err;
+  input.parsed()->Execute(setup.scope(), &err);
+  ASSERT_FALSE(err.has_error()) << err.message() << " " << err.help_text();
+
+  std::vector<const Target*> targets;
+  for (const auto& item : setup.items()) {
+    Target* target = item->AsTarget();
+    ASSERT_TRUE(target);
+    target->SetToolchain(&custom_toolchain);
+    ASSERT_TRUE(target->OnResolved(&err))
+        << err.message() << " " << err.help_text();
+    targets.push_back(target);
+  }
+
+  CompileCommandsWriter writer;
+  std::string out = writer.RenderJSON(setup.build_settings(), targets);
+
+  std::string build_dir =
+      FilePathToUTF8(setup.build_settings()
+                         ->GetFullPath(setup.build_settings()->build_dir())
+                         .StripTrailingSeparators());
+#if defined(OS_WIN)
+  std::string expected = base::StringPrintf(
+      "[\r\n"
+      "  {\r\n"
+      "    \"file\": \"../../a.cc\",\r\n"
+      "    \"directory\": \"%s\",\r\n"
+      "    \"command\": \"c++ ../../a.cc -DFOO=bar --joined "
+      "\\\"first,second value\\\"  -o  obj/custom.a.o\"\r\n"
+      "  },\r\n"
+      "  {\r\n"
+      "    \"file\": \"../../b.cc\",\r\n"
+      "    \"directory\": \"%s\",\r\n"
+      "    \"command\": \"c++ ../../b.cc -DFOO=bar --joined "
+      "\\\"first,second value\\\"  -o  obj/custom.b.o\"\r\n"
+      "  },\r\n"
+      "  {\r\n"
+      "    \"file\": \"../../plain.cc\",\r\n"
+      "    \"directory\": \"%s\",\r\n"
+      "    \"command\": \"c++ ../../plain.cc   -o  obj/plain.plain.o\"\r\n"
+      "  }\r\n"
+      "]\r\n",
+      build_dir.c_str(), build_dir.c_str(), build_dir.c_str());
+#else
+  std::string expected = base::StringPrintf(
+      "[\n"
+      "  {\n"
+      "    \"file\": \"../../a.cc\",\n"
+      "    \"directory\": \"%s\",\n"
+      "    \"command\": \"c++ ../../a.cc -DFOO=bar --joined "
+      "\\\"first,second value\\\"  -o  obj/custom.a.o\"\n"
+      "  },\n"
+      "  {\n"
+      "    \"file\": \"../../b.cc\",\n"
+      "    \"directory\": \"%s\",\n"
+      "    \"command\": \"c++ ../../b.cc -DFOO=bar --joined "
+      "\\\"first,second value\\\"  -o  obj/custom.b.o\"\n"
+      "  },\n"
+      "  {\n"
+      "    \"file\": \"../../plain.cc\",\n"
+      "    \"directory\": \"%s\",\n"
+      "    \"command\": \"c++ ../../plain.cc   -o  obj/plain.plain.o\"\n"
+      "  }\n"
+      "]\n",
+      build_dir.c_str(), build_dir.c_str(), build_dir.c_str());
+#endif
+  EXPECT_EQ(expected, out);
 }

@@ -4,6 +4,10 @@
 
 #include "gn/compile_commands_writer.h"
 
+#include <string_view>
+#include <utility>
+#include <vector>
+
 #include "base/json/string_escape.h"
 #include "base/strings/string_split.h"
 #include "base/strings/stringprintf.h"
@@ -13,6 +17,7 @@
 #include "gn/config_values_extractors.h"
 #include "gn/deps_iterator.h"
 #include "gn/escape.h"
+#include "gn/ffi/bridge.h"
 #include "gn/ninja_module_writer_util.h"
 #include "gn/ninja_target_command_util.h"
 #include "gn/path_output.h"
@@ -53,7 +58,37 @@ struct CompileFlags {
   std::string frameworks;
   std::string clang_module_deps;
   std::string clang_module_deps_no_self;
+  // This is a cache mapping substitution -> string.
+  // We use a vector instead of a map because there are likely very few
+  // substitutions (usually 0-1).
+  std::vector<std::pair<const Substitution*, std::string>>
+      starlark_substitutions;
 };
+
+Result<std::string_view> GetStarlarkSubstitutionValue(
+    const Target* target,
+    const Substitution* substitution,
+    CompileFlags& flags) {
+  std::string_view sub_name = substitution->starlark_name();
+  // Try the cache first.
+  for (const auto& [key, value] : flags.starlark_substitutions) {
+    if (key == substitution)
+      return std::string_view(value);
+  }
+
+  if (const RustTarget* rust = target->rust_target()) {
+    StringOutputBuffer starlark_out;
+    Err err;
+    rust->write_compilation_database_substitution(rust::Str(sub_name),
+                                                  starlark_out, err);
+    RETURN_IF_ERROR(err);
+    std::string& escaped =
+        flags.starlark_substitutions.emplace_back(substitution, "").second;
+    base::EscapeJSONString(starlark_out.str(), false, &escaped);
+    return std::string_view(escaped);
+  }
+  return "";
+}
 
 // Helper template function to call RecursiveTargetConfigToStream<std::string>
 // and return the JSON-escaped resulting string.
@@ -169,15 +204,15 @@ void WriteDirectory(std::string build_dir, StringOutputBuffer& out) {
   out << "\",";
 }
 
-void WriteCommand(const Target* target,
-                  const SourceFile& source,
-                  const CompileFlags& flags,
-                  std::vector<OutputFile>& tool_outputs,
-                  PathOutput& path_output,
-                  SourceFile::Type source_type,
-                  const char* tool_name,
-                  EscapeOptions opts,
-                  StringOutputBuffer& out) {
+Err WriteCommand(const Target* target,
+                 const SourceFile& source,
+                 CompileFlags& flags,
+                 std::vector<OutputFile>& tool_outputs,
+                 PathOutput& path_output,
+                 SourceFile::Type source_type,
+                 const char* tool_name,
+                 EscapeOptions opts,
+                 StringOutputBuffer& out) {
   EscapeOptions no_quoting(opts);
   no_quoting.inhibit_quoting = true;
   const Tool* tool = target->toolchain()->GetTool(tool_name);
@@ -242,14 +277,17 @@ void WriteCommand(const Target* target,
     } else {
       // Other flags shouldn't be relevant to compiling C/C++/ObjC/ObjC++
       // source files, except Starlark substitutions.
-      out << "TODO(starlark:" << range.type->starlark_name() << ")";
+      ASSIGN_OR_RETURN(std::string_view value,
+                       GetStarlarkSubstitutionValue(target, range.type, flags));
+      out << value;
     }
   }
+  return Ok();
 }
 
-void OutputJSON(const BuildSettings* build_settings,
-                std::vector<const Target*>& all_targets,
-                StringOutputBuffer& out) {
+Err OutputJSON(const BuildSettings* build_settings,
+               std::vector<const Target*>& all_targets,
+               StringOutputBuffer& out) {
   out << '[';
   out << kPrettyPrintLineEnding;
   bool first = true;
@@ -301,8 +339,9 @@ void OutputJSON(const BuildSettings* build_settings,
 
       WriteFile(source, path_output, out);
       WriteDirectory(base::StringPrintf("%" PRIsFP, PATH_CSTR(build_dir)), out);
-      WriteCommand(target, source, flags, tool_outputs, path_output,
-                   source_type, tool_name, opts, out);
+      RETURN_IF_ERROR(WriteCommand(target, source, flags, tool_outputs,
+                                   path_output, source_type, tool_name, opts,
+                                   out));
       out << "\"";
       out << kPrettyPrintLineEnding;
       out << "  }";
@@ -312,6 +351,7 @@ void OutputJSON(const BuildSettings* build_settings,
   out << kPrettyPrintLineEnding;
   out << "]";
   out << kPrettyPrintLineEnding;
+  return Ok();
 }
 
 }  // namespace
@@ -320,7 +360,8 @@ std::string CompileCommandsWriter::RenderJSON(
     const BuildSettings* build_settings,
     std::vector<const Target*>& all_targets) {
   StringOutputBuffer json;
-  OutputJSON(build_settings, all_targets, json);
+  Err err = OutputJSON(build_settings, all_targets, json);
+  CHECK(!err.has_error()) << err.message();
   return json.str();
 }
 
@@ -337,7 +378,7 @@ bool CompileCommandsWriter::RunAndWriteFiles(
     return false;
 
   StringOutputBuffer json;
-  OutputJSON(build_settings, to_write, json);
+  RETURN_IF_ERROR_PTR(err, OutputJSON(build_settings, to_write, json));
 
   return json.WriteToFileIfChanged(output_path, err);
 }

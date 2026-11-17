@@ -16,14 +16,15 @@ use starlark::{
     eval::Evaluator,
     typing::Ty,
     values::{
-        Freeze, FreezeResult, Freezer, StringValue, Trace, UnpackValue, Value, ValueTyped,
-        list::UnpackList, type_repr::StarlarkTypeRepr,
+        Freeze, FreezeResult, Freezer, HeapEdge, StringValue, Trace, UnpackValue, Value,
+        ValueTyped, list::UnpackList, type_repr::StarlarkTypeRepr,
     },
 };
 
 use crate::{
-    ArgVisitor as _,
+    ArgVisitor,
     args::{Args, FrozenArgs},
+    expand::expand_args,
 };
 
 /// Starlark value for Args | str.
@@ -102,6 +103,28 @@ impl<'v> ArgsList<'v> {
     /// Returns the argument items in this list.
     pub fn items(&self) -> &[ArgsLike<'v>] {
         &self.0
+    }
+
+    /// Expands all arguments directly into `visitor`
+    pub fn expand<'m>(
+        &self,
+        eval: &mut Evaluator<'m, '_, '_>,
+        edge: HeapEdge<'m, 'v>,
+        visitor: &mut impl ArgVisitor,
+    ) -> starlark::Result<()> {
+        for arg in self.items() {
+            match *arg {
+                ArgsLike::String(s) => visitor.add_arg(s.as_str()),
+                ArgsLike::Args(..) => {
+                    unreachable!("ArgsList::expand should never see non-frozen Args")
+                },
+                ArgsLike::FrozenArgs(v, size) => {
+                    expand_args(&edge.rebrand(v).arguments[..size], eval, visitor)?;
+                },
+            }
+        }
+        visitor.done();
+        Ok(())
     }
 
     /// Asserts that expanding this argument list produces the expected strings.

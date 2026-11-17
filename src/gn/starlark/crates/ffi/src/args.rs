@@ -53,15 +53,36 @@ impl ArgVisitor for PosixWriter<'_, '_> {
     }
 }
 
-// Windows can't perform zero-copy escaping because we don't know whether we
-// need to add quotes until we read the entire arg.
-pub(crate) struct WinWriter<'a, 'b> {
+// Windows and compilation databases can't perform zero-copy escaping because
+// whether quotes are needed depends on seeing the entire arg.
+pub(crate) trait ArgAppender {
+    fn append_arg(buffer: &mut StringOutputBuffer<'_>, arg: &str);
+}
+
+pub(crate) struct WinEscaper;
+
+impl ArgAppender for WinEscaper {
+    fn append_arg(buffer: &mut StringOutputBuffer<'_>, arg: &str) {
+        buffer.append((crate::escape::NinjaCommandWindows(arg), b' '));
+    }
+}
+
+pub(crate) struct CompilationDatabaseEscaper;
+
+impl ArgAppender for CompilationDatabaseEscaper {
+    fn append_arg(buffer: &mut StringOutputBuffer<'_>, arg: &str) {
+        buffer.append((crate::escape::CompilationDatabase(arg), b' '));
+    }
+}
+
+pub(crate) struct BufferedWriter<'a, 'b, E: ArgAppender> {
     buffer: &'a mut StringOutputBuffer<'b>,
     token: String,
     start: Cursor,
+    _escaper: std::marker::PhantomData<E>,
 }
 
-impl<'a, 'b> WinWriter<'a, 'b> {
+impl<'a, 'b, E: ArgAppender> BufferedWriter<'a, 'b, E> {
     pub(crate) fn new(buffer: &'a mut StringOutputBuffer<'b>) -> Self {
         // Safety: We never write to this cursor.
         let start = unsafe { *buffer.reserve(0) };
@@ -69,15 +90,15 @@ impl<'a, 'b> WinWriter<'a, 'b> {
             buffer,
             token: String::new(),
             start,
+            _escaper: std::marker::PhantomData,
         }
     }
 }
 
-impl ArgVisitor for WinWriter<'_, '_> {
+impl<E: ArgAppender> ArgVisitor for BufferedWriter<'_, '_, E> {
     // Optimization: Skip the extra copy into token if we're writing a whole arg at a time.
     fn add_arg(&mut self, part: &str) {
-        self.buffer
-            .append((crate::escape::NinjaCommandWindows(part), b' '));
+        E::append_arg(self.buffer, part);
     }
 
     fn add_arg_chunk(&mut self, part: &str) {
@@ -85,8 +106,7 @@ impl ArgVisitor for WinWriter<'_, '_> {
     }
 
     fn finish_arg(&mut self) {
-        self.buffer
-            .append((crate::escape::NinjaCommandWindows(&self.token), b' '));
+        E::append_arg(self.buffer, &self.token);
         self.token.clear();
     }
 
@@ -99,6 +119,10 @@ impl ArgVisitor for WinWriter<'_, '_> {
     }
 }
 
+pub(crate) type WinWriter<'a, 'b> = BufferedWriter<'a, 'b, WinEscaper>;
+pub(crate) type CompilationDatabaseWriter<'a, 'b> =
+    BufferedWriter<'a, 'b, CompilationDatabaseEscaper>;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -108,6 +132,7 @@ mod tests {
     struct EscapedStrings {
         posix: String,
         win: String,
+        compdb: String,
     }
 
     macro_rules! escape {
@@ -126,9 +151,17 @@ mod tests {
                 $body;
             }
 
+            let mut compdb_raw = bridge::NewStringOutputBuffer();
+            let mut compdb_buf = StringOutputBuffer::new(compdb_raw.pin_mut());
+            {
+                let $w = &mut CompilationDatabaseWriter::new(&mut compdb_buf);
+                $body;
+            }
+
             EscapedStrings {
                 posix: posix_buf.to_string(),
                 win: win_buf.to_string(),
+                compdb: compdb_buf.to_string(),
             }
         }};
     }
@@ -140,6 +173,7 @@ mod tests {
             EscapedStrings {
                 posix: "".into(),
                 win: "".into(),
+                compdb: "".into(),
             },
         );
     }
@@ -155,6 +189,7 @@ mod tests {
             EscapedStrings {
                 posix: "plain has\\$ space".into(),
                 win: "plain \"has$ space\"".into(),
+                compdb: "plain \"has space\"".into(),
             },
         );
     }
@@ -165,15 +200,16 @@ mod tests {
             escape!(|w| {
                 w.add_arg_chunk("my flag");
                 w.add_arg_chunk(",");
-                w.add_arg_chunk("my value");
+                w.add_arg_chunk("my \"value\"");
                 w.finish_arg();
                 w.add_arg_chunk("next");
                 w.finish_arg();
                 w.done();
             }),
             EscapedStrings {
-                posix: "my\\$ flag,my\\$ value next".into(),
-                win: "\"my$ flag,my$ value\" next".into(),
+                posix: "my\\$ flag,my\\$ \\\"value\\\" next".into(),
+                win: "\"my$ flag,my$ \\\"value\\\"\" next".into(),
+                compdb: "\"my flag,my \\\"value\\\"\" next".into(),
             },
         );
     }
@@ -189,6 +225,7 @@ mod tests {
             EscapedStrings {
                 posix: "first ${shared_42}".into(),
                 win: "first ${shared_42}".into(),
+                compdb: "first ${shared_42}".into(),
             },
         );
     }

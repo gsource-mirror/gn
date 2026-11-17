@@ -1,0 +1,49 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5dae80a5_600c8cec",
+        "filename": "src/gn/function_forward_variables_from.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-17T11:46:23Z",
+      "side": 1,
+      "message": "nit: Define a Scope::ExclusionSet type in scope.h with a comment explaining the purpose of the std::less\u003c\u003e template parameter. This will the code more readable and less error-prone.",
+      "fixSuggestions": [
+        {
+          "fixId": "0b0156bf_fc53fd0c",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/gn/function_forward_variables_from.cc",
+              "range": {
+                "startLine": 17,
+                "startChar": 0,
+                "endLine": 18,
+                "endChar": 0
+              },
+              "replacement": "                      const std::set\u003cstd::string, std::less\u003c\u003e\u003e\u0026 exclusion_set,\n"
+            },
+            {
+              "path": "src/gn/function_forward_variables_from.cc",
+              "range": {
+                "startLine": 27,
+                "startChar": 0,
+                "endLine": 28,
+                "endChar": 0
+              },
+              "replacement": "  options.excluded_values \u003d exclusion_set;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c3d24dfa9e551b209fb1730c503ebac60a5d8784",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

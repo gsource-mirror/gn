@@ -241,10 +241,8 @@ void WriteCommand(const Target* target,
                            opts);
     } else {
       // Other flags shouldn't be relevant to compiling C/C++/ObjC/ObjC++
-      // source files.
-      NOTREACHED() << "Unsupported substitution for this type of target : "
-                   << range.type->name;
-      continue;
+      // source files, except Starlark substitutions.
+      out << "TODO(starlark:" << range.type->starlark_name() << ")";
     }
   }
 }

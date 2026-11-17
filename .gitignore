@@ -47,7 +47,7 @@
 .recipe_deps
 .checkstyle
 /clang
-compile_commands.json
+/compile_commands.json
 cscope.*
 # Gn uses out/ by default, so we use * in case the user wants to have multiple output directories.
 out*/

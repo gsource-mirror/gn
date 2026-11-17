@@ -1,0 +1,14 @@
+[
+  {
+    "file": "../hello.cc",
+    "command": "cxx --depfile= obj/hello.hello.o.d DEFINES  INCLUDE_DIRS  CFLAGS  -fPIC -pthread CFLAGS_CC  SOURCE ../hello.cc OUTPUT  obj/hello.hello.o"
+  },
+  {
+    "file": "../hello_shared.cc",
+    "command": "cxx --depfile= obj/libhello_shared.hello_shared.o.d DEFINES  -DHELLO_SHARED_IMPLEMENTATION INCLUDE_DIRS  CFLAGS  -fPIC -pthread CFLAGS_CC  SOURCE ../hello_shared.cc OUTPUT  obj/libhello_shared.hello_shared.o"
+  },
+  {
+    "file": "../hello_static.cc",
+    "command": "cxx --depfile= obj/libhello_static.hello_static.o.d DEFINES  INCLUDE_DIRS  CFLAGS  -fPIC -pthread CFLAGS_CC  SOURCE ../hello_static.cc OUTPUT  obj/libhello_static.hello_static.o"
+  }
+]

@@ -355,14 +355,6 @@ class HashTableBase {
     Node* node_limit_ = nullptr;
   };
 
-  // NOTE: This is intentionally not public to avoid exposing
-  // them in derived classes by mistake. If a derived class
-  // wants to support iteration, it provide its own begin() and end()
-  // methods, possibly using NodeBegin() and NodeEnd() below to
-  // implement them.
-  NodeIterator begin() { return NodeBegin(); }
-  NodeIterator end() { return NodeEnd(); }
-
   // Providing methods named NodeBegin() and NodeEnd(), instead of
   // just using begin() and end() is a convenience to derived classes
   // that need to provide their own begin() and end() method, e.g.

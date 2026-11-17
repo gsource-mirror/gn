@@ -13,7 +13,6 @@
 #include "gn/string_atom.h"
 
 class BuildSettings;
-class SourceDir;
 class SourceFile;
 
 // A simple wrapper around StringAtom that indicates the path
@@ -30,10 +29,8 @@ class OutputFile {
   std::string_view value() const { return value_; }
 
   // Converts to a SourceFile by prepending the build directory to the file.
-  // The *Dir version requires that the current OutputFile ends in a slash, and
-  // the *File version is the opposite.
+  // Requires that the current OutputFile does not end in a slash.
   SourceFile AsSourceFile(const BuildSettings* build_settings) const;
-  SourceDir AsSourceDir(const BuildSettings* build_settings) const;
 
   bool operator==(const OutputFile& other) const = default;
   std::strong_ordering operator<=>(const OutputFile& other) const = default;

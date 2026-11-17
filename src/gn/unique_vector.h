@@ -83,7 +83,6 @@ template <typename T,
 class UniqueVector {
  public:
   using Vector = std::vector<T>;
-  using iterator = typename Vector::iterator;
   using const_iterator = typename Vector::const_iterator;
 
   const Vector& vector() const { return vector_; }

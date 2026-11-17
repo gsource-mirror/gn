@@ -18,11 +18,3 @@ Token Token::ClassifyAndMake(const Location& location, std::string_view v) {
   char second = v.size() > 1 ? v[1] : '\0';
   return Token(location, Tokenizer::ClassifyToken(first, second), v);
 }
-
-bool Token::IsIdentifierEqualTo(const char* v) const {
-  return type_ == IDENTIFIER && value_ == v;
-}
-
-bool Token::IsStringEqualTo(const char* v) const {
-  return type_ == STRING && value_ == v;
-}

@@ -34,6 +34,24 @@
       ],
       "revId": "ccd333ade35b28c8d9f7ce21780cdac741478a97",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac8279e5_7736939b",
+        "filename": "docs/reference.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 6120,
+      "author": {
+        "id": 1000055
+      },
+      "writtenOn": "2026-11-17T16:33:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e58f2c6d_e9a5c8cd",
+      "revId": "ccd333ade35b28c8d9f7ce21780cdac741478a97",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

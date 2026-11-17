@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90b1cc9a_2b7a6498",
+        "filename": "src/gn/starlark/crates/attr/src/ctx.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-17T05:47:34Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\nCould we validate `schema.providers` directly inside `Attr::resolve_label_or_file` (by bounding `S::TargetRef: TargetAttrExt`) instead of threading a `validate_providers` closure through `create_ctx_fields` -\u003e `to_value` -\u003e `resolve_and_collect` -\u003e `resolve_label_or_file`?\n\nSince `attr` already depends on `providers` and defines `TargetAttrExt::has_provider` in this CL, moving `verify_providers` into `attr` (alongside `NoMatchingOutputs` and `MustProduceSingleFile`) would:\n1. Avoid the 4-layer callback plumbing, the `#[expect(clippy::too_many_arguments)]` here, and the no-op `|_, _| Ok(())` closures in the `attr` unit tests.\n2. Avoid duplicating the attribute name in the error message — currently line 150 wraps the error with ``for attribute `{name}` `` on top of `MissingRequiredProviders` (`In \u0027{attr}\u0027 attribute of \u0027{rule}\u0027 rule {target}: ...`). If we still want the rule/target context in the message, `rule::run` could attach `.with_context(...)` once around `create_ctx_fields(...)` so all attribute resolution errors share the same context format.",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "447d79279c832267f5dd287ef26b88d564a1629b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ef4c001_3d284f50",
+        "filename": "src/gn/starlark/crates/attr/src/schema.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-17T05:47:34Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\nnit: For `providers \u003d []` (an empty list, meaning no required providers, as allowed in Bazel), this currently produces `Vec::new()` only because `ProvidersArg` tries `Either::Left` (`UnpackList\u003cUnpackList\u003c\u0026ProviderType\u003e\u003e`) before `Either::Right` (`UnpackList\u003c\u0026ProviderType\u003e`). If the `Either` variants were ever reordered, `Some(Either::Right(ps))` would produce `vec![vec![]]` instead of `vec![]`, which would subtly break `AttrSchema` equality (e.g. in `check_override`) and `validate_providers`.\n\nConsider handling `ps.items.is_empty()` explicitly in the `Either::Right` arm as well (or adding a short comment), and adding unit test cases for `providers \u003d []` and `providers \u003d [[]]` (empty group error).",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "447d79279c832267f5dd287ef26b88d564a1629b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3896eab8_39abd8f5",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-17T05:47:34Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\nWhat happens if a label attribute with `providers` points to a native GN target (defined in a `.gn` file rather than via a Starlark rule)?\n\nAs far as I can tell:\n1. `register_dependency` only adds the label to `starlark_deps_` without registering a `rust::Target` on the dependency, so when the native target finishes resolving in `Target::OnResolvedWithoutChecks`, `rust_target_` is typically still null and `execute_rule_impl` is not run.\n2. Even if the native target gets lazily registered via `CxxTarget::to_rust` -\u003e `Session::register_cxx_target` (or once `Session::get_target` supports looking up native targets), its `evaluated` `OnceCell` remains uninitialized, so `self.0.evaluated()` here will panic with `\"Should only be called on an evaluated target\"` (unlike `FakeTargetRef::has_provider`, which uses `evaluated.get().is_some_and(...)`, though native targets should presumably also expose `DefaultInfo` via `run_builtin_rule`).\n\nIf cross-referencing native GN targets from Starlark label attributes is planned for a follow-up CL, a `TODO` comment here would be helpful; otherwise we should make sure native targets do not panic here.",
+      "range": {
+        "startLine": 198,
+        "startChar": 0,
+        "endLine": 202,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "447d79279c832267f5dd287ef26b88d564a1629b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

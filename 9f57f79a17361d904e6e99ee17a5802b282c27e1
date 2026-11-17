@@ -17,6 +17,24 @@
       "isAi": true,
       "revId": "9f57f79a17361d904e6e99ee17a5802b282c27e1",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc078b89_0e5cf898",
+        "filename": "src/gn/starlark/crates/rule/tests/providers.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-17T21:38:59Z",
+      "side": 1,
+      "message": "Whether it\u0027s deduplicated or not doesn\u0027t actually matter, that\u0027s just a very minor performance optimization. And returning ParentInfo means that the merging isn\u0027t exercised, which is far more important.",
+      "parentUuid": "29e1adb8_57c83e92",
+      "revId": "9f57f79a17361d904e6e99ee17a5802b282c27e1",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

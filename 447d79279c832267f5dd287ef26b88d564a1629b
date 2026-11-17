@@ -25,6 +25,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "07d1c442_18fbdb9b",
+        "filename": "src/gn/starlark/crates/attr/src/ctx.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-17T23:13:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90b1cc9a_2b7a6498",
+      "range": {
+        "startLine": 124,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 9999
+      },
+      "revId": "447d79279c832267f5dd287ef26b88d564a1629b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8ef4c001_3d284f50",
@@ -49,6 +73,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea6a1929_3774e02c",
+        "filename": "src/gn/starlark/crates/attr/src/schema.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-17T23:13:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ef4c001_3d284f50",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 9999
+      },
+      "revId": "447d79279c832267f5dd287ef26b88d564a1629b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3896eab8_39abd8f5",
@@ -69,6 +117,30 @@
         "endChar": 9999
       },
       "isAi": true,
+      "revId": "447d79279c832267f5dd287ef26b88d564a1629b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3191790a_8a15172c",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-17T23:13:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3896eab8_39abd8f5",
+      "range": {
+        "startLine": 198,
+        "startChar": 0,
+        "endLine": 202,
+        "endChar": 9999
+      },
       "revId": "447d79279c832267f5dd287ef26b88d564a1629b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

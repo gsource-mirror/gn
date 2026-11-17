@@ -30,4 +30,10 @@ inline uint8_t* EscapeNinjaCommandWindows(rust::Str str, uint8_t* out) {
           reinterpret_cast<char*>(out)));
 }
 
+inline uint8_t* EscapeCompilationDatabase(rust::Str str, uint8_t* out) {
+  return reinterpret_cast<uint8_t*>(
+      Escaped::CompilationDatabase{std::string_view(str)}.WriteToBuf(
+          reinterpret_cast<char*>(out)));
+}
+
 #endif  // TOOLS_GN_FFI_ESCAPE_H_

@@ -16,6 +16,23 @@
       "message": "When I wrote that change, I understood that it would be backwards incompatible. My intent was that we would get GN roll failures (which we did get for chromium, v8, webrtc, etc., and are now in the middle of addressing). I figured it was fine because you can just address them relatively easily and then perform the roll afterwards.\n\nIs there any particular reason you need a temporary flag instead of just postponing the roll until it works? I\u0027m very hesitant to commit this because:\n* This isn\u0027t a feature you should be able to turn off - It identifies real errors that cause flakes in the build (though of course I completely understand the rollout thing)\n* \"temporary\" commits are often not temporary. If you feel that you have to submit this commit, I wouldn\u0027t be comfortable submitting it until you create a bug and assign it to bugjuggler to remind you later to revert this.",
       "revId": "26f835965b583fe0b887d4db86c183922bf3c41b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1427ca9_e06b3942",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-17T22:00:50Z",
+      "side": 1,
+      "message": "I don\u0027t think `experimental_` accurately reflects what this does. `experimental_*` would generally have the expectation of \"if this works, remove the experimental prefix, and if it doesn\u0027t work, remove the flag\".\n\nPerhaps `temporary_` or `rollout_`?\n\nOr perhaps `compatibility_level \u003d $NUMBER`, so we can in the future land features that are backwards incompatible without breaking downstream projects.",
+      "revId": "26f835965b583fe0b887d4db86c183922bf3c41b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

@@ -1,0 +1,57 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64fe37a1_377f4a44",
+        "filename": "src/gn/compile_commands_writer.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-18T04:35:12Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\nThis `else` branch (and the follow-up in https://gn-review.googlesource.com/c/gn/+/29161) assumes any unhandled substitution is a Starlark substitution and unconditionally calls `range.type-\u003estarlark_name()`.\n\nHowever, `IsValidCompilerSubstitution()` allows `{{asmflags}}` (`CSubstitutionAsmFlags`, 12 chars) in compiler tool commands, which is not handled in the `if / else if` chain above. Previously this hit `NOTREACHED()` (which crashes deterministically via `IMMEDIATE_CRASH()` even in release builds), whereas `Substitution::starlark_name()` only uses `DCHECK`s — so in a release (`NDEBUG`) build, `view.remove_prefix(11)` followed by `view.remove_suffix(2)` on `\"{{asmflags}}\"` underflows `std::string_view`\u0027s length and triggers UB / out-of-bounds memory reads.\n\nCould we add a `bool is_starlark() const` helper on `Substitution` (which `IsValidToolSubstitution()` could also reuse), handle Starlark substitutions in `else if (range.type-\u003eis_starlark())`, and keep `NOTREACHED()` in the final `else` branch (and perhaps use `CHECK` instead of `DCHECK` in `starlark_name()`)?",
+      "isAi": true,
+      "revId": "d6df6ca98c09cd820a2d19f767250e3e30b3a2f9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2daa4900_f9585937",
+        "filename": "src/gn/substitution_type.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-18T04:35:12Z",
+      "side": 1,
+      "message": "Log like starts_with?",
+      "revId": "d6df6ca98c09cd820a2d19f767250e3e30b3a2f9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e53898e6_19818ceb",
+        "filename": "tools/compare_goldens.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-18T04:35:12Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\nnit: Consider passing `encoding\u003d\u0027utf-8\u0027, newline\u003d\u0027\\n\u0027` to `want.write_text(...)` here (and on line 67) to match `read_text(encoding\u003d\u0027utf-8\u0027, ...)` above and avoid writing CRLF or locale-dependent encodings if `--update` is run on Windows.",
+      "isAi": true,
+      "revId": "d6df6ca98c09cd820a2d19f767250e3e30b3a2f9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

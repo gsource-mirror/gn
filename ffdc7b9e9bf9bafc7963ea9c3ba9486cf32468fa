@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d2a21b7_40311e34",
+        "filename": "integration_tests/starlark/goldens/compile_commands.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-18T07:04:25Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\nnit: Since `\"-DFOO\u003dbar\"` produces the same output regardless of whether escaping is applied, consider also adding an argument with spaces/quotes in `integration_tests/starlark/inputs.scl` (e.g. `\"-DBAR\u003d\\\"hello world\\\"\"`) so the end-to-end two-stage escaping (`EscapeCompilationDatabase` in Rust + `base::EscapeJSONString` in C++) is covered by this golden test.",
+      "isAi": true,
+      "revId": "ffdc7b9e9bf9bafc7963ea9c3ba9486cf32468fa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68778a60_83650886",
+        "filename": "src/gn/compile_commands_writer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-18T07:04:25Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\nnit: Two minor suggestions here:\n1. The returned `std::string_view` points into `flags.starlark_substitutions` and would dangle if a later `emplace_back` reallocates the vector. Although the current caller immediately streams `out \u003c\u003c value`, changing this to `Err WriteStarlarkSubstitution(..., StringOutputBuffer\u0026 out)` and writing directly to `out` would avoid any dangling `string_view` footgun and simplify the call site to `RETURN_IF_ERROR(WriteStarlarkSubstitution(...));`.\n2. `substitution-\u003estarlark_name()` on line 72 is only needed on a cache miss when `target-\u003erust_target()` is non-null, so it can be moved into the `if` block on line 79.",
+      "isAi": true,
+      "revId": "ffdc7b9e9bf9bafc7963ea9c3ba9486cf32468fa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

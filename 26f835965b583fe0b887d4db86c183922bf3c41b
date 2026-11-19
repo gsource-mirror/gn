@@ -33,6 +33,42 @@
       "message": "I don\u0027t think `experimental_` accurately reflects what this does. `experimental_*` would generally have the expectation of \"if this works, remove the experimental prefix, and if it doesn\u0027t work, remove the flag\".\n\nPerhaps `temporary_` or `rollout_`?\n\nOr perhaps `compatibility_level \u003d $NUMBER`, so we can in the future land features that are backwards incompatible without breaking downstream projects.",
       "revId": "26f835965b583fe0b887d4db86c183922bf3c41b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "055ac8ac_731c98bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-19T13:25:53Z",
+      "side": 1,
+      "message": "I don\u0027t think the prefix matters much as long as it conveys that people should not use it without a good reason. `temporary_` would be ok, `rollout_` seems cryptic to me.\n\n`compatibility_level \u003d $NUMBER` is a good idea in general but will require much more changes to GN internals. I don\u0027t think it\u0027s worth it for this specific change. It would be nice to introduce that in a separate set of CLs though so it can be leveraged in the future. Wdyt?",
+      "parentUuid": "a1427ca9_e06b3942",
+      "revId": "26f835965b583fe0b887d4db86c183922bf3c41b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df0ae59a_141b9d77",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-19T13:25:53Z",
+      "side": 1,
+      "message": "I think the situation is a lot more complex than you imagine :-/\n\nFirst what you describe as a bug is considered a feature in the Fuchsia build (for historical reasons), these should still be fixed except a few exceptions after a very carefully analysis.\n\nSecond, without a gating flag like the one proposed here, rolling a new GN binary requires patching multiple .git repositories in our checkout at the same time. This is a difficult process which requires closing the tree, cooperating with build gardeners, and ensuring no unexpected change was introduced by unrelated CLs before the close. In practice this is very painful to do, and unpleasant to a lot of people on the project.\n\nThird, many of the changes span several different OWNERS groups. In practice it is impossible to get approvals for a mega CL that fixes everything from everyone without introducing review delays and potential for unexpected regressions in other CLs being submitted into the tree. We have owners-overrides for this, but the corresponding members are very cautious and tend to not agree on very large CLs that do non-trivial changes to the build rules (and for good reasons).\n\n(We use owners-overrides to gn formatting changes, because they break our build-time checks, but these are usually trivial to review even if they touch thousand of files, this is not possible for this feature though).\n\nFor example, I am *still* dealing today, several weeks after its introduction, with removing the global `experimental_check_includes_strict \u003d false` we introduced in our tree due to the *previous* breaking change you submitted (still requires patches to 6 different .git repositories over 10 groups of OWNERS, tracking bug https://fxbug.dev/573092893 if you are curious, the corresponding GN bug for removal of the flag is at https://issuetracker.google.com/556959580).\n\nIn short, please do not assume that what doesn\u0027t break Chromium, or is trivial to fix in its projects, will be equally simple for Fuchsia. Either gate each new breaking change with a flag, or ask us before to verify if this can be avoided.",
+      "parentUuid": "a3b1e42c_60c117b6",
+      "revId": "26f835965b583fe0b887d4db86c183922bf3c41b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

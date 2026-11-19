@@ -16,6 +16,24 @@
       "message": "ptal",
       "revId": "34b849bf7c3efe90c2c6b35d43b7d7201ff0c5b8",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e6a5957_c63f8888",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3691893
+      },
+      "writtenOn": "2026-11-19T03:13:33Z",
+      "side": 1,
+      "message": "Hello, due to permission restrictions, I am unable to run tryjobs in the gn gerrit, but I have already compiled and run the corresponding unit tests on my local Windows device.",
+      "parentUuid": "e384276d_fd532620",
+      "revId": "34b849bf7c3efe90c2c6b35d43b7d7201ff0c5b8",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

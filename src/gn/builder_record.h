@@ -46,6 +46,12 @@ class ParseNode;
 //    content is not final, meaning that its Item::OnResolved() method
 //    has not been called yet.
 //
+//  Resolving
+//    The item's synchronous C++ resolution has run and its background
+//    resolution (including Starlark rule execution when enabled) is currently
+//    executing in the worker pool before transitioning to Resolved on the main
+//    thread.
+//
 //  Resolved
 //    The record's item's OnResolved() method has been called, and the
 //    item's state is now final and immutable.
@@ -62,14 +68,17 @@ class ParseNode;
 //      and TargetLabelVector values only contain null pointers, since
 //      their labels haven't been resolved yet.
 //
-//    Defined -> Resolved:
+//    Defined -> Resolving -> Resolved:
 //      This requires that all standard dependencies are themselves
 //      in the Resolved state, and that all validations are in the Defined
 //      state.
 //
 //      Once this condition is reached, the builder adjusts all label
 //      vectors in the Item to point to the right dependency, then
-//      the item's OnResolved() method is called.
+//      runs the item's resolution step (OnResolved(), or for targets,
+//      OnResolvedWithoutChecks() followed by Resolving while background
+//      resolution runs on the worker pool before transitioning to Resolved on
+//      the main thread).
 //
 //      For example Target::OnResolved() performs config propagation,
 //      visibility checks, and other computations, then returns the Item
@@ -151,6 +160,7 @@ class BuilderRecord {
   enum RecordState : unsigned char {
     STATE_INIT,
     STATE_DEFINED,
+    STATE_RESOLVING,
     STATE_RESOLVED,
     STATE_FINALIZED,
   };
@@ -204,6 +214,10 @@ class BuilderRecord {
   // Return current record state.
   RecordState state() const { return state_; }
 
+  // Returns true if the item is currently executing Starlark rule resolution
+  // asynchronously in the worker pool.
+  bool is_resolving() const { return state_ == STATE_RESOLVING; }
+
   // Returns true if the items has been resolved.
   bool is_resolved() const { return state_ >= STATE_RESOLVED; }
 
@@ -214,8 +228,12 @@ class BuilderRecord {
     return state_ == STATE_DEFINED && unresolved_count_ == 0;
   }
 
-  // Change the record's state to Resolved. This requires can_resolve()
+  // Change the record's state to Resolving. This requires can_resolve()
   // to be true.
+  void SetResolving();
+
+  // Change the record's state to Resolved. This requires can_resolve()
+  // or Resolving state with no unresolved deps.
   void SetResolved();
 
   // Notify all dependents that the current record's item state

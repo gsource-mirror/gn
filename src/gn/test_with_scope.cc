@@ -59,10 +59,11 @@ bool TestWithScope::ExecuteSnippet(const std::string& str, Err* err) {
     return false;
 
   for (size_t i = first_item; i < items_.size(); ++i) {
-    CHECK(items_[i]->AsTarget() != nullptr)
+    Target* target = items_[i]->AsTarget();
+    CHECK(target != nullptr)
         << "Only targets are supported in ExecuteSnippet()";
-    items_[i]->AsTarget()->SetToolchain(&toolchain_);
-    if (!items_[i]->OnResolved(err))
+    target->SetToolchain(&toolchain_);
+    if (!target->OnResolved(err))
       return false;
   }
   return true;

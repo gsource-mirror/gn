@@ -131,7 +131,7 @@ class Builder {
   // This takes a BuilderRecord with resolved dependencies, and fills in the
   // target's Label*Vectors with the resolved pointers.
   bool ResolveItem(BuilderRecord* record, Err* err);
-  void ScheduleBackgroundTargetChecks(BuilderRecord* record);
+  void ScheduleBackgroundTargetResolution(BuilderRecord* record);
   bool CompleteItemResolution(BuilderRecord* record, Err* err);
 
   // Finalizes the given item, scheduling its write to the Ninja file if

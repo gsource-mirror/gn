@@ -96,17 +96,22 @@ class Target : public Item {
   Target* AsTarget() override;
   const Target* AsTarget() const override;
 
-  // NOTE: This calls OnResolvedWithoutChecks followed by
-  // RunChecksAfterResolution.
+  // Runs OnResolvedWithoutChecks, RunStarlarkRule (when Starlark is enabled),
+  // and RunChecksAfterResolution synchronously. Only used by unit tests, since
+  // production code (Builder::ResolveItem) bypasses this to run
+  // Starlark rules and checks directly on the worker pool.
   bool OnResolved(Err* err) override;
 
-  // Perform all resolution steps except for checks. When this function
-  // returns, the content of the Target instance, as well as all its
-  // standard dependencies (i.e. without validations and gen_deps) are
-  // considered final and immutable. This allows running checks in background
-  // threads while the rest of the resolution algorithm continues in the main
-  // thread.
+  // Perform all resolution steps except for checks and Starlark rule
+  // execution. When this function returns, C++ target metadata is final, and
+  // Starlark rules still need RunStarlarkRule() before the target is
+  // considered resolved.
   bool OnResolvedWithoutChecks(Err* err);
+
+  // Executes this target's Starlark rule implementation (if it has one) and
+  // updates dependency_output_alias_. Thread-safe when called on the worker
+  // pool during BuilderRecord::STATE_RESOLVING before STATE_RESOLVED.
+  bool RunStarlarkRule(Err* err);
 
   // Run checks. This requires OnResolvedWithoutChecks() to have been called
   // first. This can run in a background thread.

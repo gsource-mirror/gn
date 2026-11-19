@@ -582,7 +582,12 @@ const Target* Target::AsTarget() const {
 }
 
 bool Target::OnResolved(Err* err) {
-  return OnResolvedWithoutChecks(err) && RunChecksAfterResolution(err);
+  if (!OnResolvedWithoutChecks(err) || !RunChecksAfterResolution(err))
+    return false;
+  // Builder::ResolveItem bypasses OnResolved() to run Starlark rules on the
+  // worker pool; run them synchronously here for unit-test callers.
+  return !settings()->build_settings()->has_starlark_session() ||
+         RunStarlarkRule(err);
 }
 
 bool Target::OnResolvedWithoutChecks(Err* err) {
@@ -630,20 +635,6 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
   if (!SwiftValues::OnTargetResolved(this, err))
     return false;
 
-  if (auto* rust = rust_target_.load(std::memory_order_acquire)) {
-    auto phony = rust->execute_rule_impl(
-        settings()->build_settings()->starlark_session(), *err);
-    if (err->has_error()) {
-      err->AppendSubErr(Err(
-          user_friendly_location(),
-          "when evaluating target '" + label().GetUserVisibleName(true) + "'"));
-      return false;
-    }
-    if (!phony.empty()) {
-      dependency_output_alias_ = OutputFile(std::string_view(phony));
-    }
-  }
-
   if (!write_runtime_deps_output_.value().empty())
     g_scheduler->AddWriteRuntimeDepsTarget(this);
 
@@ -653,6 +644,23 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
         computed_outputs_[0].AsSourceFile(settings()->build_settings()));
   }
 
+  return true;
+}
+
+bool Target::RunStarlarkRule(Err* err) {
+  const Session& session = settings()->build_settings()->starlark_session();
+  const RustTarget& rust = rust_target(session);
+
+  auto phony = rust.execute_rule_impl(session, *err);
+  if (err->has_error()) {
+    err->AppendSubErr(Err(
+        user_friendly_location(),
+        "when evaluating target '" + label().GetUserVisibleName(true) + "'"));
+    return false;
+  }
+  if (!phony.empty()) {
+    dependency_output_alias_ = OutputFile(std::string_view(phony));
+  }
   return true;
 }
 

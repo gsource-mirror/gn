@@ -59,11 +59,14 @@ bool TestWithScope::ExecuteSnippet(const std::string& str, Err* err) {
     return false;
 
   for (size_t i = first_item; i < items_.size(); ++i) {
-    CHECK(items_[i]->AsTarget() != nullptr)
-        << "Only targets are supported in ExecuteSnippet()";
-    items_[i]->AsTarget()->SetToolchain(&toolchain_);
-    if (!items_[i]->OnResolved(err))
+    Target* target = items_[i]->AsTarget();
+    target->SetToolchain(&toolchain_);
+    if (!target->OnResolved(err))
       return false;
+    if (target &&
+        target->settings()->build_settings()->has_starlark_session()) {
+      RETURN_IF_ERROR_PTR(err, target->RunStarlarkRule());
+    }
   }
   return true;
 }

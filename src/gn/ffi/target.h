@@ -11,11 +11,12 @@
 #include "gn/label_ptr.h"
 
 class Err;
+class Item;
 class Scope;
 class Target;
 
-// Returns the output type of the target as a uint8_t discriminant.
-uint8_t output_type_u8(const Target& target);
+// Returns the output type of the item as a uint8_t discriminant.
+uint8_t output_type_u8(const Item& item);
 
 struct ParseNodePtr;
 
@@ -33,6 +34,9 @@ void register_dependency(Target& target,
                          rust::Str name,
                          rust::Str toolchain_package,
                          rust::Str toolchain_name);
+
+// Upcasts a Target reference to an Item reference.
+const Item& target_as_item(const Target& target);
 
 // Returns the resolved target from a LabelTargetPair.
 // Must only be called if the target is already resolved.

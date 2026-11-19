@@ -28,14 +28,23 @@ where
     Module::with_temp_heap(|module| {
         module.frozen_heap(|heap, edge| {
             for output_type in OutputType::iter() {
-                let name = output_type.to_string();
                 let rule = Rule::<C>::new_builtin(
                     output_type,
                     HeapEdge::immortal().rebrand(builtin_impl),
                     &heap,
                 );
                 let frozen_value = heap.alloc(rule);
-                module.set(&name, edge.rebrand(frozen_value.to_value()));
+                // `config`, `pool`, and `toolchain` are not callable from starlark.
+                // We define them as _config, so you can access the rule from rust,
+                // but not from starlark (since underscore-prefixed variables are private).
+                module.set(
+                    &if output_type.is_target() {
+                        output_type.to_string()
+                    } else {
+                        format!("_{output_type}")
+                    },
+                    edge.rebrand(frozen_value.to_value()),
+                );
             }
         });
 
@@ -53,7 +62,11 @@ pub fn extract_builtin_rules<C: EvalContextAttrExt>(
     for output_type in OutputType::iter() {
         rules.push(
             module
-                .get_option_ref(&output_type.to_string())
+                .get_option_ref(&if output_type.is_target() {
+                    output_type.to_string()
+                } else {
+                    format!("_{output_type}")
+                })
                 .unwrap()
                 .unwrap()
                 .value()

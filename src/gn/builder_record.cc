@@ -70,6 +70,8 @@ const char* BuilderRecord::ToDebugCString(RecordState state) {
       return "INIT";
     case STATE_DEFINED:
       return "DEFINED";
+    case STATE_RESOLVING:
+      return "RESOLVING";
     case STATE_RESOLVED:
       return "RESOLVED";
     case STATE_FINALIZED:
@@ -214,8 +216,13 @@ bool BuilderRecord::OnDepStateChange(BuilderRecord* dep,
   return result;
 }
 
-void BuilderRecord::SetResolved() {
+void BuilderRecord::SetResolving() {
   DCHECK(can_resolve());
+  state_ = STATE_RESOLVING;
+}
+
+void BuilderRecord::SetResolved() {
+  DCHECK(can_resolve() || state_ == STATE_RESOLVING);
   state_ = STATE_RESOLVED;
 }
 
@@ -251,6 +258,9 @@ std::string BuilderRecord::ToDebugString() const {
       break;
     case STATE_DEFINED:
       result += "DEFINED";
+      break;
+    case STATE_RESOLVING:
+      result += "RESOLVING";
       break;
     case STATE_RESOLVED:
       result += "RESOLVED";

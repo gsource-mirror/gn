@@ -360,6 +360,21 @@ BuilderRecord* Builder::GetOrCreateRecordOfType(const Label& label,
 
   // Check types, if the record was not just created.
   if (!pair.first && record->type() != type) {
+    // It could have already resolved to an ITEM_TARGET, but we requested
+    // ITEM_UNKNOWN. This is fine.
+    if (type == BuilderRecord::ITEM_UNKNOWN) {
+      return record;
+    }
+    // We could have previously requested ITEM_UNKNOWN. Now we finally know what
+    // type it should be.
+    if (record->type() == BuilderRecord::ITEM_UNKNOWN) {
+      record->set_type(type);
+      // We don't care about the place where it was requested from when it
+      // requested UNKNOWN.
+      if (request_from)
+        record->set_originally_referenced_from(request_from);
+      return record;
+    }
     std::string msg =
         "The type of " + label.GetUserVisibleName(true) + "\nhere is a " +
         BuilderRecord::GetNameForType(type) + " but was previously seen as a " +
@@ -378,10 +393,9 @@ BuilderRecord* Builder::GetOrCreateRecordOfType(const Label& label,
   return record;
 }
 
-BuilderRecord* Builder::GetResolvedRecordOfType(const Label& label,
-                                                const ParseNode* origin,
-                                                BuilderRecord::ItemType type,
-                                                Err* err) {
+BuilderRecord* Builder::GetResolvedRecord(const Label& label,
+                                          const ParseNode* origin,
+                                          Err* err) {
   BuilderRecord* record = GetRecord(label);
   if (!record) {
     *err = Err(origin, "Item not found",
@@ -391,20 +405,30 @@ BuilderRecord* Builder::GetResolvedRecordOfType(const Label& label,
     return nullptr;
   }
 
-  const Item* item = record->item();
-  if (!item) {
+  if (!record->item()) {
     *err = Err(
         origin, "Item not resolved.",
         "\"" + label.GetUserVisibleName(true) + "\" hasn't been resolved.\n");
     return nullptr;
   }
 
-  if (!BuilderRecord::IsItemOfType(item, type)) {
+  return record;
+}
+
+BuilderRecord* Builder::GetResolvedRecordOfType(const Label& label,
+                                                const ParseNode* origin,
+                                                BuilderRecord::ItemType type,
+                                                Err* err) {
+  BuilderRecord* record = GetResolvedRecord(label, origin, err);
+  if (!record)
+    return nullptr;
+
+  if (!BuilderRecord::IsItemOfType(record->item(), type)) {
     *err =
         Err(origin,
             std::string("This is not a ") + BuilderRecord::GetNameForType(type),
             "\"" + label.GetUserVisibleName(true) + "\" refers to a " +
-                item->GetItemTypeName() + " instead of a " +
+                record->item()->GetItemTypeName() + " instead of a " +
                 BuilderRecord::GetNameForType(type) + ".");
     return nullptr;
   }
@@ -430,6 +454,19 @@ bool Builder::AddDeps(BuilderRecord* record,
   for (const auto& config : configs) {
     BuilderRecord* dep_record = GetOrCreateRecordOfType(
         config.label, config.origin, BuilderRecord::ITEM_CONFIG, err);
+    if (!dep_record)
+      return false;
+    record->AddDep(dep_record);
+  }
+  return true;
+}
+
+bool Builder::AddDeps(BuilderRecord* record,
+                      const std::vector<LabelPtrPair<Item>>& items,
+                      Err* err) {
+  for (const auto& item : items) {
+    BuilderRecord* dep_record = GetOrCreateRecordOfType(
+        item.label, item.origin, BuilderRecord::ITEM_UNKNOWN, err);
     if (!dep_record)
       return false;
     record->AddDep(dep_record);
@@ -555,9 +592,16 @@ bool Builder::ResolveItem(BuilderRecord* record, Err* err) {
     if (!target->OnResolvedWithoutChecks(err))
       return false;
 
-    // Offload Target::RunChecksAfterResolution to a worker thread.
+    if (!target->settings()->build_settings()->has_starlark_session()) {
+      ScheduleBackgroundTargetChecks(record);
+      return CompleteItemResolution(record, err);
+    }
+
+    // Schedule Starlark resolution before target checks so work_count_ stays
+    // non-zero until the main-thread completion task runs.
+    ScheduleBackgroundStarlarkResolution(record);
     ScheduleBackgroundTargetChecks(record);
-    return CompleteItemResolution(record, err);
+    return true;
   } else if (record->type() == BuilderRecord::ITEM_CONFIG) {
     Config* config = record->item()->AsConfig();
     if (!ResolveConfigs(&config->configs(), err))
@@ -572,7 +616,37 @@ bool Builder::ResolveItem(BuilderRecord* record, Err* err) {
   if (!record->item()->OnResolved(err))
     return false;
 
+  if (record->item()->settings()->build_settings()->has_starlark_session()) {
+    ScheduleBackgroundStarlarkResolution(record);
+    return true;
+  }
+
   return CompleteItemResolution(record, err);
+}
+
+void Builder::ScheduleBackgroundStarlarkResolution(BuilderRecord* record) {
+  DCHECK(g_scheduler);
+
+  record->SetResolving();
+  Item* item = record->item();
+
+  g_scheduler->ScheduleWork([this, record, item]() {
+    Err err = item->RunStarlarkRule();
+    if (err.has_error()) {
+      g_scheduler->FailWithError(err);
+      return;
+    }
+
+    g_scheduler->IncrementWorkCount();
+    g_scheduler->task_runner()->PostTask([this, record]() {
+      Err err;
+      if (!CompleteItemResolution(record, &err) ||
+          !UpdateItem(record, BuilderRecord::STATE_RESOLVING, &err)) {
+        g_scheduler->FailWithError(err);
+      }
+      g_scheduler->DecrementWorkCount();
+    });
+  });
 }
 
 void Builder::ScheduleBackgroundTargetChecks(BuilderRecord* record) {
@@ -615,6 +689,19 @@ bool Builder::ResolveDeps(LabelTargetVector* deps, Err* err) {
     if (!record)
       return false;
     cur.ptr = record->item()->AsTarget();
+  }
+  return true;
+}
+
+bool Builder::ResolveDeps(std::vector<LabelPtrPair<Item>>* deps, Err* err) {
+  for (LabelPtrPair<Item>& cur : *deps) {
+    DCHECK(!cur.ptr);
+
+    BuilderRecord* record = GetResolvedRecord(cur.label, cur.origin, err);
+    if (!record)
+      return false;
+
+    cur.ptr = record->item();
   }
   return true;
 }

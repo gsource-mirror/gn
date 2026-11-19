@@ -124,7 +124,7 @@ impl Session {
                 static_ref
             },
             // This should *almost* never occur. The one exception is when two threads try to call
-            // rust_target from a C++ target at the same time.
+            // rust_target from a C++ item at the same time.
             Entry::Occupied(e) => {
                 assert!(
                     target.rule.is_builtin(),
@@ -137,9 +137,9 @@ impl Session {
         })
     }
 
-    pub(crate) fn register_cxx_target(
+    pub(crate) fn register_cxx_item(
         &self,
-        cxx: &'static crate::bridge::CxxTarget,
+        cxx: &'static crate::bridge::CxxItem,
     ) -> &'static Target {
         self.register_target(Target {
             cxx,

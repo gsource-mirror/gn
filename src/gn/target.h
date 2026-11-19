@@ -39,8 +39,6 @@ class ResolvedTargetData;
 class Settings;
 class Target;
 class Toolchain;
-struct RustTarget;
-struct Session;
 
 using TargetSet = PointerSet<const Target>;
 
@@ -99,13 +97,12 @@ class Target : public Item {
   // NOTE: This calls OnResolvedWithoutChecks followed by
   // RunChecksAfterResolution.
   bool OnResolved(Err* err) override;
+  Err RunStarlarkRule() override;
 
-  // Perform all resolution steps except for checks. When this function
-  // returns, the content of the Target instance, as well as all its
-  // standard dependencies (i.e. without validations and gen_deps) are
-  // considered final and immutable. This allows running checks in background
-  // threads while the rest of the resolution algorithm continues in the main
-  // thread.
+  // Perform all resolution steps except for checks and Starlark rule
+  // execution. When this function returns, C++ target metadata is final, and
+  // Starlark rules still need RunStarlarkRule() before the target is
+  // considered resolved.
   bool OnResolvedWithoutChecks(Err* err);
 
   // Run checks. This requires OnResolvedWithoutChecks() to have been called
@@ -316,8 +313,10 @@ class Target : public Item {
   // The only purpose of this field is to ensure that all of a target's starlark
   // dependencies are resolved before itself, ensuring that starlark rule
   // implementations run in correct order.
-  const LabelTargetVector& starlark_deps() const { return starlark_deps_; }
-  LabelTargetVector& starlark_deps() { return starlark_deps_; }
+  const std::vector<LabelPtrPair<Item>>& starlark_deps() const {
+    return starlark_deps_;
+  }
+  std::vector<LabelPtrPair<Item>>& starlark_deps() { return starlark_deps_; }
 
   // List of configs that this class inherits settings from. Once a target is
   // resolved, this will also list all-dependent and public configs.
@@ -374,14 +373,6 @@ class Target : public Item {
   RustValues& rust_values();
   const RustValues& rust_values() const;
   bool has_rust_values() const { return rust_values_.get(); }
-
-  const RustTarget& rust_target(const Session& session) const;
-  const RustTarget* rust_target() const {
-    return rust_target_.load(std::memory_order_acquire);
-  }
-  void set_rust_target(const RustTarget& rust_target) const {
-    rust_target_.store(&rust_target, std::memory_order_release);
-  }
 
   std::vector<LabelPattern>& friends() { return friends_; }
   const std::vector<LabelPattern>& friends() const { return friends_; }
@@ -612,7 +603,7 @@ class Target : public Item {
   LabelTargetVector data_deps_;
   LabelTargetVector validations_;
   LabelTargetVector gen_deps_;
-  LabelTargetVector starlark_deps_;
+  std::vector<LabelPtrPair<Item>> starlark_deps_;
 
   // See getters for more info.
   UniqueVector<LabelConfigPair> configs_;
@@ -654,9 +645,6 @@ class Target : public Item {
 
   // GeneratedFile as metadata collection values.
   std::unique_ptr<GeneratedFile> generated_file_;
-
-  // A cache of the Session's RustTarget for this target.
-  mutable std::atomic<const RustTarget*> rust_target_ = nullptr;
 
   friend class ResolvedTargetData;
 

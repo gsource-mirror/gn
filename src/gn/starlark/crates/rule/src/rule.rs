@@ -60,15 +60,7 @@ impl<'v, C: EvalContextAttrExt> fmt::Debug for Rule<'v, C> {
 /// Some reserved attributes are currently in use (eg. name).
 /// Others are reserved for future use, so we disallow them in case we want to
 /// support them in the future.
-const RESERVED_ATTRS: &[&str] = &[
-    "deps",
-    "name",
-    "public",
-    "public_deps",
-    "sources",
-    "testonly",
-    "visibility",
-];
+const RESERVED_ATTRS: &[&str] = &["name", "testonly", "visibility"];
 
 fn merge_attrs(
     parent_attrs: &SmallMap<String, AttrSchema>,
@@ -115,11 +107,17 @@ impl<'v, C: EvalContextAttrExt> Rule<'v, C> {
 
         let (output_type, attrs) = match parent {
             Some(p) => {
+                let output_type = p.as_ref().output_type;
+                if let Some(output_type) = output_type {
+                    let (a, b) = output_type.attrs();
+                    for name in attrs.keys() {
+                        if a.contains(&name.as_str()) || b.contains(&name.as_str()) {
+                            return Err(crate::Error::ReservedAttribute(name.clone()).into());
+                        }
+                    }
+                }
                 provides.extend_from_slice(&p.as_ref().provides);
-                (
-                    p.as_ref().output_type,
-                    merge_attrs(p.as_ref().schema.attrs(), attrs)?,
-                )
+                (output_type, merge_attrs(p.as_ref().schema.attrs(), attrs)?)
             },
             None => (None, attrs),
         };

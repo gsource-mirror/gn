@@ -16,10 +16,10 @@ use crate::{
 };
 
 pub struct Target {
-    // We maintain a 0-1 relationship between starlark Targets and rust targets.
-    // starlark targets store a reference to C++ targets, and C++ targets store an optional
+    // We maintain a 0-1 relationship between starlark Targets and rust items.
+    // starlark targets store a reference to C++ items, and C++ items store an optional
     // reference to starlark targets.
-    pub(crate) cxx: &'static crate::bridge::CxxTarget,
+    pub(crate) cxx: &'static crate::bridge::CxxItem,
     pub(crate) rule: &'static rule::Rule<'static, EvalContext>,
     pub(crate) attrs: Vec<attr::Attr>,
     pub(crate) evaluated:
@@ -41,14 +41,18 @@ impl Target {
             crate::eval_context::EvalContext::new_rule_impl(session, *t)
         });
         if let Some(evaluated) = err.handle(res) {
-            let phony = evaluated.by_ref(|evaluated| {
-                evaluated
-                    .providers
-                    .outputs_phony
-                    .as_ref()
-                    .map(|f| f.as_str())
-                    .unwrap_or_default()
-            });
+            let phony = if self.rule.is_builtin() {
+                ""
+            } else {
+                evaluated.by_ref(|evaluated| {
+                    evaluated
+                        .providers
+                        .outputs_phony
+                        .as_ref()
+                        .map(|f| f.as_str())
+                        .unwrap_or_default()
+                })
+            };
             self.evaluated
                 .set(evaluated)
                 .expect("Rules can only be executed once");
@@ -141,7 +145,7 @@ impl Target {
 }
 
 impl std::ops::Deref for Target {
-    type Target = crate::bridge::CxxTarget;
+    type Target = crate::bridge::CxxItem;
 
     fn deref(&self) -> &Self::Target {
         self.cxx
@@ -162,7 +166,14 @@ unsafe impl Send for Target {}
 // boundaries.
 unsafe impl Sync for Target {}
 
-impl crate::bridge::CxxTarget {
+impl crate::bridge::CxxItem {
+    /// Returns the underlying `CxxTarget` if this item is a `Target`.
+    pub fn as_target(&self) -> Option<&crate::bridge::CxxTarget> {
+        // Safety: AsTarget returns either null or a valid Target pointer for the
+        // lifetime of the session.
+        unsafe { self.AsTarget().as_ref() }
+    }
+
     /// Returns the output type of the target as a u8 discriminant.
     pub fn output_type(&self) -> u8 {
         crate::bridge::output_type_u8(self)
@@ -183,6 +194,19 @@ impl crate::bridge::CxxTarget {
     /// the session if it doesn't exist yet.
     pub fn to_rust(&self, session: &crate::Session) -> TargetRef {
         TargetRef(self.rust_target(session))
+    }
+}
+
+impl crate::bridge::CxxTarget {
+    /// Upcasts this `CxxTarget` to a `CxxItem`.
+    pub fn as_item(&self) -> &crate::bridge::CxxItem {
+        crate::bridge::target_as_item(self)
+    }
+
+    /// Returns a reference to the associated Rust Target, registering it with
+    /// the session if it doesn't exist yet.
+    pub fn to_rust(&self, session: &crate::Session) -> TargetRef {
+        self.as_item().to_rust(session)
     }
 }
 

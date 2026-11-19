@@ -5,9 +5,12 @@
 #ifndef TOOLS_GN_ITEM_H_
 #define TOOLS_GN_ITEM_H_
 
+#include <atomic>
 #include <set>
 #include <string>
+#include <string_view>
 
+#include "gn/err.h"
 #include "gn/label.h"
 #include "gn/source_file.h"
 #include "gn/visibility.h"
@@ -15,6 +18,8 @@
 class Config;
 class ParseNode;
 class Pool;
+struct RustTarget;
+struct Session;
 class Settings;
 class SourceFile;
 class Target;
@@ -72,6 +77,25 @@ class Item {
   // Can be called from any thread, so must not mutate dependencies.
   virtual bool OnResolved(Err* err);
 
+  // Executes this item's Starlark rule implementation (if a Starlark session
+  // is active). Thread-safe when called on the worker pool during
+  // BuilderRecord::STATE_RESOLVING before STATE_RESOLVED.
+  virtual Err RunStarlarkRule();
+
+  // Yes, a C++ Item corresponds to a rust Target. This is not a mistake.
+  // As far as rust is concerned, they're just targets that produce
+  // a DefaultInfo containing no files, and a specific set of providers.
+  const RustTarget& rust_target(const Session& session) const;
+  const RustTarget* rust_target() const {
+    return rust_target_.load(std::memory_order_acquire);
+  }
+  void set_rust_target(const RustTarget& rust_target) const {
+    rust_target_.store(&rust_target, std::memory_order_release);
+  }
+
+ protected:
+  Result<std::string_view> ExecuteStarlarkRule();
+
  private:
   bool CheckTestonly(Err* err) const;
 
@@ -82,6 +106,9 @@ class Item {
 
   bool testonly_ = false;
   Visibility visibility_;
+
+  // A cache of the Session's RustTarget for this item.
+  mutable std::atomic<const RustTarget*> rust_target_ = nullptr;
 };
 
 #endif  // TOOLS_GN_ITEM_H_

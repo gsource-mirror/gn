@@ -165,6 +165,7 @@ mod dummy {
         include!("gn/ffi/target.h");
         include!("gn/ffi/test_with_scope.h");
         include!("gn/ffi/value.h");
+        include!("gn/item.h");
         include!("gn/label.h");
         include!("gn/label_ptr.h");
         include!("gn/output_file.h");
@@ -231,20 +232,26 @@ mod dummy {
         type LabelTargetPair;
         fn label_target_pair_target(pair: &LabelTargetPair) -> &CxxTarget;
 
+        #[rust_name = "CxxItem"]
+        type Item;
+        fn label(self: &CxxItem) -> &Label;
+        fn output_type_u8(item: &CxxItem) -> u8;
+        fn AsTarget(self: &CxxItem) -> *const CxxTarget;
+        fn rust_target<'a>(self: &'a CxxItem, session: &'a Session) -> &'static Target;
+        fn set_rust_target(self: &CxxItem, rust_target: &Target);
+
         #[rust_name = "CxxTarget"]
         type Target;
-        fn label(self: &CxxTarget) -> &Label;
-        fn output_type_u8(target: &CxxTarget) -> u8;
+        fn target_as_item(target: &CxxTarget) -> &CxxItem;
         fn private_deps(self: &CxxTarget) -> &CxxVector<LabelTargetPair>;
         fn public_deps(self: &CxxTarget) -> &CxxVector<LabelTargetPair>;
         fn all_headers_public(self: &CxxTarget) -> bool;
         fn sources(self: &CxxTarget) -> &CxxVector<SourceFile>;
         fn public_headers(self: &CxxTarget) -> &CxxVector<SourceFile>;
         fn computed_outputs(self: &CxxTarget) -> &CxxVector<OutputFile>;
-        fn rust_target<'a>(self: &'a CxxTarget, session: &'a Session) -> &'static Target;
-        fn set_rust_target(self: &CxxTarget, rust_target: &Target);
+
         #[rust_name = "settings_cxx"]
-        fn settings(self: &CxxTarget) -> *const Settings;
+        fn settings(self: &CxxItem) -> *const Settings;
         fn create_target(
             scope: Pin<&mut Scope>,
             origin: ParseNodePtr,
@@ -376,10 +383,7 @@ mod dummy {
         #[Self = "Session"]
         fn new_for_testing() -> Box<Session>;
 
-        fn register_cxx_target(
-            self: &'static Session,
-            target: &'static CxxTarget,
-        ) -> &'static Target;
+        fn register_cxx_item(self: &'static Session, item: &'static CxxItem) -> &'static Target;
 
         fn load_values(
             self: &'static Session,

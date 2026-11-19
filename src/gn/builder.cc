@@ -555,9 +555,16 @@ bool Builder::ResolveItem(BuilderRecord* record, Err* err) {
     if (!target->OnResolvedWithoutChecks(err))
       return false;
 
-    // Offload Target::RunChecksAfterResolution to a worker thread.
+    if (!target->settings()->build_settings()->has_starlark_session()) {
+      ScheduleBackgroundTargetChecks(record);
+      return CompleteItemResolution(record, err);
+    }
+
+    // Schedule Starlark resolution before target checks so work_count_ stays
+    // non-zero until the main-thread completion task runs.
+    ScheduleBackgroundStarlarkResolution(record);
     ScheduleBackgroundTargetChecks(record);
-    return CompleteItemResolution(record, err);
+    return true;
   } else if (record->type() == BuilderRecord::ITEM_CONFIG) {
     Config* config = record->item()->AsConfig();
     if (!ResolveConfigs(&config->configs(), err))
@@ -573,6 +580,31 @@ bool Builder::ResolveItem(BuilderRecord* record, Err* err) {
     return false;
 
   return CompleteItemResolution(record, err);
+}
+
+void Builder::ScheduleBackgroundStarlarkResolution(BuilderRecord* record) {
+  DCHECK(g_scheduler);
+
+  record->SetResolving();
+  Target* target = record->item()->AsTarget();
+
+  g_scheduler->ScheduleWork([this, record, target]() {
+    Err err;
+    if (!target->RunStarlarkRule(&err)) {
+      g_scheduler->FailWithError(err);
+      return;
+    }
+
+    g_scheduler->IncrementWorkCount();
+    g_scheduler->task_runner()->PostTask([this, record]() {
+      Err err;
+      if (!CompleteItemResolution(record, &err) ||
+          !UpdateItem(record, BuilderRecord::STATE_RESOLVING, &err)) {
+        g_scheduler->FailWithError(err);
+      }
+      g_scheduler->DecrementWorkCount();
+    });
+  });
 }
 
 void Builder::ScheduleBackgroundTargetChecks(BuilderRecord* record) {

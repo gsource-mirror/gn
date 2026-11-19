@@ -170,6 +170,7 @@ class BuilderRecord {
                 const ParseNode* originally_referenced_from);
 
   ItemType type() const { return type_; }
+  void set_type(ItemType type) { type_ = type; }
   const Label& label() const { return label_; }
 
   // Returns a user-ready name for the given type. e.g. "target".
@@ -189,6 +190,9 @@ class BuilderRecord {
   // before a reference, this will be the empty range.
   const ParseNode* originally_referenced_from() const {
     return originally_referenced_from_;
+  }
+  void set_originally_referenced_from(const ParseNode* origin) {
+    originally_referenced_from_ = origin;
   }
 
   bool should_generate() const { return should_generate_; }

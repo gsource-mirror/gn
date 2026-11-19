@@ -61,11 +61,12 @@ bool TestWithScope::ExecuteSnippet(const std::string& str, Err* err) {
   for (size_t i = first_item; i < items_.size(); ++i) {
     Target* target = items_[i]->AsTarget();
     target->SetToolchain(&toolchain_);
-    if (!target->OnResolved(err) ||
-        (target &&
-         target->settings()->build_settings()->has_starlark_session() &&
-         !target->RunStarlarkRule(err)))
+    if (!target->OnResolved(err))
       return false;
+    if (target &&
+        target->settings()->build_settings()->has_starlark_session()) {
+      RETURN_IF_ERROR_PTR(err, target->RunStarlarkRule());
+    }
   }
   return true;
 }

@@ -5,6 +5,9 @@
 #include "gn/item.h"
 
 #include "base/logging.h"
+#include "gn/build_settings.h"
+#include "gn/err.h"
+#include "gn/ffi/bridge.h"
 #include "gn/settings.h"
 
 Item::Item(const Settings* settings,
@@ -57,4 +60,24 @@ std::string Item::GetItemTypeName() const {
 
 bool Item::OnResolved(Err* err) {
   return true;
+}
+
+Err Item::RunStarlarkRule() {
+  auto phony = ExecuteStarlarkRule();
+  // Builtin types can't fail to run starlark.
+  DCHECK(!phony.has_error());
+  DCHECK(phony->empty());
+  return Ok();
+}
+
+Result<std::string_view> Item::ExecuteStarlarkRule() {
+  const auto& session = settings()->build_settings()->starlark_session();
+  const RustTarget& rust = rust_target(session);
+
+  Err err;
+  auto phony = rust.execute_rule_impl(session, err);
+  if (err.has_error()) {
+    return err;
+  }
+  return std::string_view(phony);
 }

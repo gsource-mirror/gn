@@ -11,6 +11,7 @@
 #include "gn/ffi/target.h"
 #include "gn/ffi/test_with_scope.h"
 #include "gn/ffi/value.h"
+#include "gn/item.h"
 #include "gn/label.h"
 #include "gn/label_ptr.h"
 #include "gn/output_file.h"
@@ -1007,6 +1008,7 @@ using SourceDir = ::SourceDir;
 using Label = ::Label;
 using SourceFile = ::SourceFile;
 using LabelTargetPair = ::LabelTargetPair;
+using Item = ::Item;
 using Target = ::Target;
 using Settings = ::Settings;
 using StringOutputBuffer = ::StringOutputBuffer;
@@ -1098,7 +1100,7 @@ private:
 struct Session final : public ::rust::Opaque {
   static ::rust::Box<::Session> new_cxx(::rust::Str source_root, ::rust::Str build_root, ::rust::Str source_root_rel) noexcept;
   static ::rust::Box<::Session> new_for_testing() noexcept;
-  ::RustTarget const &register_cxx_target(::Target const &target) const noexcept;
+  ::RustTarget const &register_cxx_item(::Item const &item) const noexcept;
   void load_values(::rust::Str label, ::rust::Str relative_to, ::rust::Slice<::rust::Str const> keys, ::Scope &scope, ::Settings const &settings, ::ParseNodePtr origin, ::Err &err) const noexcept;
   ::rust::Vec<::rust::Str> loaded() const noexcept;
   void write_all_rules(::StringOutputBuffer &buffer) const noexcept;

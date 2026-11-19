@@ -122,10 +122,9 @@ impl types::TargetRef for TargetRef {
     fn outputs(&self) -> Vec<types::File> {
         self.0
             .cxx
-            .computed_outputs()
-            .iter()
-            .map(|f| f.to_rust())
-            .collect()
+            .as_target()
+            .map(|cxx| cxx.computed_outputs().iter().map(|f| f.to_rust()).collect())
+            .unwrap_or_default()
     }
 
     fn output_type(&self) -> Option<types::OutputType> {
@@ -137,22 +136,23 @@ impl types::TargetRef for TargetRef {
     }
 
     fn builtin_attrs<'v>(&self, session: &Self::Session, heap: &Heap<'v>) -> Vec<Value<'v>> {
-        let Some(output_type) = self.output_type() else {
+        let (Some(output_type), Some(cxx_target)) = (self.output_type(), self.0.cxx.as_target())
+        else {
             return vec![];
         };
         let mut attrs = vec![];
         let settings = self.0.settings();
         // The order here needs to match the order in OutputType::attrs
         if output_type.has_sources() {
-            attrs.push(heap.alloc(if self.0.all_headers_public() {
-                self.0
+            attrs.push(heap.alloc(if cxx_target.all_headers_public() {
+                cxx_target
                     .sources()
                     .iter()
                     .filter(|s| !s.is_header())
                     .map(|s| heap.alloc(s.to_rust(settings)))
                     .collect::<Vec<_>>()
             } else {
-                self.0
+                cxx_target
                     .sources()
                     .iter()
                     .map(|s| heap.alloc(s.to_rust(settings)))
@@ -160,15 +160,15 @@ impl types::TargetRef for TargetRef {
             }));
         }
         if output_type.has_public() {
-            attrs.push(heap.alloc(if self.0.all_headers_public() {
-                self.0
+            attrs.push(heap.alloc(if cxx_target.all_headers_public() {
+                cxx_target
                     .sources()
                     .iter()
                     .filter(|s| s.is_header())
                     .map(|s| heap.alloc(s.to_rust(settings)))
                     .collect::<Vec<_>>()
             } else {
-                self.0
+                cxx_target
                     .public_headers()
                     .iter()
                     .map(|s| heap.alloc(s.to_rust(settings)))
@@ -178,7 +178,7 @@ impl types::TargetRef for TargetRef {
         if output_type.has_deps() {
             attrs.push(
                 heap.alloc(
-                    self.0
+                    cxx_target
                         .private_deps()
                         .iter()
                         .map(|target| heap.alloc(target.to_rust(session)))
@@ -189,7 +189,7 @@ impl types::TargetRef for TargetRef {
         if output_type.has_public_deps() {
             attrs.push(
                 heap.alloc(
-                    self.0
+                    cxx_target
                         .public_deps()
                         .iter()
                         .map(|target| heap.alloc(target.to_rust(session)))

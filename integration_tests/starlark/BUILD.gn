@@ -44,6 +44,7 @@ shared_library("original") {
 
 dependencies("dependencies") {
   deps = [
+    ":config",
     ":custom_shared",
     ":original",
   ]

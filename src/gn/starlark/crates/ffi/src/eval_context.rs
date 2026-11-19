@@ -179,7 +179,7 @@ impl attr::traits::EvalContextAttrExt for EvalContext {
                 rule,
             )?;
         Ok(self.session.register_target(crate::target::Target {
-            cxx,
+            cxx: cxx.as_item(),
             rule: typed_rule.as_ref(),
             attrs,
             evaluated: Default::default(),

@@ -642,21 +642,19 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
   return true;
 }
 
-bool Target::RunStarlarkRule(Err* err) {
-  const Session& session = settings()->build_settings()->starlark_session();
-  const RustTarget& rust = rust_target(session);
-
-  auto phony = rust.execute_rule_impl(session, *err);
-  if (err->has_error()) {
-    err->AppendSubErr(Err(
+Err Target::RunStarlarkRule() {
+  auto phony = ExecuteStarlarkRule();
+  if (phony.has_error()) {
+    Err err = std::move(phony).error();
+    err.AppendSubErr(Err(
         user_friendly_location(),
         "when evaluating target '" + label().GetUserVisibleName(true) + "'"));
-    return false;
+    return err;
   }
-  if (!phony.empty()) {
-    dependency_output_alias_ = OutputFile(std::string_view(phony));
+  if (!phony->empty()) {
+    dependency_output_alias_ = OutputFile(*phony);
   }
-  return true;
+  return Ok();
 }
 
 bool Target::RunChecksAfterResolution(Err* err) {

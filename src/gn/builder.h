@@ -80,6 +80,12 @@ class Builder {
                                          Err* err);
 
   // Returns the record associated with the given label. This function checks
+  // that it's already been resolved.
+  BuilderRecord* GetResolvedRecord(const Label& label,
+                                   const ParseNode* origin,
+                                   Err* err);
+
+  // Returns the record associated with the given label. This function checks
   // that it's already been resolved to the correct type.
   //
   // If any of the conditions fail, the return value will be null and the error
@@ -94,6 +100,9 @@ class Builder {
                Err* err);
   bool AddDeps(BuilderRecord* record,
                const UniqueVector<LabelConfigPair>& configs,
+               Err* err);
+  bool AddDeps(BuilderRecord* record,
+               const std::vector<LabelPtrPair<Item>>& items,
                Err* err);
   bool AddDeps(BuilderRecord* record,
                const LabelTargetVector& targets,
@@ -143,6 +152,7 @@ class Builder {
   // that everything should be resolved by this point, so will return an error
   // if anything isn't found or if the type doesn't match.
   bool ResolveDeps(LabelTargetVector* deps, Err* err);
+  bool ResolveDeps(std::vector<LabelPtrPair<Item>>* deps, Err* err);
   bool ResolveValidationDeps(LabelTargetVector* deps, Err* err);
   bool ResolveConfigs(UniqueVector<LabelConfigPair>* configs, Err* err);
   bool ResolvePool(Target* target, Err* err);

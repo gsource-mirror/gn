@@ -9,6 +9,8 @@ use strum::{Display, EnumIter, IntoStaticStr};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, Display, IntoStaticStr, Allocative)]
 #[strum(serialize_all = "snake_case")]
 /// Copied from target.h's OutputType enum.
+/// Extended with all other types of Item, because as far as rust is concerned,
+/// these other item types are just targets.
 pub enum OutputType {
     // Unknown = 0
     Group = 1,
@@ -25,7 +27,13 @@ pub enum OutputType {
     GeneratedFile,
     RustLibrary,
     RustProcMacro,
-    // NOOP = 15,
+    NoOp,
+
+    // As far as starlark is concerned, these are regular targets that just
+    // happen to return providers and no files.
+    Config,
+    Toolchain,
+    Pool,
 }
 
 /// Compile-time string equality test
@@ -54,16 +62,25 @@ const fn contains(slice: &[&'static str], needle: &'static str) -> bool {
 }
 
 impl OutputType {
-    const MAX: u8 = Self::RustProcMacro as u8;
-    const NOOP: u8 = 15;
+    const MAX: u8 = Self::Pool as u8;
+    const NOOP: u8 = Self::NoOp as u8;
+    const TARGET_MAX: u8 = Self::NOOP - 1;
 
-    /// Converts a u8 discriminant from GN C++ Target::OutputType to
-    /// `Option<OutputType>`.
+    /// Returns true if this type represents a GN target (rather than a `Config`
+    /// or `Pool`).
+    pub const fn is_target(self) -> bool {
+        (self as u8) <= Self::TARGET_MAX
+    }
+
+    /// Converts a u8 discriminant from GN C++ `Item` (`Target::OutputType` or
+    /// non-target item tag) to `Option<OutputType>`.
     pub fn from_u8(value: u8) -> Option<Self> {
         match value {
             0 | Self::NOOP => None,
-            // Safety: OutputType is #[repr(u8)] and contiguous for discriminants 1..=Self::MAX.
-            1..=Self::MAX => Some(unsafe { std::mem::transmute::<u8, Self>(value) }),
+            1..=Self::MAX => {
+                // Safety: OutputType is #[repr(u8)] and contiguous for 1..=MAX
+                Some(unsafe { std::mem::transmute::<u8, Self>(value) })
+            },
             _ => panic!("Invalid output type: {value}"),
         }
     }
@@ -114,5 +131,15 @@ mod tests {
     fn test_has_capabilities() {
         assert!(OutputType::Executable.has_deps());
         assert!(!OutputType::Copy.has_deps());
+    }
+
+    #[test]
+    fn test_non_target_item_types() {
+        assert_eq!(OutputType::from_u8(0), None);
+        assert_eq!(OutputType::from_u8(15), None);
+        assert_eq!(OutputType::from_u8(16), Some(OutputType::Config));
+        assert_eq!(OutputType::from_u8(18), Some(OutputType::Pool));
+        assert!(OutputType::SourceSet.is_target());
+        assert!(!OutputType::Config.is_target());
     }
 }

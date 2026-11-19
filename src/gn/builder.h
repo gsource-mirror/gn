@@ -131,6 +131,7 @@ class Builder {
   // This takes a BuilderRecord with resolved dependencies, and fills in the
   // target's Label*Vectors with the resolved pointers.
   bool ResolveItem(BuilderRecord* record, Err* err);
+  void ScheduleBackgroundStarlarkResolution(BuilderRecord* record);
   void ScheduleBackgroundTargetChecks(BuilderRecord* record);
   bool CompleteItemResolution(BuilderRecord* record, Err* err);
 

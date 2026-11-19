@@ -41,14 +41,18 @@ impl Target {
             crate::eval_context::EvalContext::new_rule_impl(session, *t)
         });
         if let Some(evaluated) = err.handle(res) {
-            let phony = evaluated.by_ref(|evaluated| {
-                evaluated
-                    .providers
-                    .outputs_phony
-                    .as_ref()
-                    .map(|f| f.as_str())
-                    .unwrap_or_default()
-            });
+            let phony = if self.rule.is_builtin() {
+                ""
+            } else {
+                evaluated.by_ref(|evaluated| {
+                    evaluated
+                        .providers
+                        .outputs_phony
+                        .as_ref()
+                        .map(|f| f.as_str())
+                        .unwrap_or_default()
+                })
+            };
             self.evaluated
                 .set(evaluated)
                 .expect("Rules can only be executed once");

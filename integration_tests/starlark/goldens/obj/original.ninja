@@ -1,0 +1,17 @@
+defines =
+include_dirs =
+cflags =
+target_out_dir = obj
+target_output_name = liboriginal
+
+build obj/liboriginal.original.o: cxx ../original.cc
+  source_file_part = original.cc
+  source_name_part = original
+
+build ./liboriginal.so: solink obj/liboriginal.original.o
+  ldflags =
+  libs =
+  frameworks =
+  swiftmodules =
+  output_extension = .so
+  output_dir = .

@@ -23,20 +23,26 @@ subninja toolchain.ninja
 
 build actions: phony obj/actions/actions.c
 build custom_shared: phony ./libcustom_shared.so
+build dependencies: phony obj/dependencies/dependencies.txt
 build filegroup: phony ../first.txt
 build filegroups: phony phony/$:filegroups_0
 build multiple: phony phony/$:multiple_0
+build original: phony ./liboriginal.so
 build $:actions: phony obj/actions/actions.c
 build $:custom_shared: phony ./libcustom_shared.so
+build $:dependencies: phony obj/dependencies/dependencies.txt
 build $:filegroup: phony ../first.txt
 build $:filegroups: phony phony/$:filegroups_0
 build $:multiple: phony phony/$:multiple_0
+build $:original: phony ./liboriginal.so
 
 build all: phony $
     obj/actions/actions.c $
     ./libcustom_shared.so $
+    obj/dependencies/dependencies.txt $
     ../first.txt $
     phony/$:filegroups_0 $
-    phony/$:multiple_0
+    phony/$:multiple_0 $
+    ./liboriginal.so
 
 default all

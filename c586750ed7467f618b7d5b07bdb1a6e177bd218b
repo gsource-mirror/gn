@@ -16,6 +16,23 @@
       "message": "FWIW this breaks the Fuchsia build (or more precisely this prevents GN from being rolled into the Fuchsia build, as `gn gen` breaks with errors with the new version).\n\nPlease add me as a reviewer for any GN breaking change so I can vet for it, and favor putting breaking change under a .gn flag that disables the new behavior temporarily, which will make things much easier to roll in our tree and fix progressively. I\u0027ll upload a CL to do just that soon :-(\n\nWe add similar issues with recent GN formatting changes, which has been very difficult to deal with on our side (due to lint checks embedded in our infra builds, and multi-repository setup). I am sorry I didn\u0027t make this clear earlier, would appreciate being noticed before these things land in the future.",
       "revId": "c586750ed7467f618b7d5b07bdb1a6e177bd218b",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "947fceda_9041a386",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000019
+      },
+      "writtenOn": "2026-11-19T15:17:44Z",
+      "side": 1,
+      "message": "(https://github.com/llvm/llvm-project/pull/244245 fixes LLVM fwiw.)",
+      "revId": "c586750ed7467f618b7d5b07bdb1a6e177bd218b",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

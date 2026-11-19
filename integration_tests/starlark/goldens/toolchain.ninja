@@ -32,3 +32,4 @@ subninja obj/actions.ninja
 subninja obj/custom_shared.ninja
 build phony/$:filegroups_0: phony ../first.txt phony/$:multiple_0
 build phony/$:multiple_0: phony ../second.txt ../third.txt
+subninja obj/original.ninja

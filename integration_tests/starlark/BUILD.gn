@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 load(":actions.scl", "action_rules")
+load(":dependencies.scl", "dependencies")
 load(":filegroup.scl", "filegroup", "filegroups")
 load(":inputs.scl", "custom_shared_library")
 
@@ -31,4 +32,19 @@ custom_shared_library("custom_shared") {
 }
 
 action_rules("actions") {
+}
+
+config("config") {
+  defines = [ "FOO=BAR" ]
+}
+
+shared_library("original") {
+  sources = [ "original.cc" ]
+}
+
+dependencies("dependencies") {
+  deps = [
+    ":custom_shared",
+    ":original",
+  ]
 }

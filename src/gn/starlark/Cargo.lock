@@ -2393,6 +2393,7 @@ dependencies = [
  "starlark",
  "starlark_derive",
  "strum",
+ "tempfile",
  "thiserror",
 ]
 

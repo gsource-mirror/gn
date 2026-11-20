@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "87a4d03e_fc48f1e6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-20T05:42:04Z",
+      "side": 1,
+      "message": "Seems not updated?",
+      "parentUuid": "4d8fc8d0_4c5a7a8b",
+      "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "587ef1df_7d66a410",
         "filename": "src/gn/starlark/crates/rule/src/rule.rs",
         "patchSetId": 1

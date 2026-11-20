@@ -46,6 +46,11 @@ class ParseNode;
 //    content is not final, meaning that its Item::OnResolved() method
 //    has not been called yet.
 //
+//  Resolving
+//    The item's synchronous C++ resolution has run and its Starlark rule
+//    implementation is currently executing in the worker pool before
+//    transitioning to Resolved on the main thread.
+//
 //  Resolved
 //    The record's item's OnResolved() method has been called, and the
 //    item's state is now final and immutable.
@@ -151,6 +156,7 @@ class BuilderRecord {
   enum RecordState : unsigned char {
     STATE_INIT,
     STATE_DEFINED,
+    STATE_RESOLVING,
     STATE_RESOLVED,
     STATE_FINALIZED,
   };
@@ -204,6 +210,10 @@ class BuilderRecord {
   // Return current record state.
   RecordState state() const { return state_; }
 
+  // Returns true if the item is currently executing Starlark rule resolution
+  // asynchronously in the worker pool.
+  bool is_resolving() const { return state_ == STATE_RESOLVING; }
+
   // Returns true if the items has been resolved.
   bool is_resolved() const { return state_ >= STATE_RESOLVED; }
 
@@ -214,8 +224,12 @@ class BuilderRecord {
     return state_ == STATE_DEFINED && unresolved_count_ == 0;
   }
 
-  // Change the record's state to Resolved. This requires can_resolve()
+  // Change the record's state to Resolving. This requires can_resolve()
   // to be true.
+  void SetResolving();
+
+  // Change the record's state to Resolved. This requires can_resolve()
+  // or Resolving state with no unresolved deps.
   void SetResolved();
 
   // Notify all dependents that the current record's item state

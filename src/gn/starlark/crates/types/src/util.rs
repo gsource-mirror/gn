@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use std::path::{Component, Path};
+
 /// Like std::mem::transmute, but can only affect lifetime.
 ///
 /// # Safety
@@ -12,6 +14,21 @@ pub unsafe fn extend_lifetime<'to, T: ?Sized>(val: &T) -> &'to T {
     // Safety: Transmuting lifetime of reference is unsafe, safety is guaranteed by
     // the caller.
     unsafe { std::mem::transmute(val) }
+}
+
+/// Returns `true` if `path` is a non-empty relative path normalized without `.`
+/// or `..` components and using `/` as the path separator.
+pub(crate) fn is_normalized_relative_path(path: &str) -> bool {
+    !path.is_empty()
+        // Even on windows, we require using / for a path separator.
+        && !path.contains('\\')
+        // Validate that the path is both relative and normalized.
+        && Path::new(path)
+            .components()
+            .all(|c| matches!(c, Component::Normal(_)))
+        // Also reject trailing slashes, empty segments, and internal `.` components that
+        // `Path::components()` normalizes away.
+        && path.split('/').all(|s| !matches!(s, "" | "." | ".."))
 }
 
 /// De-duplicates elements in a small vector in-place while preserving relative order.

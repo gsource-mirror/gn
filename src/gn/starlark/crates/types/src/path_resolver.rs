@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf, sync::RwLock};
 
 use normalize_path::NormalizePath as _;
 
-use crate::{File, PackageRef};
+use crate::{File, Package, PackageRef};
 
 /// Resolves paths to Files relative to the root_build_dir.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct PathResolver {
     /// Absolute path to the root source dir on disk.
     source_root: PathBuf,
@@ -18,6 +18,8 @@ pub struct PathResolver {
     /// Path to the root source dir relative to the root_build_dir.
     /// *Must* end with a trailing slash.
     source_root_rel: String,
+    /// Cache mapping packages to whether their `BUILD.gn` exists on disk.
+    package_exists_cache: RwLock<HashMap<Package, bool>>,
 }
 
 impl PathResolver {
@@ -29,6 +31,7 @@ impl PathResolver {
             source_root: source_root.normalize(),
             build_root: build_root.normalize(),
             source_root_rel,
+            package_exists_cache: Default::default(),
         }
     }
 
@@ -41,6 +44,26 @@ impl PathResolver {
             std::env::temp_dir().join("gn_starlark_test_out"),
             "../../".to_string(),
         )
+    }
+
+    /// Returns `true` if `package` contains a `BUILD.gn` file on disk, caching
+    /// the result for future lookups.
+    fn package_exists(&self, package: &PackageRef) -> bool {
+        if let Some(exists) = self
+            .package_exists_cache
+            .read()
+            .unwrap()
+            .get(package)
+            .copied()
+        {
+            return exists;
+        }
+        let exists = self.absolute_path(package, "BUILD.gn").exists();
+        self.package_exists_cache
+            .write()
+            .unwrap()
+            .insert(package.to_owned(), exists);
+        exists
     }
 
     /// Resolves an output file to its absolute on-disk path.
@@ -69,8 +92,30 @@ impl PathResolver {
     }
 
     /// Creates a `File` object for a file path relative to a package.
-    /// Validates that the file exists on disk.
+    /// Validates that the file is a normalized path within the package and
+    /// exists on disk.
     pub fn existing_source_file(&self, pkg: &PackageRef, s: &str) -> starlark::Result<File> {
+        if !crate::util::is_normalized_relative_path(s) {
+            return Err(crate::Error::InvalidSourcePath(pkg.to_owned(), s.to_owned()).into());
+        }
+        // Match Bazel's package boundary rule: files inside any subdirectory
+        // containing a BUILD.gn belong to that subpackage instead of `pkg`.
+        for (slash_idx, _) in s.match_indices('/') {
+            let subdir = &s[..slash_idx];
+            let subpackage = if pkg.is_root() {
+                format!("//{subdir}")
+            } else {
+                format!("{pkg}/{subdir}")
+            };
+            if self.package_exists(PackageRef::new(&subpackage).unwrap()) {
+                return Err(crate::Error::SourceInSubpackage {
+                    package: pkg.to_owned(),
+                    path: s.to_owned(),
+                    subpackage,
+                }
+                .into());
+            }
+        }
         // Gn *does not* check that the files you refer to exist on disk.
         // This is because native GN allows referencing generated files that do
         // not yet exist at `gn gen` time.

@@ -48,6 +48,21 @@ struct BuiltinProvidersInternal<'v> {
     default_info: ValueTyped<'v, ProviderType>,
 }
 
+pub(crate) fn new_defaultinfo<'v>(
+    provider_type: ValueTyped<'v, ProviderType>,
+    files: Value<'v>,
+    executable: Option<Value<'v>>,
+    heap: &Heap<'v>,
+) -> Value<'v> {
+    heap.alloc_complex(ProviderInstance {
+        provider_type,
+        values: Box::new([
+            Some(files),
+            Some(executable.unwrap_or_else(Value::new_none)),
+        ]),
+    })
+}
+
 impl BuiltinProviders {
     /// Creates a new `BuiltinProviders` from the session globals.
     pub fn new(globals: &Globals) -> Self {
@@ -94,13 +109,7 @@ impl BuiltinProviders {
         let provider_type = self.0.by_ref_with_reconstructor(|inner, reconstructor| {
             reconstructor.edge(*heap).rebrand(inner.default_info)
         });
-        heap.alloc_complex(ProviderInstance {
-            provider_type,
-            values: Box::new([
-                Some(files),
-                Some(executable.unwrap_or_else(Value::new_none)),
-            ]),
-        })
+        new_defaultinfo(provider_type, files, executable, heap)
     }
 }
 

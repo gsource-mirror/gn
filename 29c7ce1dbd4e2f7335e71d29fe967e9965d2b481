@@ -1,0 +1,81 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f528f853_10e57120",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-20T03:41:37Z",
+      "side": 1,
+      "message": "Add bug for starlark support?",
+      "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "587ef1df_7d66a410",
+        "filename": "src/gn/starlark/crates/rule/src/rule.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-20T03:41:37Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\nnit: Consider using descriptive names like `let (builtin_files, builtin_attrs) \u003d output_type.attrs();` to match `CtxAttrSchema` in `attr/src/ctx.rs`.",
+      "isAi": true,
+      "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99b3fe60_87e74aa4",
+        "filename": "src/gn/starlark/crates/rule/src/rule.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-20T03:41:37Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\nCould we add a unit test (e.g. in `globals.rs` or `tests/frozen_rule.rs`) verifying that inheriting from a builtin rule still rejects reserved native attributes like `\"deps\"` / `\"sources\"` with `ReservedAttribute` (while a pure Starlark rule allows them)? Currently the child CL only covers the happy path on a pure rule, leaving this error branch untested.",
+      "isAi": true,
+      "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cdd9403d_59b99aaa",
+        "filename": "src/gn/starlark/crates/rule/src/rule.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-20T03:41:37Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\n`OutputType::attrs()` currently only returns `(\u0026[\"sources\", \"public\"], \u0026[\"deps\", \"public_deps\"])` for the 5 C/C++ binary target types (`Executable`, `SharedLibrary`, `LoadableModule`, `StaticLibrary`, `SourceSet`), and returns `(\u0026[], \u0026[])` for all other builtin rules exposed in `//builtins:rules.scl` (such as `group`, `copy`, `action`, `rust_library`, etc.).\n\nBecause `Rule::invoke` consumes declared Starlark `attrs` before forwarding remaining `kwargs` to C++ `TargetGenerator`, inheriting from e.g. `copy`, `group`, or `rust_library` and declaring `\"deps\"` or `\"sources\"` in `attrs` would bypass this check and shadow the native GN attributes (preventing `TargetGenerator::FillDependencies()` / `FillSources()` from receiving them).\n\nShould we still reserve `\"deps\"`, `\"public\"`, `\"public_deps\"`, and `\"sources\"` whenever `output_type.is_some()` (or have a method on `OutputType` for native GN attributes accepted by each target type) until `OutputType::attrs()` covers all builtin rules?",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

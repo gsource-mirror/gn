@@ -64,10 +64,12 @@ impl Assert {
     /// Creates a new `Assert` helper instance with rule evaluation globals and
     /// builtins registered.
     pub fn new_rule_assert() -> Self {
-        let mut assert = Self::default();
-        assert.modify_globals(|builder| {
+        use types::CtxMethods as _;
+
+        fn register_base_globals(builder: &mut GlobalsBuilder) {
             rule::register_rule_globals!(builder, FakeEvalContext);
             providers::register_providers(builder);
+            FakeEvalContext::register_depset(builder);
 
             fn make_attr_schema<'v>(
                 kind: attr::AttrKind,
@@ -84,11 +86,25 @@ impl Assert {
                 )
             }
             builder.set("attr", attr::AttrModule { make_attr_schema });
-        });
+        }
+
+        let mut base_builder =
+            GlobalsBuilder::extended_by(&[starlark::environment::LibraryExtension::StructType]);
+        register_base_globals(&mut base_builder);
+        let base_globals = base_builder.build();
+        let bzl_context = FakeEvalContext::new(types::PackageRef::new("//builtins").unwrap(), "");
+        let builtin_globals = rule::builtin_globals_module(&base_globals, &bzl_context);
+
+        let mut assert = Self::default();
+        assert.module_add(builtin_globals.clone());
         let builtins = rule::register_builtin_rules::<FakeEvalContext>();
         assert.module_add(builtins);
         let builtin_providers = providers::builtin_providers_module();
         assert.module_add(builtin_providers);
+        assert.modify_globals(move |builder| {
+            register_base_globals(builder);
+            rule::register_builtin_globals(builder, &builtin_globals);
+        });
         assert
     }
 

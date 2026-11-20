@@ -1,0 +1,21 @@
+# Copyright 2026 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+def _filegroup_impl(ctx):
+    transitive = [
+        src[DefaultInfo].files
+        for src in ctx.attr.srcs
+    ]
+    return [DefaultInfo(files = depset(transitive = transitive))]
+
+filegroup = rule(
+    implementation = _filegroup_impl,
+    attrs = {
+        "srcs": attr.label_list(allow_files = True),
+    },
+)
+
+def exports_files(srcs):
+    for src in srcs:
+        filegroup(name = src, srcs = [src])

@@ -45,16 +45,32 @@ fn make_attr_schema<'v>(
     )
 }
 
+fn base_globals_builder() -> starlark::environment::GlobalsBuilder {
+    let mut builder = starlark::environment::GlobalsBuilder::extended_by(&[
+        starlark::environment::LibraryExtension::StructType,
+    ]);
+    builder.set("attr", attr::AttrModule { make_attr_schema });
+    providers::globals::register_providers(&mut builder);
+    depset::depset_globals!(&mut builder, crate::eval_context::EvalContext);
+    rule::register_rule_globals!(&mut builder, crate::eval_context::EvalContext);
+    builder
+}
+
 impl Session {
     /// Creates a new `Session`.
     pub fn from_resolver(path_resolver: PathResolver) -> Self {
-        let mut builder = starlark::environment::GlobalsBuilder::extended_by(&[
-            starlark::environment::LibraryExtension::StructType,
-        ]);
-        builder.set("attr", attr::AttrModule { make_attr_schema });
-        providers::globals::register_providers(&mut builder);
-        depset::depset_globals!(&mut builder, crate::eval_context::EvalContext);
-        rule::register_rule_globals!(&mut builder, crate::eval_context::EvalContext);
+        let base_globals = base_globals_builder().build();
+        let globals_module = {
+            // Safety: "//builtins" starts with "//".
+            let bzl_context = crate::eval_context::EvalContext::new_builtin_bzl_file(
+                std::ptr::NonNull::from(&path_resolver),
+                unsafe { PackageRef::new_unchecked("//builtins") },
+            );
+            rule::builtin_globals_module(&base_globals, &bzl_context)
+        };
+
+        let mut builder = base_globals_builder();
+        rule::register_builtin_globals(&mut builder, &globals_module);
 
         let mut loader: FileLoader = Default::default();
         // Safety: The module lives as long as the loader lasts, which is as long as the session
@@ -65,6 +81,10 @@ impl Session {
                 rule::register_builtin_rules::<crate::eval_context::EvalContext>(),
             ))
         };
+        loader.preload(
+            Label::parse("//builtins:globals.scl", PackageRef::root()).unwrap(),
+            globals_module,
+        );
         loader.preload(
             Label::parse("//builtins:providers.scl", PackageRef::root()).unwrap(),
             providers::builtin_providers_module(),

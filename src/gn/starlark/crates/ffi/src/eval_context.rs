@@ -11,21 +11,26 @@ use types::{CtxState, LabelRef, PackageRef, PathResolver};
 use crate::{Scope, TargetRef, errors::Error, target::Target};
 
 enum EvalContextKind {
-    BzlFile,
+    BzlFile {
+        session: &'static crate::session::Session,
+    },
+    BuiltinBzlFile {
+        path_resolver: NonNull<PathResolver>,
+    },
     Macro {
+        session: &'static crate::session::Session,
         scope: NonNull<Scope>,
         origin: crate::bridge::ParseNodePtr,
         err: NonNull<crate::bridge::Err>,
     },
     RuleImpl {
+        session: &'static crate::session::Session,
         state: RefCell<CtxState<TargetRef>>,
     },
 }
 
 #[derive(Allocative, ProvidesStaticType)]
 pub struct EvalContext {
-    #[allocative(skip)]
-    session: &'static crate::session::Session,
     #[allocative(skip)]
     package: &'static PackageRef,
     #[allocative(skip)]
@@ -39,9 +44,20 @@ impl EvalContext {
         package: &'static PackageRef,
     ) -> Self {
         Self {
-            session,
             package,
-            kind: EvalContextKind::BzlFile,
+            kind: EvalContextKind::BzlFile { session },
+        }
+    }
+
+    /// Creates a new `EvalContext` for evaluating preloaded built-in `.scl`
+    /// modules before the `Session` has been constructed.
+    pub fn new_builtin_bzl_file(
+        path_resolver: NonNull<PathResolver>,
+        package: &'static PackageRef,
+    ) -> Self {
+        Self {
+            package,
+            kind: EvalContextKind::BuiltinBzlFile { path_resolver },
         }
     }
 
@@ -61,18 +77,22 @@ impl EvalContext {
             unsafe { types::util::extend_lifetime(scope_ref.package()) };
 
         Self {
-            session,
             package,
-            kind: EvalContextKind::Macro { scope, origin, err },
+            kind: EvalContextKind::Macro {
+                session,
+                scope,
+                origin,
+                err,
+            },
         }
     }
 
     /// Creates a new `EvalContext` for rule implementation execution.
     pub fn new_rule_impl(session: &'static crate::session::Session, target: TargetRef) -> Self {
         Self {
-            session,
             package: target.0.label().package(),
             kind: EvalContextKind::RuleImpl {
+                session,
                 state: RefCell::new(CtxState::new(target)),
             },
         }
@@ -88,11 +108,27 @@ impl types::EvalContext for EvalContext {
     }
 
     fn path_resolver(&self) -> &PathResolver {
-        &self.session.path_resolver
+        match &self.kind {
+            EvalContextKind::BuiltinBzlFile { path_resolver } => {
+                // Safety: The PathResolver pointer is valid for the duration of builtin module
+                // evaluation.
+                unsafe { path_resolver.as_ref() }
+            },
+            EvalContextKind::BzlFile { session }
+            | EvalContextKind::Macro { session, .. }
+            | EvalContextKind::RuleImpl { session, .. } => &session.path_resolver,
+        }
     }
 
     fn session(&self) -> &Self::Session {
-        self.session
+        match &self.kind {
+            EvalContextKind::BuiltinBzlFile { .. } => {
+                unreachable!("There is no session during builtin module evaluation")
+            },
+            EvalContextKind::BzlFile { session }
+            | EvalContextKind::Macro { session, .. }
+            | EvalContextKind::RuleImpl { session, .. } => session,
+        }
     }
 
     fn current_toolchain(&self) -> LabelRef<'_> {
@@ -102,7 +138,7 @@ impl types::EvalContext for EvalContext {
                 // references at the same time.
                 unsafe { scope.as_ref() }.settings().toolchain()
             },
-            EvalContextKind::BzlFile => {
+            EvalContextKind::BzlFile { .. } | EvalContextKind::BuiltinBzlFile { .. } => {
                 unreachable!("There is no current file during bzl file evaluation")
             },
             EvalContextKind::RuleImpl { state, .. } => {
@@ -126,9 +162,12 @@ impl types::EvalContext for EvalContext {
     }
 
     fn require_bzl(&self) -> starlark::Result<()> {
-        matches!(self.kind, EvalContextKind::BzlFile)
-            .then_some(())
-            .ok_or_else(|| Error::RequiresBzlFile.into())
+        matches!(
+            self.kind,
+            EvalContextKind::BzlFile { .. } | EvalContextKind::BuiltinBzlFile { .. }
+        )
+        .then_some(())
+        .ok_or_else(|| Error::RequiresBzlFile.into())
     }
 
     fn require_rule_impl(&self) -> starlark::Result<&RefCell<CtxState<TargetRef>>> {
@@ -174,11 +213,12 @@ impl attr::traits::EvalContextAttrExt for EvalContext {
         rule: starlark::values::Value<'static>,
         attrs: Vec<attr::Attr>,
     ) -> starlark::Result<<Self::Session as types::Session>::TargetRef> {
+        use types::EvalContext as _;
         let typed_rule =
             starlark::values::FrozenValueTyped::<'static, rule::Rule<'static, Self>>::new_err(
                 rule,
             )?;
-        Ok(self.session.register_target(crate::target::Target {
+        Ok(self.session().register_target(crate::target::Target {
             cxx,
             rule: typed_rule.as_ref(),
             attrs,

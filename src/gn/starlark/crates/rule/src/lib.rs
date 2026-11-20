@@ -14,7 +14,9 @@ pub use ctx::Ctx;
 pub use depset;
 pub use either;
 pub use errors::Error;
-pub use globals::{extract_builtin_rules, register_builtin_rules};
+pub use globals::{
+    builtin_globals_module, extract_builtin_rules, register_builtin_globals, register_builtin_rules,
+};
 pub use implementation::{EvaluatedTarget, run};
 pub use providers;
 pub use rule::{OutputType, Rule};

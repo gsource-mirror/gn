@@ -4,12 +4,50 @@
 
 use attr::{TargetAttrExt, traits::EvalContextAttrExt};
 use starlark::{
-    environment::{FrozenModule, Module},
+    environment::{FrozenModule, Globals, GlobalsBuilder, Module},
+    eval::Evaluator,
+    syntax::{AstModule, Dialect},
     values::{FrozenHeapName, HeapEdge},
 };
 use strum::IntoEnumIterator as _;
+use types::EvaluatorContextExt as _;
 
 use crate::{OutputType, Rule};
+
+const BUILTIN_GLOBALS_SRC: &str = include_str!("../../../builtins/globals.scl");
+
+/// Evaluates `//builtins:globals.scl` against `globals` and `context`, returning
+/// the frozen module containing Starlark-defined built-in rules and macros.
+pub fn builtin_globals_module<C: EvalContextAttrExt>(
+    globals: &Globals,
+    context: &C,
+) -> FrozenModule {
+    let ast = AstModule::parse(
+        "//builtins:globals.scl",
+        BUILTIN_GLOBALS_SRC.to_owned(),
+        &Dialect::Standard,
+    )
+    .unwrap();
+    Module::with_temp_heap(|module| {
+        {
+            let mut eval = Evaluator::new(&module);
+            eval.set_context(context);
+            eval.eval_module(ast, globals).unwrap();
+        }
+        module
+            .freeze_named(FrozenHeapName::user("//builtins:globals.scl"))
+            .unwrap()
+    })
+}
+
+/// Copies all exported symbols from `builtin_globals` into `builder` so they
+/// are globally available in Starlark (`.scl`) modules without calling `load()`.
+pub fn register_builtin_globals(builder: &mut GlobalsBuilder, builtin_globals: &FrozenModule) {
+    builder.frozen_heap(|fh| fh.add_reference(builtin_globals.frozen_heap()));
+    for name in builtin_globals.names() {
+        builder.set(name, builtin_globals.get(name).unwrap());
+    }
+}
 
 /// Registers and returns the built-in target rules as a frozen module.
 /// Usage:

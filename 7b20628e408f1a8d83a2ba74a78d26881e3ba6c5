@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea5b7a08_744a7139",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-20T05:33:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce170de5_5cc8f1ee",
+      "revId": "7b20628e408f1a8d83a2ba74a78d26881e3ba6c5",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e93f027_ba6fa4a5",
@@ -43,6 +61,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ca8f9f4_6b02f8ec",
+        "filename": "src/gn/starlark/crates/types/src/path_resolver.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-20T05:33:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e93f027_ba6fa4a5",
+      "range": {
+        "startLine": 149,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 9999
+      },
+      "revId": "7b20628e408f1a8d83a2ba74a78d26881e3ba6c5",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d35a4dab_0d4874db",
@@ -63,6 +105,30 @@
         "endChar": 9999
       },
       "isAi": true,
+      "revId": "7b20628e408f1a8d83a2ba74a78d26881e3ba6c5",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4acff40e_9ad77b5c",
+        "filename": "src/gn/starlark/crates/types/src/util.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-20T05:33:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d35a4dab_0d4874db",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 9999
+      },
       "revId": "7b20628e408f1a8d83a2ba74a78d26881e3ba6c5",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

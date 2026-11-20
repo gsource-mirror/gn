@@ -18,5 +18,6 @@ pub use cfg::AttrCfg;
 pub use ctx::{CtxAttr, CtxAttrSchema};
 pub(crate) use errors::Error;
 pub use globals::{AttrModule, AttrSpecArgs};
+pub use providers::FileTarget;
 pub use schema::{AllowFilesSchema, AttrKind, AttrSchema};
 pub use traits::{EvalContext, EvalContextAttrExt, Session, TargetAttrExt, TargetRef};

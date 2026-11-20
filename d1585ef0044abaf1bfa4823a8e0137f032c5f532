@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7941ee81_a6aa8a72",
+        "filename": "src/gn/starlark/crates/types/src/util.rs",
+        "patchSetId": 5
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-20T06:16:19Z",
+      "side": 1,
+      "message": "[Review from Jetski]\n\nUnused import: `use std::path::{Component, Path};` is no longer needed now that `Path::components()` was replaced with `!path.contains(\u0027:\u0027)` below (and the comment on lines 29–30 referencing `Path::components()` can also be updated).",
+      "isAi": true,
+      "revId": "d1585ef0044abaf1bfa4823a8e0137f032c5f532",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

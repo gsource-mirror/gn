@@ -18,6 +18,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d8fc8d0_4c5a7a8b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-20T05:13:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f528f853_10e57120",
+      "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "587ef1df_7d66a410",
@@ -36,6 +54,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89b74094_c9117002",
+        "filename": "src/gn/starlark/crates/rule/src/rule.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-20T05:13:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "587ef1df_7d66a410",
+      "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99b3fe60_87e74aa4",
@@ -50,6 +86,24 @@
       "side": 1,
       "message": "[Review from Jetski]\n\nCould we add a unit test (e.g. in `globals.rs` or `tests/frozen_rule.rs`) verifying that inheriting from a builtin rule still rejects reserved native attributes like `\"deps\"` / `\"sources\"` with `ReservedAttribute` (while a pure Starlark rule allows them)? Currently the child CL only covers the happy path on a pure rule, leaving this error branch untested.",
       "isAi": true,
+      "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eac99c9c_e81e1d32",
+        "filename": "src/gn/starlark/crates/rule/src/rule.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-20T05:13:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99b3fe60_87e74aa4",
       "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -74,6 +128,30 @@
         "endChar": 9999
       },
       "isAi": true,
+      "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22ce1607_c83d9e59",
+        "filename": "src/gn/starlark/crates/rule/src/rule.rs",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-20T05:13:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cdd9403d_59b99aaa",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 9999
+      },
       "revId": "29c7ce1dbd4e2f7335e71d29fe967e9965d2b481",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

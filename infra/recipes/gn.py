@@ -96,7 +96,9 @@ def RunSteps(api, repository):
 
     with api.context(cwd=src_dir):
       build_input = api.buildbucket.build_input
-      ref = build_input.gitiles_commit.id or 'refs/heads/main'
+      ref = (
+          build_input.gitiles_commit.id
+          if build_input.gitiles_commit else 'refs/heads/master')
       # Fetch tags so `git describe` works.
       api.step('fetch', ['git', 'fetch', '--tags', repository, ref])
       api.step('checkout', ['git', 'checkout', 'FETCH_HEAD'])

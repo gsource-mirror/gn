@@ -95,12 +95,20 @@ def RunSteps(api, repository):
 
     with api.context(cwd=src_dir):
       build_input = api.buildbucket.build_input
+<<<<<<< HEAD   (03994b0acb22d52487929078da8eb9c9362e5b17 Fix CI)
       gitiles_ref = build_input.gitiles_commit.ref if build_input.gitiles_commit else ''
       branch_name = gitiles_ref.removeprefix('refs/heads/') if gitiles_ref else None
 
       ref = (
           build_input.gitiles_commit.id
           if build_input.gitiles_commit else 'refs/heads/master')
+||||||| BASE   (ef1767f39033dce6b5c5bdc337dde48942eebcf4 Fix Python path handling across Windows drives)
+      ref = (
+          build_input.gitiles_commit.id
+          if build_input.gitiles_commit else 'refs/heads/master')
+=======
+      ref = build_input.gitiles_commit.id or 'refs/heads/main'
+>>>>>>> CHANGE (289f1cb5dd01ea79abd5bcc9f6922bb75236b8a0 Don't pass an empty refspec to git fetch in gn trybuilds)
       # Fetch tags so `git describe` works.
       api.step('fetch', ['git', 'fetch', '--tags', repository, ref])
       api.step('checkout', ['git', 'checkout', 'FETCH_HEAD'])

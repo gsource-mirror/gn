@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0018dcc9_1e20bb3c",
+        "filename": "src/gn/builder.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-24T05:01:01Z",
+      "side": 1,
+      "message": "[Review from Jetski] Since `has_starlark_session()` is true for every target in the build (including builtin C++ targets), calling both `ScheduleBackgroundStarlarkResolution` and `ScheduleBackgroundTargetChecks` posts two separate worker-pool tasks per target and runs `RunStarlarkRule` (which mutates `dependency_output_alias_`) concurrently with `RunChecksAfterResolution` on the same `Target`.\n\nCould `ScheduleBackgroundStarlarkResolution`\u0027s worker lambda run `target-\u003eRunChecksAfterResolution(\u0026err)` right after posting the main-thread completion task? That keeps dependent unblocking off the critical path while halving worker-pool task overhead and avoiding concurrent execution on the same `Target`.\n\n(Also, nit on the comment: `Scheduler::ScheduleWork` synchronously increments `work_count_` and the worker lambda increments it again before `PostTask`, so the relative call order here doesn\u0027t affect `work_count_` staying non-zero.)",
+      "range": {
+        "startLine": 563,
+        "startChar": 0,
+        "endLine": 567,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "e4b4ece2e01816a5ef8d98495b037b457f49d58f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a98ea7a_8798176c",
+        "filename": "src/gn/builder_record.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-24T05:01:01Z",
+      "side": 1,
+      "message": "[Review from Jetski] Nit: Update this state transition section as well to document `Defined -\u003e Resolving -\u003e Resolved` when Starlark is enabled?",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "e4b4ece2e01816a5ef8d98495b037b457f49d58f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70417029_f23d5d34",
+        "filename": "src/gn/test_with_scope.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-24T05:01:01Z",
+      "side": 1,
+      "message": "[Review from Jetski] Two issues here:\n1. `target` is unconditionally dereferenced on lines 63-64 (`target-\u003eSetToolchain(...)` and `target-\u003eOnResolved(err)`) after removing the `CHECK`, making the `target \u0026\u0026` check on line 65 too late if a non-target item is ever defined.\n2. More broadly, `Builder::ResolveItem` never calls `Target::OnResolved` on targets (only `TestWithScope` and unit tests do). If `Target::OnResolved(Err* err)` itself calls `RunStarlarkRule(err)` between `OnResolvedWithoutChecks(err)` and `RunChecksAfterResolution(err)` when `has_starlark_session()` is true, `TestWithScope` wouldn\u0027t need to change at all, and direct `target.OnResolved(\u0026err)` calls in other unit tests would also execute Starlark rules.",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "e4b4ece2e01816a5ef8d98495b037b457f49d58f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -5,6 +5,8 @@
 #ifndef TOOLS_GN_BUILD_SETTINGS_H_
 #define TOOLS_GN_BUILD_SETTINGS_H_
 
+#include <stdint.h>
+
 #include <functional>
 #include <map>
 #include <memory>
@@ -16,6 +18,7 @@
 #include "base/files/file_path.h"
 #include "gn/args.h"
 #include "gn/check_includes_strict_exceptions.h"
+#include "gn/compatibility_level.h"
 #include "gn/label.h"
 #include "gn/label_pattern.h"
 #include "gn/scope.h"
@@ -188,6 +191,14 @@ class BuildSettings {
     experimental_collect_validations_metadata_ = value;
   }
 
+  // Compatibility level specified in the .gn file (defaults to 0).
+  void set_compatibility_level(CompatibilityLevel level) {
+    compatibility_level_ = level;
+  }
+  bool supports(CompatibilityLevel level) const {
+    return compatibility_level_.supports(level);
+  }
+
  private:
   Label root_target_label_;
   std::vector<LabelPattern> root_patterns_;
@@ -203,6 +214,7 @@ class BuildSettings {
   Version ninja_required_version_{1, 7, 2};
   bool no_stamp_files_ = true;
   bool experimental_collect_validations_metadata_ = false;
+  CompatibilityLevel compatibility_level_;
 
   SourceFile build_config_file_;
   SourceFile arg_file_template_path_;

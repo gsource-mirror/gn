@@ -276,7 +276,7 @@ void RegisterTest(testing::Test* (*)(), const char*);
 #define TEST_F(x, y) TEST_F_(x, x##y, #x "." #y)
 #define TEST(x, y) TEST_F_(testing::Test, x##y, #x "." #y)
 
-#define FRIEND_TEST(x, y) friend class x##y
+#define FRIEND_TEST(x, y) friend struct x##y
 
 // Some compilers emit a warning if nested "if" statements are followed by an
 // "else" statement and braces are not used to explicitly disambiguate the

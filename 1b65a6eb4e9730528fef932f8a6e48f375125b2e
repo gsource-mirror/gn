@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0a5059b_07d47c4a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1002832
+      },
+      "writtenOn": "2026-11-24T20:43:34Z",
+      "side": 1,
+      "message": "FWIW I\u0027ve verified/replicated this measurement \"manually\".",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 40
+      },
+      "revId": "1b65a6eb4e9730528fef932f8a6e48f375125b2e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be6c3759_643ef2e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002832
+      },
+      "writtenOn": "2026-11-24T20:43:34Z",
+      "side": 1,
+      "message": "@digit and @msta, can you PTAL?  This CL is sort of a follow-up/completion of https://gn-review.git.corp.google.com/c/gn/+/27000 that you have reviewed earlier in September (/cc @tikuta)",
+      "revId": "1b65a6eb4e9730528fef932f8a6e48f375125b2e",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

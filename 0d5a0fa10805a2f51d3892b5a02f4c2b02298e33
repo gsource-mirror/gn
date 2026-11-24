@@ -1,0 +1,64 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e9a2d6f_4a540da1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-24T04:52:50Z",
+      "side": 1,
+      "message": "[Review from Jetski] Nit: Add `Bug: 528225104`?",
+      "isAi": true,
+      "revId": "0d5a0fa10805a2f51d3892b5a02f4c2b02298e33",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de40d669_b91488dc",
+        "filename": "integration_tests/starlark/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-24T04:52:50Z",
+      "side": 1,
+      "message": "[Review from Jetski] Nit: `config(\"config\")` is unused in this CL (it looks like it belongs to https://gn-review.googlesource.com/c/gn/+/29281). Consider moving it to that CL.",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 9999
+      },
+      "isAi": true,
+      "revId": "0d5a0fa10805a2f51d3892b5a02f4c2b02298e33",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb411740_e86661cf",
+        "filename": "integration_tests/starlark/dependencies.scl",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-24T04:52:50Z",
+      "side": 1,
+      "message": "[Review from Jetski] This uses `dep.label`, which is implemented in https://gn-review.googlesource.com/c/gn/+/29240 (not yet merged or in this CL\u0027s relation chain). This integration test will fail until CL 29240 lands and this CL is rebased onto the latest `starlark` branch.",
+      "isAi": true,
+      "revId": "0d5a0fa10805a2f51d3892b5a02f4c2b02298e33",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

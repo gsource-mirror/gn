@@ -7994,6 +7994,15 @@
       rules instead of stamp files whenever possible. This results in smaller
       Ninja build plans, but requires at least Ninja 1.11.
 
+  compatibility_level [optional]
+      An integer specifying the backwards-compatibility level for this project
+      (defaults to 0). When GN introduces a backwards-incompatible change, it is
+      gated behind a new compatibility level so projects can opt in before
+      support for older levels is removed.
+
+      Unless we have requests to extend this deadline for a particular
+      compatibility level, GN will generally support old levels for 1 month.
+
   experimental_collect_validations_metadata [optional]
       NOTE: This flag is experimental and will be removed in the future.
 

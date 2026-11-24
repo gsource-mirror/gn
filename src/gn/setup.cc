@@ -23,6 +23,7 @@
 #include "gn/check_includes_strict_exceptions.h"
 #include "gn/command_format.h"
 #include "gn/commands.h"
+#include "gn/compatibility_level.h"
 #include "gn/exec_process.h"
 #include "gn/filesystem_utils.h"
 #include "gn/input_file.h"
@@ -289,6 +290,17 @@ Variables
       A boolean flag that can be set to generate Ninja files that use phony
       rules instead of stamp files whenever possible. This results in smaller
       Ninja build plans, but requires at least Ninja 1.11.
+
+  compatibility_level [optional]
+      An integer specifying the backwards-compatibility level for this project.
+      When GN introduces a backwards-incompatible change, it is gated behind a
+      new compatibility level so projects can opt out until their codebase is
+      updated.
+
+      If not explicitly set, we assume the latest compatibility level.
+
+      Unless we have requests to extend this deadline for a particular
+      compatibility level, GN will generally support old levels for 1 month.
 
   experimental_collect_validations_metadata [optional]
       NOTE: This flag is experimental and will be removed in the future.
@@ -1080,6 +1092,13 @@ bool Setup::RunConfigFile(Err* err) {
 }
 
 bool Setup::FillOtherConfig(const base::CommandLine& cmdline, Err* err) {
+  // Set the compatibility level as early as possible in the code, so we can
+  // gate other things in the setup on the compatibility level if we choose to.
+  ASSIGN_OR_RETURN_PTR(CompatibilityLevel compatibility_level, err,
+                       CompatibilityLevel::Parse(dotfile_scope_.GetValue(
+                           "compatibility_level", true)));
+  build_settings_.set_compatibility_level(compatibility_level);
+
   SourceDir current_dir("//");
   Label root_target_label(current_dir, "");
   std::vector<LabelPattern> root_patterns;

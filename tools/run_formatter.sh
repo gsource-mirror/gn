@@ -26,3 +26,15 @@ if [ -z "${CLANG_FORMAT:-}" ]; then
 fi
 
 git ls-files | grep -E '\.(h|cc)$' | xargs "$CLANG_FORMAT" "${clang_format_opts[@]}"
+
+if cargo +nightly --version >/dev/null 2>&1; then
+  cargo_fmt_cmd=(cargo +nightly fmt)
+  fmt_opts+=(-- --config-path rustfmt-nightly.toml)
+elif [ ! -x "${CARGO:-clang/bin/cargo}" ]; then
+  exit 0
+else
+  cargo_bin="$(realpath "${CARGO:-clang/bin/cargo}")"
+  export PATH="$(dirname "$cargo_bin"):$PATH"
+  cargo_fmt_cmd=("$cargo_bin" fmt)
+fi
+(cd src/gn/starlark && "${cargo_fmt_cmd[@]}" --all "${fmt_opts[@]}")

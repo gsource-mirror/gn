@@ -2,21 +2,34 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use allocative::Allocative;
 use starlark::collections::SmallSet;
+use starlark_derive::Freeze;
 
 use crate::{File, TargetRef};
 
+/// A Ninja phony target and its expanded dependencies.
+#[derive(Allocative, Debug, Eq, Freeze, PartialEq)]
+pub struct Phony {
+    /// The phony file.
+    pub phony: File,
+    /// The inputs that the phony expands to.
+    pub expansion: Vec<File>,
+}
+
 /// The state associated with the `ctx` object during the rule implementation
 /// function.
-#[derive(Clone, Debug, allocative::Allocative)]
+#[derive(Debug, allocative::Allocative)]
 pub struct CtxState<T: TargetRef> {
     /// Reference to the underlying target.
     pub target: T,
     /// All files declared by ctx.actions.declare_file that were never
     /// generated.
-    pub unused_declared_outputs: SmallSet<File>,
+    unused_declared_outputs: SmallSet<File>,
+    /// All files declared by ctx.actions.declare_file.
+    declared_outputs: SmallSet<File>,
     /// A list of phonies declared during this execution step.
-    pub phonies: Vec<(File, Vec<File>)>,
+    pub phonies: Vec<Phony>,
 }
 
 impl<T: TargetRef> CtxState<T> {
@@ -25,28 +38,76 @@ impl<T: TargetRef> CtxState<T> {
         Self {
             target,
             unused_declared_outputs: SmallSet::new(),
+            declared_outputs: SmallSet::new(),
             phonies: Vec::new(),
         }
     }
 
     /// Declares a new phony build step in the target's build state.
     pub fn new_phony(&mut self, deps: Vec<File>) -> File {
+        let mut path = String::from("phony/");
+        if !self.target.is_default_toolchain() {
+            path.push_str(self.target.toolchain().name());
+            path.push('/');
+        }
+        let label = self.target.label();
+        path.push_str(label.package().as_source_relative());
+        path.push(':');
+        path.push_str(label.name());
         let count = self.phonies.len();
-        let mut path = self.target.target_out_dir("phony/", "", "/:");
         path.push('_');
         path.push_str(&count.to_string());
         let phony = File::intern(&path);
-
-        self.phonies.push((phony.clone(), deps));
+        self.phonies.push(Phony {
+            phony,
+            expansion: deps,
+        });
         phony
     }
 
     /// Declares a new output file relative to the target's output directory.
-    pub fn declare_file(&mut self, name: &str) -> File {
-        let mut path = self.target.target_out_dir("", "obj/", "/");
+    pub fn declare_file(&mut self, name: &str) -> starlark::Result<File> {
+        if !crate::util::is_normalized_relative_path(name) {
+            return Err(crate::errors::Error::UnsupportedFilename(name.to_owned()).into());
+        }
+        let mut path = String::new();
+        if !self.target.is_default_toolchain() {
+            path.push_str(self.target.toolchain().name());
+            path.push('/');
+        }
+        path.push_str("obj/");
+        let label = self.target.label();
+        path.push_str(label.package().as_source_relative());
+        if !path.ends_with('/') {
+            path.push('/');
+        }
+        path.push_str(label.name());
+        path.push('/');
         path.push_str(name);
         let file = File::intern(&path);
-        self.unused_declared_outputs.insert(file.clone());
-        file
+        if !self.declared_outputs.insert(file) {
+            return Err(crate::errors::Error::DuplicateDeclaredOutput(file).into());
+        }
+        self.unused_declared_outputs.insert(file);
+        Ok(file)
+    }
+
+    /// Declares that we are generating a given file.
+    pub fn generates_file(&mut self, f: &File) -> starlark::Result<()> {
+        if !self.declared_outputs.contains(f) {
+            return Err(crate::errors::Error::OutputNotDeclaredByTarget(*f).into());
+        }
+        if !self.unused_declared_outputs.shift_remove(f) {
+            return Err(crate::errors::Error::OutputAlreadyGenerated(*f).into());
+        }
+        Ok(())
+    }
+
+    /// Verifies that all declared outputs were generated, and returns the generated phonies.
+    pub fn rule_impl_complete(&mut self) -> starlark::Result<Vec<Phony>> {
+        match self.unused_declared_outputs.first() {
+            Some(unused) => Err(crate::errors::Error::DeclaredOutputNeverGenerated(*unused).into()),
+            None => Ok(std::mem::take(&mut self.phonies)),
+        }
     }
 }

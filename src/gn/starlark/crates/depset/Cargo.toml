@@ -1,7 +1,7 @@
 [package]
 name = "depset"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [lints]
 workspace = true
@@ -15,6 +15,7 @@ starlark = { workspace = true }
 starlark_derive = { workspace = true }
 thiserror = { workspace = true }
 allocative = { workspace = true }
+pagable = { workspace = true }
 
 [dev-dependencies]
 testutils = { path = "../testutils" }

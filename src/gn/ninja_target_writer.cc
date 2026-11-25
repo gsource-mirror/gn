@@ -12,6 +12,7 @@
 #include "gn/config_values_extractors.h"
 #include "gn/err.h"
 #include "gn/escape.h"
+#include "gn/ffi/bridge.h"
 #include "gn/filesystem_utils.h"
 #include "gn/general_tool.h"
 #include "gn/ninja_action_target_writer.h"
@@ -106,7 +107,7 @@ std::string NinjaTargetWriter::RunAndWriteFile(
                     target->label().GetUserVisibleName(false));
   trace.SetToolchain(settings->toolchain_label());
 
-  if (g_scheduler->verbose_logging())
+  if (g_scheduler && g_scheduler->verbose_logging())
     g_scheduler->Log("Computing", target->label().GetUserVisibleName(true));
 
   // It's ridiculously faster to write to a string and then write that to
@@ -129,6 +130,22 @@ std::string NinjaTargetWriter::RunAndWriteFile(
   // or write variables scoped under each build line. As a result, they don't
   // need the separate files.
   bool needs_file_write = false;
+
+  // We write all the starlark stuff first because non-starlark can depend on
+  // starlark substitutions, but starlark cannot depend on non-starlark.
+  if (const auto* rust = target->rust_target()) {
+    // We write the phonies separately because phonies aren't scope-dependent,
+    // so don't affect whether we need to give them their own ninja file.
+    rust->write_phonies(storage);
+    Err err;
+    auto size = storage.size();
+    rust->write_ninja(storage, ESCAPE_PLATFORM_CURRENT, err);
+    if (err.has_error()) {
+      g_scheduler->FailWithError(err);
+    }
+    needs_file_write = storage.size() != size;
+  }
+
   if (target->output_type() == Target::BUNDLE_DATA) {
     NinjaBundleDataTargetWriter writer(target, storage);
     writer.SetResolvedTargetData(resolved);
@@ -184,7 +201,7 @@ std::string NinjaTargetWriter::RunAndWriteFile(
       private_storage.WriteToFileIfChanged(private_path, nullptr);
     }
     writer.Run();
-  } else {
+  } else if (target->output_type() != Target::NOOP) {
     CHECK(0) << "Output type of target not handled.";
   }
 
@@ -371,59 +388,51 @@ void NinjaTargetWriter::WriteEscapedSubstitution(const Substitution* type) {
 }
 
 void NinjaTargetWriter::WriteSharedVars(const SubstitutionBits& bits) {
-  bool written_anything = false;
+  size_t initial_size = out_.size();
 
   // Target label.
   if (bits.used.count(&SubstitutionLabel)) {
     WriteEscapedSubstitution(&SubstitutionLabel);
-    written_anything = true;
   }
 
   // Target label name.
   if (bits.used.count(&SubstitutionLabelName)) {
     WriteEscapedSubstitution(&SubstitutionLabelName);
-    written_anything = true;
   }
 
   // Target label name without toolchain.
   if (bits.used.count(&SubstitutionLabelNoToolchain)) {
     WriteEscapedSubstitution(&SubstitutionLabelNoToolchain);
-    written_anything = true;
   }
 
   // Root gen dir.
   if (bits.used.count(&SubstitutionRootGenDir)) {
     WriteEscapedSubstitution(&SubstitutionRootGenDir);
-    written_anything = true;
   }
 
   // Root out dir.
   if (bits.used.count(&SubstitutionRootOutDir)) {
     WriteEscapedSubstitution(&SubstitutionRootOutDir);
-    written_anything = true;
   }
 
   // Target gen dir.
   if (bits.used.count(&SubstitutionTargetGenDir)) {
     WriteEscapedSubstitution(&SubstitutionTargetGenDir);
-    written_anything = true;
   }
 
   // Target out dir.
   if (bits.used.count(&SubstitutionTargetOutDir)) {
     WriteEscapedSubstitution(&SubstitutionTargetOutDir);
-    written_anything = true;
   }
 
   // Target output name.
   if (bits.used.count(&SubstitutionTargetOutputName)) {
     WriteEscapedSubstitution(&SubstitutionTargetOutputName);
-    written_anything = true;
   }
 
   // If we wrote any vars, separate them from the rest of the file that follows
   // with a blank line.
-  if (written_anything)
+  if (out_.size() > initial_size)
     out_ << '\n';
 }
 

@@ -2,18 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::{borrow::Cow, path::Path};
+use std::path::Path;
 
+use allocative::Allocative;
 use starlark::{
     collections::StarlarkHasher,
-    environment::{Methods, MethodsBuilder, MethodsStatic},
+    environment::{Methods, MethodsBuilder},
     starlark_simple_value,
-    values::{
-        Freeze, FreezeResult, Freezer, ProvidesStaticType, StarlarkValue, Trace, Tracer,
-        ValueLike as _,
-    },
+    values::{ProvidesStaticType, StarlarkValue},
 };
-use starlark_derive::{starlark_module, starlark_value, NoSerialize};
+use starlark_derive::{Freeze, NoSerialize, Trace, starlark_module, starlark_value};
 
 /// File is equivalent to GN's OutputFile. Like OutputFile, its path is relative
 /// to the root_build_dir (which is also the execution directory).
@@ -29,16 +27,20 @@ use starlark_derive::{starlark_module, starlark_value, NoSerialize};
 ///
 /// We use a &str instead of an &Path, as would be standard in rust, because:
 /// * Path::new(&str) is a zero cost transmute and always succeeds
-/// * Path::new(&str).to_string_lossy() always returns the input str but has to
-///   perform an error check.
-#[derive(Clone, Debug, ProvidesStaticType, NoSerialize, allocative::Allocative)]
-pub struct File(#[allocative(skip)] &'static str);
+/// * Path::new(&str).to_string_lossy() always returns the input str but has to perform an error
+///   check.
+#[derive(Allocative, Clone, Copy, Debug, Freeze, NoSerialize, ProvidesStaticType, Trace)]
+pub struct File(
+    #[freeze(identity)]
+    #[allocative(skip)]
+    &'static str,
+);
 
 starlark_simple_value!(File);
 
 /// Interns a string for the duration of the program.
 pub fn intern_string(s: &str) -> &'static str {
-    extern "C" {
+    unsafe extern "C" {
         fn intern_string(s: &str) -> &'static str;
     }
     // Safety: Just an ffi function
@@ -69,24 +71,6 @@ impl File {
     pub fn as_str(&self) -> &'static str {
         self.0
     }
-
-    /// Returns the file path with proper escaping applied for use in the inputs
-    /// section of a ninja file.
-    pub fn ninja_escaped_path(&self) -> Cow<'static, str> {
-        let s = self.0;
-        if s.contains([' ', '$', ':']) {
-            let mut result = String::with_capacity(s.len());
-            for c in s.chars() {
-                if c == '$' || c == ' ' || c == ':' {
-                    result.push('$');
-                }
-                result.push(c);
-            }
-            Cow::Owned(result)
-        } else {
-            Cow::Borrowed(s)
-        }
-    }
 }
 
 // Because we do string interning, we can make PartialEq and Hashing based on
@@ -110,25 +94,13 @@ impl std::fmt::Display for File {
     }
 }
 
-unsafe impl<'v> Trace<'v> for File {
-    fn trace(&mut self, _tracer: &Tracer<'v>) {}
-}
-
-impl Freeze for File {
-    type Frozen = Self;
-
-    fn freeze(self, _freezer: &Freezer) -> FreezeResult<Self::Frozen> {
-        Ok(self)
-    }
-}
-
 #[starlark_value(type = "File")]
 impl<'v> StarlarkValue<'v> for File {
     fn get_methods() -> Option<&'static Methods>
     where
         Self: Sized,
     {
-        static RES: MethodsStatic = MethodsStatic::new("File", file_methods);
+        starlark::methods_static!(RES = file_methods);
         Some(RES.methods())
     }
 
@@ -150,6 +122,16 @@ impl<'v> StarlarkValue<'v> for File {
     fn collect_str(&self, collector: &mut String) {
         use std::fmt::Write as _;
         write!(collector, "{self}").unwrap();
+    }
+}
+
+// Starlark supports Unpacking to &File by default.
+// Because this type implements Copy, we should also support Unpacking to File.
+impl<'v> starlark::values::UnpackValue<'v> for File {
+    type Error = std::convert::Infallible;
+
+    fn unpack_value_impl(value: starlark::values::Value<'v>) -> Result<Option<Self>, Self::Error> {
+        Ok(Self::from_value(value).copied())
     }
 }
 

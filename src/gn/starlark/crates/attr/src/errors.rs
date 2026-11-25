@@ -26,7 +26,9 @@ pub(crate) enum Error {
     StringNotAllowed(String),
     #[error("allow_files and allow_single_file are mutually exclusive")]
     AllowFilesMutuallyExclusive,
-    #[error("allow_empty = False requires the attribute to be mandatory or have a non-empty default value")]
+    #[error(
+        "allow_empty = False requires the attribute to be mandatory or have a non-empty default value"
+    )]
     AllowEmptyRequiresMandatoryOrDefault,
     #[error("value `{0}` is not a label")]
     NotALabel(String),
@@ -40,10 +42,14 @@ pub(crate) enum Error {
         "target `{target}` does not produce any outputs matching allowed extensions: {allowed:?}"
     )]
     NoMatchingOutputs { target: Label, allowed: Vec<String> },
+    #[error("target `{target}` does not have mandatory providers: {missing}")]
+    MissingRequiredProviders { target: Label, missing: String },
     #[error("attribute {0}: only attr.label and attr.label_list types may be overridden")]
     OnlyLabelTypesMayBeOverridden(String),
     #[error("attribute {0}: types of parent and child's attributes mismatch")]
     AttributeTypeMismatch(String),
+    #[error("provider group cannot be empty")]
+    EmptyProviderGroup,
 }
 
 impl From<Error> for starlark::Error {

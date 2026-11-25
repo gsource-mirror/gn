@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37ff124b_40457ede",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T03:22:52Z",
+      "side": 1,
+      "message": "Can we cherry pick this separately so that other CLs can be checked by CQ?",
+      "revId": "d7708e12e6d51eafddb19bdcc2eca2b11470bf58",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

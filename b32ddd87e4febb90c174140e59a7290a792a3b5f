@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9c6d373_a8b9b503",
+        "filename": "src/gn/starlark/crates/attr/src/lib.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-25T02:29:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bb82409_6ca4fb46",
+      "revId": "b32ddd87e4febb90c174140e59a7290a792a3b5f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "32bb209b_7d1095b8",
@@ -43,6 +61,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c38e5ac6_51130bd3",
+        "filename": "src/gn/starlark/crates/providers/src/builtins.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-25T02:29:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32bb209b_7d1095b8",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 9999
+      },
+      "revId": "b32ddd87e4febb90c174140e59a7290a792a3b5f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8a07d20_64185b66",
@@ -57,6 +99,24 @@
       "side": 1,
       "message": "[Review from Jetski] Nit: `providers` -\u003e `provider` (singular, since `{1}` is a single provider name; cf. `\"Unable to find provider {1} in target {0}\"` in `ffi/src/errors.rs`).",
       "isAi": true,
+      "revId": "b32ddd87e4febb90c174140e59a7290a792a3b5f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5391a74c_554e803d",
+        "filename": "src/gn/starlark/crates/providers/src/errors.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-25T02:29:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8a07d20_64185b66",
       "revId": "b32ddd87e4febb90c174140e59a7290a792a3b5f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -81,6 +141,30 @@
         "endChar": 9999
       },
       "isAi": true,
+      "revId": "b32ddd87e4febb90c174140e59a7290a792a3b5f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1c016d5_0e6831cd",
+        "filename": "src/gn/starlark/crates/providers/src/file_target.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-25T02:29:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38d9ea02_5731fde0",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 9999
+      },
       "revId": "b32ddd87e4febb90c174140e59a7290a792a3b5f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

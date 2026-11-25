@@ -238,6 +238,7 @@ mod dummy {
         type Target;
         fn label(self: &CxxTarget) -> &Label;
         fn output_type_u8(target: &CxxTarget) -> u8;
+        fn starlark_session(target: &CxxTarget) -> &'static Session;
         fn private_deps(self: &CxxTarget) -> &CxxVector<LabelTargetPair>;
         fn public_deps(self: &CxxTarget) -> &CxxVector<LabelTargetPair>;
         fn starlark_deps(self: &CxxTarget) -> &CxxVector<LabelTargetPair>;

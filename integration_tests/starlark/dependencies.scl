@@ -1,0 +1,21 @@
+# Copyright 2026 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+def _dependencies_impl(ctx):
+  out = ctx.actions.declare_file(ctx.label.name + ".txt")
+  ctx.actions.write(out, "\n".join([
+    str(dep.label) for dep in ctx.attr.deps
+  ]))
+
+  return [DefaultInfo(files = depset(
+    direct = [out],
+    transitive = [dep[DefaultInfo].files for dep in ctx.attr.deps],
+  ))]
+
+dependencies = rule(
+  implementation = _dependencies_impl,
+  attrs = {
+    "deps": attr.label_list(allow_files = True)
+  }
+)

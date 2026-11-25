@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 load(":actions.scl", "action_rules")
+load(":dependencies.scl", "dependencies")
 load(":filegroup.scl", "filegroup", "filegroups")
 load(":inputs.scl", "custom_shared_library")
 
@@ -32,4 +33,16 @@ custom_shared_library("custom_shared") {
 }
 
 action_rules("actions") {
+}
+
+shared_library("non_starlark") {
+  sources = [ "non_starlark.cc" ]
+}
+
+dependencies("dependencies") {
+  deps = [
+    ":custom_shared",
+    ":non_starlark",
+    "first.txt",
+  ]
 }

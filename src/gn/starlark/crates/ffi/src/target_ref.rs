@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use starlark::values::{AllocValue, Heap, ProvidesStaticType, StarlarkValue, Value};
+use starlark::values::{
+    AllocValue, Heap, OwnedFrozen, ProvidesStaticType, StarlarkValue, Value, ValueTyped,
+};
 use starlark_derive::{NoSerialize, starlark_value};
 use types::{LabelRef, TargetRef as _};
 
@@ -25,6 +27,19 @@ impl TargetRef {
     /// Returns the toolchain label for this target.
     pub fn toolchain(self) -> LabelRef<'static> {
         self.0.toolchain()
+    }
+
+    fn evaluated(&self) -> &OwnedFrozen<ValueTyped<'static, rule::EvaluatedTarget<'static>>> {
+        self.evaluated.get_or_init(|| {
+            assert!(
+                self.rule.is_builtin(),
+                "Non-builtin rules cannot be lazily evaluated"
+            );
+            rule::run(self, |t| {
+                crate::eval_context::EvalContext::new_rule_impl(self.0.session(), *t)
+            })
+            .expect("Builtin rules cannot fail")
+        })
     }
 }
 
@@ -227,9 +242,7 @@ impl types::TargetRef for TargetRef {
     }
 
     fn has_provider(&self, id: types::ProviderId) -> bool {
-        self.evaluated
-            .get()
-            .is_some_and(|evaluated| evaluated.by_ref(|e| e.providers.contains_id(id)))
+        self.evaluated().by_ref(|e| e.providers.contains_id(id))
     }
 }
 

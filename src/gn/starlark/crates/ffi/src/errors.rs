@@ -4,11 +4,25 @@
 
 use types::Label;
 
+use crate::TargetRef;
+
 /// Errors returned by the FFI layer.
 #[derive(thiserror::Error, Debug)]
 pub(crate) enum Error {
     #[error("Key '{0}' not found in module '{1}'")]
     KeyNotFound(String, Label),
+    #[error("Passing a custom starlark type to builtin GN target types is not supported: {0}")]
+    PassingNonFrozenStarlarkValueToGn(String),
+    #[error("This is not allowed while executing a function loaded from a starlark file.")]
+    RequiresBzlFile,
+    #[error("This is only allowed while executing a macro (function called from GN).")]
+    RequiresMacro,
+    #[error("This is only allowed while executing a rule implementation.")]
+    RequiresRuleImpl,
+    #[error("Rules require exactly one string argument for the target name.")]
+    RuleRequiresTargetName,
+    #[error("Unable to find provider {1} in target {0}")]
+    MissingProvider(TargetRef, String),
 }
 
 impl From<Error> for starlark::Error {

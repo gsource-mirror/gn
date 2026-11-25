@@ -8,22 +8,21 @@ use std::{
 };
 
 use allocative::Allocative;
+use either::Either;
+use providers::ProviderType;
 use starlark::{
     eval::ParametersSpecParam,
     starlark_simple_value,
-    values::{
-        none::NoneOr, Freeze, FreezeResult, Freezer, FrozenValue, Heap, ProvidesStaticType,
-        StarlarkValue, Trace, Value,
-    },
+    values::{Freeze, Heap, ProvidesStaticType, StarlarkValue, Trace, Value, none::NoneOr},
 };
-use starlark_derive::{starlark_value, NoSerialize};
+use starlark_derive::{NoSerialize, starlark_value};
 use types::{PackageRef, PathResolver};
 
-use crate::{allow_files::AllowFiles, cfg::AttrCfg, globals::AttrSpecArgs, Attr};
+use crate::{Attr, allow_files::AllowFiles, cfg::AttrCfg, globals::AttrSpecArgs};
 
 /// The underlying data type of a target attribute (e.g. Bool, String,
 /// LabelList).
-#[derive(Debug, Clone, PartialEq, Eq, Allocative)]
+#[derive(Allocative, Clone, Debug, Eq, Freeze, PartialEq)]
 pub enum AttrKind {
     Bool,
     // Allowed is typically *very* small, so we use a Vec.
@@ -43,7 +42,7 @@ pub enum AttrKind {
 
 /// Schema specifying what files (single or multiple) are allowed on a
 /// label-like attribute.
-#[derive(Debug, Clone, PartialEq, Eq, Allocative)]
+#[derive(Allocative, Clone, Debug, Eq, Freeze, PartialEq)]
 pub enum AllowFilesSchema {
     None,
     Single(AllowFiles),
@@ -52,31 +51,21 @@ pub enum AllowFilesSchema {
 
 /// Represents an attr.foo(...) parameter.
 /// Eg. attr.label(allow_single_file = True)
-#[derive(Debug, Clone, PartialEq, Eq, Trace, NoSerialize, Allocative)]
+#[derive(
+    Allocative, Clone, Debug, Eq, Freeze, NoSerialize, PartialEq, ProvidesStaticType, Trace,
+)]
 pub struct AttrSchema {
     pub(crate) kind: AttrKind,
     pub(crate) default: Option<Attr>,
     pub(crate) disallow_empty: bool,
     pub(crate) allow_files: AllowFilesSchema,
     pub(crate) cfg: AttrCfg,
+    // The outer layer represents ANY while the inner layer represents ALL.
+    pub(crate) providers: Vec<Vec<ProviderType>>,
     pub(crate) doc: String,
 }
 
-// Safety: AttrSchema does not contain lifetime parameters, so it satisfies the
-// lifetime requirement of StaticType.
-unsafe impl ProvidesStaticType<'_> for AttrSchema {
-    type StaticType = Self;
-}
-
 starlark_simple_value!(AttrSchema);
-
-impl Freeze for AttrSchema {
-    type Frozen = Self;
-
-    fn freeze(self, _freezer: &Freezer) -> FreezeResult<Self::Frozen> {
-        Ok(self)
-    }
-}
 
 impl Display for AttrSchema {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -121,6 +110,22 @@ impl AttrSchema {
                 _ => return Err(crate::Error::AllowFilesMutuallyExclusive.into()),
             },
             cfg: args.cfg.unwrap_or(AttrCfg::CurrentToolchain),
+            providers: match args.providers {
+                None => Vec::new(),
+                // `Left` precedes `Right` in `ProvidersArg` so `providers = []`
+                // unpacks here as zero groups rather than `vec![vec![]]`.
+                Some(Either::Left(lists)) => {
+                    if lists.items.iter().any(|ps| ps.items.is_empty()) {
+                        return Err(crate::Error::EmptyProviderGroup.into());
+                    }
+                    lists
+                        .items
+                        .into_iter()
+                        .map(|ps| ps.items.into_iter().cloned().collect())
+                        .collect()
+                },
+                Some(Either::Right(ps)) => vec![ps.items.into_iter().cloned().collect()],
+            },
             doc: match args.doc {
                 None | Some(NoneOr::None) => String::new(),
                 Some(NoneOr::Other(s)) => s,
@@ -194,6 +199,7 @@ impl AttrSchema {
             || self.disallow_empty != child.disallow_empty
             || self.allow_files != child.allow_files
             || self.cfg != child.cfg
+            || self.providers != child.providers
         {
             return Err(crate::Error::AttributeTypeMismatch(name.to_owned()).into());
         }
@@ -217,7 +223,7 @@ impl AttrSchema {
     // Converts the attribute to a parameter spec.
     // Note that we intentionally do not use Defaulted(T) as it only supports
     // Defaulted(starlark::Value), while we want Defaulted(Attr).
-    pub fn as_param_spec(&self) -> ParametersSpecParam<FrozenValue> {
+    pub fn as_param_spec(&self) -> ParametersSpecParam<Value<'static>> {
         match &self.default {
             None => ParametersSpecParam::Required,
             Some(_) => ParametersSpecParam::Optional,
@@ -230,7 +236,7 @@ mod tests {
     use types::Label;
 
     use super::*;
-    use crate::{globals::tests::new_attr_assert, LabelOrFile};
+    use crate::{LabelOrFile, globals::tests::new_attr_assert};
 
     #[track_caller]
     fn assert_eq_schema(
@@ -239,8 +245,7 @@ mod tests {
         expected: &AttrSchema,
     ) {
         let val = a.pass(code);
-        let unpacked: &AttrSchema =
-            starlark::values::UnpackValue::unpack_value_err(val.value()).unwrap();
+        let unpacked: &AttrSchema = val.as_ref().value().downcast_ref::<AttrSchema>().unwrap();
         assert_eq!(unpacked, expected);
     }
 
@@ -257,6 +262,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -277,6 +283,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: "An integer".to_string(),
             },
         );
@@ -302,6 +309,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -330,6 +338,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::Many(AllowFiles::All),
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -343,6 +352,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -361,6 +371,7 @@ mod tests {
                 disallow_empty: true,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -388,6 +399,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::None,
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );
@@ -436,6 +448,7 @@ mod tests {
                 disallow_empty: false,
                 allow_files: AllowFilesSchema::Many(AllowFiles::All),
                 cfg: AttrCfg::CurrentToolchain,
+                providers: Vec::new(),
                 doc: String::new(),
             },
         );

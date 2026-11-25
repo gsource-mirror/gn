@@ -2,13 +2,22 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use std::convert::Infallible;
+
+use allocative::Allocative;
+use pagable::{Pagable, pagable_typetag};
 use starlark::{
-    typing::Ty,
-    values::{type_repr::StarlarkTypeRepr, FrozenValueTyped, UnpackValue, Value, ValueTyped},
+    type_matcher,
+    typing::{Ty, TyStarlarkValue, TyUser, TyUserParams},
+    values::{
+        UnpackValue, Value,
+        type_repr::StarlarkTypeRepr,
+        typing::{TypeIdDomain, TypeInstanceId, TypeMatcher, TypeMatcherDyn, TypeMatcherFactory},
+    },
 };
 use types::File;
 
-use crate::depset::{Depset, FrozenDepset};
+use crate::depset::Depset;
 
 /// Helper type to unpack a Starlark `Value` as either a mutable or frozen
 /// `Depset`.
@@ -29,17 +38,7 @@ impl<'v> UnpackValue<'v> for UnpackDepset<'v> {
     type Error = starlark::Error;
 
     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> {
-        if let Some(frozen) = value
-            .unpack_frozen()
-            .and_then(FrozenValueTyped::<FrozenDepset>::new)
-        {
-            let depset: &'v Depset<'v> = starlark::coerce::coerce(frozen.as_ref());
-            Ok(Some(UnpackDepset { depset, value }))
-        } else {
-            let mutable = ValueTyped::<Depset<'v>>::new_err(value)?;
-            let depset: &'v Depset<'v> = mutable.as_ref();
-            Ok(Some(UnpackDepset { depset, value }))
-        }
+        Ok(Depset::from_value(value).map(|depset| UnpackDepset { depset, value }))
     }
 }
 
@@ -64,6 +63,26 @@ impl<'v> UnpackDepset<'v> {
     }
 }
 
+struct DepsetTypeIdDomain;
+
+impl TypeIdDomain for DepsetTypeIdDomain {
+    fn tag(&self) -> &'static str {
+        "gn.depset"
+    }
+}
+
+#[derive(Allocative, Clone, Debug, Eq, Hash, Pagable, PartialEq)]
+#[pagable_typetag(TypeMatcherDyn)]
+struct FileDepsetMatcher;
+
+#[type_matcher]
+impl TypeMatcher for FileDepsetMatcher {
+    fn matches(&self, value: Value) -> bool {
+        // Delegate to unpack_value_opt so the runtime matcher and UnpackValue cannot disagree.
+        UnpackFileDepset::unpack_value_opt(value).is_some()
+    }
+}
+
 /// Helper to unpack a depset and retrieve its single `File` if it represents a
 /// phony file depset.
 #[derive(Debug, PartialEq, Eq)]
@@ -73,19 +92,27 @@ impl StarlarkTypeRepr for UnpackFileDepset {
     type Canonical = Self;
 
     fn starlark_type_repr() -> Ty {
-        Ty::any()
+        Ty::custom(
+            TyUser::new(
+                "depset[File]".to_owned(),
+                TyStarlarkValue::new::<Depset<'_>>(),
+                TypeInstanceId::from_identity(DepsetTypeIdDomain, &"File"),
+                TyUserParams {
+                    matcher: Some(TypeMatcherFactory::new(FileDepsetMatcher)),
+                    ..TyUserParams::default()
+                },
+            )
+            .unwrap(),
+        )
     }
 }
 
 impl<'v> UnpackValue<'v> for UnpackFileDepset {
-    type Error = starlark::Error;
+    type Error = Infallible;
 
     fn unpack_value_impl(value: Value<'v>) -> Result<Option<Self>, Self::Error> {
-        let depset = UnpackDepset::unpack_value_err(value)?;
-        if depset.phony().is_some() || depset.is_empty() {
-            Ok(Some(Self(depset.depset.phony().clone())))
-        } else {
-            Err(crate::errors::Error::ExpectedFileDepset.into())
-        }
+        Ok(Depset::from_value(value)
+            .filter(|depset| depset.phony().is_some() || depset.is_empty())
+            .map(|depset| Self(depset.phony())))
     }
 }

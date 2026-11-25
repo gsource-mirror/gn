@@ -16,9 +16,11 @@
 //!
 //! Safe APIs for C++ types are then exposed in the impl functions for each of
 //! these types in their own files.
+pub mod args;
 mod bridge;
 mod err;
 mod errors;
+pub mod escape;
 mod eval_context;
 mod label;
 mod mutability;
@@ -28,14 +30,23 @@ mod scope;
 mod session;
 mod settings;
 mod slice;
+mod source_file;
+mod string_output_buffer;
+mod target;
 mod target_ref;
 mod test_with_scope;
 mod value;
 
-pub use bridge::{Err, KeyValue, Label, OutputFile, Scope, Settings, SourceDir, Value, ValueType};
+pub use bridge::{
+    CxxTarget, Err, KeyValue, Label, OutputFile, OwnedFrozenValue, Scope, Settings, SourceDir,
+    SourceFile, Value, ValueType,
+};
 pub use mutability::Immutable;
 pub use opaque::{NonOpaque, OpaqueSized};
-pub use scope::OwnedScope;
 pub use session::Session;
 pub use slice::{OwnedSlice, Slice};
+pub use string_output_buffer::StringOutputBuffer;
+pub use target::Target;
+pub use target_ref::TargetRef;
 pub use test_with_scope::TestWithScope;
+pub use types::{Cursor, Writable};

@@ -4,15 +4,20 @@
 
 use std::fmt::{self, Display, Formatter};
 
-use allocative::{Allocative, Visitor};
+use allocative::Allocative;
+use either::Either;
+use providers::ProviderType;
 use starlark::{
-    environment::{Methods, MethodsBuilder, MethodsStatic},
+    environment::{Methods, MethodsBuilder},
     eval::Evaluator,
-    values::{list::UnpackList, none::NoneOr, ProvidesStaticType, StarlarkValue, Value},
+    values::{ProvidesStaticType, StarlarkValue, Value, list::UnpackList, none::NoneOr},
 };
-use starlark_derive::{starlark_module, starlark_value, NoSerialize};
+use starlark_derive::{NoSerialize, starlark_module, starlark_value};
 
-use crate::{allow_files::AllowFiles, cfg::AttrCfg, AttrKind};
+use crate::{AttrKind, allow_files::AllowFiles, cfg::AttrCfg};
+
+pub(crate) type ProvidersArg<'v> =
+    Either<UnpackList<UnpackList<&'v ProviderType>>, UnpackList<&'v ProviderType>>;
 
 /// The type that all parameters of attr.* get converted to.
 /// Mostly used because rust doesn't have default parameters,
@@ -26,23 +31,18 @@ pub struct AttrSpecArgs<'v> {
     pub(crate) allow_single_file: Option<AllowFiles>,
     pub(crate) cfg: Option<AttrCfg>,
     pub(crate) doc: Option<NoneOr<String>>,
+    pub(crate) providers: Option<ProvidersArg<'v>>,
 }
 
 /// The Starlark `attr` module containing functions to declare rule attributes.
-#[derive(Debug, ProvidesStaticType, NoSerialize)]
+#[derive(Allocative, Debug, NoSerialize, ProvidesStaticType)]
 pub struct AttrModule {
+    #[allocative(skip)]
     pub make_attr_schema: for<'v, 'a, 'e> fn(
         AttrKind,
         AttrSpecArgs<'v>,
         &mut Evaluator<'v, 'a, 'e>,
     ) -> starlark::Result<Value<'v>>,
-}
-
-impl Allocative for AttrModule {
-    fn visit<'a, 'b: 'a>(&self, visitor: &'a mut Visitor<'b>) {
-        let visitor = visitor.enter_self_sized::<Self>();
-        visitor.exit();
-    }
 }
 
 starlark::starlark_simple_value!(AttrModule);
@@ -56,7 +56,7 @@ impl Display for AttrModule {
 #[starlark_value(type = "attr")]
 impl<'v> StarlarkValue<'v> for AttrModule {
     fn get_methods() -> Option<&'static Methods> {
-        static RES: MethodsStatic = MethodsStatic::new("attr", attr_methods);
+        starlark::methods_static!(RES = attr_methods);
         Some(RES.methods())
     }
 }
@@ -133,6 +133,7 @@ pub fn attr_methods(builder: &mut MethodsBuilder) {
         allow_files: Option<AllowFiles>,
         allow_single_file: Option<AllowFiles>,
         cfg: Option<AttrCfg>,
+        providers: Option<ProvidersArg<'v>>,
         eval: &mut Evaluator<'v, '_, '_>,
     ) -> starlark::Result<Value<'v>> {
         (this.make_attr_schema)(
@@ -144,6 +145,7 @@ pub fn attr_methods(builder: &mut MethodsBuilder) {
                 allow_files,
                 allow_single_file,
                 cfg,
+                providers,
                 ..Default::default()
             },
             eval,
@@ -157,6 +159,7 @@ pub fn attr_methods(builder: &mut MethodsBuilder) {
         mandatory: Option<bool>,
         allow_empty: Option<bool>,
         allow_files: Option<AllowFiles>,
+        providers: Option<ProvidersArg<'v>>,
         eval: &mut Evaluator<'v, '_, '_>,
     ) -> starlark::Result<Value<'v>> {
         (this.make_attr_schema)(
@@ -167,6 +170,7 @@ pub fn attr_methods(builder: &mut MethodsBuilder) {
                 mandatory,
                 allow_empty,
                 allow_files,
+                providers,
                 ..Default::default()
             },
             eval,
@@ -181,6 +185,7 @@ pub fn attr_methods(builder: &mut MethodsBuilder) {
         allow_empty: Option<bool>,
         allow_files: Option<AllowFiles>,
         cfg: Option<AttrCfg>,
+        providers: Option<ProvidersArg<'v>>,
         eval: &mut Evaluator<'v, '_, '_>,
     ) -> starlark::Result<Value<'v>> {
         (this.make_attr_schema)(
@@ -192,6 +197,7 @@ pub fn attr_methods(builder: &mut MethodsBuilder) {
                 allow_empty,
                 allow_files,
                 cfg,
+                providers,
                 ..Default::default()
             },
             eval,
@@ -206,6 +212,7 @@ pub fn attr_methods(builder: &mut MethodsBuilder) {
         allow_empty: Option<bool>,
         allow_files: Option<AllowFiles>,
         cfg: Option<AttrCfg>,
+        providers: Option<ProvidersArg<'v>>,
         eval: &mut Evaluator<'v, '_, '_>,
     ) -> starlark::Result<Value<'v>> {
         (this.make_attr_schema)(
@@ -217,6 +224,7 @@ pub fn attr_methods(builder: &mut MethodsBuilder) {
                 allow_empty,
                 allow_files,
                 cfg,
+                providers,
                 ..Default::default()
             },
             eval,
@@ -274,6 +282,7 @@ pub fn attr_methods(builder: &mut MethodsBuilder) {
         allow_empty: Option<bool>,
         allow_files: Option<AllowFiles>,
         cfg: Option<AttrCfg>,
+        providers: Option<ProvidersArg<'v>>,
         eval: &mut Evaluator<'v, '_, '_>,
     ) -> starlark::Result<Value<'v>> {
         (this.make_attr_schema)(
@@ -285,6 +294,7 @@ pub fn attr_methods(builder: &mut MethodsBuilder) {
                 allow_empty,
                 allow_files,
                 cfg,
+                providers,
                 ..Default::default()
             },
             eval,
@@ -341,7 +351,7 @@ pub(crate) mod tests {
     use super::*;
     use crate::AttrSchema;
 
-    fn make_attr_schema<'v>(
+    pub(crate) fn make_attr_schema<'v>(
         kind: crate::AttrKind,
         args: AttrSpecArgs<'v>,
         eval: &mut Evaluator<'v, '_, '_>,
@@ -360,6 +370,7 @@ pub(crate) mod tests {
         let mut assert = Assert::new();
         assert.globals_add(|builder| {
             builder.set("attr", super::AttrModule { make_attr_schema });
+            providers::register_providers(builder);
         });
         assert
     }

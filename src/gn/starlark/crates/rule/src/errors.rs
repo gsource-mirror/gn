@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use types::Label;
+
 /// Errors returned by the GN Starlark rule system.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -18,11 +20,23 @@ pub enum Error {
          structures."
     )]
     ObjectUnfreezable(&'static str),
+    #[error("ctx.actions.run: outputs cannot be empty")]
+    OutputsCannotBeEmpty,
+    #[error(
+        "mnemonic must be an uppercase letter followed by uppercase letters or digits. Got '{0}'"
+    )]
+    InvalidMnemonic(String),
+    #[error("Rule '{rule}' on target '{target}' did not return declared provider: {provider}")]
+    MissingProvider {
+        rule: String,
+        target: Label,
+        provider: providers::ProviderType,
+    },
 }
 
 impl From<Error> for starlark::Error {
     fn from(err: Error) -> Self {
-        starlark::Error::new_other(err)
+        Self::new_other(err)
     }
 }
 

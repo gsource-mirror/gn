@@ -3,13 +3,14 @@
 // found in the LICENSE file.
 
 use allocative::Allocative;
+use providers::ProviderType;
 use starlark::{
     collections::{SmallMap, SmallSet},
-    values::{dict::Dict, Heap, Value},
+    values::{Heap, Value, dict::Dict},
 };
-use types::{File, LabelRef, TargetRef as _};
+use types::{File, LabelRef, TargetRef};
 
-use crate::{schema::AttrSchema, Attr, Session};
+use crate::{Attr, Session, schema::AttrSchema};
 
 /// AttrValue is the value that will appear in ctx.(attr|file|files).foo
 #[derive(Clone, Debug, Allocative)]
@@ -202,20 +203,20 @@ impl Attr {
         match lf {
             crate::LabelOrFile::Label(lbl) => {
                 let target = session.get_target(lbl.as_ref(), *current_toolchain);
-                if let Some(matcher) = schema.file_matcher() {
-                    if let crate::allow_files::AllowFiles::Some(exts) = matcher {
-                        if !target.outputs().iter().any(|f| matcher.matches(f.as_str())) {
-                            return Err(starlark::Error::new_other(
-                                crate::Error::NoMatchingOutputs {
-                                    target: lbl.clone(),
-                                    allowed: exts.clone(),
-                                },
-                            ));
-                        }
-                    }
+                verify_providers(&target, &schema.providers)?;
+                if let Some(matcher) = schema.file_matcher()
+                    && let crate::allow_files::AllowFiles::Some(exts) = matcher
+                    && !target.outputs().iter().any(|f| matcher.matches(f.as_str()))
+                {
+                    return Err(starlark::Error::new_other(
+                        crate::Error::NoMatchingOutputs {
+                            target: lbl.clone(),
+                            allowed: exts.clone(),
+                        },
+                    ));
                 }
                 for f in target.outputs() {
-                    files.insert(f.clone());
+                    files.insert(f);
                 }
                 Ok(heap.alloc(target))
             },
@@ -223,20 +224,49 @@ impl Attr {
                 if let Some(matcher) = schema.file_matcher() {
                     matcher.validate(f.as_str())?;
                 }
-                files.insert(f.clone());
-                Ok(heap.alloc(f.clone()))
+                files.insert(*f);
+                Ok(heap.alloc(*f))
             },
         }
     }
 }
 
+fn verify_providers(dep: &impl TargetRef, required: &[Vec<ProviderType>]) -> starlark::Result<()> {
+    if required.is_empty()
+        || required
+            .iter()
+            .any(|group| group.iter().all(|p| dep.has_provider(p.id())))
+    {
+        return Ok(());
+    }
+    let missing = required
+        .iter()
+        .map(|group| {
+            let mut names: Vec<_> = group
+                .iter()
+                .filter(|p| !dep.has_provider(p.id()))
+                .map(|p| format!("'{p}'"))
+                .collect();
+            if names.len() == 1 {
+                names.pop().unwrap()
+            } else {
+                format!("({})", names.join(" and "))
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" or ");
+    Err(crate::Error::MissingRequiredProviders {
+        target: dep.label().to_owned(),
+        missing,
+    }
+    .into())
+}
+
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-
     use starlark::{
         environment::Module,
-        values::{list::UnpackList, UnpackValue as _, ValueLike as _},
+        values::{UnpackValue as _, list::UnpackList},
     };
     use testutils::{FakeSession, FakeTarget, FakeTargetRef};
     use types::PackageRef;
@@ -257,6 +287,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::None,
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -284,7 +315,7 @@ mod tests {
 
         let target_empty = session.insert_empty_target(PackageRef::new("//foo").unwrap(), "empty");
         let target_outputs = session.insert_target(FakeTarget {
-            outputs: vec![file1.clone()],
+            outputs: vec![file1],
             ..session.empty_target(PackageRef::new("//foo").unwrap(), "outputs")
         });
 
@@ -294,6 +325,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::None,
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -356,7 +388,7 @@ mod tests {
 
         // Target outputs out.cc and overlap.h
         let dep = session.insert_target(FakeTarget {
-            outputs: vec![label_only_file.clone(), overlap.clone()],
+            outputs: vec![label_only_file, overlap],
             ..session.empty_target(PackageRef::new("//foo").unwrap(), "dep")
         });
 
@@ -366,6 +398,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::Many(AllowFiles::All),
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -373,8 +406,8 @@ mod tests {
             let heap = module.heap();
             let AttrValue { attr, file, files } = Attr::LabelList(vec![
                 crate::LabelOrFile::Label(dep.label().to_owned()),
-                crate::LabelOrFile::File(file_only_file.clone()),
-                crate::LabelOrFile::File(overlap.clone()),
+                crate::LabelOrFile::File(file_only_file),
+                crate::LabelOrFile::File(overlap),
             ])
             .to_value(
                 &schema,
@@ -414,11 +447,11 @@ mod tests {
         let file1 = File::new("out.cc");
 
         let target_single = session.insert_target(FakeTarget {
-            outputs: vec![file1.clone()],
+            outputs: vec![file1],
             ..session.empty_target(PackageRef::new("//foo").unwrap(), "single")
         });
         let target_two = session.insert_target(FakeTarget {
-            outputs: vec![file1.clone(), File::new("out.h")],
+            outputs: vec![file1, File::new("out.h")],
             ..session.empty_target(PackageRef::new("//foo").unwrap(), "two")
         });
         let target_empty = session.insert_empty_target(PackageRef::new("//foo").unwrap(), "empty");
@@ -429,6 +462,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::Single(AllowFiles::All),
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -446,19 +480,11 @@ mod tests {
             )
             .unwrap();
 
-            let source_target = session.insert_empty_target(PackageRef::root(), "source");
-            attr.register_dependencies(
-                &session,
-                source_target.clone(),
-                session.default_toolchain.as_ref(),
-            );
-
+            let mut deps = SmallSet::new();
+            attr.add_dependencies(session.default_toolchain.as_ref(), &mut deps);
             assert_eq!(
-                source_target.registered_deps(),
-                HashSet::from([(
-                    target_single.label().to_owned(),
-                    session.default_toolchain.clone()
-                )])
+                deps,
+                SmallSet::from_iter([(target_single.label(), session.default_toolchain.as_ref(),)])
             );
 
             let AttrValue {
@@ -486,14 +512,14 @@ mod tests {
             );
 
             let resolved_target = resolved_attr.downcast_ref::<FakeTargetRef>().unwrap();
-            assert_eq!(resolved_target.outputs(), vec![file1.clone()]);
+            assert_eq!(resolved_target.outputs(), vec![file1]);
 
             // Direct File -> succeeds
             let AttrValue {
                 file,
                 files,
                 attr: _,
-            } = Attr::Label(Some(crate::LabelOrFile::File(file1.clone())))
+            } = Attr::Label(Some(crate::LabelOrFile::File(file1)))
                 .to_value(
                     &schema,
                     &session,
@@ -556,6 +582,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::None,
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 
@@ -595,11 +622,11 @@ mod tests {
         let file2 = File::new("foo.h");
 
         let target_matching = session.insert_target(FakeTarget {
-            outputs: vec![file1.clone(), file2.clone()],
+            outputs: vec![file1, file2],
             ..session.empty_target(PackageRef::new("//foo").unwrap(), "matching")
         });
         let target_no_matching = session.insert_target(FakeTarget {
-            outputs: vec![file2.clone()],
+            outputs: vec![file2],
             ..session.empty_target(PackageRef::new("//foo").unwrap(), "no_matching")
         });
 
@@ -609,6 +636,7 @@ mod tests {
             disallow_empty: false,
             allow_files: AllowFilesSchema::Many(AllowFiles::Some(vec![".cc".to_owned()])),
             cfg: AttrCfg::CurrentToolchain,
+            providers: Vec::new(),
             doc: String::new(),
         };
 

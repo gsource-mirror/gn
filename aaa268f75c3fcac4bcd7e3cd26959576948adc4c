@@ -1,0 +1,129 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37e87a5e_dcfc92d2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T07:18:54Z",
+      "side": 1,
+      "message": "If the main motivation for this CL is performance (parallelizing Starlark rule execution), would it make sense to prioritize getting the core Starlark functionality working end-to-end first and defer this optimization until later? Keeping resolution synchronous for now avoids adding concurrency complexity (`STATE_RESOLVING`, thread-safety hazards, and potential regressions on non-Starlark builds) while the feature is still being built out.\n\nIf the builtin target evaluation part (`rust_target(session)` / `is_builtin()`) is needed now for follow-up CLs (e.g. https://gn-review.googlesource.com/c/gn/+/29260), splitting that out separately could keep things simpler.",
+      "revId": "aaa268f75c3fcac4bcd7e3cd26959576948adc4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e6e3036_4a7bff0a",
+        "filename": "src/gn/builder.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T07:18:54Z",
+      "side": 1,
+      "message": "[Review from Jetski] Checking `has_starlark_session()` inside the worker lambda (line 585) means that even for regular non-Starlark GN builds, every `Target` now transitions to `STATE_RESOLVING` and has to round-trip through the worker pool and a main-thread `PostTask` before `CompleteItemResolution()` unblocks dependents. Previously, dependents were unblocked synchronously on the main thread while only `RunChecksAfterResolution` ran in the background.\n\nFor deep dependency graphs (e.g. Chromium), adding a main \u003c-\u003e worker round-trip per dependency level could regress non-Starlark `gn gen` latency. Could we check `has_starlark_session()` here (or at the start of `ScheduleBackgroundTargetResolution`) and keep the synchronous `CompleteItemResolution` fast path when Starlark is disabled?",
+      "isAi": true,
+      "revId": "aaa268f75c3fcac4bcd7e3cd26959576948adc4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c91e99ae_ee4890c5",
+        "filename": "src/gn/builder_record.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T07:18:54Z",
+      "side": 1,
+      "message": "[Review from Jetski] Nit: To match the comment in `builder_record.h` (\"Resolving state with no unresolved deps\"), consider `DCHECK(can_resolve() || (state_ \u003d\u003d STATE_RESOLVING \u0026\u0026 unresolved_count_ \u003d\u003d 0));`. (Also, adding a unit test in `src/gn/builder_unittest.cc` exercising `STATE_RESOLVING` transitions / background error handling would be helpful.)",
+      "isAi": true,
+      "revId": "aaa268f75c3fcac4bcd7e3cd26959576948adc4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "796283e3_45220e1e",
+        "filename": "src/gn/starlark/crates/ffi/src/target.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T07:18:54Z",
+      "side": 1,
+      "message": "[Review from Jetski] Now that `execute_rule_impl` (which calls `self.evaluated.set(...)`) runs concurrently across worker threads while `\u0026\u0027static Target` is shared via `unsafe impl Sync for Target`, using non-thread-safe `std::cell::OnceCell` is fragile — any read path that reaches a `Target` without a strict happens-before edge (e.g. via `Session::targets` or validation/gen_deps edges) would be a data race / UB.\n\nCould we switch this to `std::sync::OnceLock`? Reads via `get()` are just an acquire load, so the overhead is negligible while making `Target::evaluated` genuinely thread-safe.",
+      "isAi": true,
+      "revId": "aaa268f75c3fcac4bcd7e3cd26959576948adc4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d46047d_540f5cd0",
+        "filename": "src/gn/starlark/crates/ffi/src/target.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T07:18:54Z",
+      "side": 1,
+      "message": "[Review from Jetski] Nit: Consider adding a brief comment explaining why `is_builtin()` returns `\"\"` here (so `Target::RunStarlarkRule` keeps the `dependency_output_alias_` already computed by `FillOutputFiles()` instead of overwriting it with the `DefaultInfo` phony).",
+      "isAi": true,
+      "revId": "aaa268f75c3fcac4bcd7e3cd26959576948adc4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24c42fcb_6148b4b9",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T07:18:54Z",
+      "side": 1,
+      "message": "[Review from Jetski] `Target::OnResolved()` currently runs `RunChecksAfterResolution(err)` before `RunStarlarkRule(err)`, which is the opposite of both the header comment in `src/gn/target.h` (lines 99-100) and the production path in `Builder::ScheduleBackgroundTargetResolution`. Please run `RunStarlarkRule(err)` (when `has_starlark_session()` is true) before `RunChecksAfterResolution(err)` so the two paths stay consistent.",
+      "isAi": true,
+      "revId": "aaa268f75c3fcac4bcd7e3cd26959576948adc4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "245badd3_57389f48",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T07:18:54Z",
+      "side": 1,
+      "message": "[Review from Jetski] Previously `OnResolvedWithoutChecks` only ran `execute_rule_impl` when `rust_target_` was already populated (i.e. Starlark-defined targets), whereas calling `rust_target(session)` here now registers and evaluates `run_builtin_rule` for *every* builtin C++ target whenever `has_starlark_session()` is true.\n\nTwo questions/nits:\n1. In large builds with Starlark enabled, registering every C++ target under `Session::targets.write()` and allocating/freezing a Starlark heap per target could cause lock contention and noticeable CPU/memory overhead — is eager evaluation for all builtin targets intentional here, or should it be documented/deferred?\n2. The comment in `src/gn/target.h` (line 111: \"if it has one\") and the commit message still describe this as only running custom Starlark rule implementations; consider clarifying that this also evaluates builtin rules to populate providers.",
+      "isAi": true,
+      "revId": "aaa268f75c3fcac4bcd7e3cd26959576948adc4c",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -14,9 +14,13 @@
 class Err;
 class Scope;
 class Target;
+struct Session;
 
 // Returns the output type of the target as a uint8_t discriminant.
 uint8_t output_type_u8(const Target& target);
+
+// Returns the Starlark evaluation session associated with `target`.
+const Session& starlark_session(const Target& target);
 
 struct ParseNodePtr;
 

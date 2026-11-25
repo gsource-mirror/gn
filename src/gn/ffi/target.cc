@@ -6,17 +6,23 @@
 
 #include <string_view>
 
+#include "gn/build_settings.h"
 #include "gn/ffi/bridge.h"
 #include "gn/item.h"
 #include "gn/label.h"
 #include "gn/label_ptr.h"
 #include "gn/parse_tree.h"
+#include "gn/settings.h"
 #include "gn/source_dir.h"
 #include "gn/target.h"
 #include "gn/target_generator.h"
 
 uint8_t output_type_u8(const Target& target) {
   return static_cast<uint8_t>(target.output_type());
+}
+
+const Session& starlark_session(const Target& target) {
+  return target.settings()->build_settings()->starlark_session();
 }
 
 Target* create_target(Scope& scope,

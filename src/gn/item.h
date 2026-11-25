@@ -74,7 +74,7 @@ class Item {
 
   SourceFileSet& build_dependency_files() { return build_dependency_files_; }
 
-  static constexpr size_t kRustTargetSize = 48;
+  static constexpr size_t kRustTargetSize = 56;
 
   const FfiTarget& rust_target() const;
   // Claims the uninitialized `rust_target_storage_` for one-time in-place

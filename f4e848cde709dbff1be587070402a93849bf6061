@@ -1,0 +1,134 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d133772c_49b299ef",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T06:33:09Z",
+      "side": 1,
+      "message": "Could you include the context why we want to have this?",
+      "revId": "f4e848cde709dbff1be587070402a93849bf6061",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5e3454e_1b143be2",
+        "filename": "docs/reference.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 8006,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T06:33:09Z",
+      "side": 1,
+      "message": "It depends on the feature, but I think 1 month might be too short for some large change.",
+      "range": {
+        "startLine": 8006,
+        "startChar": 57,
+        "endLine": 8006,
+        "endChar": 76
+      },
+      "revId": "f4e848cde709dbff1be587070402a93849bf6061",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83f6f894_842d5e12",
+        "filename": "src/gn/build_settings.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T06:33:09Z",
+      "side": 1,
+      "message": "[Review from Jetski] Optional nit: `BuildSettings::supports(...)` reads a bit generically on its own, though the `CompatibilityLevel::...` argument at call sites provides context. Exposing a `compatibility_level()` getter (so callers write `build_settings-\u003ecompatibility_level().supports(...)`) or naming this `SupportsCompatibilityLevel(...)` might make call sites slightly more self-documenting.",
+      "isAi": true,
+      "revId": "f4e848cde709dbff1be587070402a93849bf6061",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be5acd5b_868bd347",
+        "filename": "src/gn/compatibility_level.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T06:33:09Z",
+      "side": 1,
+      "message": "[Review from Jetski] Nit: If we return early on `if (!value) { return CompatibilityLevel(); }`, then `value` is guaranteed non-null for the rest of `Parse()`, so the `make_err` lambda (and its unreachable `Err(Location(), ...)` branch) can be replaced with direct `Err(*value, ...)` calls. (Also on line 51, `return level;` suffices since `level` is already a `CompatibilityLevel`.)",
+      "isAi": true,
+      "revId": "f4e848cde709dbff1be587070402a93849bf6061",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbc1338c_c626dd2d",
+        "filename": "src/gn/compatibility_level.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T06:33:09Z",
+      "side": 1,
+      "message": "[Review from Jetski] Negative values (e.g. `-1`, `-5`) currently fall into this branch and report `\"compatibility_level -1 is no longer supported.\"` even though negative levels were never valid. In addition, when `kMin \u003d\u003d 0`, the loop below runs 0 times and leaves a dangling empty `\"Changes required to upgrade:\\n\"` section (and once `kMin \u003e 0`, a negative value like `-5` would list upgrade steps starting from level 0).\n\nConsider handling `level.level_ \u003c 0` explicitly with a separate error (e.g. `\"Invalid compatibility_level ... (must be \u003e\u003d 0).\"`), and only appending `\"Changes required to upgrade:\\n\"` when there is at least one upgrade step to list. (Note: `ParseLastUnsupported` in `compatibility_level_unittest.cc` would need to be adjusted accordingly while `kLastUnsupported \u003c 0`.)",
+      "isAi": true,
+      "revId": "f4e848cde709dbff1be587070402a93849bf6061",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ebabaf56_4d5c7356",
+        "filename": "src/gn/compatibility_level.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T06:33:09Z",
+      "side": 1,
+      "message": "[Review from Jetski] Because `std::array` uses aggregate initialization with an explicit size, forgetting to add a description when introducing a new `Level` (or accidentally deleting an old entry when removing a deprecated `Level`) will silently default-initialize missing trailing entries to empty `std::string_view{}` without a compile error, potentially shifting indices or printing empty upgrade instructions.\n\nConsider adding a `static_assert` verifying that every entry in `kCompatibilityLevels` is non-empty (or deducing the size from the initializer list and `static_assert`ing it equals `static_cast\u003csize_t\u003e(CompatibilityLevel::kCurrent)`). It would also help to note in the removal process comment above (lines 32–38) that old entries in `kCompatibilityLevels` must be kept so indices continue to align with `Level` values.",
+      "isAi": true,
+      "revId": "f4e848cde709dbff1be587070402a93849bf6061",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "834d78ff_ceb6981a",
+        "filename": "src/gn/compatibility_level_unittest.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-25T06:33:09Z",
+      "side": 1,
+      "message": "[Review from Jetski] Consider adding a couple more tests:\n- A test passing a non-integer `Value` (e.g. a string or boolean) to cover the `VerifyTypeIs(Value::INTEGER)` error path.\n- An integration test in `src/gn/setup_unittest.cc` setting `compatibility_level` in a `.gn` dotfile (verifying valid parsing, no unused-variable error, and error propagation on invalid values).",
+      "isAi": true,
+      "revId": "f4e848cde709dbff1be587070402a93849bf6061",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

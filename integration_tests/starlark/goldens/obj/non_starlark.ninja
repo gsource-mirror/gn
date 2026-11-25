@@ -1,0 +1,17 @@
+defines =
+include_dirs =
+cflags =
+target_out_dir = obj
+target_output_name = libnon_starlark
+
+build obj/libnon_starlark.non_starlark.o: cxx ../non_starlark.cc
+  source_file_part = non_starlark.cc
+  source_name_part = non_starlark
+
+build ./libnon_starlark.so: solink obj/libnon_starlark.non_starlark.o
+  ldflags =
+  libs =
+  frameworks =
+  swiftmodules =
+  output_extension = .so
+  output_dir = .

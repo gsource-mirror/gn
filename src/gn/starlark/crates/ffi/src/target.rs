@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::cell::OnceCell;
+use std::sync::OnceLock;
 
 use starlark::{
     collections::SmallSet,
@@ -19,7 +19,7 @@ pub struct Target {
     pub(crate) rule: &'static rule::Rule<'static, EvalContext>,
     pub(crate) attrs: Vec<attr::Attr>,
     pub(crate) evaluated:
-        OnceCell<OwnedFrozen<ValueTyped<'static, rule::EvaluatedTarget<'static>>>>,
+        OnceLock<OwnedFrozen<ValueTyped<'static, rule::EvaluatedTarget<'static>>>>,
 }
 
 /// Drops an initialized `Target` stored inline in C++ `Item::rust_target_storage_`.
@@ -127,14 +127,6 @@ impl Target {
         }
         has_inputs
     }
-
-    /// Returns the evaluated rule result for this target.
-    /// Invariant: The target has already been evaluated.
-    pub fn evaluated(&self) -> &OwnedFrozen<ValueTyped<'static, rule::EvaluatedTarget<'static>>> {
-        self.evaluated
-            .get()
-            .expect("Should only be called on an evaluated target")
-    }
 }
 
 /// Executes the rule implementation for a target if it has a custom
@@ -186,6 +178,11 @@ impl crate::bridge::CxxTarget {
     /// Returns the toolchain label for the target.
     pub fn toolchain(&self) -> types::LabelRef<'_> {
         self.settings().toolchain_label().as_ref()
+    }
+
+    /// Returns the Starlark evaluation session associated with this target.
+    pub fn session(&self) -> &'static crate::Session {
+        crate::bridge::starlark_session(self)
     }
 }
 

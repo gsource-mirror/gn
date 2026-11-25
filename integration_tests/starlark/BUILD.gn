@@ -6,6 +6,10 @@ load(":actions.scl", "action_rules")
 load(":filegroup.scl", "filegroup", "filegroups")
 load(":inputs.scl", "custom_shared_library")
 
+shared_library("non_starlark") {
+  sources = [ "non_starlark.cc" ]
+}
+
 filegroup("filegroup") {
   srcs = [ "first.txt" ]
 }
@@ -21,6 +25,7 @@ filegroups("filegroups") {
   filegroups = [
     ":filegroup",
     ":multiple",
+    ":non_starlark",
   ]
   filegroups2 = [ ":multiple" ]
 }

@@ -72,7 +72,7 @@ class Item {
 
   SourceFileSet& build_dependency_files() { return build_dependency_files_; }
 
-  static constexpr size_t kRustTargetSize = 48;
+  static constexpr size_t kRustTargetSize = 56;
 
   const FfiTarget& rust_target() const;
   FfiTarget* rust_target_mut();

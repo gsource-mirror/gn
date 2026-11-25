@@ -6,11 +6,12 @@ load("//builtins:providers.scl", "GnInputsInfo", "GnSubstitutionsInfo")
 load("//builtins:rules.scl", "shared_library")
 
 def _custom_shared_library_impl(ctx):
+  providers = ctx.super()
   cflags = ctx.actions.args()
   cflags.add("-DFOO=bar")
   ldflags = ctx.actions.args()
   ldflags.add("-Wl,-rpath=foo")
-  return [
+  return providers + [
     GnInputsInfo(files = {
       "*.o": depset([ctx.file.compile_input]),
       "*.so": depset([ctx.file.link_input]),

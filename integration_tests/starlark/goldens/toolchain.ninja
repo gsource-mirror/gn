@@ -30,5 +30,7 @@ rule stamp
 
 subninja obj/actions.ninja
 subninja obj/custom_shared.ninja
+build phony/$:dependencies_0: phony obj/dependencies/dependencies.txt ../first.txt libnon_starlark.so libcustom_shared.so
 build phony/$:filegroups_0: phony ../first.txt phony/$:multiple_0
 build phony/$:multiple_0: phony ../second.txt ../third.txt
+subninja obj/non_starlark.ninja

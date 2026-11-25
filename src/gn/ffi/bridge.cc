@@ -1299,6 +1299,11 @@ void cxxbridge1$196$Target$label(::Target const &self, ::Label const **return$) 
   return output_type_u8$(target);
 }
 
+::Session const *cxxbridge1$196$starlark_session(::Target const &target) noexcept {
+  ::Session const &(*starlark_session$)(::Target const &) = ::starlark_session;
+  return &starlark_session$(target);
+}
+
 void cxxbridge1$196$Target$private_deps(::Target const &self, ::std::vector<::LabelTargetPair> const **return$) noexcept {
   ::std::vector<::LabelTargetPair> const &(::Target::*private_deps$)() const = &::Target::private_deps;
   new (return$) ::std::vector<::LabelTargetPair> const *(&(self.*private_deps$)());

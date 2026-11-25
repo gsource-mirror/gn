@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6eb08b7e_328daab8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-25T04:20:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e9a2d6f_4a540da1",
+      "revId": "0d5a0fa10805a2f51d3892b5a02f4c2b02298e33",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "de40d669_b91488dc",
@@ -43,6 +61,30 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ca8cf6d_8a99246d",
+        "filename": "integration_tests/starlark/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-25T04:20:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de40d669_b91488dc",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 9999
+      },
+      "revId": "0d5a0fa10805a2f51d3892b5a02f4c2b02298e33",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bb411740_e86661cf",
@@ -57,6 +99,24 @@
       "side": 1,
       "message": "[Review from Jetski] This uses `dep.label`, which is implemented in https://gn-review.googlesource.com/c/gn/+/29240 (not yet merged or in this CL\u0027s relation chain). This integration test will fail until CL 29240 lands and this CL is rebased onto the latest `starlark` branch.",
       "isAi": true,
+      "revId": "0d5a0fa10805a2f51d3892b5a02f4c2b02298e33",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a74107d_743e30d5",
+        "filename": "integration_tests/starlark/dependencies.scl",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-25T04:20:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb411740_e86661cf",
       "revId": "0d5a0fa10805a2f51d3892b5a02f4c2b02298e33",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

@@ -795,6 +795,7 @@ dependencies = [
  "args",
  "attr",
  "cxx",
+ "dashmap",
  "depset",
  "either",
  "loader",

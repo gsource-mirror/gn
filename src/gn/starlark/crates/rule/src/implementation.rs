@@ -79,7 +79,7 @@ where
                 .alloc_typed(crate::actions::Actions::<C>::default());
             let ctx_fields = rule.schema.create_ctx_fields(
                 target.attrs(),
-                rule_context.session(),
+                &mut |idx, lbl, tc| target.resolve_dep(rule_context.session(), idx, lbl, tc),
                 &rule_context.current_toolchain(),
                 rule.output_type,
                 target.builtin_attrs(rule_context.session(), &eval.heap()),

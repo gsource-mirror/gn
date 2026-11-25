@@ -36,9 +36,31 @@ impl Attr {
         current_toolchain: &LabelRef,
         heap: &Heap<'v>,
     ) -> starlark::Result<AttrValue<'v>> {
+        self.to_value_with_resolver(
+            schema,
+            &mut |lbl, tc| session.get_target(lbl, tc),
+            current_toolchain,
+            heap,
+        )
+    }
+
+    /// Resolves the attribute value using a custom dependency resolver closure
+    /// and collects any provided files.
+    pub(crate) fn to_value_with_resolver<'v, T: TargetRef>(
+        &self,
+        schema: &AttrSchema,
+        resolve_dep: &mut impl FnMut(LabelRef<'_>, LabelRef<'_>) -> T,
+        current_toolchain: &LabelRef,
+        heap: &Heap<'v>,
+    ) -> starlark::Result<AttrValue<'v>> {
         let mut unique_files = SmallSet::new();
-        let attr =
-            self.resolve_and_collect(schema, session, current_toolchain, heap, &mut unique_files)?;
+        let attr = self.resolve_and_collect(
+            schema,
+            resolve_dep,
+            current_toolchain,
+            heap,
+            &mut unique_files,
+        )?;
 
         let files_list: Vec<Value<'v>> = unique_files.into_iter().map(|f| heap.alloc(f)).collect();
 
@@ -73,10 +95,10 @@ impl Attr {
         })
     }
 
-    fn resolve_and_collect<'v, S: Session>(
+    fn resolve_and_collect<'v, T: TargetRef>(
         &self,
         schema: &AttrSchema,
-        session: &S,
+        resolve_dep: &mut impl FnMut(LabelRef<'_>, LabelRef<'_>) -> T,
         current_toolchain: &LabelRef,
         heap: &Heap<'v>,
         files: &mut SmallSet<File>,
@@ -98,9 +120,14 @@ impl Attr {
                 Ok(heap.alloc(Dict::new(res)))
             },
             Self::Label(None) => Ok(Value::new_none()),
-            Self::Label(Some(lf)) => {
-                Self::resolve_label_or_file(lf, schema, session, current_toolchain, heap, files)
-            },
+            Self::Label(Some(lf)) => Self::resolve_label_or_file(
+                lf,
+                schema,
+                resolve_dep,
+                current_toolchain,
+                heap,
+                files,
+            ),
             Self::LabelList(l) => {
                 let resolved_list = l
                     .iter()
@@ -108,7 +135,7 @@ impl Attr {
                         Self::resolve_label_or_file(
                             lf,
                             schema,
-                            session,
+                            resolve_dep,
                             current_toolchain,
                             heap,
                             files,
@@ -134,7 +161,7 @@ impl Attr {
                         Self::resolve_label_or_file(
                             k,
                             schema,
-                            session,
+                            resolve_dep,
                             current_toolchain,
                             heap,
                             files,
@@ -153,7 +180,7 @@ impl Attr {
                         Self::resolve_label_or_file(
                             v,
                             schema,
-                            session,
+                            resolve_dep,
                             current_toolchain,
                             heap,
                             files,
@@ -171,7 +198,7 @@ impl Attr {
                             Self::resolve_label_or_file(
                                 lf,
                                 schema,
-                                session,
+                                resolve_dep,
                                 current_toolchain,
                                 heap,
                                 files,
@@ -192,17 +219,17 @@ impl Attr {
     /// * If it's a label, resolves it to a target.
     ///   * For attr.label[_list], DefaultInfo.files is expanded into files.
     /// * If it's a file, returns itself and collects the file to files.
-    fn resolve_label_or_file<'v, S: Session>(
+    fn resolve_label_or_file<'v, T: TargetRef>(
         lf: &crate::LabelOrFile,
         schema: &AttrSchema,
-        session: &S,
+        resolve_dep: &mut impl FnMut(LabelRef<'_>, LabelRef<'_>) -> T,
         current_toolchain: &LabelRef,
         heap: &Heap<'v>,
         files: &mut SmallSet<File>,
     ) -> starlark::Result<Value<'v>> {
         match lf {
             crate::LabelOrFile::Label(lbl) => {
-                let target = session.get_target(lbl.as_ref(), *current_toolchain);
+                let target = resolve_dep(lbl.as_ref(), *current_toolchain);
                 verify_providers(&target, &schema.providers)?;
                 if let Some(matcher) = schema.file_matcher()
                     && let crate::allow_files::AllowFiles::Some(exts) = matcher

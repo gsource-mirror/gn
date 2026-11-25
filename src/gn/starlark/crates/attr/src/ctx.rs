@@ -26,7 +26,7 @@ impl TypeIdDomain for GnCtxDomain {
 }
 
 use crate::{
-    Attr, Session,
+    Attr,
     schema::{AllowFilesSchema, AttrKind, AttrSchema},
     value::AttrValue,
 };
@@ -121,10 +121,10 @@ impl<'v> CtxAttrSchema<'v> {
 
     /// Constructs the record values for `ctx.attr`, `ctx.file`, and `ctx.files`
     /// from the resolved attribute values.
-    pub fn create_ctx_fields<S: Session>(
+    pub fn create_ctx_fields<T: types::TargetRef>(
         &self,
         fields: &[Attr],
-        session: &S,
+        resolve_dep: &mut impl FnMut(usize, LabelRef<'_>, LabelRef<'_>) -> T,
         current_toolchain: &LabelRef,
         output_type: Option<OutputType>,
         mut ctx_attr: Vec<Value<'v>>,
@@ -141,10 +141,17 @@ impl<'v> CtxAttrSchema<'v> {
         }
         let mut ctx_file = Vec::with_capacity(self.file.len());
 
+        let mut dep_index = 0;
+        let mut next_dep = |lbl: LabelRef<'_>, tc: LabelRef<'_>| {
+            let idx = dep_index;
+            dep_index += 1;
+            resolve_dep(idx, lbl, tc)
+        };
+
         debug_assert!(fields.len() == self.attrs.len());
         for ((name, schema), attr) in self.attrs.iter().zip(fields.iter()) {
             let AttrValue { attr, file, files } = attr
-                .to_value(schema, session, current_toolchain, heap)
+                .to_value_with_resolver(schema, &mut next_dep, current_toolchain, heap)
                 .map_err(|e| e.with_context(format!("for attribute `{name}`")))?;
 
             ctx_attr.push(attr);
@@ -228,7 +235,10 @@ mod tests {
             });
             let ctx = schema.create_ctx_fields(
                 &fields,
-                context.session.as_ref(),
+                &mut |_idx, lbl, tc| {
+                    use types::Session as _;
+                    context.session.get_target(lbl, tc)
+                },
                 &context.current_toolchain.as_ref(),
                 None,
                 Vec::new(),

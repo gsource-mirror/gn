@@ -3,13 +3,22 @@
 // found in the LICENSE file.
 
 /// Re-export the traits from types so caller crates can access them seamlessly.
-pub use types::{EvalContext, OutputType, Session, TargetRef};
+pub use types::{EvalContext, LabelRef, OutputType, Session, TargetRef};
 
 /// Represents a target with attributes that can be executed by custom Starlark
 /// rules.
 pub trait TargetAttrExt: TargetRef {
     /// Returns the resolved custom attributes of the target.
     fn attrs(&self) -> &[crate::Attr];
+
+    /// Resolves the `index`-th dependency recorded in `attrs()` in traversal order.
+    fn resolve_dep(
+        &self,
+        session: &Self::Session,
+        index: usize,
+        label: LabelRef<'_>,
+        toolchain: LabelRef<'_>,
+    ) -> Self;
 }
 
 /// Extension trait for EvalContext to support target creation.

@@ -2,12 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::{
-    collections::{BTreeSet, HashMap, hash_map::Entry},
-    pin::Pin,
-    sync::RwLock,
-};
+use std::{collections::BTreeSet, pin::Pin};
 
+use dashmap::{DashMap, mapref::entry::Entry};
 use loader::FileLoader;
 use providers::BuiltinProviders;
 use starlark::environment::{FrozenModule, Globals};
@@ -17,14 +14,12 @@ use types::{
 
 use crate::{errors::Error, target::Target};
 
-type TargetMap = HashMap<(Label, Label), Pin<Box<Target>>>;
-
 /// Represents a Starlark evaluation session exposed to C++ via FFI.
 pub struct Session {
     loader: FileLoader,
     pub(crate) path_resolver: PathResolver,
     globals: Globals,
-    targets: RwLock<TargetMap>,
+    targets: DashMap<(Label, Label), Pin<Box<Target>>>,
     builtin_rules: Vec<&'static rule::Rule<'static, crate::eval_context::EvalContext>>,
     builtin_providers: BuiltinProviders,
 }
@@ -111,11 +106,12 @@ impl Session {
     pub(crate) fn register_target(&self, target: Target) -> crate::TargetRef {
         let label = target.label().as_ref().to_owned();
         let toolchain = target.toolchain().to_owned();
+        let is_builtin = target.rule.is_builtin();
+        // Allocate outside the shard write lock to keep the critical section minimal.
+        let pinned = Box::pin(target);
 
-        let mut targets = self.targets.write().unwrap();
-        crate::TargetRef(match targets.entry((label, toolchain)) {
+        crate::TargetRef(match self.targets.entry((label, toolchain)) {
             Entry::Vacant(e) => {
-                let pinned = Box::pin(target);
                 // Safety: A target object in the map is never deleted and lives for the
                 // session.
                 let static_ref: &'static Target = unsafe { extend_lifetime(&*pinned) };
@@ -127,7 +123,7 @@ impl Session {
             // rust_target from a C++ target at the same time.
             Entry::Occupied(e) => {
                 assert!(
-                    target.rule.is_builtin(),
+                    is_builtin,
                     "Target already registered, or accessed via to_rust before registration"
                 );
                 // Safety: A target object in the map is never deleted and lives for the
@@ -195,21 +191,25 @@ impl Session {
 
     /// Writes global Ninja rules for all unique action mnemonics across evaluated targets.
     pub fn write_all_rules(&self, buffer: Pin<&mut crate::bridge::StringOutputBuffer>) {
-        let targets = self.targets.read().unwrap();
-        let mnemonics: BTreeSet<&str> = targets
-            .values()
-            .filter_map(|t| t.evaluated.get())
-            .flat_map(|evaluated| &evaluated.as_ref().value().as_ref().actions)
-            .map(|action| action.mnemonic.map(|m| m.as_str()).unwrap_or("ACTION"))
-            .collect();
+        let mut mnemonics = BTreeSet::new();
+        for entry in &self.targets {
+            if let Some(evaluated) = entry.value().evaluated.get() {
+                for action in &evaluated.as_ref().value().as_ref().actions {
+                    let mnemonic = action.mnemonic.map(|m| m.as_str()).unwrap_or("ACTION");
+                    if !mnemonics.contains(mnemonic) {
+                        mnemonics.insert(mnemonic.to_owned());
+                    }
+                }
+            }
+        }
 
         let mut buf = crate::StringOutputBuffer::new(buffer);
         for mnemonic in mnemonics {
             buf.append((
                 "rule action_",
-                mnemonic,
+                mnemonic.as_str(),
                 "\n  command = $command\n  restat = 1\n  description = ",
-                mnemonic,
+                mnemonic.as_str(),
                 " $out\n\n",
             ));
         }
@@ -220,8 +220,8 @@ impl TypesSession for Session {
     type TargetRef = crate::TargetRef;
 
     fn get_target(&self, label: LabelRef<'_>, toolchain: LabelRef<'_>) -> Self::TargetRef {
-        let targets = self.targets.read().unwrap();
-        let target_pin = targets
+        let target_pin = self
+            .targets
             .get(&(label.to_owned(), toolchain.to_owned()))
             .expect("Requested target was not registered in the session");
         // Safety: A target object can never be deleted.

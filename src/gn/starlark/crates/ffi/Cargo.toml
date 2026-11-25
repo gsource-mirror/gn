@@ -15,6 +15,7 @@ anyhow = { workspace = true }
 args = { path = "../args" }
 attr = { path = "../attr" }
 cxx = { workspace = true }
+dashmap = { workspace = true }
 depset = { path = "../depset" }
 either = { workspace = true }
 loader = { path = "../loader" }

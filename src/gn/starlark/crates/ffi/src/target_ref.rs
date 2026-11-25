@@ -212,6 +212,25 @@ impl attr::TargetAttrExt for TargetRef {
     fn attrs(&self) -> &[attr::Attr] {
         self.0.attrs.as_slice()
     }
+
+    fn resolve_dep(
+        &self,
+        session: &Self::Session,
+        index: usize,
+        label: LabelRef<'_>,
+        toolchain: LabelRef<'_>,
+    ) -> Self {
+        let target = self
+            .0
+            .cxx
+            .starlark_deps()
+            .get(index)
+            .expect("Missing resolved starlark dependency")
+            .to_rust(session);
+        debug_assert_eq!(target.label(), label);
+        debug_assert_eq!(target.toolchain(), toolchain);
+        target
+    }
 }
 
 impl types::TargetMut for crate::bridge::CxxTarget {

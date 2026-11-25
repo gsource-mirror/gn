@@ -256,28 +256,40 @@ impl Attr {
         toolchain: LabelRef<'a>,
         out: &mut SmallSet<(LabelRef<'a>, LabelRef<'a>)>,
     ) {
+        self.visit_dependencies(toolchain, |lbl, tc| {
+            out.insert((lbl, tc));
+        });
+    }
+
+    /// Visits every dependency `(label, toolchain)` in this attribute in the same
+    /// traversal order used when resolving attributes.
+    pub fn visit_dependencies<'a>(
+        &'a self,
+        toolchain: LabelRef<'a>,
+        mut f: impl FnMut(LabelRef<'a>, LabelRef<'a>),
+    ) {
         match self {
             Self::Label(Some(LabelOrFile::Label(lbl))) => {
-                out.insert((lbl.as_ref(), toolchain));
+                f(lbl.as_ref(), toolchain);
             },
             Self::LabelList(list) => {
                 for lf in list {
                     if let LabelOrFile::Label(lbl) = lf {
-                        out.insert((lbl.as_ref(), toolchain));
+                        f(lbl.as_ref(), toolchain);
                     }
                 }
             },
             Self::LabelKeyedStringDict(dict) => {
                 for (lf, _) in dict {
                     if let LabelOrFile::Label(lbl) = lf {
-                        out.insert((lbl.as_ref(), toolchain));
+                        f(lbl.as_ref(), toolchain);
                     }
                 }
             },
             Self::StringKeyedLabelDict(dict) => {
                 for (_, lf) in dict {
                     if let LabelOrFile::Label(lbl) = lf {
-                        out.insert((lbl.as_ref(), toolchain));
+                        f(lbl.as_ref(), toolchain);
                     }
                 }
             },
@@ -285,7 +297,7 @@ impl Attr {
                 for (_, list) in dict {
                     for lf in list {
                         if let LabelOrFile::Label(lbl) = lf {
-                            out.insert((lbl.as_ref(), toolchain));
+                            f(lbl.as_ref(), toolchain);
                         }
                     }
                 }

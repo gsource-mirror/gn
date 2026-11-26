@@ -137,13 +137,14 @@ std::string NinjaTargetWriter::RunAndWriteFile(
 
   // We write all the starlark stuff first because non-starlark can depend on
   // starlark substitutions, but starlark cannot depend on non-starlark.
-  if (const auto* rust = target->rust_target()) {
+  if (!target->is_builtin()) {
     // We write the phonies separately because phonies aren't scope-dependent,
     // so don't affect whether we need to give them their own ninja file.
-    rust->write_phonies(storage);
+    const FfiTarget& rust = target->rust_target();
+    rust.write_phonies(storage);
     Err err;
     auto size = storage.size();
-    rust->write_ninja(storage, ESCAPE_PLATFORM_CURRENT, err);
+    rust.write_ninja(storage, ESCAPE_PLATFORM_CURRENT, err);
     if (err.has_error()) {
       g_scheduler->FailWithError(err);
     }

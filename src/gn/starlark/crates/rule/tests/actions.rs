@@ -9,7 +9,7 @@ use either::Either;
 use rule::run;
 use tempfile::tempdir;
 use testutils::Assert;
-use types::{File, Label, PackageRef, Session as _};
+use types::{File, Label, PackageRef};
 
 #[test]
 fn test_actions_suite() {
@@ -114,9 +114,7 @@ undeclared_output(name = "undeclared_output", src = "foo/file.cc")
     let context = assert.context();
     for &(target_name, expected) in test_cases {
         let label = Label::new(PackageRef::root().to_owned(), target_name.to_owned());
-        let target = context
-            .session
-            .get_target(label.as_ref(), context.session.default_toolchain.as_ref());
+        let target = context.get_target(label.as_ref(), context.session.default_toolchain.as_ref());
         let session = assert.session();
         let res = run(&target, move |t: &testutils::FakeTargetRef| {
             testutils::FakeEvalContext::rule_impl(session.clone(), t.clone())
@@ -177,7 +175,7 @@ run_action(name = "run_action", src = "foo/file.cc")
     let context = assert.context();
     let session = assert.session();
     let evaluated = run(
-        &context.session.get_target(
+        &context.get_target(
             Label::new(PackageRef::root().to_owned(), "run_action".to_owned()).as_ref(),
             context.session.default_toolchain.as_ref(),
         ),
@@ -274,7 +272,7 @@ invalid_action(name = "invalid_mnemonic")
     for &(target_name, expected_err) in error_cases {
         let session = assert.session();
         let res = run(
-            &context.session.get_target(
+            &context.get_target(
                 Label::new(PackageRef::root().to_owned(), target_name.to_owned()).as_ref(),
                 context.session.default_toolchain.as_ref(),
             ),

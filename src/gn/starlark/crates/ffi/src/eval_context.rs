@@ -71,7 +71,7 @@ impl EvalContext {
     pub fn new_rule_impl(session: &'static crate::session::Session, target: TargetRef) -> Self {
         Self {
             session,
-            package: target.0.label().package(),
+            package: target.package(),
             kind: EvalContextKind::RuleImpl {
                 state: RefCell::new(CtxState::new(target)),
             },
@@ -105,10 +105,7 @@ impl types::EvalContext for EvalContext {
             EvalContextKind::BzlFile => {
                 unreachable!("There is no current file during bzl file evaluation")
             },
-            EvalContextKind::RuleImpl { state, .. } => {
-                let target: &'static Target = state.borrow().target.0;
-                target.toolchain()
-            },
+            EvalContextKind::RuleImpl { state, .. } => state.borrow().target.toolchain(),
         }
     }
 
@@ -145,11 +142,13 @@ impl attr::traits::EvalContextAttrExt for EvalContext {
         target_type: Option<types::OutputType>,
         target_name: &str,
         scope: std::pin::Pin<&mut Scope>,
-    ) -> starlark::Result<
-        std::pin::Pin<
-            &'static mut <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,
-        >,
-    > {
+        rule: starlark::values::Value<'static>,
+        attrs: Vec<attr::Attr>,
+    ) -> starlark::Result<()> {
+        let typed_rule =
+            starlark::values::FrozenValueTyped::<'static, rule::Rule<'static, Self>>::new_err(
+                rule,
+            )?;
         let output_type = target_type.map_or("noop", |t| t.into());
         let (mut err_ptr, origin) = match &self.kind {
             EvalContextKind::Macro { err, origin, .. } => (*err, *origin),
@@ -165,25 +164,31 @@ impl attr::traits::EvalContextAttrExt for EvalContext {
             NonNull::new(target_ptr).expect("Target pointer is null but no error was set");
         // Safety: Target created in GN Scope item collector is heap-allocated, pinned,
         // and lives for session.
-        Ok(unsafe { std::pin::Pin::new_unchecked(target_non_null.as_mut()) })
-    }
-
-    fn register_target(
-        &self,
-        cxx: &'static <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,
-        rule: starlark::values::Value<'static>,
-        attrs: Vec<attr::Attr>,
-    ) -> starlark::Result<<Self::Session as types::Session>::TargetRef> {
-        let typed_rule =
-            starlark::values::FrozenValueTyped::<'static, rule::Rule<'static, Self>>::new_err(
-                rule,
-            )?;
-        Ok(self.session.register_target(crate::target::Target {
-            cxx,
-            rule: typed_rule.as_ref(),
-            attrs,
-            evaluated: Default::default(),
-        }))
+        let mut cxx = unsafe { std::pin::Pin::new_unchecked(target_non_null.as_mut()) };
+        let current_toolchain = types::EvalContext::current_toolchain(self);
+        for attr in &attrs {
+            for (label, toolchain) in attr.dependencies(current_toolchain) {
+                crate::bridge::register_dependency(
+                    cxx.as_mut(),
+                    label.package().as_str(),
+                    label.name(),
+                    toolchain.package().as_str(),
+                    toolchain.name(),
+                );
+            }
+        }
+        // Safety: `storage` points to uninitialized storage inside the newly created C++ `Target`.
+        unsafe {
+            std::ptr::write(
+                cxx.as_mut().rust_target_mut(),
+                Target {
+                    rule: typed_rule.as_ref(),
+                    attrs,
+                    evaluated: Default::default(),
+                },
+            );
+        }
+        Ok(())
     }
 }
 

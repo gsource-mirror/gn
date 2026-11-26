@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     ops::Deref,
     sync::{Arc, OnceLock},
 };
@@ -16,8 +16,7 @@ use starlark::{
 };
 use starlark_derive::{NoSerialize, starlark_value};
 use types::{
-    File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, Session as _,
-    TargetRef,
+    File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, PackageRef, TargetRef,
 };
 
 use crate::FakeEvalContext;
@@ -35,12 +34,29 @@ pub struct FakeTarget {
     pub rule: &'static rule::Rule<'static, FakeEvalContext>,
     #[allocative(skip)]
     pub cxx_attrs: HashMap<String, Value<'static>>,
-    /// Registered target dependencies.
+    /// Resolved target dependencies in attribute traversal order.
     #[allocative(skip)]
-    pub dependencies: HashSet<(Label, Label)>,
+    pub deps: Vec<FakeTargetRef>,
     /// Cached rule evaluation result containing returned providers.
     #[allocative(skip)]
     pub evaluated: OnceLock<OwnedFrozen<ValueTyped<'static, rule::EvaluatedTarget<'static>>>>,
+}
+
+impl FakeTarget {
+    /// Creates an empty `FakeTarget` with the session's default toolchain and rule.
+    pub fn empty(session: &crate::FakeSession, package: &PackageRef, name: &str) -> Self {
+        Self {
+            label: LabelRef::new(package, name).to_owned(),
+            toolchain: session.default_toolchain.clone(),
+            outputs: Default::default(),
+            attrs: Default::default(),
+            output_type: Default::default(),
+            rule: session.default_rule(),
+            cxx_attrs: Default::default(),
+            deps: Default::default(),
+            evaluated: Default::default(),
+        }
+    }
 }
 
 impl PartialEq for FakeTarget {
@@ -58,7 +74,7 @@ impl PartialEq for FakeTarget {
                     .get(k)
                     .is_some_and(|ov| v.equals(*ov).unwrap_or(false))
             })
-            && self.dependencies == other.dependencies
+            && self.deps == other.deps
     }
 }
 
@@ -77,11 +93,6 @@ impl FakeTargetRef {
     /// Returns a shared reference to the underlying target.
     pub fn get(&self) -> &FakeTarget {
         &self.0
-    }
-
-    /// Returns the registered dependencies of this target.
-    pub fn registered_deps(&self) -> HashSet<(Label, Label)> {
-        self.dependencies.clone()
     }
 }
 
@@ -138,7 +149,6 @@ impl Deref for FakeTargetRef {
 }
 
 impl TargetRef for FakeTargetRef {
-    type Cxx = FakeTarget;
     type Rule = rule::Rule<'static, FakeEvalContext>;
     type Session = crate::FakeSession;
 
@@ -184,27 +194,12 @@ impl TargetRef for FakeTargetRef {
     }
 }
 
-impl types::TargetMut for FakeTarget {
-    fn register_dependency(
-        mut self: std::pin::Pin<&mut Self>,
-        label: LabelRef<'_>,
-        toolchain: LabelRef<'_>,
-    ) {
-        self.dependencies
-            .insert((label.to_owned(), toolchain.to_owned()));
-    }
-}
-
 impl attr::TargetAttrExt for FakeTargetRef {
     fn attrs(&self) -> &[Attr] {
         &self.get().attrs
     }
 
-    fn deps<'a>(&'a self, session: &'a Self::Session) -> impl Iterator<Item = Self> + 'a {
-        self.get()
-            .attrs
-            .iter()
-            .flat_map(|attr| attr.dependencies(self.toolchain()))
-            .map(|(label, toolchain)| session.get_target(label, toolchain))
+    fn deps(&self) -> impl Iterator<Item = Self> + '_ {
+        self.get().deps.iter().cloned()
     }
 }

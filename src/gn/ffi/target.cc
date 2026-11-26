@@ -7,6 +7,7 @@
 #include <string_view>
 
 #include "gn/ffi/bridge.h"
+#include "gn/item.h"
 #include "gn/label.h"
 #include "gn/label_ptr.h"
 #include "gn/parse_tree.h"
@@ -23,9 +24,12 @@ Target* create_target(Scope& scope,
                       rust::Str name,
                       rust::Str output_type,
                       Err& err) {
+  // Any targets created by rust should not set init_rust, because they will
+  // fill it themselves afterwards.
   return TargetGenerator::GenerateTarget(
       &scope, origin.ptr ? origin.ptr->AsFunctionCall() : nullptr,
-      std::string_view(name), std::string_view(output_type), &err);
+      std::string_view(name), std::string_view(output_type), &err,
+      /*init_rust=*/false);
 }
 
 void register_dependency(Target& target,
@@ -39,16 +43,11 @@ void register_dependency(Target& target,
             std::string_view(toolchain_name))));
 }
 
-const RustTarget& Target::rust_target(const Session& session) const {
-  const RustTarget* target = rust_target_.load(std::memory_order_acquire);
-  if (target) {
-    return *target;
-  }
-  // register_cxx_target calls set_rust_target, so we don't need to bother
-  // caching it ourselves.
-  return session.register_cxx_target(*this);
-}
 const Target& label_target_pair_target(const LabelTargetPair& pair) {
   DCHECK(pair.ptr);
   return *pair.ptr;
+}
+
+size_t rust_target_storage_size() {
+  return Item::kRustTargetSize;
 }

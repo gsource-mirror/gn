@@ -11,6 +11,7 @@
 
 #include "base/logging.h"
 #include "gn/builtin_tool.h"
+#include "gn/ffi/bridge.h"
 #include "gn/settings.h"
 #include "gn/target.h"
 #include "gn/value.h"
@@ -19,6 +20,9 @@ Toolchain::Toolchain(const Settings* settings,
                      const Label& label,
                      const SourceFileSet& build_dependency_files)
     : Item(settings, label, build_dependency_files) {
+  FfiTarget::new_builtin(settings->build_settings()->starlark_session(),
+                         claim_rust_target_storage(),
+                         Target::kToolchainOutputType);
   // Ensure "phony" tool is part of all toolchains by default.
   const char* phony_name = BuiltinTool::kBuiltinToolPhony;
   tools_.emplace(phony_name, std::make_unique<BuiltinTool>(phony_name));

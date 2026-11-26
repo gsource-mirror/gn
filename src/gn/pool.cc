@@ -7,6 +7,18 @@
 #include <sstream>
 
 #include "base/logging.h"
+#include "gn/build_settings.h"
+#include "gn/ffi/bridge.h"
+#include "gn/settings.h"
+#include "gn/target.h"
+
+Pool::Pool(const Settings* settings,
+           const Label& label,
+           const SourceFileSet& build_dependency_files)
+    : Item(settings, label, build_dependency_files) {
+  FfiTarget::new_builtin(settings->build_settings()->starlark_session(),
+                         claim_rust_target_storage(), Target::kPoolOutputType);
+}
 
 Pool::~Pool() = default;
 

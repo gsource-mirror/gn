@@ -5,6 +5,7 @@
 #include "gn/item.h"
 
 #include "base/logging.h"
+#include "gn/ffi/bridge.h"
 #include "gn/settings.h"
 
 Item::Item(const Settings* settings,
@@ -15,7 +16,9 @@ Item::Item(const Settings* settings,
       build_dependency_files_(build_dependency_files),
       defined_from_(nullptr) {}
 
-Item::~Item() = default;
+Item::~Item() {
+  drop_ffi_target(reinterpret_cast<FfiTarget*>(rust_target_storage_));
+}
 
 Config* Item::AsConfig() {
   return nullptr;
@@ -57,4 +60,12 @@ std::string Item::GetItemTypeName() const {
 
 bool Item::OnResolved(Err* err) {
   return true;
+}
+
+const FfiTarget& Item::rust_target() const {
+  return *reinterpret_cast<const FfiTarget*>(rust_target_storage_);
+}
+
+FfiTarget* Item::claim_rust_target_storage() {
+  return reinterpret_cast<FfiTarget*>(rust_target_storage_);
 }

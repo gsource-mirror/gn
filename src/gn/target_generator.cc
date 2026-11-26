@@ -17,6 +17,7 @@
 #include "gn/copy_target_generator.h"
 #include "gn/create_bundle_target_generator.h"
 #include "gn/err.h"
+#include "gn/ffi/bridge.h"
 #include "gn/filesystem_utils.h"
 #include "gn/functions.h"
 #include "gn/generated_file_target_generator.h"
@@ -25,6 +26,7 @@
 #include "gn/parse_tree.h"
 #include "gn/scheduler.h"
 #include "gn/scope.h"
+#include "gn/settings.h"
 #include "gn/token.h"
 #include "gn/value.h"
 #include "gn/value_extractors.h"
@@ -111,7 +113,8 @@ Target* TargetGenerator::GenerateTarget(Scope* scope,
                                         const FunctionCallNode* function_call,
                                         std::string_view name,
                                         std::string_view output_type,
-                                        Err* err) {
+                                        Err* err,
+                                        bool init_rust) {
   // The location of the target is the directory name with no slash at the end.
   // FIXME(brettw) validate name.
   const Label& toolchain_label = ToolchainLabelForScope(scope);
@@ -124,7 +127,8 @@ Target* TargetGenerator::GenerateTarget(Scope* scope,
   std::unique_ptr<Target> target;
   auto make_target = [&](Target::OutputType type) {
     target = std::make_unique<Target>(scope->settings(), label, type,
-                                      scope->CollectBuildDependencyFiles());
+                                      scope->CollectBuildDependencyFiles(),
+                                      init_rust);
     target->set_defined_from(function_call);
     return target.get();
   };
@@ -190,6 +194,7 @@ Target* TargetGenerator::GenerateTarget(Scope* scope,
     // This is for targets associated with some (but not all) starlark rules.
     // Starlark rules support inheritance, and so no-op is used whenever a
     // target does not inherit from a builtin rule.
+    DCHECK(!init_rust);
 
     // Ensure that common attributes (eg. visibility) are set.
     TargetGenerator generator(make_target(Target::NOOP), scope, function_call,
@@ -201,15 +206,28 @@ Target* TargetGenerator::GenerateTarget(Scope* scope,
                    std::string(output_type) + "\"");
   }
 
-  if (err->has_error())
+  auto ensure_rust_initialized_on_error = [&]() {
+    if (!init_rust && target) {
+      FfiTarget::new_builtin(
+          scope->settings()->build_settings()->starlark_session(),
+          target->claim_rust_target_storage(),
+          static_cast<uint8_t>(target->output_type()));
+    }
+  };
+
+  if (err->has_error()) {
+    ensure_rust_initialized_on_error();
     return nullptr;
+  }
 
   // Save this target for the file.
   Scope::ItemVector* collector = scope->GetItemCollector();
   if (!collector) {
     *err = Err(function_call, "Can't define a target in this context.");
+    ensure_rust_initialized_on_error();
     return nullptr;
   }
+
   Target* target_ptr = target.get();
   collector->push_back(std::move(target));
   return target_ptr;

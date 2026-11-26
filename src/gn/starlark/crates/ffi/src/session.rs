@@ -2,11 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::{
-    collections::{BTreeSet, HashMap, hash_map::Entry},
-    pin::Pin,
-    sync::RwLock,
-};
+use std::{collections::BTreeSet, pin::Pin, sync::RwLock};
 
 use loader::FileLoader;
 use providers::BuiltinProviders;
@@ -17,14 +13,12 @@ use types::{
 
 use crate::{errors::Error, target::Target};
 
-type TargetMap = HashMap<(Label, Label), Pin<Box<Target>>>;
-
 /// Represents a Starlark evaluation session exposed to C++ via FFI.
 pub struct Session {
     loader: FileLoader,
     pub(crate) path_resolver: PathResolver,
     globals: Globals,
-    targets: RwLock<TargetMap>,
+    mnemonics: RwLock<BTreeSet<String>>,
     builtin_rules: Vec<&'static rule::Rule<'static, crate::eval_context::EvalContext>>,
     builtin_providers: BuiltinProviders,
 }
@@ -70,11 +64,18 @@ impl Session {
             providers::builtin_providers_module(),
         );
 
+        assert!(
+            std::mem::size_of::<Target>() <= crate::bridge::rust_target_storage_size(),
+            "Item::rust_target_storage_ ({} bytes) cannot hold ffi::Target ({} bytes)",
+            crate::bridge::rust_target_storage_size(),
+            std::mem::size_of::<Target>(),
+        );
+
         let globals = builder.build();
 
         Self {
             path_resolver,
-            targets: Default::default(),
+            mnemonics: Default::default(),
             builtin_rules: rule::extract_builtin_rules(rules_module),
             builtin_providers: providers::BuiltinProviders::new(&globals),
             loader,
@@ -108,46 +109,33 @@ impl Session {
             .collect()
     }
 
-    pub(crate) fn register_target(&self, target: Target) -> crate::TargetRef {
-        let label = target.label().as_ref().to_owned();
-        let toolchain = target.toolchain().to_owned();
-
-        let mut targets = self.targets.write().unwrap();
-        crate::TargetRef(match targets.entry((label, toolchain)) {
-            Entry::Vacant(e) => {
-                let pinned = Box::pin(target);
-                // Safety: A target object in the map is never deleted and lives for the
-                // session.
-                let static_ref: &'static Target = unsafe { extend_lifetime(&*pinned) };
-                e.insert(pinned);
-                static_ref.cxx.set_rust_target(static_ref);
-                static_ref
-            },
-            // This should *almost* never occur. The one exception is when two threads try to call
-            // rust_target from a C++ target at the same time.
-            Entry::Occupied(e) => {
-                assert!(
-                    target.rule.is_builtin(),
-                    "Target already registered, or accessed via to_rust before registration"
-                );
-                // Safety: A target object in the map is never deleted and lives for the
-                // session.
-                unsafe { extend_lifetime(&**e.get()) }
-            },
-        })
+    pub(crate) fn builtin_rule(
+        &self,
+        output_type: u8,
+    ) -> &'static rule::Rule<'static, crate::eval_context::EvalContext> {
+        self.builtin_rules[output_type as usize]
     }
 
-    pub(crate) fn register_cxx_target(
-        &self,
-        cxx: &'static crate::bridge::CxxTarget,
-    ) -> &'static Target {
-        self.register_target(Target {
-            cxx,
-            rule: self.builtin_rules[cxx.output_type() as usize],
-            attrs: Vec::new(),
-            evaluated: Default::default(),
-        })
-        .0
+    pub(crate) fn record_mnemonics<'v>(&self, actions: &[rule::action::Action<'v>]) {
+        if actions.is_empty() {
+            return;
+        }
+        {
+            let mnemonics = self.mnemonics.read().unwrap();
+            if actions
+                .iter()
+                .all(|a| mnemonics.contains(a.mnemonic.map(|m| m.as_str()).unwrap_or("ACTION")))
+            {
+                return;
+            }
+        }
+        let mut mnemonics = self.mnemonics.write().unwrap();
+        for action in actions {
+            let mnemonic = action.mnemonic.map(|m| m.as_str()).unwrap_or("ACTION");
+            if !mnemonics.contains(mnemonic) {
+                mnemonics.insert(mnemonic.to_owned());
+            }
+        }
     }
 
     pub(crate) fn load(&'static self, label: LabelRef<'_>) -> starlark::Result<FrozenModule> {
@@ -195,21 +183,15 @@ impl Session {
 
     /// Writes global Ninja rules for all unique action mnemonics across evaluated targets.
     pub fn write_all_rules(&self, buffer: Pin<&mut crate::bridge::StringOutputBuffer>) {
-        let targets = self.targets.read().unwrap();
-        let mnemonics: BTreeSet<&str> = targets
-            .values()
-            .filter_map(|t| t.evaluated.get())
-            .flat_map(|evaluated| &evaluated.as_ref().value().as_ref().actions)
-            .map(|action| action.mnemonic.map(|m| m.as_str()).unwrap_or("ACTION"))
-            .collect();
+        let mnemonics = self.mnemonics.read().unwrap();
 
         let mut buf = crate::StringOutputBuffer::new(buffer);
-        for mnemonic in mnemonics {
+        for mnemonic in mnemonics.iter() {
             buf.append((
                 "rule action_",
-                mnemonic,
+                mnemonic.as_str(),
                 "\n  command = $command\n  restat = 1\n  description = ",
-                mnemonic,
+                mnemonic.as_str(),
                 " $out\n\n",
             ));
         }
@@ -218,16 +200,6 @@ impl Session {
 
 impl TypesSession for Session {
     type TargetRef = crate::TargetRef;
-
-    fn get_target(&self, label: LabelRef<'_>, toolchain: LabelRef<'_>) -> Self::TargetRef {
-        let targets = self.targets.read().unwrap();
-        let target_pin = targets
-            .get(&(label.to_owned(), toolchain.to_owned()))
-            .expect("Requested target was not registered in the session");
-        // Safety: A target object can never be deleted.
-        let static_ref: &'static Target = unsafe { extend_lifetime(&**target_pin) };
-        crate::TargetRef(static_ref)
-    }
 
     fn run_builtin_rule<'v>(
         &self,

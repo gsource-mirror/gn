@@ -8,8 +8,10 @@ use strum::{Display, EnumIter, IntoStaticStr};
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumIter, Display, IntoStaticStr, Allocative)]
 #[strum(serialize_all = "snake_case")]
-/// Copied from target.h's OutputType enum.
+/// Represents the type of a C++ *Item* (not target)
 pub enum OutputType {
+    /// The subtype of a GN target.
+    /// Copied from target.h's OutputType enum.
     // NOOP = 0
     Group = 1,
     Executable,
@@ -25,6 +27,11 @@ pub enum OutputType {
     GeneratedFile,
     RustLibrary,
     RustProcMacro,
+
+    // Other potential item types
+    Config,
+    Pool,
+    Toolchain,
 }
 
 /// Compile-time string equality test

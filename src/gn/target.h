@@ -39,8 +39,6 @@ class ResolvedTargetData;
 class Settings;
 class Target;
 class Toolchain;
-struct RustTarget;
-struct Session;
 
 using TargetSet = PointerSet<const Target>;
 
@@ -62,7 +60,14 @@ class Target : public Item {
     GENERATED_FILE,
     RUST_LIBRARY,
     RUST_PROC_MACRO,
+    LAST_OUTPUT_TYPE = RUST_PROC_MACRO,
   };
+
+  // In starlark, we treat non-target items the same as targets.
+  // So they have their own output type.
+  static constexpr uint8_t kConfigOutputType = LAST_OUTPUT_TYPE + 1;
+  static constexpr uint8_t kPoolOutputType = LAST_OUTPUT_TYPE + 2;
+  static constexpr uint8_t kToolchainOutputType = LAST_OUTPUT_TYPE + 3;
 
   enum DepsIterationType {
     DEPS_ALL,     // Iterates through all public, private, and data deps.
@@ -86,7 +91,8 @@ class Target : public Item {
   Target(const Settings* settings,
          const Label& label,
          OutputType output_type,
-         const SourceFileSet& build_dependency_files = {});
+         const SourceFileSet& build_dependency_files = {},
+         bool init_rust = true);
   ~Target() override;
 
   // Returns a string naming the output type.
@@ -385,14 +391,6 @@ class Target : public Item {
   const RustValues& rust_values() const;
   bool has_rust_values() const { return rust_values_.get(); }
 
-  const RustTarget& rust_target(const Session& session) const;
-  const RustTarget* rust_target() const {
-    return rust_target_.load(std::memory_order_acquire);
-  }
-  void set_rust_target(const RustTarget& rust_target) const {
-    rust_target_.store(&rust_target, std::memory_order_release);
-  }
-
   std::vector<LabelPattern>& friends() { return friends_; }
   const std::vector<LabelPattern>& friends() const { return friends_; }
 
@@ -661,9 +659,6 @@ class Target : public Item {
 
   // GeneratedFile as metadata collection values.
   std::unique_ptr<GeneratedFile> generated_file_;
-
-  // A cache of the Session's RustTarget for this target.
-  mutable std::atomic<const RustTarget*> rust_target_ = nullptr;
 
   friend class ResolvedTargetData;
 

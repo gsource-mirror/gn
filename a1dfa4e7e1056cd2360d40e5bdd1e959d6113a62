@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "69547fa6_3b6da4a4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T22:50:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ef56575_67bea502",
+      "revId": "a1dfa4e7e1056cd2360d40e5bdd1e959d6113a62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "696626cd_7ae7e702",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "Could we add a brief comment here noting that `InitStarlarkSession()` must be called once after `SetRootPath()` and `SetBuildDir()` are configured, and that subsequent `SetRootPath()` / `SetBuildDir()` calls won\u0027t update an already-initialized session? (Since several existing tests call `SetRootPath()` / `SetBuildDir()` on a default `TestWithScope` after `set_starlark_session_for_testing()`, adding an unconditional `DCHECK(!starlark_session_)` there would break those tests unless they are also updated.)",
       "isAi": true,
+      "revId": "a1dfa4e7e1056cd2360d40e5bdd1e959d6113a62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb409116_c00cc70f",
+        "filename": "src/gn/build_settings.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T22:50:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "696626cd_7ae7e702",
       "revId": "a1dfa4e7e1056cd2360d40e5bdd1e959d6113a62",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -55,6 +91,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "793032e9_76c13351",
+        "filename": "src/gn/build_settings.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T22:50:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91217375_921d2eed",
+      "revId": "a1dfa4e7e1056cd2360d40e5bdd1e959d6113a62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99c3816d_7e25c763",
@@ -69,6 +123,24 @@
       "side": 1,
       "message": "`Settings::Settings()` reads `build_settings-\u003ebuild_dir()` during construction to initialize `toolchain_output_dir_` and `toolchain_gen_dir_` (`src/gn/settings.cc:15,28-29`). Because `build_settings_.SetBuildDir(build_dir)` was moved into the constructor body (line 28), `settings_` is now constructed while `build_settings_.build_dir()` is still null, leaving `settings_.toolchain_output_dir_` and `toolchain_gen_dir_` empty.\n\nCould we keep `build_dir` initialized before `settings_` (e.g., via a `BuildSettings` constructor taking `build_dir`, or a move constructor so `CreateBuildSettingsForTest()` can still run in the initializer list)?",
       "isAi": true,
+      "revId": "a1dfa4e7e1056cd2360d40e5bdd1e959d6113a62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "467d40bd_dbaa1243",
+        "filename": "src/gn/test_with_scope.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T22:50:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99c3816d_7e25c763",
       "revId": "a1dfa4e7e1056cd2360d40e5bdd1e959d6113a62",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

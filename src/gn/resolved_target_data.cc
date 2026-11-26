@@ -84,16 +84,19 @@ bool ResolvedTargetData::OnlyForwardsPublicHardDeps(const Target* target) {
   // `private_deps()` in NinjaTargetWriter::WriteInputDepsStampOrPhonyAndGetDep.
   //
   // However, if `target` is exempted as an includer in
-  // `check_includes_strict_exceptions`, its public headers might still #include
+  // `check_includes_strict_exceptions` (and did not explicitly opt in via
+  // `check_includes_strict = true`), its public headers might still #include
   // headers from its private deps, so its private hard deps must still be
   // forwarded to dependents. (Exemptions where `target` is only the `included`
   // target do not allow `target`'s public headers to include private deps.)
-  return !target->hard_dep() && ((target->check_includes_strict() &&
-                                  !target->settings()
-                                       ->build_settings()
-                                       ->check_includes_strict_exceptions()
-                                       .HasExceptionFrom(target->label())) ||
-                                 target->source_types_used().RustSourceUsed());
+  return !target->hard_dep() &&
+         (target->check_includes_strict_explicitly_enabled() ||
+          (target->check_includes_strict() &&
+           !target->settings()
+                ->build_settings()
+                ->check_includes_strict_exceptions()
+                .HasExceptionFrom(target->label())) ||
+          target->source_types_used().RustSourceUsed());
 }
 
 // Keep in sync with NinjaTargetWriter::WriteHardDepsStampOrPhony().

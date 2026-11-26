@@ -737,4 +737,19 @@ TEST_F(HeaderCheckerTest, CheckIncludesStrictExceptions) {
   // Intra-target: d_ includes d_private, but //d:* => //d:* is not in
   // exceptions.
   EXPECT_FALSE(check_ok(checker, d_cache, true, d_private));
+
+  // Explicit `check_includes_strict = true` on `a_` enforces rules 1 & 2 on
+  // `a_`'s own public headers even when `a_` matches exceptions, while keeping
+  // transitive public_deps exemptions for `a_`'s private sources intact.
+  a_.set_check_includes_strict_explicit(true);
+  EXPECT_FALSE(check_ok(checker, a_cache, true, b_public));
+  EXPECT_FALSE(check_ok(checker, a_cache, true, a_private));
+  EXPECT_TRUE(check_ok(checker, a_cache, false, c_public));
+
+  // Explicit `check_includes_strict = false` on `a_` does NOT enforce strict
+  // public header rules and allows includes as before.
+  a_.set_check_includes_strict(false);
+  EXPECT_TRUE(check_ok(checker, a_cache, true, b_public));
+  EXPECT_TRUE(check_ok(checker, a_cache, true, a_private));
+  EXPECT_TRUE(check_ok(checker, a_cache, false, c_public));
 }

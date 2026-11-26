@@ -112,6 +112,7 @@ TEST_F(BinaryTargetGeneratorTest, CheckIncludesStrict) {
     Target* target = items_[0]->AsTarget();
     ASSERT_TRUE(target);
     EXPECT_FALSE(target->check_includes_strict());
+    EXPECT_FALSE(target->check_includes_strict_explicit());
     items_.clear();
   }
 
@@ -132,6 +133,8 @@ TEST_F(BinaryTargetGeneratorTest, CheckIncludesStrict) {
     Target* target = items_[0]->AsTarget();
     ASSERT_TRUE(target);
     EXPECT_TRUE(target->check_includes_strict());
+    EXPECT_TRUE(target->check_includes_strict_explicit());
+    EXPECT_TRUE(target->check_includes_strict_explicitly_enabled());
     items_.clear();
   }
 }

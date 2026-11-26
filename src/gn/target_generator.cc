@@ -418,6 +418,7 @@ bool TargetGenerator::FillCheckIncludesStrict() {
   if (!value->VerifyTypeIs(Value::BOOLEAN, err_))
     return false;
   target_->set_check_includes_strict(value->boolean_value());
+  target_->set_check_includes_strict_explicit(true);
   return true;
 }
 

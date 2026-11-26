@@ -75,6 +75,7 @@ class TestWithScope {
   TestWithScope(const base::FilePath* root_path,
                 SourceDir source_dir,
                 SourceDir build_dir);
+  BuildSettings* InitBuildSettings(const base::FilePath* root_path);
   void AppendPrintOutput(const std::string& str);
 
   BuildSettings build_settings_;

@@ -21,17 +21,13 @@ TestWithScope::TestWithScope(const base::FilePath& root_path,
 TestWithScope::TestWithScope(const base::FilePath* root_path,
                              SourceDir source_dir,
                              SourceDir build_dir)
-    : build_settings_(std::move(build_dir)),
-      settings_(&build_settings_, std::string()),
+    : build_settings_(build_dir),
+      settings_(InitBuildSettings(root_path), std::string()),
       toolchain_(&settings_, Label(SourceDir("//toolchain/"), "default")),
       scope_(&settings_),
       scope_progammatic_provider_(&scope_, true) {
   if (root_path) {
-    build_settings_.SetRootPath(*root_path);
-    build_settings_.InitStarlarkSession();
     scope_.set_source_dir(source_dir);
-  } else {
-    build_settings_.InitStarlarkSessionForTesting();
   }
   build_settings_.set_print_callback(
       [this](const std::string& str) { AppendPrintOutput(str); });
@@ -41,6 +37,17 @@ TestWithScope::TestWithScope(const base::FilePath* root_path,
 
   SetupToolchain(&toolchain_);
   scope_.set_item_collector(&items_);
+}
+
+BuildSettings* TestWithScope::InitBuildSettings(
+    const base::FilePath* root_path) {
+  if (root_path) {
+    build_settings_.SetRootPath(*root_path);
+    build_settings_.InitStarlarkSession();
+  } else {
+    build_settings_.InitStarlarkSessionForTesting();
+  }
+  return &build_settings_;
 }
 
 TestWithScope::~TestWithScope() = default;

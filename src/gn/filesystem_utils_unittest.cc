@@ -818,6 +818,7 @@ TEST(FilesystemUtils, GetSubBuildDir) {
 TEST(FilesystemUtils, GetBuildDirForTarget) {
   BuildSettings build_settings;
   build_settings.SetBuildDir(SourceDir("//out/Debug/"));
+  build_settings.InitStarlarkSessionForTesting();
   Settings settings(&build_settings, "");
 
   Target a(&settings, Label(SourceDir("//foo/bar/"), "baz"), Target::GROUP);

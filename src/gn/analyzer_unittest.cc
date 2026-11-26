@@ -52,6 +52,7 @@ class AnalyzerTest : public TestWithScheduler {
         settings_(&build_settings_, std::string()),
         other_settings_(&build_settings_, std::string()) {
     build_settings_.SetBuildDir(SourceDir("//out/"));
+    build_settings_.InitStarlarkSessionForTesting();
 
     settings_.set_toolchain_label(Label(SourceDir("//tc/"), "default"));
     settings_.set_default_toolchain_label(settings_.toolchain_label());

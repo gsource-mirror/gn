@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f3c8612_a75a540a",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T22:33:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23119437_ea0182d5",
+      "revId": "02d999588230ea55f4f198e86d0ccaccc1e9381f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f8d7939_aa2582bf",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "Nit: These dict arms can be simplified slightly without closures by using `dict.keys()`, `dict.values()`, and `dict.values().flatten()` respectively.",
       "isAi": true,
+      "revId": "02d999588230ea55f4f198e86d0ccaccc1e9381f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eaeb4b9b_6aed0d55",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T22:33:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f8d7939_aa2582bf",
       "revId": "02d999588230ea55f4f198e86d0ccaccc1e9381f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -55,6 +91,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "74d177b2_2e653453",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T22:33:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6f5d62f_e6aa8f72",
+      "revId": "02d999588230ea55f4f198e86d0ccaccc1e9381f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d082f4c1_ae6d50b1",
@@ -69,6 +123,24 @@
       "side": 1,
       "message": "Since we no longer deduplicate dependencies with `SmallSet` here and now push duplicate entries into `Target::starlark_deps_` to be consumed positionally, could we add a case to `integration_tests/starlark/` where the same target is referenced multiple times (e.g., across two attributes or multiple keys in a label dict)?\n\nRight now `FakeTargetRef::deps()` in unit tests still resolves via `session.get_target()`, so an integration test covering duplicates would lock in the end-to-end C++ `starlark_deps_` ↔ Rust positional resolution contract.",
       "isAi": true,
+      "revId": "02d999588230ea55f4f198e86d0ccaccc1e9381f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d9d2b11_ab5cecb8",
+        "filename": "src/gn/starlark/crates/rule/src/rule.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T22:33:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d082f4c1_ae6d50b1",
       "revId": "02d999588230ea55f4f198e86d0ccaccc1e9381f",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

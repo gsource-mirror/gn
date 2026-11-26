@@ -16,6 +16,24 @@
       "message": "Can we instead expose a `get_target_config(...)` function (similar to `get_target_outputs(...)`) which returns the resolved config for the target during execution?\n\nThen you can do:\n\n```\nsource_set(\"foo\") {\n  ...\n}\n\nwrite_file(\n  \"$root_out_dir/foo_config.json\",\n  get_target_config(\":foo\"),\n  \"json\")\n```\n\nThis would have the same limitation as `get_target_outputs(...)` in that it can only be used in a target defined in the same file, before the call to the function (but it does not looks like this would be a problem for your use case).\n\nThis remove the need to write additional code to write files, add them to the list of known generated files, support hard dependencies, .... which `write_file(...)` already handle.\n\nDrawback is that people may start to use `get_target_config(...)` for other uses.",
       "revId": "351fa829c316fa6a4aa629e3e62ac6b5680cf9ed",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d83e6141_eda982b5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001342
+      },
+      "writtenOn": "2026-11-26T11:47:52Z",
+      "side": 1,
+      "message": "Thanks for taking a look, unfortunately this isn\u0027t viable for our use case where the majority of the required flags come from inherited configs.",
+      "parentUuid": "6ef0c527_1d5ad7ae",
+      "revId": "351fa829c316fa6a4aa629e3e62ac6b5680cf9ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

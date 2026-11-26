@@ -231,7 +231,7 @@ mod tests {
         environment::Module,
         values::{UnpackValue as _, list::UnpackList},
     };
-    use testutils::{FakeSession, FakeTarget, FakeTargetRef};
+    use testutils::{FakeEvalContext, FakeTarget, FakeTargetRef};
     use types::PackageRef;
 
     use super::*;
@@ -281,13 +281,13 @@ mod tests {
 
     #[test]
     fn test_to_value_label_no_files() {
-        let session = FakeSession::new();
+        let context = FakeEvalContext::new(PackageRef::root(), "test");
         let file1 = File::new("foo.txt");
 
-        let target_empty = session.insert_empty_target(PackageRef::new("//foo").unwrap(), "empty");
-        let target_outputs = session.insert_target(FakeTarget {
+        let target_empty = context.insert_empty_target(PackageRef::new("//foo").unwrap(), "empty");
+        let target_outputs = context.insert_target(FakeTarget {
             outputs: vec![file1],
-            ..session.empty_target(PackageRef::new("//foo").unwrap(), "outputs")
+            ..context.empty_target(PackageRef::new("//foo").unwrap(), "outputs")
         });
 
         let schema = AttrSchema {
@@ -342,7 +342,7 @@ mod tests {
 
     #[test]
     fn test_to_value_label_allow_files_many() {
-        let session = FakeSession::new();
+        let context = FakeEvalContext::new(PackageRef::root(), "test");
         let label_only_file = File::new("label_only.cc");
         let overlap = File::new("overlap.cc");
         let file_only_file = File::new("file_only.cc");
@@ -350,9 +350,9 @@ mod tests {
         let overlap_target = FileTarget::new(overlap, 0..0);
 
         // Target outputs out.cc and overlap.h
-        let dep = session.insert_target(FakeTarget {
+        let dep = context.insert_target(FakeTarget {
             outputs: vec![label_only_file, overlap],
-            ..session.empty_target(PackageRef::new("//foo").unwrap(), "dep")
+            ..context.empty_target(PackageRef::new("//foo").unwrap(), "dep")
         });
 
         let schema = AttrSchema {
@@ -404,18 +404,18 @@ mod tests {
 
     #[test]
     fn test_to_value_label_allow_files_single() {
-        let session = FakeSession::new();
+        let context = FakeEvalContext::new(PackageRef::root(), "test");
         let file1 = File::new("out.cc");
 
-        let target_single = session.insert_target(FakeTarget {
+        let target_single = context.insert_target(FakeTarget {
             outputs: vec![file1],
-            ..session.empty_target(PackageRef::new("//foo").unwrap(), "single")
+            ..context.empty_target(PackageRef::new("//foo").unwrap(), "single")
         });
-        let target_two = session.insert_target(FakeTarget {
+        let target_two = context.insert_target(FakeTarget {
             outputs: vec![file1, File::new("out.h")],
-            ..session.empty_target(PackageRef::new("//foo").unwrap(), "two")
+            ..context.empty_target(PackageRef::new("//foo").unwrap(), "two")
         });
-        let target_empty = session.insert_empty_target(PackageRef::new("//foo").unwrap(), "empty");
+        let target_empty = context.insert_empty_target(PackageRef::new("//foo").unwrap(), "empty");
 
         let schema = AttrSchema {
             kind: AttrKind::Label,
@@ -442,9 +442,9 @@ mod tests {
             .unwrap();
 
             assert_eq!(
-                attr.dependencies(session.default_toolchain.as_ref())
+                attr.dependencies(context.current_toolchain.as_ref())
                     .collect::<Vec<_>>(),
-                vec![(target_single.label(), session.default_toolchain.as_ref())]
+                vec![(target_single.label(), context.current_toolchain.as_ref())]
             );
 
             let AttrValue {
@@ -517,8 +517,8 @@ mod tests {
 
     #[test]
     fn test_to_value_label_keyed_string_dict() {
-        let session = FakeSession::new();
-        let target = session.insert_empty_target(PackageRef::new("//foo").unwrap(), "bar");
+        let context = FakeEvalContext::new(PackageRef::root(), "test");
+        let target = context.insert_empty_target(PackageRef::new("//foo").unwrap(), "bar");
 
         let schema = AttrSchema {
             kind: AttrKind::LabelKeyedStringDict,
@@ -556,17 +556,17 @@ mod tests {
 
     #[test]
     fn test_to_value_label_allow_files_matching() {
-        let session = FakeSession::new();
+        let context = FakeEvalContext::new(PackageRef::root(), "test");
         let file1 = File::new("foo.cc");
         let file2 = File::new("foo.h");
 
-        let target_matching = session.insert_target(FakeTarget {
+        let target_matching = context.insert_target(FakeTarget {
             outputs: vec![file1, file2],
-            ..session.empty_target(PackageRef::new("//foo").unwrap(), "matching")
+            ..context.empty_target(PackageRef::new("//foo").unwrap(), "matching")
         });
-        let target_no_matching = session.insert_target(FakeTarget {
+        let target_no_matching = context.insert_target(FakeTarget {
             outputs: vec![file2],
-            ..session.empty_target(PackageRef::new("//foo").unwrap(), "no_matching")
+            ..context.empty_target(PackageRef::new("//foo").unwrap(), "no_matching")
         });
 
         let schema = AttrSchema {

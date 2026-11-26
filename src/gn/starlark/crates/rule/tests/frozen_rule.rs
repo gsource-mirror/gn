@@ -8,7 +8,7 @@ use attr::{Attr, LabelOrFile};
 use rule::Rule;
 use starlark::environment::FrozenModule;
 use testutils::{Assert, FakeEvalContext, FakeTarget};
-use types::{Label, OutputType, PackageRef, Session as _};
+use types::{Label, OutputType, PackageRef};
 
 fn new_assert() -> Assert {
     Assert::new_rule_assert()
@@ -80,9 +80,7 @@ child_rule(
     let context = assert.context();
     let load = |name: &str| {
         let label = Label::new(PackageRef::root().to_owned(), name.to_owned());
-        context
-            .session
-            .get_target(label.as_ref(), context.session.default_toolchain.as_ref())
+        context.get_target(label.as_ref(), context.session.default_toolchain.as_ref())
     };
 
     assert_eq!(
@@ -99,6 +97,7 @@ child_rule(
             rule: rule(&native, "custom_shared_library"),
             cxx_attrs: unknown_attrs.clone(),
             dependencies: HashSet::new(),
+            resolved_deps: vec![],
             evaluated: Default::default(),
         }
     );
@@ -114,6 +113,7 @@ child_rule(
             rule: rule(&native, "static_library"),
             cxx_attrs: unknown_attrs.clone(),
             dependencies: HashSet::new(),
+            resolved_deps: vec![],
             evaluated: Default::default(),
         }
     );
@@ -143,6 +143,7 @@ child_rule(
                 Label::new(PackageRef::root().to_owned(), "parent".to_owned()),
                 toolchain.clone(),
             )]),
+            resolved_deps: vec![],
             evaluated: Default::default(),
         }
     );
@@ -168,6 +169,7 @@ child_rule(
                 Label::new(PackageRef::root().to_owned(), "child".to_owned()),
                 toolchain.clone(),
             )]),
+            resolved_deps: vec![],
             evaluated: Default::default(),
         }
     );
@@ -193,6 +195,7 @@ child_rule(
                 Label::new(PackageRef::root().to_owned(), "custom_val".to_owned()),
                 toolchain.clone(),
             )]),
+            resolved_deps: vec![],
             evaluated: Default::default(),
         }
     );

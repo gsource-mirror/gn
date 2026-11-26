@@ -4,7 +4,7 @@
 
 use rule::run;
 use testutils::Assert;
-use types::{Label, PackageRef, Session as _};
+use types::{Label, PackageRef};
 
 #[test]
 fn test_ctx_super() {
@@ -29,9 +29,7 @@ child_rule(
 
     let context = assert.context();
     let label = Label::new(PackageRef::root().to_owned(), "target".to_owned());
-    let target = context
-        .session
-        .get_target(label.as_ref(), context.session.default_toolchain.as_ref());
+    let target = context.get_target(label.as_ref(), context.session.default_toolchain.as_ref());
 
     let session = assert.session();
     let evaluated = run(&target, move |t: &testutils::FakeTargetRef| {

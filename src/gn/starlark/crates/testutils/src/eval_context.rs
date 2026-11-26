@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 use std::{
     cell::{RefCell, UnsafeCell},
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     rc::Rc,
 };
 
@@ -72,6 +72,9 @@ pub struct FakeEvalContext {
     /// The fake scope.
     #[allocative(skip)]
     pub scope: UnsafeCell<FakeScope>,
+    /// Targets defined in this evaluation context.
+    #[allocative(skip)]
+    pub targets: RefCell<HashSet<FakeTargetRef>>,
 }
 
 // Safety: FakeEvalContext is 'static and has no lifetime parameters.
@@ -82,14 +85,19 @@ unsafe impl<'v> ProvidesStaticType<'v> for FakeEvalContext {
 impl FakeEvalContext {
     /// Creates a new eval context for a given session.
     pub fn default_rule_impl(session: Rc<FakeSession>) -> Self {
-        Self::rule_impl(session.clone(), session.default_target())
+        Self::with_target(session, PackageRef::root(), "default")
     }
 
     /// Creates a new `FakeEvalContext` for a given package name.
     pub fn new(package: &PackageRef, name: &str) -> Self {
-        let session = Rc::new(FakeSession::default());
-        let dummy_target = session.insert_empty_target(package, name);
-        Self::rule_impl(session, dummy_target)
+        Self::with_target(Rc::new(FakeSession::default()), package, name)
+    }
+
+    fn with_target(session: Rc<FakeSession>, package: &PackageRef, name: &str) -> Self {
+        let target = FakeTargetRef::new(FakeTarget::empty(&session, package, name));
+        let ctx = Self::rule_impl(session, target.clone());
+        ctx.targets.borrow_mut().insert(target);
+        ctx
     }
 
     pub fn rule_impl(session: Rc<FakeSession>, target: FakeTargetRef) -> Self {
@@ -100,7 +108,57 @@ impl FakeEvalContext {
             path_resolver: PathResolver::new_for_testing(),
             rule_state: RefCell::new(CtxState::new(target)),
             scope: FakeScope::default().into(),
+            targets: RefCell::new(HashSet::new()),
         }
+    }
+
+    /// Helper to insert a target into this evaluation context.
+    pub fn insert_target(&self, target: FakeTarget) -> FakeTargetRef {
+        let target_ref = FakeTargetRef::new(target);
+        let mut targets = self.targets.borrow_mut();
+        assert!(
+            targets.insert(target_ref.clone()),
+            "Inserting an already existing target into the map"
+        );
+        target_ref
+    }
+
+    /// Helper to create an empty target with the default toolchain.
+    pub fn empty_target(&self, package: &PackageRef, name: &str) -> FakeTarget {
+        FakeTarget::empty(&self.session, package, name)
+    }
+
+    /// Helper to insert an empty target into this evaluation context.
+    pub fn insert_empty_target(&self, package: &PackageRef, name: &str) -> FakeTargetRef {
+        self.insert_target(self.empty_target(package, name))
+    }
+
+    /// Look up a target by its label and toolchain, returning `None` if absent.
+    pub fn try_get_target(
+        &self,
+        label: LabelRef<'_>,
+        current_toolchain: LabelRef<'_>,
+    ) -> Option<FakeTargetRef> {
+        self.targets
+            .borrow()
+            .iter()
+            .find(|target| target.label() == label && target.toolchain() == current_toolchain)
+            .cloned()
+    }
+
+    /// Look up a target by its label and current toolchain.
+    pub fn get_target(
+        &self,
+        label: LabelRef<'_>,
+        current_toolchain: LabelRef<'_>,
+    ) -> FakeTargetRef {
+        self.try_get_target(label, current_toolchain)
+            .unwrap_or_else(|| {
+                panic!(
+                    "get_target failed to find label: {label:?}, toolchain: {current_toolchain:?}. Available targets: {:?}",
+                    self.targets.borrow()
+                )
+            })
     }
 }
 
@@ -147,47 +205,34 @@ impl EvalContextAttrExt for FakeEvalContext {
         target_type: Option<OutputType>,
         target_name: &str,
         scope: std::pin::Pin<&mut FakeScope>,
-    ) -> Result<std::pin::Pin<&'static mut FakeTarget>> {
-        let label = Label::new(self.package.clone(), target_name.to_owned());
-        let toolchain = self.current_toolchain().to_owned();
-        let target = FakeTarget {
-            label,
-            dependencies: Default::default(),
-            toolchain,
-            output_type: target_type,
-            rule: self.session.default_rule(),
-            cxx_attrs: scope.0.clone(),
-            outputs: vec![],
-            attrs: vec![],
-            evaluated: Default::default(),
-        };
-        let mut targets = self.session.targets_under_construction.borrow_mut();
-        targets.push(Box::new(target));
-        // Safety: The Box inside the RefCell's vector is stable in memory and lasts as
-        // long as the FakeSession in tests.
-        let target_ref =
-            unsafe { std::ptr::NonNull::from(targets.last_mut().unwrap().as_mut()).as_mut() };
-        // Safety: target_ref is pinned by the enclosing Box and never moved.
-        Ok(unsafe { std::pin::Pin::new_unchecked(target_ref) })
-    }
-
-    fn register_target(
-        &self,
-        cxx_target: &'static FakeTarget,
         rule: Value<'static>,
         attrs: Vec<Attr>,
-    ) -> Result<FakeTargetRef> {
-        let target_ptr = std::ptr::from_ref::<FakeTarget>(cxx_target);
-        let mut targets = self.session.targets_under_construction.borrow_mut();
-        let idx = targets
-            .iter()
-            .position(|t| std::ptr::eq(&raw const **t, target_ptr))
-            .expect("Registering target that was not created in this context");
-        let mut target = targets.remove(idx);
+    ) -> Result<()> {
         let typed = FrozenValueTyped::<'static, rule::Rule<'static, Self>>::new_err(rule)?;
-        target.rule = typed.as_ref();
-        target.attrs = attrs;
-        Ok(self.session.insert_target(*target))
+        let label = Label::new(self.package.clone(), target_name.to_owned());
+        let toolchain = self.current_toolchain().to_owned();
+        let mut dependencies = HashSet::new();
+        let mut resolved_deps = Vec::new();
+        for attr in &attrs {
+            for (dep_label, dep_toolchain) in attr.dependencies(toolchain.as_ref()) {
+                dependencies.insert((dep_label.to_owned(), dep_toolchain.to_owned()));
+                if let Some(dep_target) = self.try_get_target(dep_label, dep_toolchain) {
+                    resolved_deps.push(dep_target);
+                }
+            }
+        }
+        self.insert_target(FakeTarget {
+            label,
+            dependencies,
+            resolved_deps,
+            toolchain,
+            output_type: target_type,
+            rule: typed.as_ref(),
+            cxx_attrs: scope.0.clone(),
+            attrs,
+            ..self.empty_target(&self.package, target_name)
+        });
+        Ok(())
     }
 }
 

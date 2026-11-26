@@ -16,8 +16,7 @@ use starlark::{
 };
 use starlark_derive::{NoSerialize, starlark_value};
 use types::{
-    File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, Session as _,
-    TargetRef,
+    File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, PackageRef, TargetRef,
 };
 
 use crate::FakeEvalContext;
@@ -38,9 +37,30 @@ pub struct FakeTarget {
     /// Registered target dependencies.
     #[allocative(skip)]
     pub dependencies: HashSet<(Label, Label)>,
+    /// Resolved target dependencies in attribute traversal order.
+    #[allocative(skip)]
+    pub resolved_deps: Vec<FakeTargetRef>,
     /// Cached rule evaluation result containing returned providers.
     #[allocative(skip)]
     pub evaluated: OnceLock<OwnedFrozen<ValueTyped<'static, rule::EvaluatedTarget<'static>>>>,
+}
+
+impl FakeTarget {
+    /// Creates an empty `FakeTarget` with the session's default toolchain and rule.
+    pub fn empty(session: &crate::FakeSession, package: &PackageRef, name: &str) -> Self {
+        Self {
+            label: LabelRef::new(package, name).to_owned(),
+            toolchain: session.default_toolchain.clone(),
+            outputs: Default::default(),
+            attrs: Default::default(),
+            output_type: Default::default(),
+            rule: session.default_rule(),
+            cxx_attrs: Default::default(),
+            dependencies: Default::default(),
+            resolved_deps: Default::default(),
+            evaluated: Default::default(),
+        }
+    }
 }
 
 impl PartialEq for FakeTarget {
@@ -138,7 +158,6 @@ impl Deref for FakeTargetRef {
 }
 
 impl TargetRef for FakeTargetRef {
-    type Cxx = FakeTarget;
     type Rule = rule::Rule<'static, FakeEvalContext>;
     type Session = crate::FakeSession;
 
@@ -184,27 +203,12 @@ impl TargetRef for FakeTargetRef {
     }
 }
 
-impl types::TargetMut for FakeTarget {
-    fn register_dependency(
-        mut self: std::pin::Pin<&mut Self>,
-        label: LabelRef<'_>,
-        toolchain: LabelRef<'_>,
-    ) {
-        self.dependencies
-            .insert((label.to_owned(), toolchain.to_owned()));
-    }
-}
-
 impl attr::TargetAttrExt for FakeTargetRef {
     fn attrs(&self) -> &[Attr] {
         &self.get().attrs
     }
 
-    fn deps<'a>(&'a self, session: &'a Self::Session) -> impl Iterator<Item = Self> + 'a {
-        self.get()
-            .attrs
-            .iter()
-            .flat_map(|attr| attr.dependencies(self.toolchain()))
-            .map(|(label, toolchain)| session.get_target(label, toolchain))
+    fn deps(&self) -> impl Iterator<Item = Self> + '_ {
+        self.get().resolved_deps.iter().cloned()
     }
 }

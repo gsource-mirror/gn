@@ -17,6 +17,7 @@
 #include "gn/copy_target_generator.h"
 #include "gn/create_bundle_target_generator.h"
 #include "gn/err.h"
+#include "gn/ffi/bridge.h"
 #include "gn/filesystem_utils.h"
 #include "gn/functions.h"
 #include "gn/generated_file_target_generator.h"
@@ -25,6 +26,7 @@
 #include "gn/parse_tree.h"
 #include "gn/scheduler.h"
 #include "gn/scope.h"
+#include "gn/settings.h"
 #include "gn/token.h"
 #include "gn/value.h"
 #include "gn/value_extractors.h"
@@ -111,7 +113,8 @@ Target* TargetGenerator::GenerateTarget(Scope* scope,
                                         const FunctionCallNode* function_call,
                                         std::string_view name,
                                         std::string_view output_type,
-                                        Err* err) {
+                                        Err* err,
+                                        bool init_rust) {
   // The location of the target is the directory name with no slash at the end.
   // FIXME(brettw) validate name.
   const Label& toolchain_label = ToolchainLabelForScope(scope);
@@ -197,6 +200,11 @@ Target* TargetGenerator::GenerateTarget(Scope* scope,
 
   if (err->has_error())
     return nullptr;
+
+  if (init_rust) {
+    FfiTarget::new_builtin(
+        scope->settings()->build_settings()->starlark_session(), *target);
+  }
 
   // Save this target for the file.
   Scope::ItemVector* collector = scope->GetItemCollector();

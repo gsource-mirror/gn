@@ -396,8 +396,8 @@ void NinjaBinaryTargetWriter::WriteCompilerBuildLine(
     }
   }
 
-  if (const auto* rust = target_->rust_target()) {
-    rust->write_inputs(outputs, has_implicit_inputs, out_);
+  if (!target_->is_builtin()) {
+    target_->rust_target().write_inputs(outputs, has_implicit_inputs, out_);
   }
 
   if (!order_only_deps.empty()) {

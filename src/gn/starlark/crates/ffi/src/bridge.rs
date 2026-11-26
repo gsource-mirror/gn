@@ -12,7 +12,10 @@ use types::EvaluatorContextExt as _;
 /// * The `cxxbridge --header` command can be ran to re-generate the C++ headers.
 ///   * This allows for C++ code to #include rust types
 /// * The `cxxbridge` command generates shims to allow us to use C++ types in rust.
-use crate::{session::Session, target::Target};
+use crate::{
+    session::Session,
+    target::{Target, drop_ffi_target, execute_rule_impl},
+};
 
 pub struct OwnedFrozenValue(pub starlark::values::OwnedFrozen<starlark::values::Value<'static>>);
 
@@ -229,7 +232,7 @@ mod dummy {
         fn source_file_to_output_path<'a>(settings: &'a Settings, file: &'a SourceFile) -> &'a str;
 
         type LabelTargetPair;
-        fn label_target_pair_target(pair: &LabelTargetPair) -> &CxxTarget;
+        fn label_target_pair_target(pair: &LabelTargetPair) -> &'static CxxTarget;
 
         #[rust_name = "CxxTarget"]
         type Target;
@@ -242,8 +245,12 @@ mod dummy {
         fn sources(self: &CxxTarget) -> &CxxVector<SourceFile>;
         fn public_headers(self: &CxxTarget) -> &CxxVector<SourceFile>;
         fn computed_outputs(self: &CxxTarget) -> &CxxVector<OutputFile>;
-        fn rust_target<'a>(self: &'a CxxTarget, session: &'a Session) -> &'static Target;
-        fn set_rust_target(self: &CxxTarget, rust_target: &Target);
+        fn rust_target(self: &CxxTarget) -> &'static Target;
+        // Safety comment is dropped in cxx macro expansion.
+        #[allow(clippy::missing_safety_doc)]
+        /// Safety: must be called at most once per item.
+        unsafe fn claim_rust_target_storage(self: Pin<&mut CxxTarget>) -> *mut Target;
+        fn rust_target_storage_size() -> usize;
         #[rust_name = "settings_cxx"]
         fn settings(self: &CxxTarget) -> *const Settings;
         fn create_target(
@@ -347,13 +354,17 @@ mod dummy {
     }
 
     extern "Rust" {
-        #[cxx_name = "RustTarget"]
+        #[cxx_name = "FfiTarget"]
         type Target;
+        #[Self = "Target"]
+        unsafe fn new_builtin(session: &Session, target: Pin<&mut CxxTarget>);
+        unsafe fn drop_ffi_target(ptr: *mut Target);
         fn execute_rule_impl(
-            self: &Target,
+            target: &'static CxxTarget,
             session: &'static Session,
             err: Pin<&mut Err>,
         ) -> &'static str;
+        fn is_builtin(self: &Target) -> bool;
         fn write_phonies(self: &Target, buffer: Pin<&mut StringOutputBuffer>);
         fn write_ninja(
             self: &Target,
@@ -376,11 +387,6 @@ mod dummy {
 
         #[Self = "Session"]
         fn new_for_testing() -> Box<Session>;
-
-        fn register_cxx_target(
-            self: &'static Session,
-            target: &'static CxxTarget,
-        ) -> &'static Target;
 
         fn load_values(
             self: &'static Session,

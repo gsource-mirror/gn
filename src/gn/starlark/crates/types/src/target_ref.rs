@@ -23,7 +23,6 @@ pub trait TargetRef:
     /// Returns the toolchain the label was defined in.
     fn toolchain(&self) -> LabelRef<'_>;
 
-    type Cxx: TargetMut;
     type Rule: StarlarkValue<'static>;
     type Session: Session<TargetRef = Self>;
 
@@ -39,18 +38,8 @@ pub trait TargetRef:
     fn is_default_toolchain(&self) -> bool;
 
     /// Returns the resolved built-in attributes as Starlark values.
-    fn builtin_attrs<'v>(&self, session: &Self::Session, heap: &Heap<'v>) -> Vec<Value<'v>>;
+    fn builtin_attrs<'v>(&self, heap: &Heap<'v>) -> Vec<Value<'v>>;
 
     /// Returns `true` if this target provides the given provider type.
     fn has_provider(&self, id: ProviderId) -> bool;
-}
-
-/// A trait for mutating a target before it is registered in the session.
-pub trait TargetMut {
-    /// Registers a dependency on this target.
-    fn register_dependency(
-        self: std::pin::Pin<&mut Self>,
-        label: LabelRef<'_>,
-        toolchain: LabelRef<'_>,
-    );
 }

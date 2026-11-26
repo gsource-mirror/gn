@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use attr::{Attr, LabelOrFile};
 use rule::Rule;
 use starlark::environment::FrozenModule;
 use testutils::{Assert, FakeEvalContext, FakeTarget};
-use types::{Label, OutputType, PackageRef, Session as _};
+use types::{Label, OutputType, PackageRef};
 
 fn new_assert() -> Assert {
     Assert::new_rule_assert()
@@ -51,6 +51,10 @@ static_library(
    unknown = "unknown"
 )
 
+static_library(name = "parent")
+static_library(name = "child")
+static_library(name = "custom_val")
+
 parent_rule(
     name = "parent_defaulted",
     parent_only = "p",
@@ -80,9 +84,7 @@ child_rule(
     let context = assert.context();
     let load = |name: &str| {
         let label = Label::new(PackageRef::root().to_owned(), name.to_owned());
-        context
-            .session
-            .get_target(label.as_ref(), context.session.default_toolchain.as_ref())
+        context.get_target(label.as_ref(), context.session.default_toolchain.as_ref())
     };
 
     assert_eq!(
@@ -98,7 +100,7 @@ child_rule(
             output_type: Some(OutputType::SharedLibrary),
             rule: rule(&native, "custom_shared_library"),
             cxx_attrs: unknown_attrs.clone(),
-            dependencies: HashSet::new(),
+            deps: vec![],
             evaluated: Default::default(),
         }
     );
@@ -113,7 +115,7 @@ child_rule(
             output_type: Some(OutputType::StaticLibrary),
             rule: rule(&native, "static_library"),
             cxx_attrs: unknown_attrs.clone(),
-            dependencies: HashSet::new(),
+            deps: vec![],
             evaluated: Default::default(),
         }
     );
@@ -139,10 +141,7 @@ child_rule(
             output_type: None,
             rule: rule(&pure, "parent_rule"),
             cxx_attrs: HashMap::new(),
-            dependencies: HashSet::from([(
-                Label::new(PackageRef::root().to_owned(), "parent".to_owned()),
-                toolchain.clone(),
-            )]),
+            deps: vec![load("parent")],
             evaluated: Default::default(),
         }
     );
@@ -164,10 +163,7 @@ child_rule(
             output_type: None,
             rule: rule(&pure, "child_rule"),
             cxx_attrs: HashMap::new(),
-            dependencies: HashSet::from([(
-                Label::new(PackageRef::root().to_owned(), "child".to_owned()),
-                toolchain.clone(),
-            )]),
+            deps: vec![load("child")],
             evaluated: Default::default(),
         }
     );
@@ -189,10 +185,7 @@ child_rule(
             output_type: None,
             rule: rule(&pure, "child_rule"),
             cxx_attrs: HashMap::new(),
-            dependencies: HashSet::from([(
-                Label::new(PackageRef::root().to_owned(), "custom_val".to_owned()),
-                toolchain.clone(),
-            )]),
+            deps: vec![load("custom_val")],
             evaluated: Default::default(),
         }
     );

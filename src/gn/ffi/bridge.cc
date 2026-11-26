@@ -1097,7 +1097,7 @@ using Scope = ::Scope;
 using TestWithScope = ::TestWithScope;
 using Value = ::Value;
 using ParseNode = ::ParseNode;
-struct RustTarget;
+struct FfiTarget;
 struct Session;
 struct OwnedFrozenValue;
 
@@ -1157,14 +1157,15 @@ static_assert(sizeof(EscapingPlatform) == sizeof(::std::uint8_t), "incorrect siz
 static_assert(static_cast<::std::uint8_t>(EscapingPlatform::ESCAPE_PLATFORM_POSIX) == 0, "disagrees with the value in #[cxx::bridge]");
 static_assert(static_cast<::std::uint8_t>(EscapingPlatform::ESCAPE_PLATFORM_WIN) == 1, "disagrees with the value in #[cxx::bridge]");
 
-#ifndef CXXBRIDGE1_STRUCT_RustTarget
-#define CXXBRIDGE1_STRUCT_RustTarget
-struct RustTarget final : public ::rust::Opaque {
-  ::rust::Str execute_rule_impl(::Session const &session, ::Err &err) const noexcept;
+#ifndef CXXBRIDGE1_STRUCT_FfiTarget
+#define CXXBRIDGE1_STRUCT_FfiTarget
+struct FfiTarget final : public ::rust::Opaque {
+  static void new_builtin(::Session const &session, ::Target &target) noexcept;
+  bool is_builtin() const noexcept;
   void write_phonies(::StringOutputBuffer &buffer) const noexcept;
   void write_ninja(::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) const noexcept;
   bool write_inputs(::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) const noexcept;
-  ~RustTarget() = delete;
+  ~FfiTarget() = delete;
 
 private:
   friend ::rust::layout;
@@ -1173,14 +1174,13 @@ private:
     static ::std::size_t align() noexcept;
   };
 };
-#endif // CXXBRIDGE1_STRUCT_RustTarget
+#endif // CXXBRIDGE1_STRUCT_FfiTarget
 
 #ifndef CXXBRIDGE1_STRUCT_Session
 #define CXXBRIDGE1_STRUCT_Session
 struct Session final : public ::rust::Opaque {
   static ::rust::Box<::Session> new_cxx(::rust::Str source_root, ::rust::Str build_root, ::rust::Str source_root_rel) noexcept;
   static ::rust::Box<::Session> new_for_testing() noexcept;
-  ::RustTarget const &register_cxx_target(::Target const &target) const noexcept;
   void load_values(::rust::Str label, ::rust::Str relative_to, ::rust::Slice<::rust::Str const> keys, ::Scope &scope, ::Settings const &settings, ::ParseNodePtr origin, ::Err &err) const noexcept;
   ::rust::Vec<::rust::Str> loaded() const noexcept;
   void write_all_rules(::StringOutputBuffer &buffer) const noexcept;
@@ -1284,9 +1284,9 @@ bool cxxbridge1$196$SourceFile$is_header(::SourceFile const &self) noexcept {
   return ::rust::impl<::rust::Str>::repr(source_file_to_output_path$(settings, file));
 }
 
-void cxxbridge1$196$label_target_pair_target(::LabelTargetPair const &pair, ::Target const **return$) noexcept {
+::Target const *cxxbridge1$196$label_target_pair_target(::LabelTargetPair const &pair) noexcept {
   ::Target const &(*label_target_pair_target$)(::LabelTargetPair const &) = ::label_target_pair_target;
-  new (return$) ::Target const *(&label_target_pair_target$(pair));
+  return &label_target_pair_target$(pair);
 }
 
 void cxxbridge1$196$Target$label(::Target const &self, ::Label const **return$) noexcept {
@@ -1334,14 +1334,19 @@ void cxxbridge1$196$Target$computed_outputs(::Target const &self, ::std::vector<
   new (return$) ::std::vector<::OutputFile> const *(&(self.*computed_outputs$)());
 }
 
-::RustTarget const *cxxbridge1$196$Target$rust_target(::Target const &self, ::Session const &session) noexcept {
-  ::RustTarget const &(::Target::*rust_target$)(::Session const &) const = &::Target::rust_target;
-  return &(self.*rust_target$)(session);
+::FfiTarget const *cxxbridge1$196$Target$rust_target(::Target const &self) noexcept {
+  ::FfiTarget const &(::Target::*rust_target$)() const = &::Target::rust_target;
+  return &(self.*rust_target$)();
 }
 
-void cxxbridge1$196$Target$set_rust_target(::Target const &self, ::RustTarget const &rust_target) noexcept {
-  void (::Target::*set_rust_target$)(::RustTarget const &) const = &::Target::set_rust_target;
-  (self.*set_rust_target$)(rust_target);
+::FfiTarget *cxxbridge1$196$Target$claim_rust_target_storage(::Target &self) noexcept {
+  ::FfiTarget *(::Target::*claim_rust_target_storage$)() = &::Target::claim_rust_target_storage;
+  return (self.*claim_rust_target_storage$)();
+}
+
+::std::size_t cxxbridge1$196$rust_target_storage_size() noexcept {
+  ::std::size_t (*rust_target_storage_size$)() = ::rust_target_storage_size;
+  return rust_target_storage_size$();
 }
 
 ::Settings const *cxxbridge1$196$Target$settings_cxx(::Target const &self) noexcept {
@@ -1523,24 +1528,28 @@ void cxxbridge1$196$Value$starlark_value(::Value const &self, ::OwnedFrozenValue
   ::OwnedFrozenValue const &(::Value::*starlark_value$)() const = &::Value::starlark_value;
   new (return$) ::OwnedFrozenValue const *(&(self.*starlark_value$)());
 }
-::std::size_t cxxbridge1$196$RustTarget$operator$sizeof() noexcept;
-::std::size_t cxxbridge1$196$RustTarget$operator$alignof() noexcept;
+::std::size_t cxxbridge1$196$FfiTarget$operator$sizeof() noexcept;
+::std::size_t cxxbridge1$196$FfiTarget$operator$alignof() noexcept;
 
-::rust::repr::Fat cxxbridge1$196$RustTarget$execute_rule_impl(::RustTarget const &self, ::Session const &session, ::Err &err) noexcept;
+void cxxbridge1$196$FfiTarget$new_builtin(::Session const &session, ::Target &target) noexcept;
 
-void cxxbridge1$196$RustTarget$write_phonies(::RustTarget const &self, ::StringOutputBuffer &buffer) noexcept;
+void cxxbridge1$196$drop_ffi_target(::FfiTarget *ptr) noexcept;
 
-void cxxbridge1$196$RustTarget$write_ninja(::RustTarget const &self, ::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) noexcept;
+::rust::repr::Fat cxxbridge1$196$execute_rule_impl(::Target const &target, ::Session const &session, ::Err &err) noexcept;
 
-bool cxxbridge1$196$RustTarget$write_inputs(::RustTarget const &self, ::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) noexcept;
+bool cxxbridge1$196$FfiTarget$is_builtin(::FfiTarget const &self) noexcept;
+
+void cxxbridge1$196$FfiTarget$write_phonies(::FfiTarget const &self, ::StringOutputBuffer &buffer) noexcept;
+
+void cxxbridge1$196$FfiTarget$write_ninja(::FfiTarget const &self, ::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) noexcept;
+
+bool cxxbridge1$196$FfiTarget$write_inputs(::FfiTarget const &self, ::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) noexcept;
 ::std::size_t cxxbridge1$196$Session$operator$sizeof() noexcept;
 ::std::size_t cxxbridge1$196$Session$operator$alignof() noexcept;
 
 ::Session *cxxbridge1$196$Session$new(::rust::Str source_root, ::rust::Str build_root, ::rust::Str source_root_rel) noexcept;
 
 ::Session *cxxbridge1$196$Session$new_for_testing() noexcept;
-
-::RustTarget const *cxxbridge1$196$Session$register_cxx_target(::Session const &self, ::Target const &target) noexcept;
 
 void cxxbridge1$196$Session$load_values(::Session const &self, ::rust::Str label, ::rust::Str relative_to, ::rust::Slice<::rust::Str const> keys, ::Scope &scope, ::Settings const &settings, ::ParseNodePtr *origin, ::Err &err) noexcept;
 
@@ -1559,28 +1568,40 @@ bool cxxbridge1$196$OwnedFrozenValue$eq_cxx(::OwnedFrozenValue const &self, ::Ow
 void cxxbridge1$196$OwnedFrozenValue$invoke(::OwnedFrozenValue const &self, ::Session const &session, ::std::vector<::Value> const &args, ::Scope const &kwargs, ::Value &out_val, ::Scope &scope, ::ParseNodePtr *origin, ::Err &err) noexcept;
 } // extern "C"
 
-::std::size_t RustTarget::layout::size() noexcept {
-  return cxxbridge1$196$RustTarget$operator$sizeof();
+::std::size_t FfiTarget::layout::size() noexcept {
+  return cxxbridge1$196$FfiTarget$operator$sizeof();
 }
 
-::std::size_t RustTarget::layout::align() noexcept {
-  return cxxbridge1$196$RustTarget$operator$alignof();
+::std::size_t FfiTarget::layout::align() noexcept {
+  return cxxbridge1$196$FfiTarget$operator$alignof();
 }
 
-::rust::Str RustTarget::execute_rule_impl(::Session const &session, ::Err &err) const noexcept {
-  return ::rust::impl<::rust::Str>::new_unchecked(cxxbridge1$196$RustTarget$execute_rule_impl(*this, session, err));
+void FfiTarget::new_builtin(::Session const &session, ::Target &target) noexcept {
+  cxxbridge1$196$FfiTarget$new_builtin(session, target);
 }
 
-void RustTarget::write_phonies(::StringOutputBuffer &buffer) const noexcept {
-  cxxbridge1$196$RustTarget$write_phonies(*this, buffer);
+void drop_ffi_target(::FfiTarget *ptr) noexcept {
+  cxxbridge1$196$drop_ffi_target(ptr);
 }
 
-void RustTarget::write_ninja(::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) const noexcept {
-  cxxbridge1$196$RustTarget$write_ninja(*this, buffer, platform, err);
+::rust::Str execute_rule_impl(::Target const &target, ::Session const &session, ::Err &err) noexcept {
+  return ::rust::impl<::rust::Str>::new_unchecked(cxxbridge1$196$execute_rule_impl(target, session, err));
 }
 
-bool RustTarget::write_inputs(::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) const noexcept {
-  return cxxbridge1$196$RustTarget$write_inputs(*this, outputs, has_inputs, buffer);
+bool FfiTarget::is_builtin() const noexcept {
+  return cxxbridge1$196$FfiTarget$is_builtin(*this);
+}
+
+void FfiTarget::write_phonies(::StringOutputBuffer &buffer) const noexcept {
+  cxxbridge1$196$FfiTarget$write_phonies(*this, buffer);
+}
+
+void FfiTarget::write_ninja(::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) const noexcept {
+  cxxbridge1$196$FfiTarget$write_ninja(*this, buffer, platform, err);
+}
+
+bool FfiTarget::write_inputs(::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) const noexcept {
+  return cxxbridge1$196$FfiTarget$write_inputs(*this, outputs, has_inputs, buffer);
 }
 
 ::std::size_t Session::layout::size() noexcept {
@@ -1597,10 +1618,6 @@ bool RustTarget::write_inputs(::std::vector<::OutputFile> const &outputs, bool h
 
 ::rust::Box<::Session> Session::new_for_testing() noexcept {
   return ::rust::Box<::Session>::from_raw(cxxbridge1$196$Session$new_for_testing());
-}
-
-::RustTarget const &Session::register_cxx_target(::Target const &target) const noexcept {
-  return *cxxbridge1$196$Session$register_cxx_target(*this, target);
 }
 
 void Session::load_values(::rust::Str label, ::rust::Str relative_to, ::rust::Slice<::rust::Str const> keys, ::Scope &scope, ::Settings const &settings, ::ParseNodePtr origin, ::Err &err) const noexcept {

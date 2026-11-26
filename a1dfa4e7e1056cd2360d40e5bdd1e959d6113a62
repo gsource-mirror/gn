@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ef56575_67bea502",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T07:18:43Z",
+      "side": 1,
+      "message": "Please update the commit message to match PS 3 (this now explicitly initializes `starlark_session_` via `InitStarlarkSession()` during setup and stores a plain `Session*` on a non-copyable `BuildSettings`, rather than lazily initializing an atomic pointer).",
+      "isAi": true,
+      "revId": "a1dfa4e7e1056cd2360d40e5bdd1e959d6113a62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "696626cd_7ae7e702",
+        "filename": "src/gn/build_settings.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T07:18:43Z",
+      "side": 1,
+      "message": "Could we add a brief comment here noting that `InitStarlarkSession()` must be called once after `SetRootPath()` and `SetBuildDir()` are configured, and that subsequent `SetRootPath()` / `SetBuildDir()` calls won\u0027t update an already-initialized session? (Since several existing tests call `SetRootPath()` / `SetBuildDir()` on a default `TestWithScope` after `set_starlark_session_for_testing()`, adding an unconditional `DCHECK(!starlark_session_)` there would break those tests unless they are also updated.)",
+      "isAi": true,
+      "revId": "a1dfa4e7e1056cd2360d40e5bdd1e959d6113a62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91217375_921d2eed",
+        "filename": "src/gn/build_settings.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T07:18:43Z",
+      "side": 1,
+      "message": "Nit: Since this is a non-inline initializer that allocates a Rust `Session` (rather than a simple setter), naming it `InitStarlarkSessionForTesting()` would be more consistent with `InitStarlarkSession()` and the style guide.",
+      "isAi": true,
+      "revId": "a1dfa4e7e1056cd2360d40e5bdd1e959d6113a62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99c3816d_7e25c763",
+        "filename": "src/gn/test_with_scope.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T07:18:43Z",
+      "side": 1,
+      "message": "`Settings::Settings()` reads `build_settings-\u003ebuild_dir()` during construction to initialize `toolchain_output_dir_` and `toolchain_gen_dir_` (`src/gn/settings.cc:15,28-29`). Because `build_settings_.SetBuildDir(build_dir)` was moved into the constructor body (line 28), `settings_` is now constructed while `build_settings_.build_dir()` is still null, leaving `settings_.toolchain_output_dir_` and `toolchain_gen_dir_` empty.\n\nCould we keep `build_dir` initialized before `settings_` (e.g., via a `BuildSettings` constructor taking `build_dir`, or a move constructor so `CreateBuildSettingsForTest()` can still run in the initializer list)?",
+      "isAi": true,
+      "revId": "a1dfa4e7e1056cd2360d40e5bdd1e959d6113a62",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

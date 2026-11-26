@@ -577,6 +577,21 @@ TEST(ResolvedTargetDataTest, HardDepsStrictIncludes) {
   EXPECT_EQ(2u, exempted_hard_deps.size());
   EXPECT_TRUE(exempted_hard_deps.contains(&pub_action));
   EXPECT_TRUE(exempted_hard_deps.contains(&priv_action));
+
+  // An explicit `check_includes_strict = true` overrides exceptions (including
+  // global `//*` exemptions) and still only forwards public hard deps.
+  TestTarget explicit_strict(setup, "//bar:explicit_strict",
+                             Target::SOURCE_SET);
+  explicit_strict.set_check_includes_strict(true);
+  explicit_strict.set_check_includes_strict_explicit(true);
+  explicit_strict.public_deps().push_back(LabelTargetPair(&pub_action));
+  explicit_strict.private_deps().push_back(LabelTargetPair(&priv_action));
+  ASSERT_TRUE(explicit_strict.OnResolved(&err));
+
+  const TargetSet& explicit_hard_deps = resolved.GetHardDeps(&explicit_strict);
+  EXPECT_EQ(1u, explicit_hard_deps.size());
+  EXPECT_TRUE(explicit_hard_deps.contains(&pub_action));
+  EXPECT_FALSE(explicit_hard_deps.contains(&priv_action));
 }
 
 TEST(ResolvedTargetDataTest, HardDepsRustLibrary) {

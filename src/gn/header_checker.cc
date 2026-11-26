@@ -671,14 +671,29 @@ void HeaderChecker::CheckInclude(ReachabilityCache& from_target_cache,
     }
   }
 
+  // Explicitly setting `check_includes_strict = true` enforces that this
+  // target's own public headers do not include its private headers or private
+  // deps even when exempted by `check_includes_strict_exceptions`, guaranteeing
+  // the precondition for `ResolvedTargetData::OnlyForwardsPublicHardDeps()`.
+  // Transitive inclusion through upstream targets' `public_deps` continues to
+  // respect `strict_exempt` so opting a single target in does not fail due to
+  // upstream targets that are still covered by global exemptions.
+  const bool enforce_own_public_headers =
+      from_target->check_includes_strict() &&
+      (!strict_exempt ||
+       from_target->check_includes_strict_explicitly_enabled());
+
   // Fast path: the include is valid if any target containing this header is
   // the includer itself, allowlists the includer, or is reachable through a
   // permitted dependency chain.
+  auto search_type =
+      strict_exempt
+          ? ReachabilityCache::DependencyType::kPermittedIgnoringStrict
+          : ReachabilityCache::DependencyType::kPermitted;
   for (const auto& target : targets) {
     const Target* to_target = target.target;
     if (to_target == from_target) {
-      if (from_target->check_includes_strict() && is_public_header &&
-          !target.is_public && !strict_exempt) {
+      if (enforce_own_public_headers && is_public_header && !target.is_public) {
         break;
       }
       return;
@@ -692,17 +707,13 @@ void HeaderChecker::CheckInclude(ReachabilityCache& from_target_cache,
     if (!target.is_public && !FriendMatches(to_target, from_target))
       continue;
 
-    auto search_type =
-        strict_exempt
-            ? ReachabilityCache::DependencyType::kPermittedIgnoringStrict
-            : ReachabilityCache::DependencyType::kPermitted;
     if (!from_target_cache.SearchForDependencyTo(to_target, search_type,
                                                  &chain))
       continue;
     DCHECK(chain.size() >= 2);
 
-    if (from_target->check_includes_strict() && is_public_header &&
-        !chain[chain.size() - 2].is_public && !strict_exempt) {
+    if (enforce_own_public_headers && is_public_header &&
+        !chain[chain.size() - 2].is_public) {
       continue;
     }
     return;
@@ -729,9 +740,11 @@ void HeaderChecker::CheckInclude(ReachabilityCache& from_target_cache,
       return;
     }
 
-    bool is_permitted_chain = false;
-    if (!IsDependencyOf(to_target, from_target_cache, &chain,
-                        &is_permitted_chain)) {
+    bool is_permitted_chain =
+        from_target_cache.SearchForDependencyTo(to_target, search_type, &chain);
+    if (!is_permitted_chain &&
+        !from_target_cache.SearchForDependencyTo(
+            to_target, ReachabilityCache::DependencyType::kNonPublic, &chain)) {
       continue;
     }
     DCHECK(chain.size() >= 2);

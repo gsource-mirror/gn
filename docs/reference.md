@@ -5798,7 +5798,9 @@
 
   Note that targets listed in "allow_circular_includes_from" and
   "check_includes_strict_exceptions" act as an escape hatch and bypass these
-  strict checks.
+  strict checks, except that explicitly setting "check_includes_strict = true"
+  on a target still enforces rules 1 and 2 on its own public headers even when
+  the target matches "check_includes_strict_exceptions".
 
   This enforces strict API boundary separation. Under this strict model:
   * "public_deps" act as interface dependencies (dependencies required to
@@ -5807,7 +5809,8 @@
   * "deps" act as private implementation dependencies (dependencies required to
     compile this target's sources). This also allows dependent targets to
     compile without waiting for this target's private "deps" (unless this
-    target is exempted as an includer via check_includes_strict_exceptions).
+    target is exempted as an includer via check_includes_strict_exceptions and
+    did not explicitly set check_includes_strict = true).
 
   When false (the default), the default loose include checking rules apply.
 ```

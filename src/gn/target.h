@@ -198,6 +198,21 @@ class Target : public Item {
   bool check_includes_strict() const { return check_includes_strict_; }
   void set_check_includes_strict(bool value) { check_includes_strict_ = value; }
 
+  // Whether `check_includes_strict` was explicitly set in the BUILD file.
+  bool check_includes_strict_explicit() const {
+    return check_includes_strict_explicit_;
+  }
+  void set_check_includes_strict_explicit(bool value) {
+    check_includes_strict_explicit_ = value;
+  }
+
+  // Returns true when `check_includes_strict = true` was explicitly set on this
+  // target. Such targets are not exempted by `check_includes_strict_exceptions`
+  // in .gn as an includer.
+  bool check_includes_strict_explicitly_enabled() const {
+    return check_includes_strict_ && check_includes_strict_explicit_;
+  }
+
   // Whether this static_library target should have code linked in.
   bool complete_static_lib() const { return complete_static_lib_; }
   void set_complete_static_lib(bool complete) {
@@ -590,6 +605,7 @@ class Target : public Item {
   FileList public_headers_;
   bool check_includes_ = true;
   bool check_includes_strict_ = false;
+  bool check_includes_strict_explicit_ = false;
   bool complete_static_lib_ = false;
   bool collect_validations_metadata_ = false;
   std::vector<std::string> data_;

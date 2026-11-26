@@ -257,28 +257,23 @@ where
                 })
                 .collect::<Result<Vec<_>, _>>()?;
 
-            let mut cxx_target = if let Some(builtin) = self.output_type {
+            let mut child_scope = if self.output_type.is_some() {
                 // Collect all the arguments we don't recognise and pass them to the native
                 // implementation.
                 let kwargs: SmallMap<String, Value<'v>> = param_parser.next()?;
-                let mut child_scope = scope
+                scope
                     .as_mut()
-                    .copy_with(kwargs.iter().map(|(k, v)| (k.as_str(), *v)))?;
-                context.create_target(
-                    Some(builtin),
-                    target_name,
-                    C::Scope::as_pin_mut(&mut child_scope),
-                )?
+                    .copy_with(kwargs.iter().map(|(k, v)| (k.as_str(), *v)))?
             } else {
-                let mut child_scope = scope.as_mut().copy_with(std::iter::empty())?;
-                context.create_target(None, target_name, C::Scope::as_pin_mut(&mut child_scope))?
+                scope.as_mut().copy_with(std::iter::empty())?
             };
-            for attr in &attrs {
-                for (label, toolchain) in attr.dependencies(context.current_toolchain()) {
-                    types::TargetMut::register_dependency(cxx_target.as_mut(), label, toolchain);
-                }
-            }
-            context.register_target(cxx_target.into_ref().get_ref(), me, attrs)?;
+            context.create_target(
+                self.output_type,
+                target_name,
+                C::Scope::as_pin_mut(&mut child_scope),
+                me,
+                attrs,
+            )?;
 
             Ok(Value::new_none())
         })

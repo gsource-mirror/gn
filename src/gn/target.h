@@ -39,8 +39,6 @@ class ResolvedTargetData;
 class Settings;
 class Target;
 class Toolchain;
-struct RustTarget;
-struct Session;
 
 using TargetSet = PointerSet<const Target>;
 
@@ -376,14 +374,6 @@ class Target : public Item {
   const RustValues& rust_values() const;
   bool has_rust_values() const { return rust_values_.get(); }
 
-  const RustTarget& rust_target(const Session& session) const;
-  const RustTarget* rust_target() const {
-    return rust_target_.load(std::memory_order_acquire);
-  }
-  void set_rust_target(const RustTarget& rust_target) const {
-    rust_target_.store(&rust_target, std::memory_order_release);
-  }
-
   std::vector<LabelPattern>& friends() { return friends_; }
   const std::vector<LabelPattern>& friends() const { return friends_; }
 
@@ -655,9 +645,6 @@ class Target : public Item {
 
   // GeneratedFile as metadata collection values.
   std::unique_ptr<GeneratedFile> generated_file_;
-
-  // A cache of the Session's RustTarget for this target.
-  mutable std::atomic<const RustTarget*> rust_target_ = nullptr;
 
   friend class ResolvedTargetData;
 

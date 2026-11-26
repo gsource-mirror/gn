@@ -2,15 +2,45 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use allocative::Allocative;
 use starlark::values::{AllocValue, Heap, ProvidesStaticType, StarlarkValue, Value};
 use starlark_derive::{NoSerialize, starlark_value};
 use types::{LabelRef, TargetRef as _};
 
 use crate::target::Target;
 
-#[derive(Clone, Copy, Allocative, ProvidesStaticType, NoSerialize)]
-pub struct TargetRef(pub(crate) &'static Target);
+#[derive(Clone, Copy, ProvidesStaticType, NoSerialize)]
+pub struct TargetRef(&'static crate::bridge::CxxTarget);
+
+impl TargetRef {
+    /// Creates a new reference to a C++ target.
+    pub fn new(target: &'static crate::bridge::CxxTarget) -> Self {
+        Self(target)
+    }
+
+    /// Returns the package directory of this target.
+    pub fn package(self) -> &'static types::PackageRef {
+        self.0.label().package()
+    }
+
+    /// Returns the toolchain label for this target.
+    pub fn toolchain(self) -> LabelRef<'static> {
+        self.0.toolchain()
+    }
+}
+
+impl allocative::Allocative for TargetRef {
+    fn visit<'a, 'b: 'a>(&self, visitor: &'a mut allocative::Visitor<'b>) {
+        let visitor = visitor.enter_self_sized::<Self>();
+        visitor.exit();
+    }
+}
+
+// Safety: Target pointers in GN are heap-allocated and thread-safe to transfer
+// across evaluation boundaries.
+unsafe impl Send for TargetRef {}
+// Safety: Target pointers in GN are thread-safe to reference across evaluation
+// boundaries.
+unsafe impl Sync for TargetRef {}
 
 impl PartialEq for TargetRef {
     fn eq(&self, other: &Self) -> bool {
@@ -23,7 +53,7 @@ impl std::ops::Deref for TargetRef {
     type Target = Target;
 
     fn deref(&self) -> &Self::Target {
-        self.0
+        self.0.rust_target()
     }
 }
 
@@ -66,8 +96,7 @@ impl<'v> StarlarkValue<'v> for TargetRef {
     }
 
     fn at(&self, index: Value<'v>, heap: Heap<'v>) -> starlark::Result<Value<'v>> {
-        self.0
-            .evaluated()
+        self.evaluated()
             .by_ref_with_reconstructor(|evaluated, reconstructor| {
                 match evaluated.providers.get(self, index)? {
                     Some(val) => Ok(reconstructor.edge(heap).rebrand(val)),
@@ -79,8 +108,7 @@ impl<'v> StarlarkValue<'v> for TargetRef {
     }
 
     fn is_in(&self, index: Value<'v>) -> starlark::Result<bool> {
-        self.0
-            .evaluated()
+        self.evaluated()
             .by_ref(|evaluated| evaluated.providers.contains(self, index))
     }
 
@@ -103,7 +131,6 @@ impl<'v> AllocValue<'v> for TargetRef {
 }
 
 impl types::TargetRef for TargetRef {
-    type Cxx = crate::bridge::CxxTarget;
     type Rule = rule::Rule<'static, crate::eval_context::EvalContext>;
     type Session = crate::Session;
 
@@ -116,12 +143,11 @@ impl types::TargetRef for TargetRef {
     }
 
     fn rule(&self) -> &'static Self::Rule {
-        self.0.rule
+        self.rule
     }
 
     fn outputs(&self) -> Vec<types::File> {
         self.0
-            .cxx
             .computed_outputs()
             .iter()
             .map(|f| f.to_rust())
@@ -136,7 +162,7 @@ impl types::TargetRef for TargetRef {
         self.0.settings().is_default()
     }
 
-    fn builtin_attrs<'v>(&self, session: &Self::Session, heap: &Heap<'v>) -> Vec<Value<'v>> {
+    fn builtin_attrs<'v>(&self, heap: &Heap<'v>) -> Vec<Value<'v>> {
         let Some(output_type) = self.output_type() else {
             return vec![];
         };
@@ -181,7 +207,7 @@ impl types::TargetRef for TargetRef {
                     self.0
                         .private_deps()
                         .iter()
-                        .map(|target| heap.alloc(target.to_rust(session)))
+                        .map(|target| heap.alloc(target.to_rust()))
                         .collect::<Vec<_>>(),
                 ),
             );
@@ -192,7 +218,7 @@ impl types::TargetRef for TargetRef {
                     self.0
                         .public_deps()
                         .iter()
-                        .map(|target| heap.alloc(target.to_rust(session)))
+                        .map(|target| heap.alloc(target.to_rust()))
                         .collect::<Vec<_>>(),
                 ),
             );
@@ -201,8 +227,7 @@ impl types::TargetRef for TargetRef {
     }
 
     fn has_provider(&self, id: types::ProviderId) -> bool {
-        self.0
-            .evaluated
+        self.evaluated
             .get()
             .is_some_and(|evaluated| evaluated.by_ref(|e| e.providers.contains_id(id)))
     }
@@ -210,31 +235,11 @@ impl types::TargetRef for TargetRef {
 
 impl attr::TargetAttrExt for TargetRef {
     fn attrs(&self) -> &[attr::Attr] {
-        self.0.attrs.as_slice()
+        self.attrs.as_slice()
     }
 
-    fn deps<'a>(&'a self, session: &'a Self::Session) -> impl Iterator<Item = Self> + 'a {
-        self.0
-            .cxx
-            .starlark_deps()
-            .iter()
-            .map(|pair| pair.to_rust(session))
-    }
-}
-
-impl types::TargetMut for crate::bridge::CxxTarget {
-    fn register_dependency(
-        self: std::pin::Pin<&mut Self>,
-        label: LabelRef<'_>,
-        toolchain: LabelRef<'_>,
-    ) {
-        crate::bridge::register_dependency(
-            self,
-            label.package().as_str(),
-            label.name(),
-            toolchain.package().as_str(),
-            toolchain.name(),
-        );
+    fn deps(&self) -> impl Iterator<Item = Self> + '_ {
+        self.0.starlark_deps().iter().map(|pair| pair.to_rust())
     }
 }
 
@@ -242,7 +247,7 @@ impl crate::bridge::LabelTargetPair {
     /// Returns the resolved target.
     ///
     /// Must only be called if the target is already resolved.
-    pub fn to_rust(&self, session: &crate::Session) -> TargetRef {
-        crate::bridge::label_target_pair_target(self).to_rust(session)
+    pub fn to_rust(&self) -> TargetRef {
+        TargetRef(crate::bridge::label_target_pair_target(self))
     }
 }

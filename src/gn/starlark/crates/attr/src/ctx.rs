@@ -229,10 +229,7 @@ mod tests {
             let deps = fields
                 .iter()
                 .flat_map(|field| field.dependencies(context.current_toolchain.as_ref()))
-                .map(|(lbl, tc)| {
-                    use types::Session as _;
-                    context.session.get_target(lbl, tc)
-                });
+                .map(|(lbl, tc)| context.get_target(lbl, tc));
             let ctx = schema.create_ctx_fields(&fields, deps, None, Vec::new(), &eval.heap())?;
 
             Ok(eval.heap().alloc((ctx.attr, ctx.files, ctx.file)))
@@ -245,9 +242,9 @@ mod tests {
 
         let target_label = Label::new(PackageRef::root().to_owned(), "bar".to_owned());
         let file1 = File::intern("out.cc");
-        a.session().insert_target(FakeTarget {
+        a.context().insert_target(FakeTarget {
             outputs: vec![file1],
-            ..a.session()
+            ..a.context()
                 .empty_target(target_label.package(), target_label.name())
         });
 

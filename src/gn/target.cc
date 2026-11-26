@@ -630,9 +630,9 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
   if (!SwiftValues::OnTargetResolved(this, err))
     return false;
 
-  if (auto* rust = rust_target_.load(std::memory_order_acquire)) {
-    auto phony = rust->execute_rule_impl(
-        settings()->build_settings()->starlark_session(), *err);
+  if (!is_builtin()) {
+    auto phony = execute_rule_impl(
+        *this, settings()->build_settings()->starlark_session(), *err);
     if (err->has_error()) {
       err->AppendSubErr(Err(
           user_friendly_location(),

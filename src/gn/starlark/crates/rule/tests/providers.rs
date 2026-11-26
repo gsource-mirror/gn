@@ -4,7 +4,7 @@
 
 use rule::run;
 use testutils::{Assert, FakeEvalContext};
-use types::{LabelRef, PackageRef, Session as _};
+use types::{LabelRef, PackageRef};
 
 #[test]
 fn test_provides() {
@@ -75,7 +75,7 @@ child(
             ),
         ),
     ] {
-        let target = context.session.get_target(
+        let target = context.get_target(
             LabelRef::new(PackageRef::root(), name),
             context.session.default_toolchain.as_ref(),
         );
@@ -228,7 +228,7 @@ req_rule(name = "string_keyed_missing", string_keyed_dict = {"k": ":none"})
             ),
         ),
     ] {
-        let target = context.session.get_target(
+        let target = context.get_target(
             LabelRef::new(PackageRef::root(), name),
             context.session.default_toolchain.as_ref(),
         );

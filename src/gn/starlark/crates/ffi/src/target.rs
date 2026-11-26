@@ -16,46 +16,42 @@ use crate::{
 };
 
 pub struct Target {
-    // We maintain a 0-1 relationship between starlark Targets and rust targets.
-    // starlark targets store a reference to C++ targets, and C++ targets store an optional
-    // reference to starlark targets.
-    pub(crate) cxx: &'static crate::bridge::CxxTarget,
     pub(crate) rule: &'static rule::Rule<'static, EvalContext>,
     pub(crate) attrs: Vec<attr::Attr>,
     pub(crate) evaluated:
         OnceCell<OwnedFrozen<ValueTyped<'static, rule::EvaluatedTarget<'static>>>>,
 }
 
+/// Drops an initialized `Target` stored inline in C++ `Item::rust_target_storage_`.
+///
+/// # Safety
+/// `ptr` must point to an initialized, properly aligned `Target` that will
+/// not be accessed after this call.
+pub unsafe fn drop_ffi_target(ptr: *mut Target) {
+    // Safety: Caller guarantees exclusive ownership of an initialized `Target`.
+    unsafe { std::ptr::drop_in_place(ptr) };
+}
+
 impl Target {
-    /// Executes the rule implementation for this target if it has a custom
-    /// Starlark rule.
-    pub fn execute_rule_impl(
-        &self,
-        session: &'static crate::Session,
-        err: std::pin::Pin<&mut crate::bridge::Err>,
-    ) -> &'static str {
-        // Safety: Targets in GN are pinned in the session and outlive rule execution.
-        let static_self: &'static Self = unsafe { types::util::extend_lifetime(self) };
-        let target_ref = TargetRef(static_self);
-        let res = rule::run(&target_ref, |t| {
-            crate::eval_context::EvalContext::new_rule_impl(session, *t)
-        });
-        if let Some(evaluated) = err.handle(res) {
-            let phony = evaluated.by_ref(|evaluated| {
-                evaluated
-                    .providers
-                    .outputs_phony
-                    .as_ref()
-                    .map(|f| f.as_str())
-                    .unwrap_or_default()
-            });
-            self.evaluated
-                .set(evaluated)
-                .expect("Rules can only be executed once");
-            phony
-        } else {
-            ""
-        }
+    /// Constructs a built-in `Target` in-place inside `storage` for `output_type`.
+    ///
+    /// # Safety
+    /// `storage` must point to uninitialized, properly aligned storage for `Target`,
+    /// whose size and alignment are verified by `Session::from_resolver` and the
+    /// compile-time assert below.
+    pub unsafe fn new_builtin(session: &crate::Session, storage: *mut Self, output_type: u8) {
+        let target = Self {
+            rule: session.builtin_rule(output_type),
+            attrs: Vec::new(),
+            evaluated: Default::default(),
+        };
+        // Safety: Caller guarantees `storage` is uninitialized, valid, and properly aligned.
+        unsafe { std::ptr::write(storage, target) };
+    }
+
+    /// Returns `true` if this target uses a built-in GN rule.
+    pub fn is_builtin(&self) -> bool {
+        self.rule.is_builtin()
     }
 
     /// Writes out Ninja phony rules declared by this target into the provided buffer.
@@ -140,27 +136,39 @@ impl Target {
     }
 }
 
-impl std::ops::Deref for Target {
-    type Target = crate::bridge::CxxTarget;
-
-    fn deref(&self) -> &Self::Target {
-        self.cxx
+/// Executes the rule implementation for a target if it has a custom
+/// Starlark rule.
+pub fn execute_rule_impl(
+    target: &'static crate::bridge::CxxTarget,
+    session: &'static crate::Session,
+    err: std::pin::Pin<&mut crate::bridge::Err>,
+) -> &'static str {
+    let target_ref = TargetRef::new(target);
+    let res = rule::run(&target_ref, |t| {
+        crate::eval_context::EvalContext::new_rule_impl(session, *t)
+    });
+    if let Some(evaluated) = err.handle(res) {
+        let phony = evaluated.by_ref(|evaluated| {
+            session.record_mnemonics(&evaluated.actions);
+            evaluated
+                .providers
+                .outputs_phony
+                .as_ref()
+                .map(|f| f.as_str())
+                .unwrap_or_default()
+        });
+        target_ref
+            .evaluated
+            .set(evaluated)
+            .expect("Rules can only be executed once");
+        phony
+    } else {
+        ""
     }
 }
 
-impl allocative::Allocative for Target {
-    fn visit<'a, 'b: 'a>(&self, visitor: &'a mut allocative::Visitor<'b>) {
-        let visitor = visitor.enter_self_sized::<Self>();
-        visitor.exit();
-    }
-}
-
-// Safety: Target pointers in GN are heap-allocated and thread-safe to transfer
-// across evaluation boundaries.
-unsafe impl Send for Target {}
-// Safety: Target pointers in GN are thread-safe to reference across evaluation
-// boundaries.
-unsafe impl Sync for Target {}
+// Item::rust_target_storage_ in C++ uses `alignof(void*)`.
+const _: () = assert!(std::mem::align_of::<Target>() <= std::mem::align_of::<*const ()>());
 
 impl crate::bridge::CxxTarget {
     /// Returns the output type of the target as a u8 discriminant.
@@ -177,12 +185,6 @@ impl crate::bridge::CxxTarget {
     /// Returns the toolchain label for the target.
     pub fn toolchain(&self) -> types::LabelRef<'_> {
         self.settings().toolchain_label().as_ref()
-    }
-
-    /// Returns a reference to the associated Rust Target, registering it with
-    /// the session if it doesn't exist yet.
-    pub fn to_rust(&self, session: &crate::Session) -> TargetRef {
-        TargetRef(self.rust_target(session))
     }
 }
 

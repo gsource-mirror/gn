@@ -5,6 +5,7 @@
 #ifndef TOOLS_GN_FFI_TARGET_H_
 #define TOOLS_GN_FFI_TARGET_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "cxx.h"
@@ -37,5 +38,8 @@ void register_dependency(Target& target,
 // Returns the resolved target from a LabelTargetPair.
 // Must only be called if the target is already resolved.
 const Target& label_target_pair_target(const LabelTargetPair& pair);
+
+// Returns the byte capacity of `Item::rust_target_storage_`.
+size_t rust_target_storage_size();
 
 #endif  // TOOLS_GN_FFI_TARGET_H_

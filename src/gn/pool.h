@@ -16,7 +16,9 @@
 // generated ninja build. Pools are referenced by toolchains.
 class Pool : public Item {
  public:
-  using Item::Item;
+  Pool(const Settings* settings,
+       const Label& label,
+       const SourceFileSet& build_dependency_files = {});
   ~Pool() override;
 
   // Item implementation.

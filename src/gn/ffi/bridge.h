@@ -43,6 +43,11 @@
 #include <ranges>
 #endif
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
+#endif // __clang__
+
 namespace rust {
 inline namespace cxxbridge1 {
 // #include "rust/cxx.h"
@@ -1015,7 +1020,7 @@ using Scope = ::Scope;
 using TestWithScope = ::TestWithScope;
 using Value = ::Value;
 using ParseNode = ::ParseNode;
-struct RustTarget;
+struct FfiTarget;
 struct Session;
 struct OwnedFrozenValue;
 
@@ -1075,14 +1080,15 @@ static_assert(sizeof(EscapingPlatform) == sizeof(::std::uint8_t), "incorrect siz
 static_assert(static_cast<::std::uint8_t>(EscapingPlatform::ESCAPE_PLATFORM_POSIX) == 0, "disagrees with the value in #[cxx::bridge]");
 static_assert(static_cast<::std::uint8_t>(EscapingPlatform::ESCAPE_PLATFORM_WIN) == 1, "disagrees with the value in #[cxx::bridge]");
 
-#ifndef CXXBRIDGE1_STRUCT_RustTarget
-#define CXXBRIDGE1_STRUCT_RustTarget
-struct RustTarget final : public ::rust::Opaque {
-  ::rust::Str execute_rule_impl(::Session const &session, ::Err &err) const noexcept;
+#ifndef CXXBRIDGE1_STRUCT_FfiTarget
+#define CXXBRIDGE1_STRUCT_FfiTarget
+struct FfiTarget final : public ::rust::Opaque {
+  static void new_builtin(::Session const &session, ::FfiTarget *storage, ::std::uint8_t output_type) noexcept;
+  bool is_builtin() const noexcept;
   void write_phonies(::StringOutputBuffer &buffer) const noexcept;
   void write_ninja(::StringOutputBuffer &buffer, ::EscapingPlatform platform, ::Err &err) const noexcept;
   bool write_inputs(::std::vector<::OutputFile> const &outputs, bool has_inputs, ::StringOutputBuffer &buffer) const noexcept;
-  ~RustTarget() = delete;
+  ~FfiTarget() = delete;
 
 private:
   friend ::rust::layout;
@@ -1091,14 +1097,13 @@ private:
     static ::std::size_t align() noexcept;
   };
 };
-#endif // CXXBRIDGE1_STRUCT_RustTarget
+#endif // CXXBRIDGE1_STRUCT_FfiTarget
 
 #ifndef CXXBRIDGE1_STRUCT_Session
 #define CXXBRIDGE1_STRUCT_Session
 struct Session final : public ::rust::Opaque {
   static ::rust::Box<::Session> new_cxx(::rust::Str source_root, ::rust::Str build_root, ::rust::Str source_root_rel) noexcept;
   static ::rust::Box<::Session> new_for_testing() noexcept;
-  ::RustTarget const &register_cxx_target(::Target const &target) const noexcept;
   void load_values(::rust::Str label, ::rust::Str relative_to, ::rust::Slice<::rust::Str const> keys, ::Scope &scope, ::Settings const &settings, ::ParseNodePtr origin, ::Err &err) const noexcept;
   ::rust::Vec<::rust::Str> loaded() const noexcept;
   void write_all_rules(::StringOutputBuffer &buffer) const noexcept;
@@ -1130,3 +1135,11 @@ private:
   };
 };
 #endif // CXXBRIDGE1_STRUCT_OwnedFrozenValue
+
+void drop_ffi_target(::FfiTarget *ptr) noexcept;
+
+::rust::Str execute_rule_impl(::Target const &target, ::Session const &session, ::Err &err) noexcept;
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif // __clang__

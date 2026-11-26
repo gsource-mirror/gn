@@ -13,29 +13,18 @@ pub trait TargetAttrExt: TargetRef {
 
     /// Returns an iterator over the resolved dependencies of this target in
     /// attribute traversal order.
-    fn deps<'a>(&'a self, session: &'a Self::Session) -> impl Iterator<Item = Self> + 'a;
+    fn deps(&self) -> impl Iterator<Item = Self> + '_;
 }
 
 /// Extension trait for EvalContext to support target creation.
 pub trait EvalContextAttrExt: types::EvalContext {
-    /// Creates a new C++ target, returning a mutable reference to it.
+    /// Creates and registers a new target.
     fn create_target(
         &self,
         target_type: Option<OutputType>,
         target_name: &str,
         scope: std::pin::Pin<&mut Self::Scope>,
-    ) -> starlark::Result<
-        std::pin::Pin<
-            &'static mut <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,
-        >,
-    >;
-
-    /// Registers the C++ target in the session, wrapping it and returning an
-    /// immutable TargetRef.
-    fn register_target(
-        &self,
-        cxx_target: &'static <<Self::Session as types::Session>::TargetRef as types::TargetRef>::Cxx,
         rule: starlark::values::Value<'static>,
         attrs: Vec<crate::Attr>,
-    ) -> starlark::Result<<Self::Session as types::Session>::TargetRef>;
+    ) -> starlark::Result<()>;
 }

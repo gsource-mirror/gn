@@ -5,6 +5,8 @@
 #ifndef TOOLS_GN_ITEM_H_
 #define TOOLS_GN_ITEM_H_
 
+#include <cstddef>
+#include <cstdint>
 #include <set>
 #include <string>
 
@@ -19,6 +21,7 @@ class Settings;
 class SourceFile;
 class Target;
 class Toolchain;
+struct FfiTarget;
 
 // A named item (target, config, etc.) that participates in the dependency
 // graph.
@@ -71,6 +74,14 @@ class Item {
 
   SourceFileSet& build_dependency_files() { return build_dependency_files_; }
 
+  static constexpr size_t kRustTargetSize = 48;
+
+  const FfiTarget& rust_target() const;
+  // Claims the uninitialized `rust_target_storage_` for one-time in-place
+  // construction by the caller. Must be called at most once, and the caller
+  // must immediately initialize the returned storage before `~Item()` runs.
+  FfiTarget* claim_rust_target_storage();
+
   // Called when this item is resolved, meaning it and all of its dependents
   // have no unresolved deps. Returns true on success. Sets the error and
   // returns false on failure.
@@ -85,6 +96,13 @@ class Item {
 
   bool testonly_ = false;
   Visibility visibility_;
+
+  // Stored on `Item` rather than `Target` for upcoming `Config` support so
+  // non-target items can participate in Starlark dependencies with the same
+  // representation.
+  // Use c-style array instead of std::array so it doesn't zero-init.
+  // Pointer alignment should be sufficient. This is tested in rust.
+  alignas(alignof(void*)) std::byte rust_target_storage_[kRustTargetSize];
 };
 
 #endif  // TOOLS_GN_ITEM_H_

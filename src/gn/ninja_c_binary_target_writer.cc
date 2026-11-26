@@ -690,8 +690,9 @@ void NinjaCBinaryTargetWriter::WriteLinkerStuff(
     path_output_.WriteFiles(out_, implicit_deps);
   }
 
-  if (const auto* rust = target_->rust_target()) {
-    rust->write_inputs(output_files, has_implicit_inputs, out_);
+  if (!target_->rust_target().is_builtin()) {
+    target_->rust_target().write_inputs(output_files, has_implicit_inputs,
+                                        out_);
   }
 
   // Append data dependencies as order-only dependencies.

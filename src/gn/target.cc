@@ -411,11 +411,18 @@ Dependencies
 Target::Target(const Settings* settings,
                const Label& label,
                OutputType output_type,
-               const SourceFileSet& build_dependency_files)
+               const SourceFileSet& build_dependency_files,
+               bool init_rust)
     : Item(settings, label, build_dependency_files),
       output_type_(output_type),
       module_name_(
-          label.GetUserVisibleName(settings->default_toolchain_label())) {}
+          label.GetUserVisibleName(settings->default_toolchain_label())) {
+  if (init_rust) {
+    FfiTarget::new_builtin(settings->build_settings()->starlark_session(),
+                           claim_rust_target_storage(),
+                           static_cast<uint8_t>(output_type_));
+  }
+}
 
 Target::~Target() = default;
 
@@ -631,9 +638,9 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
   if (!SwiftValues::OnTargetResolved(this, err))
     return false;
 
-  if (auto* rust = rust_target_.load(std::memory_order_acquire)) {
-    auto phony = rust->execute_rule_impl(
-        settings()->build_settings()->starlark_session(), *err);
+  if (!rust_target().is_builtin()) {
+    auto phony = execute_rule_impl(
+        *this, settings()->build_settings()->starlark_session(), *err);
     if (err->has_error()) {
       err->AppendSubErr(Err(
           user_friendly_location(),

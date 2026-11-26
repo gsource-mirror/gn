@@ -46,7 +46,8 @@ class TargetGenerator {
                                 const FunctionCallNode* function_call,
                                 std::string_view name,
                                 std::string_view output_type,
-                                Err* err);
+                                Err* err,
+                                bool init_rust = true);
 
  protected:
   // Derived classes implement this to do type-specific generation.

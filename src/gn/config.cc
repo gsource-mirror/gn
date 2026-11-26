@@ -4,14 +4,22 @@
 
 #include "gn/config.h"
 
+#include "gn/build_settings.h"
 #include "gn/err.h"
+#include "gn/ffi/bridge.h"
 #include "gn/input_file_manager.h"
 #include "gn/scheduler.h"
+#include "gn/settings.h"
+#include "gn/target.h"
 
 Config::Config(const Settings* settings,
                const Label& label,
                const SourceFileSet& build_dependency_files)
-    : Item(settings, label, build_dependency_files) {}
+    : Item(settings, label, build_dependency_files) {
+  FfiTarget::new_builtin(settings->build_settings()->starlark_session(),
+                         claim_rust_target_storage(),
+                         Target::kConfigOutputType);
+}
 
 Config::~Config() = default;
 

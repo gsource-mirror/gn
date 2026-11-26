@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "753e46c9_1c5549bc",
+        "filename": "src/gn/build_settings.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T06:55:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "699eb47e_0d98c29e",
+      "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d412cd30_53aee14d",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "Nit: `UNLIKELY` comes from `\"base/compiler_specific.h\"`, which is only included transitively here. Consider including `\"base/compiler_specific.h\"` directly for IWYU (or using standard C++20 `[[unlikely]]`).",
       "isAi": true,
+      "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a76682a_9d7bd312",
+        "filename": "src/gn/build_settings.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T06:55:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d412cd30_53aee14d",
       "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -55,6 +91,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fce67054_d9ca04e4",
+        "filename": "src/gn/build_settings.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T06:55:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df03d740_39846bb7",
+      "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "84361c18_e4349c32",
@@ -73,6 +127,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "430a13cd_ea095712",
+        "filename": "src/gn/build_settings.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T06:55:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "84361c18_e4349c32",
+      "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2a06e045_cf9b4445",
@@ -87,6 +159,24 @@
       "side": 1,
       "message": "Removing the `has_starlark_session()` guard here (and at line 368 / `json_project_writer.cc:378`) means even builds that never use Starlark will eagerly construct a full `Session` (including building `Globals` and preloading builtins) during output writing just to query empty rules/loaded files and immediately drop it.\n\nThat seems to defeat the main benefit of lazy initialization for non-Starlark builds. Could we keep `has_starlark_session()` (e.g., `starlark_session_.load(std::memory_order_acquire) !\u003d nullptr`) or add a non-initializing accessor like `const Session* starlark_session_if_initialized() const` so these read-only writers skip initialization when unused?",
       "isAi": true,
+      "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f0c3e38_1055cfec",
+        "filename": "src/gn/ninja_build_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-26T06:55:03Z",
+      "side": 1,
+      "message": "Overhead of this is extremely minimal. The reason we did lazy initialization for non-starlark builds previously wasn\u0027t performance, it was because it was highly experimental and I didn\u0027t want the code paths being triggered. Now that we have it in its own branch, that isn\u0027t a concern.",
+      "parentUuid": "2a06e045_cf9b4445",
       "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

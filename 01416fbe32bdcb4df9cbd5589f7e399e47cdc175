@@ -1,0 +1,94 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "699eb47e_0d98c29e",
+        "filename": "src/gn/build_settings.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T05:49:24Z",
+      "side": 1,
+      "message": "Dropping and recreating `starlark_session_` here (and in `SetBuildDir()` at line 90) would cause use-after-free if anything already obtained a reference via `starlark_session()` (Rust FFI treats it as `\u0026\u0027static Session`).\n\nIf `SetRootPath()` / `SetBuildDir()` are only expected to be called during setup before `starlark_session()` is first accessed, `DCHECK(!starlark_session_.load(std::memory_order_relaxed))` would be safer than silently dropping an active session. (If resetting an already-initialized session is actually needed in tests, could we document that precondition?)",
+      "isAi": true,
+      "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d412cd30_53aee14d",
+        "filename": "src/gn/build_settings.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T05:49:24Z",
+      "side": 1,
+      "message": "Nit: `UNLIKELY` comes from `\"base/compiler_specific.h\"`, which is only included transitively here. Consider including `\"base/compiler_specific.h\"` directly for IWYU (or using standard C++20 `[[unlikely]]`).",
+      "isAi": true,
+      "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df03d740_39846bb7",
+        "filename": "src/gn/build_settings.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T05:49:24Z",
+      "side": 1,
+      "message": "Falling back to `Session::new_for_testing()` in production code when `root_path_` or `build_dir_` is unset feels risky: `PathResolver::new_for_testing()` hardcodes compile-time test paths (`CARGO_MANIFEST_DIR/...`), so an accidental call before setup finishes would silently use test paths instead of failing loudly.\n\nIf this fallback is mainly to avoid breaking non-Starlark unit tests (where `TestWithScope::CreateBuildSettingsForTest()` sets `build_dir_` without `root_path_`) when writers call `starlark_session()`, keeping the initialized check in the writers should make this fallback unnecessary. Then we could assert `DCHECK(!root_path_.empty() \u0026\u0026 !build_dir_.is_null())` here (and have Starlark tests configure `root_path_` explicitly if needed).",
+      "isAi": true,
+      "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84361c18_e4349c32",
+        "filename": "src/gn/build_settings.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T05:49:24Z",
+      "side": 1,
+      "message": "Optional suggestion: instead of lock-free CAS initialization here, would double-checked locking (`std::atomic\u003cSession*\u003e` + `std::mutex` taken only on the slow path) be preferable?\n\nWith CAS, if multiple worker threads hit `load()` concurrently before initialization, each thread constructs a full `Session` (building `Globals` and preloading builtins) and discards the losing ones. DCLP keeps the exact same lock-free `acquire` load fast path (and keeps `has_starlark_session()` / `starlark_session_if_initialized()` thread-safe without pulling `\"cxx.h\"` back into `build_settings.h`), while guaranteeing `Session` is only constructed once. Since there is typically only one `BuildSettings` instance per build, the extra `std::mutex` member size should be negligible.",
+      "isAi": true,
+      "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a06e045_cf9b4445",
+        "filename": "src/gn/ninja_build_writer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T05:49:24Z",
+      "side": 1,
+      "message": "Removing the `has_starlark_session()` guard here (and at line 368 / `json_project_writer.cc:378`) means even builds that never use Starlark will eagerly construct a full `Session` (including building `Globals` and preloading builtins) during output writing just to query empty rules/loaded files and immediately drop it.\n\nThat seems to defeat the main benefit of lazy initialization for non-Starlark builds. Could we keep `has_starlark_session()` (e.g., `starlark_session_.load(std::memory_order_acquire) !\u003d nullptr`) or add a non-initializing accessor like `const Session* starlark_session_if_initialized() const` so these read-only writers skip initialization when unused?",
+      "isAi": true,
+      "revId": "01416fbe32bdcb4df9cbd5589f7e399e47cdc175",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

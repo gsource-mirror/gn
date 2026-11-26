@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23119437_ea0182d5",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T06:11:55Z",
+      "side": 1,
+      "message": "Nit: Now that `rule.rs` uses `attr.dependencies()`, `add_dependencies()` is only called from a single unit test in `attr/src/value.rs:445`. Could we update that test to check `attr.dependencies(...)` directly and remove `add_dependencies()`?",
+      "isAi": true,
+      "revId": "02d999588230ea55f4f198e86d0ccaccc1e9381f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f8d7939_aa2582bf",
+        "filename": "src/gn/starlark/crates/attr/src/attr.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T06:11:55Z",
+      "side": 1,
+      "message": "Nit: These dict arms can be simplified slightly without closures by using `dict.keys()`, `dict.values()`, and `dict.values().flatten()` respectively.",
+      "isAi": true,
+      "revId": "02d999588230ea55f4f198e86d0ccaccc1e9381f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6f5d62f_e6aa8f72",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T06:11:55Z",
+      "side": 1,
+      "message": "Could we also update the doc comment on `Target::starlark_deps()` in `src/gn/target.h` (lines 315–318)?\n\nIt currently says \"The only purpose of this field is to ensure that all of a target\u0027s starlark dependencies are resolved before itself\", but with this CL it now has a stronger invariant: `starlark_deps_` must preserve both the exact traversal order of `Attr::dependencies()` and duplicate entries (i.e., it must not be sorted or deduplicated), since `create_ctx_fields()` consumes it positionally. Documenting that invariant in `target.h` would help prevent accidental breakage in the future.",
+      "isAi": true,
+      "revId": "02d999588230ea55f4f198e86d0ccaccc1e9381f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d082f4c1_ae6d50b1",
+        "filename": "src/gn/starlark/crates/rule/src/rule.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-26T06:11:55Z",
+      "side": 1,
+      "message": "Since we no longer deduplicate dependencies with `SmallSet` here and now push duplicate entries into `Target::starlark_deps_` to be consumed positionally, could we add a case to `integration_tests/starlark/` where the same target is referenced multiple times (e.g., across two attributes or multiple keys in a label dict)?\n\nRight now `FakeTargetRef::deps()` in unit tests still resolves via `session.get_target()`, so an integration test covering duplicates would lock in the end-to-end C++ `starlark_deps_` ↔ Rust positional resolution contract.",
+      "isAi": true,
+      "revId": "02d999588230ea55f4f198e86d0ccaccc1e9381f",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

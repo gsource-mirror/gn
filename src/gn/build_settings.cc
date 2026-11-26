@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "base/files/file_util.h"
+#include "cxx.h"
 #include "gn/ffi/bridge.h"
 #include "gn/filesystem_utils.h"
 
@@ -21,6 +22,12 @@ std::string ComputeSourceRootRel(const SourceDir& build_dir,
     source_root_rel.push_back('/');
   }
   return source_root_rel;
+}
+
+void DropSession(std::atomic<Session*>& slot) {
+  if (Session* session = slot.exchange(nullptr, std::memory_order_acq_rel)) {
+    rust::Box<Session>::from_raw(session);
+  }
 }
 
 }  // namespace
@@ -39,13 +46,10 @@ BuildSettings::BuildSettings(const BuildSettings& other)
       build_config_file_(other.build_config_file_),
       arg_file_template_path_(other.arg_file_template_path_),
       build_dir_(other.build_dir_),
-      build_args_(other.build_args_) {
-  if (other.starlark_session_.has_value()) {
-    starlark_session_ = Session::new_cxx(
-        other.root_path_utf8_,
-        FilePathToUTF8(other.GetFullPath(other.build_dir_)),
-        ComputeSourceRootRel(other.build_dir_, other.root_path_utf8_));
-  }
+      build_args_(other.build_args_) {}
+
+BuildSettings::~BuildSettings() {
+  DropSession(starlark_session_);
 }
 
 void BuildSettings::SetRootTargetLabel(const Label& r) {
@@ -60,11 +64,7 @@ void BuildSettings::SetRootPath(const base::FilePath& r) {
   DCHECK(r.value()[r.value().size() - 1] != base::FilePath::kSeparators[0]);
   root_path_ = r.NormalizePathSeparatorsTo('/');
   root_path_utf8_ = FilePathToUTF8(root_path_);
-  if (!root_path_.empty() && !build_dir_.is_null()) {
-    starlark_session_ = Session::new_cxx(
-        root_path_utf8_, FilePathToUTF8(GetFullPath(build_dir_)),
-        ComputeSourceRootRel(build_dir_, root_path_utf8_));
-  }
+  DropSession(starlark_session_);
 }
 
 void BuildSettings::SetSecondarySourcePath(const SourceDir& d) {
@@ -87,11 +87,7 @@ void BuildSettings::SetPythonPath(base::FilePath p) {
 
 void BuildSettings::SetBuildDir(const SourceDir& d) {
   build_dir_ = d;
-  if (!root_path_.empty() && !build_dir_.is_null()) {
-    starlark_session_ = Session::new_cxx(
-        root_path_utf8_, FilePathToUTF8(GetFullPath(build_dir_)),
-        ComputeSourceRootRel(build_dir_, root_path_utf8_));
-  }
+  DropSession(starlark_session_);
 }
 
 base::FilePath BuildSettings::GetFullPath(const SourceFile& file) const {
@@ -136,6 +132,22 @@ const BuildSettings::PrintCallback BuildSettings::swap_print_callback(
 }
 
 const Session& BuildSettings::starlark_session() const {
-  DCHECK(starlark_session_.has_value());
-  return **starlark_session_;
+  Session* session = starlark_session_.load(std::memory_order_acquire);
+  if (UNLIKELY(!session)) {
+    auto new_session =
+        root_path_.empty() || build_dir_.is_null()
+            ? Session::new_for_testing()
+            : Session::new_cxx(
+                  root_path_utf8_, FilePathToUTF8(GetFullPath(build_dir_)),
+                  ComputeSourceRootRel(build_dir_, root_path_utf8_));
+    Session* raw = new_session.into_raw();
+    if (starlark_session_.compare_exchange_strong(session, raw,
+                                                  std::memory_order_acq_rel,
+                                                  std::memory_order_acquire)) {
+      session = raw;
+    } else {
+      rust::Box<Session>::from_raw(raw);
+    }
+  }
+  return *session;
 }

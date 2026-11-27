@@ -9,12 +9,12 @@ use crate::{Kind, Order};
 pub enum Error {
     #[error("Invalid order: {0}")]
     InvalidOrder(String),
-    #[error("conflicting orders: depset has order {order}, but transitive child has order {child_order}")]
+    #[error(
+        "conflicting orders: depset has order {order}, but transitive child has order {child_order}"
+    )]
     ConflictingOrders { order: Order, child_order: Order },
     #[error("depset elements must be of the same type, expected {expected}, got {got}")]
     DepsetTypeMismatch { expected: Kind, got: Kind },
-    #[error("expected a file depset")]
-    ExpectedFileDepset,
 }
 
 impl From<Error> for starlark::Error {

@@ -15,7 +15,8 @@ from target import Arch, Platform, Target
 
 # https://chrome-infra-packages.appspot.com/p/fuchsia/third_party/clang
 # https://llvm.googlesource.com/llvm-project
-_CLANG_VERSION = 'integration'
+_LLVM_REVISION = '3493720eca95cf844a8d7e58fdd12e0e5644e7d0'
+_CLANG_VERSION = f'git_revision:{_LLVM_REVISION}'
 
 # https://chrome-infra-packages.appspot.com/p/fuchsia/third_party/sysroot/linux
 _SYSROOT_LINUX_VERSION = 'git_revision:c912d089c3d46d8982fdef76a50514cca79b6132'
@@ -24,6 +25,17 @@ _SYSROOT_LINUX_VERSION = 'git_revision:c912d089c3d46d8982fdef76a50514cca79b6132'
 _SYSROOT_FOCAL_VERSION = 'git_revision:fa7a5a9710540f30ff98ae48b62f2cdf72ed2acd'
 
 _HOST_CLANG = 'fuchsia/third_party/clang/${platform}'
+_HOST_RUST = 'fuchsia/third_party/rust/host/${platform}'
+
+# Rust CIPD packages are tagged with `git_revisions:<rust_commit>,<llvm_commit>`
+# because they bundle an LLVM backend. We select the Rust toolchain that matches
+# the LLVM revision of Clang for cross-language LTO across the FFI boundary.
+#
+# See:
+# * https://chrome-infra-packages.appspot.com/p/fuchsia/third_party/rust/host
+# * https://chrome-infra-packages.appspot.com/p/fuchsia/third_party/rust/target
+_RUST_REVISION = 'c26ce708de5d14682647895d2f3caf38f70b5aa6'
+_RUST_VERSION = f'git_revisions:{_RUST_REVISION},{_LLVM_REVISION}'
 
 _REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 _DEFAULT_INSTALL_DIR = _REPO_ROOT / 'clang'
@@ -73,6 +85,12 @@ def get_toolchain(host: Target,
           Package('fuchsia/third_party/sysroot/linux', _SYSROOT_LINUX_VERSION,
                   'sysroot'))
       sysroot = cipd_dir / 'sysroot'
+
+  packages.append(Package(_HOST_RUST, _RUST_VERSION))
+  packages.append(
+    Package(f'fuchsia/third_party/rust/target/{target.rust_triple()}',
+            _RUST_VERSION))
+  env['CARGO'] = str(cipd_dir / 'bin' / f'cargo{host.platform.exe_suffix}')
 
   return Toolchain(
       packages=packages,

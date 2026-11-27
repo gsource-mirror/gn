@@ -24,6 +24,7 @@
 #include "gn/version.h"
 
 class Item;
+struct Session;
 
 // Settings for one build, which is one toplevel output directory. There
 // may be multiple Settings objects that refer to this, one for each toolchain.
@@ -33,7 +34,9 @@ class BuildSettings {
   using PrintCallback = std::function<void(const std::string&)>;
 
   BuildSettings();
-  BuildSettings(const BuildSettings& other);
+  explicit BuildSettings(SourceDir build_dir);
+  BuildSettings(const BuildSettings&) = delete;
+  ~BuildSettings();
 
   // Root target label.
   const Label& root_target_label() const { return root_target_label_; }
@@ -158,6 +161,12 @@ class BuildSettings {
     expand_directory_allowlist_ = std::move(list);
   }
 
+  const Session& starlark_session() const;
+  // `InitStarlarkSession[ForTesting]` may only be called once.
+  // It depends upon having a correct build dir and root path set.
+  void InitStarlarkSession();
+  void InitStarlarkSessionForTesting();
+
   // A list of target label patterns that can use allow_circular_includes_from.
   // If the returned pointer is null, allow_circular_includes_from may be used
   // anywhere.
@@ -218,6 +227,8 @@ class BuildSettings {
       std::make_unique<SourceFileSet>();
   std::unique_ptr<std::vector<LabelPattern>>
       allow_circular_includes_from_allowlist_;
+
+  Session* starlark_session_ = nullptr;
 
   BuildSettings& operator=(const BuildSettings&) = delete;
 };

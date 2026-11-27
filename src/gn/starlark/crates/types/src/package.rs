@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use allocative::Allocative;
+use starlark_derive::Freeze;
+
 use crate::PackageRef;
 
 /// A package, conceptually, is a directory in the source tree.
@@ -12,8 +15,17 @@ use crate::PackageRef;
 ///
 /// A package *always* starts with //, and may be either the root package "//",
 /// or a subdirectory "//foo/bar".
-#[derive(Debug, Clone, Eq, PartialEq, Hash, allocative::Allocative)]
+#[derive(Allocative, Clone, Debug, Eq, Freeze, Hash, PartialEq)]
 pub struct Package(pub(crate) String);
+
+impl Package {
+    /// Creates a `Package` from a source-relative directory path (e.g.
+    /// `"foo/bar"` -> `"//foo/bar"`, `""` -> `"//"`).
+    pub fn from_source_relative(s: &str) -> Self {
+        debug_assert!(!s.starts_with('/') && !s.ends_with('/'));
+        Self(format!("//{s}"))
+    }
+}
 
 impl std::ops::Deref for Package {
     type Target = PackageRef;

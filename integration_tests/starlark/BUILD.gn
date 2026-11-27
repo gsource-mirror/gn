@@ -1,0 +1,35 @@
+# Copyright 2026 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+load(":actions.scl", "action_rules")
+load(":filegroup.scl", "filegroup", "filegroups")
+load(":inputs.scl", "custom_shared_library")
+
+filegroup("filegroup") {
+  srcs = [ "first.txt" ]
+}
+
+filegroup("multiple") {
+  srcs = [
+    "second.txt",
+    "third.txt",
+  ]
+}
+
+filegroups("filegroups") {
+  filegroups = [
+    ":filegroup",
+    ":multiple",
+  ]
+  filegroups2 = [ ":multiple" ]
+}
+
+custom_shared_library("custom_shared") {
+  sources = [ "shared.cc" ]
+  compile_input = "first.txt"
+  link_input = "second.txt"
+}
+
+action_rules("actions") {
+}

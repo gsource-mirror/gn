@@ -5,18 +5,19 @@
 use std::{
     collections::{HashMap, HashSet},
     ops::Deref,
-    sync::{Arc, Mutex},
+    sync::{Arc, OnceLock},
 };
 
 use allocative::Allocative;
 use attr::Attr;
 use starlark::{
     starlark_simple_value,
-    values::{Heap, ProvidesStaticType, StarlarkValue, Value, ValueLike},
+    values::{Heap, OwnedFrozen, ProvidesStaticType, StarlarkValue, Value, ValueTyped},
 };
-use starlark_derive::{starlark_value, NoSerialize};
+use starlark_derive::{NoSerialize, starlark_value};
 use types::{
-    File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, Session, TargetRef,
+    File, IPromiseToImplementStarlarkEqAndHash, Label, LabelRef, OutputType, Session as _,
+    TargetRef,
 };
 
 use crate::FakeEvalContext;
@@ -31,12 +32,15 @@ pub struct FakeTarget {
     /// A list of attributes.
     pub attrs: Vec<Attr>,
     pub output_type: Option<OutputType>,
-    pub rule: Option<&'static rule::FrozenRule<FakeEvalContext>>,
+    pub rule: &'static rule::Rule<'static, FakeEvalContext>,
     #[allocative(skip)]
     pub cxx_attrs: HashMap<String, Value<'static>>,
     /// Registered target dependencies.
     #[allocative(skip)]
-    pub dependencies: Mutex<HashSet<(Label, Label)>>,
+    pub dependencies: HashSet<(Label, Label)>,
+    /// Cached rule evaluation result containing returned providers.
+    #[allocative(skip)]
+    pub evaluated: OnceLock<OwnedFrozen<ValueTyped<'static, rule::EvaluatedTarget<'static>>>>,
 }
 
 impl PartialEq for FakeTarget {
@@ -46,7 +50,7 @@ impl PartialEq for FakeTarget {
             && self.outputs == other.outputs
             && self.attrs == other.attrs
             && self.output_type == other.output_type
-            && self.rule.map(|r| r as *const _) == other.rule.map(|r| r as *const _)
+            && std::ptr::eq(self.rule, other.rule)
             && self.cxx_attrs.len() == other.cxx_attrs.len()
             && self.cxx_attrs.iter().all(|(k, v)| {
                 other
@@ -54,7 +58,7 @@ impl PartialEq for FakeTarget {
                     .get(k)
                     .is_some_and(|ov| v.equals(*ov).unwrap_or(false))
             })
-            && *self.dependencies.lock().unwrap() == *other.dependencies.lock().unwrap()
+            && self.dependencies == other.dependencies
     }
 }
 
@@ -77,7 +81,7 @@ impl FakeTargetRef {
 
     /// Returns the registered dependencies of this target.
     pub fn registered_deps(&self) -> HashSet<(Label, Label)> {
-        self.dependencies.lock().unwrap().clone()
+        self.dependencies.clone()
     }
 }
 
@@ -134,7 +138,9 @@ impl Deref for FakeTargetRef {
 }
 
 impl TargetRef for FakeTargetRef {
-    type Rule = rule::FrozenRule<FakeEvalContext>;
+    type Cxx = FakeTarget;
+    type Rule = rule::Rule<'static, FakeEvalContext>;
+    type Session = crate::FakeSession;
 
     fn label(&self) -> LabelRef<'_> {
         self.get().label.as_ref()
@@ -144,7 +150,7 @@ impl TargetRef for FakeTargetRef {
         self.get().toolchain.as_ref()
     }
 
-    fn rule(&self) -> Option<&'static Self::Rule> {
+    fn rule(&self) -> &'static Self::Rule {
         self.get().rule
     }
 
@@ -156,33 +162,49 @@ impl TargetRef for FakeTargetRef {
         self.get().outputs.clone()
     }
 
-    fn target_out_dir(&self, prefix: &str, suffix: &str, _separator: &str) -> String {
-        format!("{prefix}$TOOLCHAIN/{suffix}$LABEL")
+    fn is_default_toolchain(&self) -> bool {
+        true
     }
 
-    fn register_dependencies<S: Session<TargetRef = Self>>(
-        &self,
-        session: &S,
-        toolchain: LabelRef<'_>,
-    ) {
-        for attr in &self.get().attrs {
-            attr.register_dependencies(session, self.clone(), toolchain);
-        }
-    }
-
-    fn builtin_attrs<'v>(&self, _heap: &Heap<'v>) -> Vec<Value<'v>> {
+    fn builtin_attrs<'v>(&self, _session: &Self::Session, _heap: &Heap<'v>) -> Vec<Value<'v>> {
         self.get()
             .output_type
             .map(|ot| {
-                let (file_fields, target_fields) = ot.attrs();
-                vec![Value::new_none(); file_fields.len() + target_fields.len()]
+                let fields = ot.attrs();
+                vec![Value::new_none(); fields.file_and_attr.len() + fields.attr_only.len()]
             })
             .unwrap_or_default()
+    }
+
+    fn has_provider(&self, id: types::ProviderId) -> bool {
+        self.get()
+            .evaluated
+            .get()
+            .is_some_and(|evaluated| evaluated.by_ref(|e| e.providers.contains_id(id)))
+    }
+}
+
+impl types::TargetMut for FakeTarget {
+    fn register_dependency(
+        mut self: std::pin::Pin<&mut Self>,
+        label: LabelRef<'_>,
+        toolchain: LabelRef<'_>,
+    ) {
+        self.dependencies
+            .insert((label.to_owned(), toolchain.to_owned()));
     }
 }
 
 impl attr::TargetAttrExt for FakeTargetRef {
     fn attrs(&self) -> &[Attr] {
         &self.get().attrs
+    }
+
+    fn deps<'a>(&'a self, session: &'a Self::Session) -> impl Iterator<Item = Self> + 'a {
+        self.get()
+            .attrs
+            .iter()
+            .flat_map(|attr| attr.dependencies(self.toolchain()))
+            .map(|(label, toolchain)| session.get_target(label, toolchain))
     }
 }

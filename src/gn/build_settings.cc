@@ -7,24 +7,35 @@
 #include <utility>
 
 #include "base/files/file_util.h"
+#include "cxx.h"
+#include "gn/ffi/bridge.h"
 #include "gn/filesystem_utils.h"
+
+namespace {
+
+// Computes the prefix for any source-relative OutputFile.
+// Eg. if the build directory is //out/Default, it would return ../../
+std::string ComputeSourceRootRel(const SourceDir& build_dir,
+                                 std::string_view root_path_utf8) {
+  std::string source_root_rel = RebasePath("//", build_dir, root_path_utf8);
+  if (!EndsWithSlash(source_root_rel)) {
+    source_root_rel.push_back('/');
+  }
+  return source_root_rel;
+}
+
+}  // namespace
 
 BuildSettings::BuildSettings() = default;
 
-BuildSettings::BuildSettings(const BuildSettings& other)
-    : dotfile_name_(other.dotfile_name_),
-      root_path_(other.root_path_),
-      root_path_utf8_(other.root_path_utf8_),
-      secondary_source_path_(other.secondary_source_path_),
-      python_path_(other.python_path_),
-      python_args_(other.python_args_),
-      python_path_is_relative_to_build_dir_(
-          other.python_path_is_relative_to_build_dir_),
-      ninja_required_version_(other.ninja_required_version_),
-      build_config_file_(other.build_config_file_),
-      arg_file_template_path_(other.arg_file_template_path_),
-      build_dir_(other.build_dir_),
-      build_args_(other.build_args_) {}
+BuildSettings::BuildSettings(SourceDir build_dir)
+    : build_dir_(std::move(build_dir)) {}
+
+BuildSettings::~BuildSettings() {
+  if (starlark_session_) {
+    rust::Box<Session>::from_raw(starlark_session_);
+  }
+}
 
 void BuildSettings::SetRootTargetLabel(const Label& r) {
   root_target_label_ = r;
@@ -105,4 +116,24 @@ const BuildSettings::PrintCallback BuildSettings::swap_print_callback(
   auto temp = std::move(print_callback_);
   print_callback_ = callback;
   return temp;
+}
+
+const Session& BuildSettings::starlark_session() const {
+  DCHECK(starlark_session_);
+  return *starlark_session_;
+}
+
+void BuildSettings::InitStarlarkSessionForTesting() {
+  DCHECK(!starlark_session_);
+  starlark_session_ = Session::new_for_testing().into_raw();
+}
+
+void BuildSettings::InitStarlarkSession() {
+  DCHECK(!starlark_session_);
+  DCHECK(!root_path_.empty());
+  DCHECK(!build_dir_.is_null());
+  starlark_session_ =
+      Session::new_cxx(root_path_utf8_, FilePathToUTF8(GetFullPath(build_dir_)),
+                       ComputeSourceRootRel(build_dir_, root_path_utf8_))
+          .into_raw();
 }

@@ -2,27 +2,39 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+use std::sync::atomic::{AtomicU64, Ordering};
+
 use allocative::Allocative;
 use starlark::{
+    any::ProvidesStaticType,
     collections::SmallMap,
     values::{
-        record::{FieldGen, FrozenRecordType, Record},
-        typing::TypeInstanceId,
-        FrozenHeap, FrozenValue, FrozenValueTyped, Heap, Value,
+        Freeze, FrozenHeap, FrozenValueTyped, Heap, Trace, Value,
+        record::{Field, FrozenRecordType, Record},
+        typing::{TypeIdDomain, TypeInstanceId},
     },
 };
-use types::{LabelRef, OutputType};
+use types::OutputType;
+
+#[derive(Copy, Clone, Debug)]
+struct GnCtxDomain;
+
+impl TypeIdDomain for GnCtxDomain {
+    fn tag(&self) -> &'static str {
+        "gn.ctx"
+    }
+}
 
 use crate::{
+    Attr,
     schema::{AllowFilesSchema, AttrKind, AttrSchema},
     value::AttrValue,
-    Attr, Session,
 };
 
 /// Contains ctx.attr, ctx.files, and ctx.file.
 ///
 /// See https://bazel.build/rules/lib/builtins/ctx for more info on what they are.
-#[derive(Debug, Clone, Copy, Allocative)]
+#[derive(Allocative, Clone, Copy, Debug, Trace)]
 pub struct CtxAttr<'v> {
     pub attr: Value<'v>,
     pub files: Value<'v>,
@@ -36,36 +48,35 @@ pub struct CtxAttr<'v> {
 ///   "foo": attr.label_list(...),
 ///   "bar": attr.string(...),
 /// }
-#[derive(Debug, Allocative)]
-pub struct CtxAttrSchema {
+#[derive(Allocative, Clone, Debug, Freeze, ProvidesStaticType, Trace)]
+pub struct CtxAttrSchema<'v> {
     attrs: SmallMap<String, AttrSchema>,
-    attr: FrozenValueTyped<'static, FrozenRecordType>,
-    files: FrozenValueTyped<'static, FrozenRecordType>,
-    file: FrozenValueTyped<'static, FrozenRecordType>,
+    attr: FrozenValueTyped<'v, FrozenRecordType<'v>>,
+    files: FrozenValueTyped<'v, FrozenRecordType<'v>>,
+    file: FrozenValueTyped<'v, FrozenRecordType<'v>>,
 }
 
-impl CtxAttrSchema {
+impl<'v> CtxAttrSchema<'v> {
     /// Creates a new `CtxAttrSchema`.
     pub fn new(
         attrs: SmallMap<String, AttrSchema>,
         builtin: Option<OutputType>,
-        heap: &FrozenHeap,
+        heap: &FrozenHeap<'v>,
     ) -> Self {
-        let (builtin_files, builtin_attrs) = builtin.map(|b| b.attrs()).unwrap_or_default();
-        let mut attrs_fields =
-            SmallMap::with_capacity(attrs.len() + builtin_files.len() + builtin_attrs.len());
+        let builtin_fields = builtin.map(OutputType::attrs).unwrap_or_default();
+        let mut attrs_fields = SmallMap::with_capacity(
+            attrs.len() + builtin_fields.file_and_attr.len() + builtin_fields.attr_only.len(),
+        );
         let mut file_fields = SmallMap::new();
         let mut files_fields = SmallMap::new();
 
-        let any = || -> FieldGen<FrozenValue> {
-            FieldGen::new(starlark::values::typing::TypeCompiled::any(), None)
-        };
+        let any = || Field::new(starlark::values::typing::TypeCompiled::any(), None);
 
-        for name in builtin_files {
+        for name in builtin_fields.file_and_attr {
             attrs_fields.insert(name.to_string(), any());
             files_fields.insert(name.to_string(), any());
         }
-        for name in builtin_attrs {
+        for name in builtin_fields.attr_only {
             attrs_fields.insert(name.to_string(), any());
         }
 
@@ -80,24 +91,29 @@ impl CtxAttrSchema {
             }
         }
 
+        // A process-wide counter is fine here because all we care about is that these type IDs are
+        // distinct within the GnCtxDomain. Type IDs are also not persisted anywhere so we
+        // don't have nondeterminism concerns.
+        static NEXT_ID: AtomicU64 = AtomicU64::new(0);
+        let id = NEXT_ID.fetch_add(3, Ordering::Relaxed);
         Self {
             attrs,
-            attr: FrozenValueTyped::new(heap.alloc(FrozenRecordType::new(
+            attr: FrozenValueTyped::new(heap.alloc_simple(FrozenRecordType::new(
                 "rule_attr",
                 attrs_fields,
-                TypeInstanceId::r#gen(),
+                TypeInstanceId::from_identity(GnCtxDomain, &id),
             )))
             .unwrap(),
-            files: FrozenValueTyped::new(heap.alloc(FrozenRecordType::new(
+            files: FrozenValueTyped::new(heap.alloc_simple(FrozenRecordType::new(
                 "rule_files",
                 files_fields,
-                TypeInstanceId::r#gen(),
+                TypeInstanceId::from_identity(GnCtxDomain, &(id + 1)),
             )))
             .unwrap(),
-            file: FrozenValueTyped::new(heap.alloc(FrozenRecordType::new(
+            file: FrozenValueTyped::new(heap.alloc_simple(FrozenRecordType::new(
                 "rule_file",
                 file_fields,
-                TypeInstanceId::r#gen(),
+                TypeInstanceId::from_identity(GnCtxDomain, &(id + 2)),
             )))
             .unwrap(),
         }
@@ -105,20 +121,21 @@ impl CtxAttrSchema {
 
     /// Constructs the record values for `ctx.attr`, `ctx.file`, and `ctx.files`
     /// from the resolved attribute values.
-    pub fn create_ctx_fields<'v, S: Session>(
+    pub fn create_ctx_fields<T: types::TargetRef>(
         &self,
         fields: &[Attr],
-        session: &S,
-        current_toolchain: &LabelRef,
-        builtin: Option<OutputType>,
+        mut deps: impl Iterator<Item = T>,
+        output_type: Option<OutputType>,
         mut ctx_attr: Vec<Value<'v>>,
         heap: &Heap<'v>,
     ) -> starlark::Result<CtxAttr<'v>> {
-        let (builtin_files, builtin_attrs) = builtin.map(|b| b.attrs()).unwrap_or_default();
-        debug_assert!(builtin_files.len() + builtin_attrs.len() == ctx_attr.len());
+        let builtin_fields = output_type.map(OutputType::attrs).unwrap_or_default();
+        debug_assert!(
+            builtin_fields.file_and_attr.len() + builtin_fields.attr_only.len() == ctx_attr.len()
+        );
         ctx_attr.reserve_exact(self.attr.len() - ctx_attr.len());
         let mut ctx_files = Vec::with_capacity(self.files.len());
-        for &attr_val in ctx_attr.iter().take(builtin_files.len()) {
+        for &attr_val in ctx_attr.iter().take(builtin_fields.file_and_attr.len()) {
             ctx_files.push(attr_val);
         }
         let mut ctx_file = Vec::with_capacity(self.file.len());
@@ -126,7 +143,7 @@ impl CtxAttrSchema {
         debug_assert!(fields.len() == self.attrs.len());
         for ((name, schema), attr) in self.attrs.iter().zip(fields.iter()) {
             let AttrValue { attr, file, files } = attr
-                .to_value(schema, session, current_toolchain, heap)
+                .to_value_from(schema, &mut deps, heap)
                 .map_err(|e| e.with_context(format!("for attribute `{name}`")))?;
 
             ctx_attr.push(attr);
@@ -140,22 +157,14 @@ impl CtxAttrSchema {
             }
         }
 
+        debug_assert!(deps.next().is_none());
         debug_assert!(ctx_file.len() == self.file.len());
         debug_assert!(ctx_files.len() == self.files.len());
 
         Ok(CtxAttr {
-            attr: heap.alloc(Record::new(
-                self.attr.to_value_typed(),
-                ctx_attr.into_boxed_slice(),
-            )),
-            files: heap.alloc(Record::new(
-                self.files.to_value_typed(),
-                ctx_files.into_boxed_slice(),
-            )),
-            file: heap.alloc(Record::new(
-                self.file.to_value_typed(),
-                ctx_file.into_boxed_slice(),
-            )),
+            attr: Record::alloc(*heap, self.attr.to_value_typed(), &ctx_attr)?,
+            files: Record::alloc(*heap, self.files.to_value_typed(), &ctx_files)?,
+            file: Record::alloc(*heap, self.file.to_value_typed(), &ctx_file)?,
         })
     }
 
@@ -209,19 +218,22 @@ mod tests {
                 })
                 .collect::<Result<_, _>>()?;
 
-            let ctx = CtxAttrSchema::new(
-                schema.into_iter().map(|(k, v)| (k, (*v).clone())).collect(),
-                None,
-                eval.frozen_heap(),
-            )
-            .create_ctx_fields(
-                &fields,
-                context.session.as_ref(),
-                &context.current_toolchain.as_ref(),
-                None,
-                Vec::new(),
-                &eval.heap(),
-            )?;
+            let schema = eval.frozen_heap(|heap, edge| {
+                let schema = CtxAttrSchema::new(
+                    schema.into_iter().map(|(k, v)| (k, (*v).clone())).collect(),
+                    None,
+                    &heap,
+                );
+                edge.rebrand(schema)
+            });
+            let deps = fields
+                .iter()
+                .flat_map(|field| field.dependencies(context.current_toolchain.as_ref()))
+                .map(|(lbl, tc)| {
+                    use types::Session as _;
+                    context.session.get_target(lbl, tc)
+                });
+            let ctx = schema.create_ctx_fields(&fields, deps, None, Vec::new(), &eval.heap())?;
 
             Ok(eval.heap().alloc((ctx.attr, ctx.files, ctx.file)))
         }
@@ -234,7 +246,7 @@ mod tests {
         let target_label = Label::new(PackageRef::root().to_owned(), "bar".to_owned());
         let file1 = File::intern("out.cc");
         a.session().insert_target(FakeTarget {
-            outputs: vec![file1.clone()],
+            outputs: vec![file1],
             ..a.session()
                 .empty_target(target_label.package(), target_label.name())
         });

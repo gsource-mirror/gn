@@ -17,6 +17,24 @@
       "isAi": true,
       "revId": "067368053246327fed51eeb9464c2ab97dfd6339",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0148a9a4_a9924ddf",
+        "filename": "src/gn/target.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T06:10:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05b7f7b1_0dacbc7d",
+      "revId": "067368053246327fed51eeb9464c2ab97dfd6339",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

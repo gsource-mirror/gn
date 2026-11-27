@@ -17,6 +17,24 @@
       "isAi": true,
       "revId": "dc422ef36e934c7a11525ea1ecf72945b3fee8aa",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcac9ba3_155de14b",
+        "filename": "src/gn/binary_target_generator_unittest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T05:59:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6dc6280_d04aa82a",
+      "revId": "dc422ef36e934c7a11525ea1ecf72945b3fee8aa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

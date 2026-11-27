@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfc78021_dc92a491",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T04:42:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e26248d2_b5796e0a",
+      "revId": "5561d1cc0887191afaa7e27bb745bc6a2b0c5775",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5c8410b0_0f4155e7",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "This change isn\u0027t mentioned in the commit message and seems unrelated to initializing `Target::output_type_` in the constructor (`Target` already deletes copy construction/assignment in `target.h`).\n\nCould we split this out into its own CL (or explain why it\u0027s needed here in the commit message)?",
       "isAi": true,
+      "revId": "5561d1cc0887191afaa7e27bb745bc6a2b0c5775",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b2edda1_254a43b9",
+        "filename": "src/gn/item.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T04:42:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c8410b0_0f4155e7",
       "revId": "5561d1cc0887191afaa7e27bb745bc6a2b0c5775",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -69,6 +105,24 @@
       "side": 1,
       "message": "Nit: Since `Target` is non-copyable/non-assignable and `output_type_` is never mutated after construction, we can make this `const OutputType output_type_;` so immutability is enforced by the compiler as well.",
       "isAi": true,
+      "revId": "5561d1cc0887191afaa7e27bb745bc6a2b0c5775",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7d1c352_0578e4d6",
+        "filename": "src/gn/target.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T04:42:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2eb233bc_e78de8e4",
       "revId": "5561d1cc0887191afaa7e27bb745bc6a2b0c5775",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

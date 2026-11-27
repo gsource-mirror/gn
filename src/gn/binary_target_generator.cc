@@ -4,6 +4,7 @@
 
 #include "gn/binary_target_generator.h"
 
+#include "base/logging.h"
 #include "gn/config_values_generator.h"
 #include "gn/deps_iterator.h"
 #include "gn/err.h"
@@ -32,7 +33,7 @@ BinaryTargetGenerator::BinaryTargetGenerator(
 BinaryTargetGenerator::~BinaryTargetGenerator() = default;
 
 void BinaryTargetGenerator::DoRun() {
-  target_->set_output_type(output_type_);
+  DCHECK_EQ(target_->output_type(), output_type_);
 
   if (!FillOutputName())
     return;

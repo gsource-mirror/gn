@@ -4,6 +4,7 @@
 
 #include "gn/generated_file_target_generator.h"
 
+#include "base/logging.h"
 #include "gn/err.h"
 #include "gn/filesystem_utils.h"
 #include "gn/parse_tree.h"
@@ -22,7 +23,7 @@ GeneratedFileTargetGenerator::GeneratedFileTargetGenerator(
 GeneratedFileTargetGenerator::~GeneratedFileTargetGenerator() = default;
 
 void GeneratedFileTargetGenerator::DoRun() {
-  target_->set_output_type(output_type_);
+  DCHECK_EQ(target_->output_type(), output_type_);
 
   if (!FillOutputs(false))
     return;

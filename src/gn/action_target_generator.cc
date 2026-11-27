@@ -4,6 +4,7 @@
 
 #include "gn/action_target_generator.h"
 
+#include "base/logging.h"
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
@@ -29,7 +30,7 @@ ActionTargetGenerator::ActionTargetGenerator(
 ActionTargetGenerator::~ActionTargetGenerator() = default;
 
 void ActionTargetGenerator::DoRun() {
-  target_->set_output_type(output_type_);
+  DCHECK_EQ(target_->output_type(), output_type_);
 
   if (!FillSources())
     return;

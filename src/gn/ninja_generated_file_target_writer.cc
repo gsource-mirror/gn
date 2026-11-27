@@ -4,6 +4,8 @@
 
 #include "gn/ninja_generated_file_target_writer.h"
 
+#include <vector>
+
 #include "gn/generated_file_writer.h"
 #include "gn/output_conversion.h"
 #include "gn/output_file.h"
@@ -22,43 +24,38 @@ NinjaGeneratedFileTargetWriter::NinjaGeneratedFileTargetWriter(
 NinjaGeneratedFileTargetWriter::~NinjaGeneratedFileTargetWriter() = default;
 
 void NinjaGeneratedFileTargetWriter::Run() {
-  // Write the file.
-  if (target_->collect_validations_metadata()) {
-    // Do not write the file yet because some transitive dependencies
-    // might not be fully resolved, causing runtime crashes during the
-    // write. The |delayed_generated_file_write_| pointer must be set
-    // when validations metadata is collected.
-    CHECK(delayed_generated_file_write_ptr_);
-    *delayed_generated_file_write_ptr_ = true;
-  } else {
-    Err err;
-    if (!WriteGeneratedFileToDisk(target_, &err)) {
-      g_scheduler->FailWithError(err);
-    }
+  // Write the file. Targets whose metadata walks require a fully resolved
+  // graph are only written after all targets are resolved (see command_gen.cc).
+  UniqueVector<const Target*> deps_collected;
+  Err err;
+  if (!WriteGeneratedFileToDisk(target_, &err, &deps_collected)) {
+    g_scheduler->FailWithError(err);
+    return;
   }
 
   // A generated_file target should generate a phony target with dependencies
-  // on each of the deps and data_deps in the target. The actual collection is
-  // done at gen time, but to have correct input deps in ninja, we add output
-  // from generated_file targets as deps for the stamp.
+  // on each of the deps, data_deps, and dep_keys targets. The actual collection
+  // is done at gen time, but to have correct input deps in ninja, we add output
+  // from generated_file targets as deps for the stamp. Any dependency cycles
+  // introduced via dep_keys (when combined with walk_deps or validations) are
+  // detected by Ninja.
   std::vector<OutputFile> output_files = target_->computed_outputs();
   std::vector<OutputFile> data_output_files;
+  TargetSet seen;
+  auto add_deps = [&](const auto& deps, bool data_only) {
+    for (const Target* dep : deps) {
+      if (dep->has_dependency_output() && seen.add(dep)) {
+        if (data_only || dep->IsDataOnly())
+          data_output_files.push_back(dep->dependency_output());
+        else
+          output_files.push_back(dep->dependency_output());
+      }
+    }
+  };
   const auto& target_deps = resolved().GetTargetDeps(target_);
-  for (const Target* dep : target_deps.linked_deps()) {
-    if (!dep->has_dependency_output()) {
-      continue;
-    }
-    if (dep->IsDataOnly()) {
-      data_output_files.push_back(dep->dependency_output());
-    } else {
-      output_files.push_back(dep->dependency_output());
-    }
-  }
-
-  for (const Target* data_dep : target_deps.data_deps()) {
-    if (data_dep->has_dependency_output())
-      data_output_files.push_back(data_dep->dependency_output());
-  }
+  add_deps(target_deps.linked_deps(), /*data_only=*/false);
+  add_deps(deps_collected, /*data_only=*/false);
+  add_deps(target_deps.data_deps(), /*data_only=*/true);
 
   WriteStampOrPhonyForTarget(output_files, data_output_files);
 }

@@ -549,7 +549,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         ldflags.append('-Wl,--gc-sections')
 
       # Omit all symbol information from the output file.
-      if options.no_strip is None:
+      if not options.no_strip:
         if platform.is_darwin():
           ldflags.append('-Wl,-S')
         elif platform.is_aix():
@@ -599,7 +599,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
     ])
 
     if is_gcc(cxx):
-      cflags.append('-Wno-redundant-move')
       # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104336
       cflags.append('-Wno-restrict')
     # flags not supported by gcc/g++.
@@ -616,10 +615,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         ldflags.append('-static-libstdc++')
 
       cflags.extend([
-        '-Wno-deprecated-copy',
         '-Wno-implicit-fallthrough',
-        '-Wno-redundant-move',
-        '-Wno-unused-variable',
         '-Wno-format',             # Use of %llx, which is supported by _UCRT, false positive
         '-Wno-strict-aliasing',    # Dereferencing punned pointer
         '-Wno-cast-function-type', # Casting FARPROC to RegDeleteKeyExPtr
@@ -731,7 +727,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/base/logging.cc',
               'src/base/md5.cc',
               'src/base/memory/ref_counted.cc',
-              'src/base/memory/weak_ptr.cc',
               'src/base/sha1.cc',
               'src/base/sha2.cc',
               'src/base/strings/string_number_conversions.cc',
@@ -937,7 +932,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
               'src/util/sys_info.cc',
               'src/util/ticks.cc',
               'src/util/worker_pool.cc',
-              'src/gn/test_with_scope.cc',
           ],
           'source_cflags': {
               # cxxbridge generates helper templates in anonymous namespaces that
@@ -953,15 +947,18 @@ def WriteGNNinja(path, platform, host, options, args_list):
 
       'gn_unittests': { 'sources': [
         'src/base/sha2_unittest.cc',
+        'src/base/test/scoped_command_line.cc',
         'src/gn/action_target_generator_unittest.cc',
         'src/gn/analyzer_unittest.cc',
         'src/gn/args_unittest.cc',
+        'src/gn/build_settings_unittest.cc',
         'src/gn/builder_record_map_unittest.cc',
         'src/gn/builder_unittest.cc',
         'src/gn/binary_target_generator_unittest.cc',
         'src/gn/bundle_data_unittest.cc',
         'src/gn/c_include_iterator_unittest.cc',
         'src/gn/check_includes_strict_exceptions_unittest.cc',
+        'src/gn/command_check_unittest.cc',
         'src/gn/command_format_unittest.cc',
         'src/gn/command_suggest_unittest.cc',
         'src/gn/commands_unittest.cc',
@@ -1046,6 +1043,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
         'src/gn/target_unittest.cc',
         'src/gn/template_unittest.cc',
         'src/gn/test_with_scheduler.cc',
+        'src/gn/test_with_scope.cc',
         'src/gn/tokenizer_unittest.cc',
         'src/gn/unique_vector_unittest.cc',
         'src/gn/value_unittest.cc',

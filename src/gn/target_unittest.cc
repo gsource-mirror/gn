@@ -21,16 +21,21 @@ namespace {
 
 // Asserts that the current global scheduler has a single unknown generated
 // file with the given name from the given target.
-void AssertSchedulerHasOneUnknownFileMatching(const Target* target,
-                                              const SourceFile& file) {
+void AssertSchedulerHasOneUnknownFileMatching(
+    const Target* target,
+    const SourceFile& file,
+    bool requires_public_dep = false) {
   auto unknown = g_scheduler->GetUnknownGeneratedInputs();
-  ASSERT_EQ(1u, unknown.size());  // Should be one unknown file.
-  auto found = unknown.find(file);
-  ASSERT_TRUE(found != unknown.end()) << file.value();
-  EXPECT_TRUE(target == found->second)
-      << "Target doesn't match. Expected\n  "
-      << target->label().GetUserVisibleName(false) << "\nBut got\n  "
-      << found->second->label().GetUserVisibleName(false);
+  ASSERT_EQ(1u, unknown.size());  // Should be one unknown value.
+  auto first = unknown.begin();
+  EXPECT_EQ(file, first->first);
+  EXPECT_EQ(target, first->second.first)
+      << "Target doesn't match: expected "
+      << target->label().GetUserVisibleName(false) << ", got "
+      << first->second.first->label().GetUserVisibleName(false);
+  Scheduler::DepType expected_dep =
+      requires_public_dep ? Scheduler::PUBLIC_DEP : Scheduler::PRIVATE_DEP;
+  EXPECT_EQ(expected_dep, first->second.second);
 }
 
 }  // namespace
@@ -113,8 +118,8 @@ TEST_F(TargetTest, NoDependentConfigsBetweenToolchains) {
   // toolchain.
   Target a(setup.settings(),
            Label(SourceDir("//foo/"), "a", other_toolchain.label().dir(),
-                 other_toolchain.label().name()));
-  a.set_output_type(Target::EXECUTABLE);
+                 other_toolchain.label().name()),
+           Target::EXECUTABLE);
   EXPECT_TRUE(a.SetToolchain(&other_toolchain, &err));
   TestTarget b(setup, "//foo:b", Target::EXECUTABLE);
   TestTarget c(setup, "//foo:c", Target::SOURCE_SET);
@@ -174,9 +179,9 @@ TEST_F(TargetTest, DependentConfigsBetweenToolchainsWhenSet) {
   TestTarget a(setup, "//foo:a", Target::EXECUTABLE);
   Target b(setup.settings(),
            Label(SourceDir("//foo/"), "b", other_toolchain.label().dir(),
-                 other_toolchain.label().name()));
+                 other_toolchain.label().name()),
+           Target::SHARED_LIBRARY);
   b.visibility().SetPublic();
-  b.set_output_type(Target::SHARED_LIBRARY);
   EXPECT_TRUE(b.SetToolchain(&other_toolchain, &err));
   a.private_deps().push_back(LabelTargetPair(&b));
 
@@ -547,8 +552,8 @@ TEST_F(TargetTest, LinkAndDepOutputs) {
 
   toolchain.SetTool(std::move(solink));
 
-  Target target(setup.settings(), Label(SourceDir("//a/"), "a"));
-  target.set_output_type(Target::SHARED_LIBRARY);
+  Target target(setup.settings(), Label(SourceDir("//a/"), "a"),
+                Target::SHARED_LIBRARY);
   target.SetToolchain(&toolchain);
   ASSERT_TRUE(target.OnResolved(&err));
 
@@ -588,10 +593,10 @@ TEST_F(TargetTest, RustLinkAndDepOutputs) {
 
   toolchain.SetTool(std::move(tool));
 
-  Target target(setup.settings(), Label(SourceDir("//a/"), "a"));
+  Target target(setup.settings(), Label(SourceDir("//a/"), "a"),
+                Target::SHARED_LIBRARY);
   target.source_types_used().Set(SourceFile::SOURCE_RS);
   target.rust_values().set_crate_type(RustValues::CRATE_DYLIB);
-  target.set_output_type(Target::SHARED_LIBRARY);
   target.SetToolchain(&toolchain);
   ASSERT_TRUE(target.OnResolved(&err));
 
@@ -636,8 +641,8 @@ TEST_F(TargetTest, RuntimeOutputs) {
 
   toolchain.SetTool(std::move(solink));
 
-  Target target(setup.settings(), Label(SourceDir("//a/"), "a"));
-  target.set_output_type(Target::SHARED_LIBRARY);
+  Target target(setup.settings(), Label(SourceDir("//a/"), "a"),
+                Target::SHARED_LIBRARY);
   target.SetToolchain(&toolchain);
   ASSERT_TRUE(target.OnResolved(&err));
 
@@ -689,10 +694,10 @@ TEST_F(TargetTest, RustRuntimeOutputs) {
 
   toolchain.SetTool(std::move(tool));
 
-  Target target(setup.settings(), Label(SourceDir("//a/"), "a"));
+  Target target(setup.settings(), Label(SourceDir("//a/"), "a"),
+                Target::SHARED_LIBRARY);
   target.source_types_used().Set(SourceFile::SOURCE_RS);
   target.rust_values().set_crate_type(RustValues::CRATE_CDYLIB);
-  target.set_output_type(Target::SHARED_LIBRARY);
   target.SetToolchain(&toolchain);
   ASSERT_TRUE(target.OnResolved(&err));
 
@@ -724,8 +729,8 @@ TEST_F(TargetTest, GetOutputFilesForSource_Binary) {
   cxx->set_outputs(SubstitutionList::MakeForTest("{{source_file_part}}.o"));
   toolchain.SetTool(std::move(tool));
 
-  Target target(setup.settings(), Label(SourceDir("//a/"), "a"));
-  target.set_output_type(Target::SOURCE_SET);
+  Target target(setup.settings(), Label(SourceDir("//a/"), "a"),
+                Target::SOURCE_SET);
   target.sources().push_back(SourceFile("//a/source_file1.cc"));
   target.SetToolchain(&toolchain);
   Err err;
@@ -761,8 +766,8 @@ TEST_F(TargetTest, CheckStampFileName) {
   cxx->set_outputs(SubstitutionList::MakeForTest("{{source_file_part}}.o"));
   toolchain.SetTool(std::move(tool));
 
-  Target target(setup.settings(), Label(SourceDir("//a/"), "a"));
-  target.set_output_type(Target::SOURCE_SET);
+  Target target(setup.settings(), Label(SourceDir("//a/"), "a"),
+                Target::SOURCE_SET);
   target.SetToolchain(&toolchain);
 
   // Change the output artifact name on purpose.
@@ -851,20 +856,22 @@ TEST_F(TargetTest, GetOutputFilesForSource_Action) {
 
   // Test that the copy target type behaves the same. This target requires only
   // one output.
-  target.action_values().outputs() =
+  TestTarget copy_target(setup, "//a:copy", Target::COPY_FILES);
+  copy_target.sources().push_back(SourceFile("//a/source_file1.txt"));
+  copy_target.action_values().outputs() =
       SubstitutionList::MakeForTest("//out/Debug/one");
-  target.set_output_type(Target::COPY_FILES);
+  ASSERT_TRUE(copy_target.OnResolved(&err));
 
   // Outputs are relative to the build directory "//out/Debug/".
-  result = target.GetOutputFilesForSource(SourceFile("//source/input.txt"),
-                                          &computed_tool_type, &output);
+  result = copy_target.GetOutputFilesForSource(SourceFile("//source/input.txt"),
+                                               &computed_tool_type, &output);
   ASSERT_TRUE(result);
   ASSERT_EQ(1u, output.size());
   EXPECT_EQ("one", output[0].value());
 
   // Test GetOutputsAsSourceFiles() for the copy case.
-  EXPECT_TRUE(target.GetOutputsAsSourceFiles(LocationRange(), true,
-                                             &computed_outputs, &err));
+  EXPECT_TRUE(copy_target.GetOutputsAsSourceFiles(LocationRange(), true,
+                                                  &computed_outputs, &err));
   ASSERT_EQ(1u, computed_outputs.size()) << computed_outputs.size();
   EXPECT_EQ("//out/Debug/one", computed_outputs[0].value());
 }
@@ -914,6 +921,7 @@ TEST_F(TargetTest, GeneratedInputs) {
   Err err;
 
   SourceFile generated_file("//out/Debug/generated.cc");
+  SourceFile generated_header("//out/Debug/generated.h");
 
   // This target has a generated input and no dependency makes it.
   TestTarget non_existent_generator(setup, "//foo:non_existent_generator",
@@ -926,8 +934,8 @@ TEST_F(TargetTest, GeneratedInputs) {
 
   // Make a target that generates the file.
   TestTarget generator(setup, "//foo:generator", Target::ACTION);
-  generator.action_values().outputs() =
-      SubstitutionList::MakeForTest(generated_file.value().c_str());
+  generator.action_values().outputs() = SubstitutionList::MakeForTest(
+      "//out/Debug/generated.cc", "//out/Debug/generated.h");
   err = Err();
   EXPECT_TRUE(generator.OnResolved(&err)) << err.message();
 
@@ -960,9 +968,59 @@ TEST_F(TargetTest, GeneratedInputs) {
   EXPECT_TRUE(existent_public.OnResolved(&err)) << err.message();
   TestTarget indirect_public(setup, "//foo:indirect_public",
                              Target::EXECUTABLE);
+  indirect_public.set_check_includes_strict(true);
+  indirect_public.public_headers().push_back(generated_header);
   indirect_public.sources().push_back(generated_file);
   indirect_public.public_deps().push_back(LabelTargetPair(&existent_public));
   EXPECT_TRUE(indirect_public.OnResolved(&err)) << err.message();
+  EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
+
+  // Under check_includes_strict, private headers (all_headers_public = false)
+  // are allowed via private deps, while public_headers and public headers in
+  // sources require public_deps (using a separate cursor from .cc sources).
+  TestTarget strict_priv_header(setup, "//foo:strict_priv_header",
+                                Target::SOURCE_SET);
+  strict_priv_header.set_check_includes_strict(true);
+  strict_priv_header.set_all_headers_public(false);
+  strict_priv_header.sources().push_back(generated_header);
+  strict_priv_header.private_deps().push_back(LabelTargetPair(&generator));
+  EXPECT_TRUE(strict_priv_header.OnResolved(&err)) << err.message();
+  EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
+
+  TestTarget strict_public_header(setup, "//foo:strict_public_header",
+                                  Target::SOURCE_SET);
+  strict_public_header.set_check_includes_strict(true);
+  strict_public_header.set_all_headers_public(false);
+  strict_public_header.public_headers().push_back(generated_header);
+  strict_public_header.private_deps().push_back(LabelTargetPair(&generator));
+  EXPECT_TRUE(strict_public_header.OnResolved(&err)) << err.message();
+  AssertSchedulerHasOneUnknownFileMatching(&strict_public_header,
+                                           generated_header,
+                                           /*requires_public_dep=*/true);
+  scheduler().ClearUnknownGeneratedInputsAndWrittenFiles();
+
+  TestTarget strict_cursor(setup, "//foo:strict_cursor", Target::SOURCE_SET);
+  strict_cursor.set_check_includes_strict(true);
+  strict_cursor.sources().push_back(generated_file);
+  strict_cursor.sources().push_back(generated_header);
+  strict_cursor.private_deps().push_back(LabelTargetPair(&generator));
+  EXPECT_TRUE(strict_cursor.OnResolved(&err)) << err.message();
+  AssertSchedulerHasOneUnknownFileMatching(&strict_cursor, generated_header,
+                                           /*requires_public_dep=*/true);
+  scheduler().ClearUnknownGeneratedInputsAndWrittenFiles();
+
+  TestTarget non_strict(setup, "//foo:non_strict", Target::SOURCE_SET);
+  non_strict.set_check_includes_strict(false);
+  non_strict.public_headers().push_back(generated_header);
+  non_strict.private_deps().push_back(LabelTargetPair(&generator));
+  EXPECT_TRUE(non_strict.OnResolved(&err)) << err.message();
+  EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
+
+  TestTarget copy_target(setup, "//foo:copy_target", Target::COPY_FILES);
+  copy_target.set_check_includes_strict(true);
+  copy_target.sources().push_back(generated_header);
+  copy_target.private_deps().push_back(LabelTargetPair(&generator));
+  EXPECT_TRUE(copy_target.OnResolved(&err)) << err.message();
   EXPECT_TRUE(scheduler().GetUnknownGeneratedInputs().empty());
 }
 
@@ -1067,8 +1125,10 @@ TEST_F(TargetTest, ResolvePrecompiledHeaders) {
   TestWithScope setup;
   Err err;
 
-  Target target(setup.settings(), Label(SourceDir("//foo/"), "bar",
-                                        SourceDir("//toolchain/"), "default"));
+  Target target(
+      setup.settings(),
+      Label(SourceDir("//foo/"), "bar", SourceDir("//toolchain/"), "default"),
+      Target::EXECUTABLE);
 
   // Target with no settings, no configs, should be a no-op.
   EXPECT_TRUE(target.ResolvePrecompiledHeaders(&err));
@@ -1467,6 +1527,145 @@ TEST(TargetTest, CollectMetadataWithError) {
       << err.message();
 }
 
+// Tests that walk_deps are used as roots of the metadata walk, without
+// collecting the top-level target's own metadata if the walk cycles back to it.
+TEST(TargetTest, CollectMetadataWithWalkDeps) {
+  TestWithScope setup;
+
+  TestTarget pickle(setup, "//foo:pickle", Target::ACTION);
+  Value pickle_files(nullptr, Value::LIST);
+  pickle_files.list_value().push_back(Value(nullptr, "foo.pickle"));
+  pickle.metadata().contents().emplace("files", pickle_files);
+
+  TestTarget lib(setup, "//foo:lib", Target::SOURCE_SET);
+  lib.private_deps().push_back(LabelTargetPair(&pickle));
+
+  TestTarget gen(setup, "//foo:gen", Target::GENERATED_FILE);
+  gen.metadata().contents().emplace("files", pickle_files);
+
+  TestTarget app(setup, "//foo:app", Target::GROUP);
+  app.private_deps().push_back(LabelTargetPair(&lib));
+  app.private_deps().push_back(LabelTargetPair(&gen));
+  gen.walk_deps().push_back(LabelTargetPair(&app));
+
+  Err err;
+  std::vector<Value> result;
+  TargetSet targets;
+  gen.GetMetadata({"files"}, {""}, SourceDir(), true, &result, &targets, &err);
+  EXPECT_SUCCESS(err);
+  EXPECT_EQ(result, std::vector<Value>{Value(nullptr, "foo.pickle")});
+}
+
+// Tests that targets listed under dep_keys are resolved relative to the walked
+// target, and must be the walked target itself or one of its direct deps (or
+// direct validations when collect_validations_metadata is true).
+TEST(TargetTest, CollectMetadataWithDepKeys) {
+  TestWithScope setup;
+  auto set_file_deps = [](Target& target, const std::string& label) {
+    Value deps(nullptr, Value::LIST);
+    deps.list_value().push_back(Value(nullptr, label));
+    target.metadata().contents()["file_deps"] = std::move(deps);
+  };
+
+  // Lists itself under dep_keys.
+  TestTarget pickle(setup, "//foo:pickle", Target::ACTION);
+  set_file_deps(pickle, ":pickle");
+
+  TestTarget other(setup, "//foo:other", Target::ACTION);
+
+  // Lists its direct dependency under dep_keys.
+  TestTarget lib(setup, "//foo:lib", Target::SOURCE_SET);
+  lib.private_deps().push_back(LabelTargetPair(&pickle));
+  lib.private_deps().push_back(LabelTargetPair(&other));
+  set_file_deps(lib, "//foo:other");
+
+  TestTarget gen(setup, "//foo:gen", Target::GENERATED_FILE);
+  gen.private_deps().push_back(LabelTargetPair(&lib));
+  gen.dep_keys().push_back("file_deps");
+
+  Err err;
+  UniqueVector<const Target*> deps_collected;
+  auto collect = [&]() {
+    std::vector<Value> result;
+    TargetSet targets;
+    deps_collected.clear();
+    err = Err();
+    return gen.GetMetadata({"files"}, {""}, SourceDir(), true, &result,
+                           &targets, &err, &deps_collected);
+  };
+
+  EXPECT_TRUE(collect());
+  EXPECT_SUCCESS(err);
+  EXPECT_EQ(deps_collected.vector(),
+            (std::vector<const Target*>{&other, &pickle}));
+
+  TestTarget val(setup, "//foo:val", Target::ACTION);
+  other.validations().push_back(LabelTargetPair(&val));
+
+  auto expect_bad_dep = [&](const std::string& bad_label) {
+    set_file_deps(other, bad_label);
+    EXPECT_FALSE(collect());
+    std::string full_label =
+        bad_label[0] == ':' ? "//foo" + bad_label : bad_label;
+    EXPECT_EQ("I was expecting " + full_label +
+                  "(//toolchain:default) to be a dependency of "
+                  "//foo:other(//toolchain:default). Make sure it's included "
+                  "in the deps or data_deps, and that you've specified the "
+                  "appropriate toolchain.",
+              err.message());
+  };
+
+  // Labels that are neither the walked target itself nor a direct dep fail,
+  // including targets outside the transitive closure, non-direct targets in
+  // the transitive closure, and validations when collect_validations_metadata
+  // is false.
+  for (const char* bad_label : {"//foo:missing", ":pickle", ":val"})
+    expect_bad_dep(bad_label);
+
+  // With collect_validations_metadata = true, validations are accepted, while
+  // non-deps still fail.
+  gen.set_collect_validations_metadata(true);
+  set_file_deps(other, ":val");
+  EXPECT_TRUE(collect());
+  EXPECT_SUCCESS(err);
+  EXPECT_EQ(deps_collected.vector(),
+            (std::vector<const Target*>{&other, &pickle, &val}));
+
+  expect_bad_dep("//foo:missing");
+}
+
+// walk_deps are subject to the same visibility and testonly checks as deps.
+TEST_F(TargetTest, WalkDepsVisibilityAndTestonly) {
+  TestWithScope setup;
+  Err err;
+
+  TestTarget hidden(setup, "//private:hidden", Target::GROUP);
+  hidden.visibility().SetPrivate(hidden.label().dir());
+  ASSERT_TRUE(hidden.OnResolved(&err));
+
+  TestTarget testonly(setup, "//test:testonly", Target::GROUP);
+  testonly.set_testonly(true);
+  ASSERT_TRUE(testonly.OnResolved(&err));
+
+  for (const Target* walk_dep : {&hidden, &testonly}) {
+    TestTarget gen(setup, "//app:gen", Target::GENERATED_FILE);
+    gen.action_values().outputs() =
+        SubstitutionList::MakeForTest("//out/Debug/gen.json");
+    gen.walk_deps().push_back(LabelTargetPair(walk_dep));
+    err = Err();
+    EXPECT_FALSE(gen.OnResolved(&err));
+    std::string expected_message = walk_dep == &hidden
+                                       ? "Dependency not allowed."
+                                       : "Test-only dependency not allowed.";
+    EXPECT_EQ(expected_message, err.message());
+
+    // Marking the generated_file() as testonly makes the testonly one pass.
+    gen.set_testonly(true);
+    err = Err();
+    EXPECT_EQ(walk_dep == &testonly, gen.RunChecksAfterResolution(&err));
+  }
+}
+
 TEST_F(TargetTest, WriteMetadataCollection) {
   TestWithScope setup;
   Err err;
@@ -1527,8 +1726,8 @@ TEST_F(TargetTest, ModuleMap) {
       SubstitutionList::MakeForTest("{{source_file_part}}.pcm"));
   toolchain.SetTool(std::move(tool));
 
-  Target target(setup.settings(), Label(SourceDir("//a/"), "a"));
-  target.set_output_type(Target::SOURCE_SET);
+  Target target(setup.settings(), Label(SourceDir("//a/"), "a"),
+                Target::SOURCE_SET);
   target.SetToolchain(&toolchain);
   Err err;
   ASSERT_TRUE(target.OnResolved(&err));

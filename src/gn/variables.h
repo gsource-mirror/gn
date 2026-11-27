@@ -198,6 +198,10 @@ extern const char kDefines[];
 extern const char kDefines_HelpShort[];
 extern const char kDefines_Help[];
 
+extern const char kDepKeys[];
+extern const char kDepKeys_HelpShort[];
+extern const char kDepKeys_Help[];
+
 extern const char kDepfile[];
 extern const char kDepfile_HelpShort[];
 extern const char kDepfile_Help[];
@@ -365,6 +369,10 @@ extern const char kValidations_Help[];
 extern const char kVisibility[];
 extern const char kVisibility_HelpShort[];
 extern const char kVisibility_Help[];
+
+extern const char kWalkDeps[];
+extern const char kWalkDeps_HelpShort[];
+extern const char kWalkDeps_Help[];
 
 extern const char kWalkKeys[];
 extern const char kWalkKeys_HelpShort[];

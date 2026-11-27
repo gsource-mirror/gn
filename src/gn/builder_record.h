@@ -132,9 +132,12 @@ class ParseNode;
 // (because D is not loaded or resolved yet). This results in a
 // runtime crash.
 //
-// To avoid this, these metadata walks MUST be delayed *after* all
-// items in the graph have been resolved, and cannot be performed
-// in the NinjaGeneratedFileTargetWriter::Run() function itself.
+// To avoid this, these generated_file() targets MUST be written *after* all
+// items in the graph have been resolved.
+//
+// The `walk_deps` of generated_file() targets are tracked exactly like
+// validations, since they are not real dependencies and can form cycles
+// with them. Targets that use them are delayed for the same reason.
 //
 class BuilderRecord {
  public:

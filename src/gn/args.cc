@@ -4,6 +4,8 @@
 
 #include "gn/args.h"
 
+#include <map>
+
 #include "gn/settings.h"
 #include "gn/source_file.h"
 #include "gn/string_utils.h"
@@ -75,16 +77,12 @@ How build arguments are used
 
 namespace {
 
-// Removes all entries in |overrides| that are in |declared_overrides|.
+// Removes all entries in |overrides| that are in |declared_arguments|.
 void RemoveDeclaredOverrides(const Scope::KeyValueMap& declared_arguments,
                              Scope::KeyValueMap* overrides) {
-  for (Scope::KeyValueMap::iterator override = overrides->begin();
-       override != overrides->end();) {
-    if (declared_arguments.find(override->first) == declared_arguments.end())
-      ++override;
-    else
-      overrides->erase(override++);
-  }
+  std::erase_if(*overrides, [&declared_arguments](const auto& entry) {
+    return declared_arguments.contains(entry.first);
+  });
 }
 
 }  // namespace

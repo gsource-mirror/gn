@@ -177,16 +177,9 @@ bool ApplyTestonlyFilter(std::vector<const Target*>* targets) {
 
   bool testonly = (testonly_mode == CommandSwitches::TESTONLY_TRUE);
 
-  // Filter into a copy of the vector, then replace the output.
-  std::vector<const Target*> result;
-  result.reserve(targets->size());
-
-  for (const Target* target : *targets) {
-    if (target->testonly() == testonly)
-      result.push_back(target);
-  }
-
-  *targets = std::move(result);
+  std::erase_if(*targets, [testonly](const Target* target) {
+    return target->testonly() != testonly;
+  });
   return true;
 }
 
@@ -202,26 +195,17 @@ bool ApplyTypeFilter(std::vector<const Target*>* targets) {
   if (targets->empty() || (types.empty() && exclude_types.empty()))
     return true;  // Nothing to filter out.
 
-  // Filter into a copy of the vector, then replace the output.
-  std::vector<const Target*> result;
-  result.reserve(targets->size());
-
-  for (const Target* target : *targets) {
+  std::erase_if(*targets, [&](const Target* target) {
     Target::OutputType target_type =
         target->output_type() == Target::ACTION_FOREACH ? Target::ACTION
                                                         : target->output_type();
     if (!types.empty() &&
         std::ranges::find(types, target_type) == types.end()) {
-      continue;
+      return true;
     }
-    if (!exclude_types.empty() &&
-        std::ranges::find(exclude_types, target_type) != exclude_types.end()) {
-      continue;
-    }
-    result.push_back(target);
-  }
-
-  *targets = std::move(result);
+    return !exclude_types.empty() &&
+           std::ranges::find(exclude_types, target_type) != exclude_types.end();
+  });
   return true;
 }
 

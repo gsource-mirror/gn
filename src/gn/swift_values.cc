@@ -4,7 +4,7 @@
 
 #include "gn/swift_values.h"
 
-#include <algorithm>
+#include <vector>
 
 #include "gn/deps_iterator.h"
 #include "gn/err.h"
@@ -69,13 +69,9 @@ bool SwiftValues::FillModuleOutputFile(Target* target, Err* err) {
 
   // Keep only .swiftmodule output files.
   const BuildSettings* build_settings = target->settings()->build_settings();
-  const auto iter = std::remove_if(
-      outputs.begin(), outputs.end(),
-      [build_settings](const OutputFile& output) -> bool {
-        SourceFile output_as_source_file = output.AsSourceFile(build_settings);
-        return !output_as_source_file.IsSwiftModuleType();
-      });
-  outputs.erase(iter, outputs.end());
+  std::erase_if(outputs, [build_settings](const OutputFile& output) {
+    return !output.AsSourceFile(build_settings).IsSwiftModuleType();
+  });
 
   // A target should generate exactly one .swiftmodule file.
   if (outputs.size() != 1) {

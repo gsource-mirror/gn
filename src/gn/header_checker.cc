@@ -838,20 +838,12 @@ Err HeaderChecker::MakeUnreachableError(const InputFile& source_file,
   //
   // So delete any candidates in other toolchains that also appear in the same
   // toolchain as the from_target.
-  for (int other_index = 0;
-       other_index < static_cast<int>(targets_with_other_toolchains.size());
-       other_index++) {
-    for (const Target* cur_matching : targets_with_matching_toolchains) {
-      if (TargetLabelsMatchExceptToolchain(
-              cur_matching, targets_with_other_toolchains[other_index])) {
-        // Found a duplicate, erase it.
-        targets_with_other_toolchains.erase(
-            targets_with_other_toolchains.begin() + other_index);
-        other_index--;
-        break;
-      }
-    }
-  }
+  std::erase_if(targets_with_other_toolchains, [&](const Target* other) {
+    return std::ranges::any_of(
+        targets_with_matching_toolchains, [&](const Target* cur_matching) {
+          return TargetLabelsMatchExceptToolchain(cur_matching, other);
+        });
+  });
 
   // Only display toolchains on labels if they don't all match.
   bool include_toolchain = !targets_with_other_toolchains.empty();

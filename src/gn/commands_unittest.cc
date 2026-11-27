@@ -8,9 +8,12 @@
 
 #include "base/command_line.h"
 #include "base/values.h"
+#include "gn/err.h"
 #include "gn/label_pattern.h"
 #include "gn/standard_out.h"
+#include "gn/substitution_list.h"
 #include "gn/target.h"
+#include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
 #include "util/test/test.h"
 
@@ -18,8 +21,10 @@ TEST(Commands, FilterOutMatch) {
   TestWithScope setup;
   SourceDir current_dir("//");
 
-  Target target_afoo(setup.settings(), Label(SourceDir("//a/"), "foo"));
-  Target target_cbar(setup.settings(), Label(SourceDir("//c/"), "bar"));
+  Target target_afoo(setup.settings(), Label(SourceDir("//a/"), "foo"),
+                     Target::GROUP);
+  Target target_cbar(setup.settings(), Label(SourceDir("//c/"), "bar"),
+                     Target::GROUP);
   std::vector<const Target*> targets{&target_afoo, &target_cbar};
 
   Err err;
@@ -61,8 +66,8 @@ TEST(Commands, ApplyTypeFilter) {
   std::vector<const Target*> all_targets;
   for (const auto& test_case : cases) {
     auto target = std::make_unique<Target>(
-        setup.settings(), Label(SourceDir("//a/"), test_case.first));
-    target->set_output_type(test_case.second);
+        setup.settings(), Label(SourceDir("//a/"), test_case.first),
+        test_case.second);
     all_targets.push_back(target.get());
     created_targets.push_back(std::move(target));
   }
@@ -190,8 +195,8 @@ TEST(Commands, ApplyTypeFilter) {
   // Test Target::ACTION_FOREACH aliasing with --exclude-type=action.
   {
     auto action_foreach_target = std::make_unique<Target>(
-        setup.settings(), Label(SourceDir("//a/"), "action_foreach_target"));
-    action_foreach_target->set_output_type(Target::ACTION_FOREACH);
+        setup.settings(), Label(SourceDir("//a/"), "action_foreach_target"),
+        Target::ACTION_FOREACH);
     std::vector<const Target*> targets_to_filter = all_targets;
     targets_to_filter.push_back(action_foreach_target.get());
 
@@ -236,4 +241,185 @@ TEST(Commands, ApplyTypeFilter) {
     commands::CommandSwitches empty_switches;
     commands::CommandSwitches::Set(empty_switches);
   }
+}
+
+using CommandsGenTest = TestWithScheduler;
+
+TEST_F(CommandsGenTest, InvalidGeneratedInputErrors) {
+  TestWithScope setup;
+  Err err;
+
+  // Name the secondary toolchain directory so it sorts before
+  // //toolchain:default lexicographically, verifying is_default takes priority.
+  Toolchain alt_toolchain(setup.settings(), Label(SourceDir("//aaa/"), "alt"));
+  TestWithScope::SetupToolchain(&alt_toolchain);
+  Settings alt_settings(setup.build_settings(), "alt/");
+  alt_settings.set_toolchain_label(alt_toolchain.label());
+  alt_settings.set_default_toolchain_label(setup.toolchain()->label());
+
+  TestTarget gen_alpha(setup, "//gen:alpha", Target::ACTION);
+  gen_alpha.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/z.h", "//out/Debug/z.cc");
+  ASSERT_TRUE(gen_alpha.OnResolved(&err));
+
+  TestTarget gen_beta(setup, "//gen:beta", Target::ACTION);
+  gen_beta.action_values().outputs() = SubstitutionList::MakeForTest(
+      "//out/Debug/b.cc", "//out/Debug/a.cc", "//out/Debug/a.h");
+  ASSERT_TRUE(gen_beta.OnResolved(&err));
+
+  TestTarget gen_gamma(setup, "//gen:gamma", Target::ACTION);
+  gen_gamma.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/priv.cc");
+  ASSERT_TRUE(gen_gamma.OnResolved(&err));
+
+  Target alt_gen(
+      &alt_settings,
+      Label(SourceDir("//gen/"), "alt_gen", alt_toolchain.label().dir(),
+            alt_toolchain.label().name()),
+      Target::ACTION);
+  alt_gen.visibility().SetPublic();
+  ASSERT_TRUE(alt_gen.SetToolchain(&alt_toolchain, &err));
+  alt_gen.action_values().outputs() =
+      SubstitutionList::MakeForTest("//out/Debug/alt/alt.h");
+  ASSERT_TRUE(alt_gen.OnResolved(&err));
+
+  TestTarget single_missing(setup, "//a:single_missing", Target::SOURCE_SET);
+  single_missing.sources().emplace_back("//out/Debug/z.cc");
+  ASSERT_TRUE(single_missing.OnResolved(&err));
+
+  TestTarget grouped_by_gen(setup, "//b:grouped_by_gen", Target::SOURCE_SET);
+  grouped_by_gen.sources().emplace_back("//out/Debug/missing.cc");
+  grouped_by_gen.sources().emplace_back("//out/Debug/b.cc");
+  grouped_by_gen.sources().emplace_back("//out/Debug/z.cc");
+  grouped_by_gen.sources().emplace_back("//out/Debug/a.cc");
+  ASSERT_TRUE(grouped_by_gen.OnResolved(&err));
+
+  TestTarget combined(setup, "//c:combined", Target::SOURCE_SET);
+  combined.set_check_includes_strict(true);
+  combined.set_all_headers_public(false);
+  combined.public_headers().emplace_back("//out/Debug/missing.h");
+  combined.public_headers().emplace_back("//out/Debug/z.h");
+  combined.public_headers().emplace_back("//out/Debug/a.h");
+  combined.private_deps().push_back(LabelTargetPair(&gen_beta));
+  combined.sources().emplace_back("//out/Debug/missing.cc");
+  combined.sources().emplace_back("//out/Debug/priv.cc");
+  combined.sources().emplace_back("//out/Debug/z.cc");
+  ASSERT_TRUE(combined.OnResolved(&err));
+
+  Target multi_tc_alt(
+      &alt_settings,
+      Label(SourceDir("//e/"), "multi_tc", alt_toolchain.label().dir(),
+            alt_toolchain.label().name()),
+      Target::SOURCE_SET);
+  multi_tc_alt.visibility().SetPublic();
+  ASSERT_TRUE(multi_tc_alt.SetToolchain(&alt_toolchain, &err));
+  multi_tc_alt.sources().emplace_back("//out/Debug/alt/missing.cc");
+  ASSERT_TRUE(multi_tc_alt.OnResolved(&err));
+
+  TestTarget multi_tc_default(setup, "//e:multi_tc", Target::SOURCE_SET);
+  multi_tc_default.set_check_includes_strict(true);
+  multi_tc_default.sources().emplace_back("//out/Debug/alt/alt.h");
+  ASSERT_TRUE(multi_tc_default.OnResolved(&err));
+
+  Target alt_only(
+      &alt_settings,
+      Label(SourceDir("//f/"), "alt_only", alt_toolchain.label().dir(),
+            alt_toolchain.label().name()),
+      Target::SOURCE_SET);
+  alt_only.visibility().SetPublic();
+  ASSERT_TRUE(alt_only.SetToolchain(&alt_toolchain, &err));
+  alt_only.sources().emplace_back("//out/Debug/alt/missing.cc");
+  ASSERT_TRUE(alt_only.OnResolved(&err));
+
+  // Pass targets out of order to verify deterministic target sorting.
+  std::vector<Err> errors = commands::GetInvalidGeneratedInputErrors({
+      &alt_only,
+      &multi_tc_default,
+      &multi_tc_alt,
+      &combined,
+      &grouped_by_gen,
+      &single_missing,
+      &alt_gen,
+      &gen_gamma,
+      &gen_beta,
+      &gen_alpha,
+  });
+  ASSERT_EQ(5u, errors.size());
+
+  // Single missing file uses singular phrasing.
+  EXPECT_EQ("Input to target not generated by a dependency.",
+            errors[0].message());
+  EXPECT_EQ(
+      "The target:\n"
+      "  //a:single_missing\n"
+      "has an input or source not generated by any dependencies:\n"
+      "  //out/Debug/z.cc (generated by //gen:alpha)\n"
+      "\n"
+      "To fix this, run:\n"
+      "  gn edit \"add deps //gen:alpha\" //a:single_missing",
+      errors[0].help_text());
+
+  // Files are grouped by generator target, sorted by path, with ungenerated
+  // files last.
+  EXPECT_EQ("Input to target not generated by a dependency.",
+            errors[1].message());
+  EXPECT_EQ(
+      "The target:\n"
+      "  //b:grouped_by_gen\n"
+      "has inputs or sources not generated by any dependencies:\n"
+      "  //out/Debug/z.cc (generated by //gen:alpha)\n"
+      "  //out/Debug/a.cc (generated by //gen:beta)\n"
+      "  //out/Debug/b.cc (generated by //gen:beta)\n"
+      "  //out/Debug/missing.cc (not generated by any target)\n"
+      "\n"
+      "To fix this, run:\n"
+      "  gn edit \"add deps //gen:alpha //gen:beta\" //b:grouped_by_gen",
+      errors[1].help_text());
+
+  // Combined public_deps, private_deps, and add deps deduplication.
+  EXPECT_EQ("Input to target not generated by a dependency.",
+            errors[2].message());
+  EXPECT_EQ(
+      "The target:\n"
+      "  //c:combined\n"
+      "has a public header generated by a private dependency:\n"
+      "  //out/Debug/a.h (generated by //gen:beta)\n"
+      "and has public headers not generated by any public_deps:\n"
+      "  //out/Debug/z.h (generated by //gen:alpha)\n"
+      "  //out/Debug/missing.h (not generated by any target)\n"
+      "and has inputs or sources not generated by any dependencies:\n"
+      "  //out/Debug/z.cc (generated by //gen:alpha)\n"
+      "  //out/Debug/priv.cc (generated by //gen:gamma)\n"
+      "  //out/Debug/missing.cc (not generated by any target)\n"
+      "Strict include checking requires public headers to be generated by\n"
+      "public_deps rather than deps.\n"
+      "\n"
+      "To fix this, run:\n"
+      "  gn edit \"add deps //gen:gamma\" //c:combined\n"
+      "  gn edit \"move deps public_deps //gen:beta\" //c:combined\n"
+      "  gn edit \"add public_deps //gen:alpha\" //c:combined",
+      errors[2].help_text());
+
+  // Toolchain deduplication prefers default toolchain and prints dep toolchain.
+  EXPECT_EQ("Input to target not generated by a dependency.",
+            errors[3].message());
+  EXPECT_EQ(
+      "The target:\n"
+      "  //e:multi_tc\n"
+      "has a public header not generated by any public_deps:\n"
+      "  //out/Debug/alt/alt.h (generated by //gen:alt_gen(//aaa:alt))\n"
+      "\n"
+      "To fix this, run:\n"
+      "  gn edit \"add public_deps //gen:alt_gen(//aaa:alt)\" //e:multi_tc",
+      errors[3].help_text());
+
+  // Non-default target with only ungenerated inputs omits gn edit instructions.
+  EXPECT_EQ("Input to target not generated by a dependency.",
+            errors[4].message());
+  EXPECT_EQ(
+      "The target:\n"
+      "  //f:alt_only(//aaa:alt)\n"
+      "has an input or source not generated by any dependencies:\n"
+      "  //out/Debug/alt/missing.cc (not generated by any target)",
+      errors[4].help_text());
 }

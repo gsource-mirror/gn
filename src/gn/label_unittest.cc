@@ -74,7 +74,6 @@ TEST(Label, Resolve) {
   Label default_toolchain(SourceDir("//t/"), "d");
 
   for (const auto& test_case : test_cases) {
-    std::string location, name;
     Err err;
     Value v(nullptr, Value::STRING);
     v.string_value() = test_case.str;
@@ -99,7 +98,6 @@ TEST(Label, Resolve) {
 TEST(Label, ResolveAboveRootBuildDir) {
   Label default_toolchain(SourceDir("//t/"), "d");
 
-  std::string location, name;
   Err err;
 
   SourceDir cur_dir("//cur/");
@@ -286,5 +284,41 @@ TEST(Label, Matches) {
         << "default toolchain: "
         << test_case.default_toolchain.GetUserVisibleName(true) << " "
         << "expected match: " << (test_case.expected ? "true" : "false");
+  }
+}
+
+TEST(Label, AsRelative) {
+  const SourceDir dir_a("//a/");
+  const SourceDir dir_b("//b/");
+  const SourceDir root_dir("//");
+  const SourceDir tc_dir("//t/");
+  const SourceDir alt_tc_dir("//u/");
+
+  const struct TestCase {
+    Label label;
+    Label other;
+    const char* expected;
+  } test_cases[] = {
+      // Same directory and toolchain.
+      {Label(dir_a, "foo", tc_dir, "default"),
+       Label(dir_a, "bar", tc_dir, "default"), ":foo"},
+      // Root directory and same toolchain.
+      {Label(root_dir, "foo", tc_dir, "default"),
+       Label(root_dir, "bar", tc_dir, "default"), ":foo"},
+      // Different directory, same toolchain.
+      {Label(dir_a, "foo", tc_dir, "default"),
+       Label(dir_b, "bar", tc_dir, "default"), "//a:foo"},
+      {Label(root_dir, "foo", tc_dir, "default"),
+       Label(dir_b, "bar", tc_dir, "default"), "//:foo"},
+      // Same directory, different toolchain.
+      {Label(dir_a, "foo", alt_tc_dir, "alt"),
+       Label(dir_a, "bar", tc_dir, "default"), ":foo(//u:alt)"},
+      // Different directory and toolchain.
+      {Label(dir_a, "foo", alt_tc_dir, "alt"),
+       Label(dir_b, "bar", tc_dir, "default"), "//a:foo(//u:alt)"},
+  };
+
+  for (const auto& test_case : test_cases) {
+    EXPECT_EQ(test_case.expected, test_case.label.AsRelative(test_case.other));
   }
 }

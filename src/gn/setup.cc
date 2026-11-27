@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <memory>
 #include <sstream>
+#include <string_view>
 #include <utility>
 
 #include "base/command_line.h"
@@ -103,7 +104,8 @@ Variables
       no_check_targets (see below) is specified, all targets will be checked.
       It is an error to specify both check_targets and no_check_targets. If it
       is the empty list, no targets will be checked. To bypass this list,
-      request an explicit check of targets, like "//*".
+      request an explicit check of targets, like "//*", without
+      --with-transitive-deps.
 
       The format of this list is identical to that of "visibility" so see "gn
       help visibility" for examples.
@@ -125,7 +127,7 @@ Variables
       Generated files are the target's files in the output directory, such as
       action outputs listed in its sources. This list can be combined with
       check_targets or no_check_targets. To bypass it, request an explicit
-      check of targets, like "//*".
+      check of targets, like "//*", without --with-transitive-deps.
 
       The format of this list is identical to that of "visibility" so see "gn
       help visibility" for examples.
@@ -235,11 +237,17 @@ Variables
       calls using the Python interpreter found in PATH. This value specifies the
       Python executable or other interpreter to use instead.
 
-      If set to a path starting with "//", it will be interpreted as relative
-      to the source root directory and converted to a build-directory-relative
-      path in the generated Ninja files.
+      This may be a string specifying the executable path, or a list of strings
+      where the first element is the executable path and the remaining elements
+      are command-line arguments passed to the executable before the script
+      (for example, ["python3", "-s"]).
 
-      If set to the empty string, the scripts will be executed directly.
+      If the executable path starts with "//", it will be interpreted as
+      relative to the source root directory and converted to a
+      build-directory-relative path in the generated Ninja files.
+
+      If set to the empty string or empty list, the scripts will be executed
+      directly.
 
       The command-line switch --script-executable will override this value (see
       "gn help --script-executable")
@@ -949,45 +957,75 @@ base::FilePath ProcessFileExtensions(base::FilePath script_executable) {
   return script_executable;
 }
 
+namespace {
+
+base::FilePath ResolveScriptExecutable(const BuildSettings& build_settings,
+                                       std::string_view str_val) {
+  base::FilePath python_path =
+      str_val.starts_with("//")
+          ? build_settings.GetFullPath(SourceFile(std::string(str_val)))
+          : UTF8ToFilePath(str_val);
+  return ProcessFileExtensions(std::move(python_path));
+}
+
+}  // namespace
+
 bool Setup::FillPythonPath(const base::CommandLine& cmdline, Err* err) {
   // Trace this since it tends to be a bit slow on Windows.
   ScopedTrace setup_trace(TraceItem::TRACE_SETUP, "Fill Python Path");
   const Value* value = dotfile_scope_.GetValue("script_executable", true);
   if (cmdline.HasSwitch(switches::kScriptExecutable)) {
-    auto script_executable =
-        cmdline.GetSwitchValuePath(switches::kScriptExecutable);
-    std::string str_val = FilePathToUTF8(script_executable);
-    base::FilePath python_path;
-    if (str_val.starts_with("//")) {
-      SourceFile source_file(std::move(str_val));
-      python_path = build_settings_.GetFullPath(source_file);
-    } else {
-      python_path = std::move(script_executable);
-    }
-    build_settings_.SetPythonPath(ProcessFileExtensions(python_path));
+    build_settings_.SetPythonPath(ResolveScriptExecutable(
+        build_settings_,
+        cmdline.GetSwitchValueString(switches::kScriptExecutable)));
   } else if (value) {
-    if (!value->VerifyTypeIs(Value::STRING, err)) {
+    const Value* exe_value = nullptr;
+    std::vector<std::string> python_args;
+    if (value->type() == Value::STRING) {
+      if (!value->string_value().empty()) {
+        exe_value = value;
+      }
+    } else if (value->type() == Value::LIST) {
+      const std::vector<Value>& list = value->list_value();
+      for (const Value& item : list) {
+        if (!item.VerifyTypeIs(Value::STRING, err)) {
+          return false;
+        }
+      }
+      if (!list.empty()) {
+        if (list[0].string_value().empty()) {
+          *err = Err(list[0],
+                     "Executable path in script_executable list cannot be "
+                     "empty.",
+                     "Use \"\" or [] to execute scripts directly.");
+          return false;
+        }
+        exe_value = &list[0];
+        python_args.reserve(list.size() - 1);
+        for (size_t i = 1; i < list.size(); ++i) {
+          python_args.push_back(list[i].string_value());
+        }
+      }
+    } else {
+      *err = Err(*value,
+                 "script_executable must be a string or a list of strings.");
       return false;
     }
-    // Note that an empty string value is valid, and means that the scripts
-    // invoked by actions will be run directly.
+
+    // Note that an empty string or empty list value is valid, and means that
+    // the scripts invoked by actions will be run directly.
     base::FilePath python_path;
-    if (!value->string_value().empty()) {
-      const std::string& str_val = value->string_value();
-      if (str_val.starts_with("//")) {
-        SourceFile source_file(str_val);
-        python_path = build_settings_.GetFullPath(source_file);
-      } else {
-        python_path = UTF8ToFilePath(str_val);
-      }
-      python_path = ProcessFileExtensions(python_path);
+    if (exe_value) {
+      python_path =
+          ResolveScriptExecutable(build_settings_, exe_value->string_value());
       if (python_path.empty()) {
-        *err = Err(Location(), "Could not find \"" + value->string_value() +
+        *err = Err(*exe_value, "Could not find \"" + exe_value->string_value() +
                                    "\" from dotfile in PATH.");
         return false;
       }
     }
-    build_settings_.SetPythonPath(std::move(python_path));
+    build_settings_.SetPythonPath(std::move(python_path),
+                                  std::move(python_args));
   } else {
 #if defined(OS_WIN)
     base::FilePath python_path =
@@ -1089,9 +1127,9 @@ bool Setup::FillOtherConfig(const base::CommandLine& cmdline, Err* err) {
     std::optional<Version> version =
         Version::FromString(ninja_required_version_value->string_value());
     if (!version) {
-      Err(Location(), "Invalid Ninja version '" +
-                          ninja_required_version_value->string_value() + "'")
-          .PrintToStdout();
+      *err = Err(Location(), "Invalid Ninja version '" +
+                                 ninja_required_version_value->string_value() +
+                                 "'");
       return false;
     }
     build_settings_.set_ninja_required_version(*version);
@@ -1186,11 +1224,10 @@ bool Setup::FillOtherConfig(const base::CommandLine& cmdline, Err* err) {
   const Value* build_config_value =
       dotfile_scope_.GetValue("buildconfig", true);
   if (!build_config_value) {
-    Err(Location(), "No build config file.",
-        "Your .gn file (\"" + FilePathToUTF8(dotfile_name_) +
-            "\")\n"
-            "didn't specify a \"buildconfig\" value.")
-        .PrintToStdout();
+    *err = Err(Location(), "No build config file.",
+               "Your .gn file (\"" + FilePathToUTF8(dotfile_name_) +
+                   "\")\n"
+                   "didn't specify a \"buildconfig\" value.");
     return false;
   } else if (!build_config_value->VerifyTypeIs(Value::STRING, err)) {
     return false;
@@ -1215,12 +1252,11 @@ bool Setup::FillOtherConfig(const base::CommandLine& cmdline, Err* err) {
       dotfile_scope_.GetValue("no_check_targets", true);
   if (no_check_targets_value) {
     if (check_targets_value) {
-      Err(Location(), "Conflicting check settings.",
-          "Your .gn file (\"" + FilePathToUTF8(dotfile_name_) +
-              "\")\n"
-              "specified both check_targets and no_check_targets and at most "
-              "one is allowed.")
-          .PrintToStdout();
+      *err = Err(Location(), "Conflicting check settings.",
+                 "Your .gn file (\"" + FilePathToUTF8(dotfile_name_) +
+                     "\")\n"
+                     "specified both check_targets and no_check_targets and "
+                     "at most one is allowed.");
       return false;
     }
     no_check_patterns_ = std::make_unique<std::vector<LabelPattern>>();

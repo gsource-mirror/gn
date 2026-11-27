@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24bbd362_894f7399",
+        "filename": "src/gn/create_bundle_target_generator.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T06:05:54Z",
+      "side": 1,
+      "message": "Nit: As noted on CL 29621, this production target generator change belongs in CL 29621 (and `src/gn/binary_target_generator_unittest.cc` from CL 29621 belongs in this test-migration CL).",
+      "isAi": true,
+      "revId": "0b1bbb67063dcbbe7c78f3e3f78edd388f10bb09",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

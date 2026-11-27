@@ -10,8 +10,7 @@ use strum::{Display, EnumIter, IntoStaticStr};
 #[strum(serialize_all = "snake_case")]
 /// Copied from target.h's OutputType enum.
 pub enum OutputType {
-    // Unknown = 0
-    Group = 1,
+    Group = 0,
     Executable,
     SharedLibrary,
     LoadableModule,

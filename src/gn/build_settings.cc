@@ -55,8 +55,10 @@ void BuildSettings::SetSecondarySourcePath(const SourceDir& d) {
   secondary_source_path_ = GetFullPath(d).NormalizePathSeparatorsTo('/');
 }
 
-void BuildSettings::SetPythonPath(base::FilePath p) {
+void BuildSettings::SetPythonPath(base::FilePath p,
+                                  std::vector<std::string> args) {
   python_path_ = std::move(p);
+  python_args_ = std::move(args);
   python_path_is_relative_to_build_dir_ = false;
 
   // If the provided python path is absolute and is within the root source tree,
@@ -65,7 +67,9 @@ void BuildSettings::SetPythonPath(base::FilePath p) {
   if (python_path_.IsAbsolute() && root_path_.IsParent(python_path_)) {
     python_path_ = UTF8ToFilePath(
         RebasePath(FilePathToUTF8(python_path_), build_dir_, root_path_utf8_));
-    python_path_is_relative_to_build_dir_ = true;
+    // Rebasing across Windows drives leaves the path absolute. Do not prepend
+    // the build directory when invoking the interpreter in that case.
+    python_path_is_relative_to_build_dir_ = !python_path_.IsAbsolute();
   }
 }
 

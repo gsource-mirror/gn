@@ -16,7 +16,6 @@ class GeneratedFileTargetGenerator : public TargetGenerator {
   GeneratedFileTargetGenerator(Target* target,
                                Scope* scope,
                                const FunctionCallNode* function_call,
-                               Target::OutputType type,
                                Err* err);
   ~GeneratedFileTargetGenerator() override;
 
@@ -24,13 +23,16 @@ class GeneratedFileTargetGenerator : public TargetGenerator {
   void DoRun() override;
 
  private:
-  bool FillGeneratedFileOutput();
   bool FillOutputConversion();
   bool FillContents();
   bool FillCollectValidationsMetadata();
   bool FillDataKeys();
   bool FillWalkKeys();
+  bool FillWalkDeps();
   bool FillRebase();
+
+  // Appends the list of strings in the given variable (if set) to |out|.
+  bool FillKeys(std::string_view variable, std::vector<std::string>* out);
 
   // Returns false if `contents` is defined (i.e. if this target was provided
   // with explicit contents to write). Returns false otherwise, indicating that
@@ -42,8 +44,6 @@ class GeneratedFileTargetGenerator : public TargetGenerator {
 
   bool contents_defined_ = false;
   bool data_keys_defined_ = false;
-
-  Target::OutputType output_type_;
 
   GeneratedFileTargetGenerator(const GeneratedFileTargetGenerator&) = delete;
   GeneratedFileTargetGenerator& operator=(const GeneratedFileTargetGenerator&) =

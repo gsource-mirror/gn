@@ -47,7 +47,7 @@ using TargetSet = PointerSet<const Target>;
 class Target : public Item {
  public:
   enum OutputType {
-    UNKNOWN,
+    NOOP,
     GROUP,
     EXECUTABLE,
     SHARED_LIBRARY,
@@ -62,7 +62,6 @@ class Target : public Item {
     GENERATED_FILE,
     RUST_LIBRARY,
     RUST_PROC_MACRO,
-    NOOP,
   };
 
   enum DepsIterationType {
@@ -86,6 +85,7 @@ class Target : public Item {
   // to Scope for how this is determined.
   Target(const Settings* settings,
          const Label& label,
+         OutputType output_type,
          const SourceFileSet& build_dependency_files = {});
   ~Target() override;
 
@@ -113,7 +113,6 @@ class Target : public Item {
   bool RunChecksAfterResolution(Err* err);
 
   OutputType output_type() const { return output_type_; }
-  void set_output_type(OutputType t) { output_type_ = t; }
 
   // True for targets that compile source code (all types of libraries and
   // executables).
@@ -214,17 +213,17 @@ class Target : public Item {
   bool has_metadata() const { return metadata_.get(); }
 
   // Get metadata from this target and its dependencies. This is intended to
-  // be called after the target is resolved.
+  // be called after the target is resolved. If |deps_collected| is not null,
+  // the values of this target's dep_keys() found in the metadata of walked
+  // targets are resolved and added to |deps_collected|.
   bool GetMetadata(const std::vector<std::string>& data_keys,
                    const std::vector<std::string>& walk_keys,
                    const SourceDir& rebase_dir,
                    bool deps_only,
                    std::vector<Value>* result,
                    TargetSet* targets_walked,
-                   Err* err) const;
-
-  // GeneratedFile-related methods.
-  bool GenerateFile(Err* err) const;
+                   Err* err,
+                   UniqueVector<const Target*>* deps_collected = nullptr) const;
 
   // Metadata collection methods for GeneratedFile targets.
   struct GeneratedFile {
@@ -233,6 +232,8 @@ class Target : public Item {
     SourceDir rebase_;
     std::vector<std::string> data_keys_;
     std::vector<std::string> walk_keys_;
+    std::vector<std::string> dep_keys_;
+    LabelTargetVector walk_deps_;
   };
   const GeneratedFile& generated_file() const;
   GeneratedFile& generated_file();
@@ -257,6 +258,14 @@ class Target : public Item {
     return generated_file().walk_keys_;
   }
   std::vector<std::string>& walk_keys() { return generated_file().walk_keys_; }
+  const std::vector<std::string>& dep_keys() const {
+    return generated_file().dep_keys_;
+  }
+  std::vector<std::string>& dep_keys() { return generated_file().dep_keys_; }
+  const LabelTargetVector& walk_deps() const {
+    return generated_file().walk_deps_;
+  }
+  LabelTargetVector& walk_deps() { return generated_file().walk_deps_; }
 
   OutputFile write_runtime_deps_output() const {
     return write_runtime_deps_output_;
@@ -553,9 +562,6 @@ class Target : public Item {
   // Pulls necessary information from dependencies to this one when all
   // dependencies have been resolved.
   void PullDependentTargetConfigs();
-  void PullDependentTargetLibsFrom(const Target* dep, bool is_public);
-  void PullDependentTargetLibs();
-  void PullRecursiveHardDeps();
   void PullRecursiveBundleData();
 
   // Checks to see whether this target or any of its dependencies have real
@@ -578,7 +584,7 @@ class Target : public Item {
   void CheckSourcesGenerated() const;
   bool CheckSourceSetLanguages(Err* err) const;
 
-  OutputType output_type_ = UNKNOWN;
+  const OutputType output_type_;
   std::string output_name_;
   bool output_prefix_override_ = false;
   SourceDir output_dir_;

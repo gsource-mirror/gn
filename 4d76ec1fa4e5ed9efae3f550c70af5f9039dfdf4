@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b24f7c36_23b34895",
+        "filename": "src/gn/item.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T06:50:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28e60e0b_2adf295b",
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f9d5de7a_e77f77c6",
@@ -33,6 +51,24 @@
       "side": 1,
       "message": "Nit: Consider also explicitly deleting `Item\u0026 operator\u003d(const Item\u0026) \u003d delete;` (and move assignment) for clarity/consistency with the style guide.",
       "isAi": true,
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "293901cf_626c30a9",
+        "filename": "src/gn/item.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T06:50:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9d5de7a_e77f77c6",
       "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -55,6 +91,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "341e2bde_8578bc98",
+        "filename": "src/gn/item.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T06:50:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3bc38d0_306b4011",
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "172fc90e_dadc4108",
@@ -69,6 +123,24 @@
       "side": 1,
       "message": "Nit: There is no `storage` variable here (`cxx.as_mut().rust_target_mut()` is passed directly). It would also help to mention in the `// Safety:` comment that size and alignment are verified by `Session::from_resolver` / the compile-time align assert in `target.rs`.",
       "isAi": true,
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbc38873_413d134f",
+        "filename": "src/gn/starlark/crates/ffi/src/eval_context.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T06:50:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "172fc90e_dadc4108",
       "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
@@ -91,6 +163,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "edb825f0_eaf2734a",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T06:50:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe5b55c6_5c3edefa",
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9cb56b9_6edb504a",
@@ -109,6 +199,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecf07224_19a2dfc3",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T06:50:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9cb56b9_6edb504a",
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6b6946a7_ffc85866",
@@ -123,6 +231,24 @@
       "side": 1,
       "message": "Two small edge-case suggestions here:\n1. Moving `if (init_rust)` after the `scope-\u003eGetItemCollector()` check avoids constructing and immediately dropping an `FfiTarget` on context error.\n2. In the `output_type \u003d\u003d \"noop\"` branch above (line 190), consider adding `DCHECK(!init_rust);`, since `Target::NOOP` (15) is outside Rust\u0027s `OutputType` range (1..\u003d14) and `session.builtin_rule(15)` would panic out-of-bounds if `init_rust` were ever true.",
       "isAi": true,
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ebaa97b_d74220cf",
+        "filename": "src/gn/target_generator.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T06:50:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b6946a7_ffc85866",
       "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

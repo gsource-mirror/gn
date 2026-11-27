@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e26248d2_b5796e0a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T04:18:35Z",
+      "side": 1,
+      "message": "Two high-level requests on this CL:\n\n1. **Motivation**: Could you expand the commit message to explain *why* this refactor is needed on `main` right now (e.g., whether it\u0027s a prerequisite for upcoming Starlark `Target` initialization work to avoid merge conflicts across test files, or a standalone cleanup)? For a ~2,400-line CL on `main`, having the concrete motivation in the commit message will help reviewers and future readers.\n\n2. **Splitting the CL**: ~95% of this diff (`+1139, -1149` across 31 test/helper files) is mechanical unittest updates, while the actual production change is only 15 files (`+53, -72`). Could we split this into smaller, independently green CLs using a staged migration so the production changes and non-trivial test updates (`target_unittest.cc`, `ninja_*_unittest.cc`) are easier to review?\n   - **CL 1**: Add the new `Target(settings, label, output_type, ...)` overload while temporarily keeping the old constructor/`set_output_type()`, and migrate production code (`target_generator.cc`, `*target_generator.*`, `test_with_scope.cc`).\n   - **CL 2 (or 2–3)**: Mechanically migrate the unittest files (e.g., `ninja_*_unittest.cc` in one CL and the remaining unittests in another).\n   - **Final CL**: Remove the old constructor, `set_output_type()`, and `Target::UNKNOWN` (and update `output_type.rs`).",
+      "isAi": true,
+      "revId": "5561d1cc0887191afaa7e27bb745bc6a2b0c5775",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c8410b0_0f4155e7",
+        "filename": "src/gn/item.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T04:18:35Z",
+      "side": 1,
+      "message": "This change isn\u0027t mentioned in the commit message and seems unrelated to initializing `Target::output_type_` in the constructor (`Target` already deletes copy construction/assignment in `target.h`).\n\nCould we split this out into its own CL (or explain why it\u0027s needed here in the commit message)?",
+      "isAi": true,
+      "revId": "5561d1cc0887191afaa7e27bb745bc6a2b0c5775",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94452032_62e2034e",
+        "filename": "src/gn/starlark/crates/types/src/output_type.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T04:18:35Z",
+      "side": 1,
+      "message": "Heads-up for when merging `main` into `starlark`: `OutputType::from_u8()` on the `starlark` branch currently matches `0 | Self::NOOP \u003d\u003e None` and `1..\u003dSelf::MAX \u003d\u003e transmute(value)` with `NOOP \u003d 15`. Since `from_u8()` does not exist on `main`, a merge could apply `Group \u003d 0` cleanly without conflicting in `from_u8()`, so please remember to update `from_u8()` (`0..\u003dSelf::MAX`, `NOOP \u003d 14`) when merging.",
+      "isAi": true,
+      "revId": "5561d1cc0887191afaa7e27bb745bc6a2b0c5775",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2eb233bc_e78de8e4",
+        "filename": "src/gn/target.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T04:18:35Z",
+      "side": 1,
+      "message": "Nit: Since `Target` is non-copyable/non-assignable and `output_type_` is never mutated after construction, we can make this `const OutputType output_type_;` so immutability is enforced by the compiler as well.",
+      "isAi": true,
+      "revId": "5561d1cc0887191afaa7e27bb745bc6a2b0c5775",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

@@ -85,6 +85,24 @@
       "message": "nit: Use UniqueVector\u003cstd::string\u003e to build the list, as it will be simpler and more efficient, e.g.:\n\n```\nUniqueVector\u003cstd::string\u003e outputs;\nfor (ConfigValuesIterator iter(target_); !iter.done(); iter.Next()) {\n  for (const auto\u0026 pattern: iter.cur().c_additional_outputs()) {\n    outputs.push_back(pattern.AsString());\n  }\n}\nif (!outputs.empty()) {\n  res-\u003eSetWithoutPathExpansion(variables::kCAdditionalOutputs,\n                               std::make_unique\u003cbase::ListValue\u003e(outputs.release()));\n}\n```",
       "revId": "351fa829c316fa6a4aa629e3e62ac6b5680cf9ed",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9506106f_b69c9908",
+        "filename": "src/gn/desc_builder.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 1001342
+      },
+      "writtenOn": "2026-11-27T10:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d93c178e_4aba4c39",
+      "revId": "351fa829c316fa6a4aa629e3e62ac6b5680cf9ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

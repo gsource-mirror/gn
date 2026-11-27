@@ -585,7 +585,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
         ldflags.append('-static-libstdc++')
 
       cflags.extend([
-        '-Wno-deprecated-copy',
         '-Wno-implicit-fallthrough',
         '-Wno-redundant-move',
         '-Wno-format',             # Use of %llx, which is supported by _UCRT, false positive

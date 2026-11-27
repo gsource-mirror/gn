@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6dc6280_d04aa82a",
+        "filename": "src/gn/binary_target_generator_unittest.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T05:55:35Z",
+      "side": 1,
+      "message": "Nit: It looks like this unittest file belongs in the test-migration CL (29622), whereas `src/gn/create_bundle_target_generator.cc` ended up in 29622 instead of this CL. Consider swapping those two files so this CL cleanly covers only target generators.",
+      "isAi": true,
+      "revId": "dc422ef36e934c7a11525ea1ecf72945b3fee8aa",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

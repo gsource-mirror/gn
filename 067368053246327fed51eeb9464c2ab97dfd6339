@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05b7f7b1_0dacbc7d",
+        "filename": "src/gn/target.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T06:06:23Z",
+      "side": 1,
+      "message": "Renaming `UNKNOWN` to `NOOP` isn\u0027t mentioned in the commit message, and on `main` `Target::NOOP` is currently unused, undocumented, and unhandled in `Target::GetStringForOutputType()` (falling through to `default: return \"\"`).\n\nIf the goal is just to keep `GROUP \u003d\u003d 1` (matching `output_type.rs` on `starlark`), would it be cleaner on `main` to remove `UNKNOWN` and assign `GROUP \u003d 1` explicitly instead of introducing an unused `NOOP` enumerator here? Alternatively, if you prefer to reserve `NOOP \u003d 0` now, please document its purpose in a comment here and mention the rename in the commit message (and consider whether `GetStringForOutputType()` should handle `case NOOP:`).",
+      "isAi": true,
+      "revId": "067368053246327fed51eeb9464c2ab97dfd6339",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

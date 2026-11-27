@@ -9,19 +9,19 @@ use std::{
 
 use allocative::Allocative;
 use starlark::{
-    environment::{Methods, MethodsBuilder, MethodsStatic},
+    environment::{Methods, MethodsBuilder},
     starlark_complex_value,
     typing::Ty,
     values::{
-        type_repr::StarlarkTypeRepr, Freeze, FreezeResult, Freezer, Heap, ProvidesStaticType,
-        StarlarkValue, Trace, UnpackValue, Value, ValueLike,
+        Heap, ProvidesStaticType, StarlarkValue, Trace, UnpackValue, Value,
+        type_repr::StarlarkTypeRepr,
     },
 };
-use starlark_derive::{starlark_module, starlark_value, Coerce, NoSerialize};
+use starlark_derive::{Freeze, NoSerialize, starlark_module, starlark_value};
 use types::File;
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Allocative)]
 /// All orderings are guaranteed to be deterministic.
+#[derive(Allocative, Clone, Copy, Debug, Eq, Freeze, Hash, PartialEq)]
 pub enum Order {
     /// Our unspecified order is postorder. However, this should not be relied
     /// upon.
@@ -77,7 +77,7 @@ impl Display for Order {
 }
 
 /// The type of elements contained in a depset.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, allocative::Allocative)]
+#[derive(Allocative, Clone, Copy, Debug, Eq, Freeze, PartialEq)]
 pub enum Kind {
     Empty,
     Unknown,
@@ -95,18 +95,17 @@ impl Display for Kind {
 }
 
 /// A generic implementation of a Starlark Depset.
-#[derive(Debug, Trace, Coerce, ProvidesStaticType, NoSerialize, Allocative)]
-// By implementing coerce, freezing depsets is zero-cost.
+#[derive(Allocative, Debug, Freeze, NoSerialize, ProvidesStaticType, Trace)]
 // Coerce requires repr(C).
 // Starlark knows that it can just do a reinterpret cast of the memory.
 #[repr(C)]
-pub struct DepsetGen<V> {
+pub struct Depset<'v> {
     /// The traversal order of this depset.
     pub(crate) order: Order,
     /// The direct elements of this depset. De-duped on creation.
-    pub(crate) direct: Vec<V>,
+    pub(crate) direct: Vec<Value<'v>>,
     /// Transitive depsets. Each entry is guaranteed to be a non-empty depset.
-    pub(crate) transitive: Vec<V>,
+    pub(crate) transitive: Vec<Value<'v>>,
     /// The element type kind of this depset.
     pub(crate) kind: Kind,
     /// The single phony file for this depset. Set for `depset[File]` only.
@@ -115,20 +114,32 @@ pub struct DepsetGen<V> {
 }
 
 impl<'v> Depset<'v> {
+    /// Creates a new `Depset` containing a single `File` element.
+    pub fn single_file(file: File, heap: &Heap<'v>) -> Self {
+        Self {
+            order: Order::Unspecified,
+            transitive: Vec::new(),
+            kind: Kind::File,
+            direct: vec![heap.alloc(file)],
+            phony: Some(file),
+        }
+    }
+
     /// Creates a new `Depset` containing `File` elements.
-    pub fn new_file_depset<C: types::EvalContext>(
+    pub fn new_file_depset<T: types::TargetRef>(
         direct: Vec<File>,
         heap: &Heap<'v>,
-        ctx: &C,
-    ) -> starlark::Result<Self> {
-        let phony = if direct.len() == 1 {
-            Some(direct[0].clone())
-        } else if !direct.is_empty() {
-            Some(ctx.require_rule_impl()?.new_phony(direct.clone()))
+        state: &mut types::CtxState<T>,
+    ) -> Self {
+        if direct.len() == 1 {
+            return Self::single_file(direct[0], heap);
+        }
+        let phony = if !direct.is_empty() {
+            Some(state.new_phony(direct.clone()))
         } else {
             None
         };
-        Ok(Self {
+        Self {
             order: Order::Unspecified,
             transitive: Vec::new(),
             kind: if direct.is_empty() {
@@ -138,11 +149,11 @@ impl<'v> Depset<'v> {
             },
             direct: direct.into_iter().map(|f| heap.alloc(f)).collect(),
             phony,
-        })
+        }
     }
 }
 
-impl<V> Default for DepsetGen<V> {
+impl<'v> Default for Depset<'v> {
     fn default() -> Self {
         Self {
             order: Order::Unspecified,
@@ -154,16 +165,16 @@ impl<V> Default for DepsetGen<V> {
     }
 }
 
-impl<V> DepsetGen<V> {
+impl<'v> Depset<'v> {
     pub(crate) fn order(&self) -> Order {
         self.order
     }
 
-    pub(crate) fn direct(&self) -> &[V] {
+    pub(crate) fn direct(&self) -> &[Value<'v>] {
         &self.direct
     }
 
-    pub(crate) fn transitive(&self) -> &[V] {
+    pub(crate) fn transitive(&self) -> &[Value<'v>] {
         &self.transitive
     }
 
@@ -174,8 +185,8 @@ impl<V> DepsetGen<V> {
 
     /// Returns the single phony File if this is a file depset containing
     /// exactly one element.
-    pub fn phony(&self) -> &Option<File> {
-        &self.phony
+    pub fn phony(&self) -> Option<File> {
+        self.phony
     }
 
     /// Returns true if this depset has no elements (its kind is Empty).
@@ -186,48 +197,49 @@ impl<V> DepsetGen<V> {
 
 starlark_complex_value!(pub Depset);
 
-impl<'v, V: ValueLike<'v>> Display for DepsetGen<V>
-where
-    Self: ProvidesStaticType<'v>,
-{
+impl<'v> Display for Depset<'v> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        // Explicitly DO NOT flatten a depset implicitly, they can get massive.
-        // We may consider printing some fields in the future, but for now
-        // we'll leave this empty to be safe.
         if self.is_empty() {
-            write!(f, "depset([])")
+            write!(f, "depset([]")?;
+        } else if self.direct.len() == 1 && self.transitive.is_empty() {
+            // This is the only way you can have length 1 (aside from overlapping duplicates).
+            // Every element of transitive must have length >= 1, and if there is one transitive and
+            // no direct it will just reuse or clone the object instead of creating a new one.
+            write!(f, "depset([{}]", self.direct[0].to_repr())?;
         } else {
-            write!(f, "depset(...)")
+            // DO NOT flatten a depset implicitly, they can get massive.
+            // Instead, we'll just show [first_element, ...] so the user can see a sample of what's
+            // inside.
+            let mut cur = self;
+            while match self.order {
+                Order::Preorder => cur.direct.is_empty(),
+                Order::Unspecified | Order::Postorder => !cur.transitive.is_empty(),
+                // For topologically ordered depsets, there's no way to work out the first element
+                // without iterating through every single element.
+                Order::Topological => return write!(f, "depset(..., order=\"topological\")"),
+            } {
+                cur = Depset::from_value(cur.transitive[0]).unwrap();
+            }
+            write!(f, "depset([{}, ...]", cur.direct[0].to_repr())?;
+        }
+
+        if self.order == Order::Unspecified {
+            write!(f, ")")
+        } else {
+            write!(f, ", order=\"{}\")", self.order)
         }
     }
 }
 
 #[starlark_value(type = "depset")]
-impl<'v, V: ValueLike<'v>> StarlarkValue<'v> for DepsetGen<V>
-where
-    Self: ProvidesStaticType<'v>,
-{
+impl<'v> StarlarkValue<'v> for Depset<'v> {
     fn get_methods() -> Option<&'static Methods> {
-        static RES: MethodsStatic = MethodsStatic::new("depset", depset_methods);
+        starlark::methods_static!(RES = depset_methods);
         Some(RES.methods())
     }
 
     fn to_bool(&self) -> bool {
         !self.is_empty()
-    }
-}
-
-impl Freeze for Depset<'_> {
-    type Frozen = FrozenDepset;
-
-    fn freeze(self, freezer: &Freezer) -> FreezeResult<Self::Frozen> {
-        Ok(DepsetGen {
-            order: self.order,
-            direct: self.direct.freeze(freezer)?,
-            transitive: self.transitive.freeze(freezer)?,
-            kind: self.kind,
-            phony: self.phony,
-        })
     }
 }
 
@@ -244,13 +256,17 @@ mod tests {
     use testutils::Assert;
 
     use super::*;
-    use crate::{globals::tests::new_assert, UnpackFileDepset};
+    use crate::{UnpackFileDepset, globals::tests::new_assert};
 
     #[test]
     fn test_depset_deduplication() {
         let mut a = new_assert();
         let depset_val = a.pass("depset(['a', 'a'])");
-        let depset = depset_val.value().downcast_ref::<FrozenDepset>().unwrap();
+        let depset = depset_val
+            .as_ref()
+            .value()
+            .downcast_ref::<Depset>()
+            .unwrap();
         assert_eq!(depset.direct().len(), 1);
     }
 
@@ -259,7 +275,7 @@ mod tests {
         let mut a = new_assert();
         a.fail(
             "depset(['c'], transitive=['not a depset'])",
-            "Expected value of type `depset` but got `string (repr: \"not a depset\")`",
+            "Type of parameter `transitive` doesn't match, expected `list[depset]`",
         );
     }
 
@@ -343,8 +359,50 @@ mod tests {
         a.equivalent("bool(depset(['a']))", "True");
         a.equivalent("bool(depset())", "False");
         a.equivalent("bool(depset(transitive=[depset()]))", "False");
+    }
+
+    #[test]
+    fn test_depset_repr() {
+        let mut a = new_assert();
 
         a.equivalent("repr(depset())", "\"depset([])\"");
+        a.equivalent(
+            "repr(depset(order='preorder'))",
+            r#"'depset([], order="preorder")'"#,
+        );
+
+        // Singleton depsets omit ellipsis.
+        a.equivalent(
+            "repr(depset([make_file('a.txt')]))",
+            r#"'depset([File("a.txt")])'"#,
+        );
+        a.equivalent(
+            "repr(depset(['a'], order='topological'))",
+            r#"'depset(["a"], order="topological")'"#,
+        );
+
+        // Multiple elements outputs depset([first, ...])
+        a.equivalent("repr(depset([1, 2]))", "\"depset([1, ...])\"");
+        a.equivalent(
+            "repr(depset([1, 2], order='topological'))",
+            r#"'depset(..., order="topological")'"#,
+        );
+        a.equivalent(
+            "repr(depset(['b', 'c'], transitive=[depset(['a'])], order='preorder'))",
+            r#"'depset(["b", ...], order="preorder")'"#,
+        );
+        a.equivalent(
+            "repr(depset(transitive=[depset(['b'], transitive=[depset(['a'])]), depset(['c'])], order='preorder'))",
+            r#"'depset(["b", ...], order="preorder")'"#,
+        );
+        a.equivalent(
+            "repr(depset(['c'], transitive=[depset(['b'], transitive=[depset(['a'])]), depset(['d'])], order='postorder'))",
+            r#"'depset(["a", ...], order="postorder")'"#,
+        );
+        a.equivalent(
+            "repr(depset(['b'], transitive=[depset(['a'])]))",
+            r#"'depset(["a", ...])'"#,
+        );
     }
 
     #[test]
@@ -354,69 +412,68 @@ mod tests {
         // This is to ensure we don't accidentally use File::new.
         // We cannot mix File::new and File::from_rust to get the same file object.
         let f = |s: &str| File::intern(s);
-
-        let mut upto_phony = 0;
-        // Collect the phonies we've seen since last time we called new_phonies.
-        let mut new_phonies = |a: &Assert| {
-            use types::EvalContext as _;
-            let phonies = &a.context().require_rule_impl().unwrap().phonies;
-            let result = &phonies[upto_phony..];
-            upto_phony = phonies.len();
-            result.to_vec()
+        let make_phony = |phony: &str, expansion: &[&str]| types::Phony {
+            phony: f(phony),
+            expansion: expansion.iter().copied().map(f).collect(),
         };
 
-        assert!(UnpackFileDepset::unpack_value_err(a.pass("depset([1])").value()).is_err());
+        let mut upto_phony = 0;
+        let mut assert_new_phonies = |a: &Assert, expected: &[types::Phony]| {
+            use types::EvalContext as _;
+            let binding = a.context().require_rule_impl().unwrap();
+            let phonies = &binding.borrow().phonies;
+            assert_eq!(&phonies[upto_phony..], expected);
+            upto_phony = phonies.len();
+        };
+
+        assert_eq!(
+            UnpackFileDepset::unpack_value_err(a.pass("depset([1])").as_ref().value())
+                .unwrap_err()
+                .to_string(),
+            "Expected `depset[File]`, but got `depset (repr: depset([1]))`"
+        );
 
         a.eq("depset()", UnpackFileDepset(None));
-        assert_eq!(new_phonies(&a), &[]);
+        assert_new_phonies(&a, &[]);
 
         // Because the outer depset only phonies to one item, we shouldn't make a phony.
         a.eq(
             "depset([make_file('a.txt')])",
             UnpackFileDepset(Some(f("a.txt"))),
         );
-        assert_eq!(new_phonies(&a), &[]);
+        assert_new_phonies(&a, &[]);
 
         // We should make a phony here for the inner depset.
         // Because the outer depset only phonies to one phony, it shouldn't make a
         // phony.
         a.eq(
             "depset(transitive = [depset([make_file('a.txt'), make_file('b.txt')])])",
-            UnpackFileDepset(Some(f("phony/$TOOLCHAIN/$LABEL_0"))),
+            UnpackFileDepset(Some(f("phony/:default_0"))),
         );
-        assert_eq!(
-            new_phonies(&a),
-            &[(f("phony/$TOOLCHAIN/$LABEL_0"), vec![f("a.txt"), f("b.txt")])]
-        );
+        assert_new_phonies(&a, &[make_phony("phony/:default_0", &["a.txt", "b.txt"])]);
         a.eq(
             "depset([make_file('c.txt')], transitive=[depset([make_file('a.txt'), make_file('b.txt')])])",
-            UnpackFileDepset(Some(f("phony/$TOOLCHAIN/$LABEL_2"))),
+            UnpackFileDepset(Some(f("phony/:default_2"))),
         );
-        assert_eq!(
-            new_phonies(&a),
+        assert_new_phonies(
+            &a,
             &[
-                (f("phony/$TOOLCHAIN/$LABEL_1"), vec![f("a.txt"), f("b.txt")]),
-                (
-                    f("phony/$TOOLCHAIN/$LABEL_2"),
-                    vec![f("c.txt"), f("phony/$TOOLCHAIN/$LABEL_1")]
-                ),
-            ]
+                make_phony("phony/:default_1", &["a.txt", "b.txt"]),
+                make_phony("phony/:default_2", &["c.txt", "phony/:default_1"]),
+            ],
         );
-        assert_eq!(new_phonies(&a), &[]);
+        assert_new_phonies(&a, &[]);
 
         a.eq(
             "new_file_depset([make_file('a.txt')])",
             UnpackFileDepset(Some(f("a.txt"))),
         );
-        assert_eq!(new_phonies(&a), &[]);
+        assert_new_phonies(&a, &[]);
 
         a.eq(
             "new_file_depset([make_file('a.txt'), make_file('b.txt')])",
-            UnpackFileDepset(Some(f("phony/$TOOLCHAIN/$LABEL_3"))),
+            UnpackFileDepset(Some(f("phony/:default_3"))),
         );
-        assert_eq!(
-            new_phonies(&a),
-            &[(f("phony/$TOOLCHAIN/$LABEL_3"), vec![f("a.txt"), f("b.txt")])]
-        );
+        assert_new_phonies(&a, &[make_phony("phony/:default_3", &["a.txt", "b.txt"])]);
     }
 }

@@ -39,6 +39,8 @@ class ResolvedTargetData;
 class Settings;
 class Target;
 class Toolchain;
+struct RustTarget;
+struct Session;
 
 using TargetSet = PointerSet<const Target>;
 
@@ -59,6 +61,7 @@ class Target : public Item {
     GENERATED_FILE,
     RUST_LIBRARY,
     RUST_PROC_MACRO,
+    NOOP,
   };
 
   enum DepsIterationType {
@@ -318,6 +321,14 @@ class Target : public Item {
   const LabelTargetVector& gen_deps() const { return gen_deps_; }
   LabelTargetVector& gen_deps() { return gen_deps_; }
 
+  // Dependencies only known to starlark.
+  // Ensures all of a target's starlark dependencies are resolved before itself,
+  // and must preserve both the exact traversal order of `Attr::dependencies()`
+  // and duplicate entries (never sorted or deduplicated), since
+  // `create_ctx_fields()` consumes it positionally.
+  const LabelTargetVector& starlark_deps() const { return starlark_deps_; }
+  LabelTargetVector& starlark_deps() { return starlark_deps_; }
+
   // List of configs that this class inherits settings from. Once a target is
   // resolved, this will also list all-dependent and public configs.
   const UniqueVector<LabelConfigPair>& configs() const { return configs_; }
@@ -373,6 +384,14 @@ class Target : public Item {
   RustValues& rust_values();
   const RustValues& rust_values() const;
   bool has_rust_values() const { return rust_values_.get(); }
+
+  const RustTarget& rust_target(const Session& session) const;
+  const RustTarget* rust_target() const {
+    return rust_target_.load(std::memory_order_acquire);
+  }
+  void set_rust_target(const RustTarget& rust_target) const {
+    rust_target_.store(&rust_target, std::memory_order_release);
+  }
 
   std::vector<LabelPattern>& friends() { return friends_; }
   const std::vector<LabelPattern>& friends() const { return friends_; }
@@ -600,6 +619,7 @@ class Target : public Item {
   LabelTargetVector data_deps_;
   LabelTargetVector validations_;
   LabelTargetVector gen_deps_;
+  LabelTargetVector starlark_deps_;
 
   // See getters for more info.
   UniqueVector<LabelConfigPair> configs_;
@@ -641,6 +661,9 @@ class Target : public Item {
 
   // GeneratedFile as metadata collection values.
   std::unique_ptr<GeneratedFile> generated_file_;
+
+  // A cache of the Session's RustTarget for this target.
+  mutable std::atomic<const RustTarget*> rust_target_ = nullptr;
 
   friend class ResolvedTargetData;
 

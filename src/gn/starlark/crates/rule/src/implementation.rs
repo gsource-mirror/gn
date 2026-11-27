@@ -2,11 +2,43 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-use attr::{traits::EvalContextAttrExt, TargetAttrExt, TargetRef};
-use starlark::{environment::Module, eval::Evaluator, values::OwnedFrozenValue};
-use types::{EvaluatorContextExt, Session};
+use std::fmt;
 
-use crate::{Ctx, FrozenRule};
+use allocative::Allocative;
+use attr::{TargetAttrExt, traits::EvalContextAttrExt};
+use providers::Providers;
+use starlark::{
+    any::ProvidesStaticType,
+    environment::Module,
+    eval::Evaluator,
+    values::{Freeze, HeapEdge, OwnedFrozen, StarlarkValue, UnpackValue as _, ValueTyped},
+};
+use starlark_derive::{NoSerialize, Trace, starlark_value};
+use types::{EvaluatorContextExt as _, Phony, Session, TargetRef as _};
+
+use crate::{Ctx, Rule};
+
+/// The evaluated results of running a rule implementation on a target.
+#[derive(Allocative, Debug, Freeze, NoSerialize, ProvidesStaticType, Trace)]
+pub struct EvaluatedTarget<'v> {
+    /// The phony outputs declared by this target.
+    pub phonies: Vec<Phony>,
+    /// The actions registered by ctx.actions.run.
+    pub actions: Vec<crate::action::Action<'v>>,
+    /// The providers returned by the target's rule implementation.
+    pub providers: Providers<'v>,
+}
+
+impl<'v> fmt::Display for EvaluatedTarget<'v> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "EvaluatedTarget")
+    }
+}
+
+#[starlark_value(type = "EvaluatedTarget")]
+impl<'v> StarlarkValue<'v> for EvaluatedTarget<'v> {
+    type Canonical = Self;
+}
 
 /// Runs the rule implementation function for a given target.
 /// This matches the execution phase where rule implementation is run
@@ -14,37 +46,79 @@ use crate::{Ctx, FrozenRule};
 pub fn run<C: EvalContextAttrExt + crate::CtxMethods>(
     target: &<C::Session as Session>::TargetRef,
     create_context: impl FnOnce(&<C::Session as Session>::TargetRef) -> C,
-) -> starlark::Result<OwnedFrozenValue>
+) -> starlark::Result<OwnedFrozen<ValueTyped<'static, EvaluatedTarget<'static>>>>
 where
-    <C::Session as Session>::TargetRef: TargetAttrExt<Rule = FrozenRule<C>>,
+    <C::Session as Session>::TargetRef:
+        TargetAttrExt<Rule = Rule<'static, C>, Session = C::Session>,
 {
-    // Safety: rule is always a rule for custom rule-built targets.
-    let rule = target.rule().unwrap();
+    let rule = target.rule();
+    let rule_context = create_context(target);
 
     Module::with_temp_heap(|module| {
-        let rule_context = create_context(target);
-
-        // When the module is frozen, only things transitively required by extra_value
-        // are kept.
-        module.set_extra_value({
+        let (res, actions) = if rule.is_builtin() {
+            // The other branch would also work, but this allows us to skip several
+            // allocations (eg. ctx.attr.*) and spinning up a starlark
+            // interpreter.
+            let eval = Evaluator::new(&module);
+            let heap = eval.heap();
+            let mut state = rule_context.require_rule_impl()?.borrow_mut();
+            (
+                rule_context
+                    .session()
+                    .run_builtin_rule(&heap, target, &mut state),
+                Vec::new(),
+            )
+        } else {
+            // When the module is frozen, only things transitively required by extra_value
+            // are kept.
             let mut eval = Evaluator::new(&module);
-            let ctx = eval.heap().alloc(Ctx::<C>::new(
-                rule.schema.create_ctx_fields(
-                    target.attrs(),
-                    rule_context.session(),
-                    &rule_context.current_toolchain(),
-                    rule.builtin,
-                    target.builtin_attrs(&eval.heap()),
-                    &eval.heap(),
-                )?,
-                rule,
-            ));
-
             eval.set_context(&rule_context);
-            eval.eval_function(rule.implementation.to_value(), &[ctx], &[])?
-        });
+            let rule = HeapEdge::immortal().rebrand_ref(rule);
+            let actions = eval
+                .heap()
+                .alloc_typed(crate::actions::Actions::<C>::default());
+            let ctx_fields = rule.schema.create_ctx_fields(
+                target.attrs(),
+                target.deps(rule_context.session()),
+                rule.output_type,
+                target.builtin_attrs(rule_context.session(), &eval.heap()),
+                &eval.heap(),
+            )?;
+            let ctx = eval.heap().alloc(Ctx::<C>::new(
+                ctx_fields,
+                rule,
+                eval.heap().alloc(target.label().to_owned()),
+                actions.to_value(),
+            ));
+            (
+                eval.eval_function(rule.implementation, &[ctx], &[])?,
+                actions.take_actions(),
+            )
+        };
 
-        let frozen = module.freeze()?;
-        Ok(frozen.owned_extra_value().unwrap())
+        let providers = Providers::unpack_value_err(res)?;
+        for provider in &rule.provides {
+            if !providers.contains_id(provider.id()) {
+                return Err(crate::Error::MissingProvider {
+                    rule: rule.name().to_string(),
+                    target: target.label().to_owned(),
+                    provider: provider.as_ref().clone(),
+                }
+                .into());
+            }
+        }
+
+        module.set_extra_value(
+            module.heap().alloc_complex(EvaluatedTarget {
+                phonies: rule_context
+                    .require_rule_impl()?
+                    .borrow_mut()
+                    .rule_impl_complete()?,
+                actions,
+                providers,
+            }),
+        );
+
+        module.freeze()?.extra_value().unwrap().downcast_starlark()
     })
 }

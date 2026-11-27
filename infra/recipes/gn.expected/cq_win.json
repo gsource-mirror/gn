@@ -351,7 +351,8 @@
       "--use-asan",
       "--use-ubsan",
       "--out-path",
-      "[START_DIR]\\gn\\out\\Default"
+      "[START_DIR]\\gn\\out\\Default",
+      "--cipd-packages=[START_DIR]\\cipd"
     ],
     "cwd": "[START_DIR]\\gn",
     "env": {
@@ -359,6 +360,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -385,7 +387,8 @@
       "-C",
       "[START_DIR]\\gn\\out\\Default",
       "gn.exe",
-      "gn_unittests.exe"
+      "gn_unittests.exe",
+      "rust_unittests"
     ],
     "cwd": "[START_DIR]\\gn",
     "env": {
@@ -393,6 +396,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -423,6 +427,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -445,6 +450,38 @@
   },
   {
     "cmd": [
+      "python3",
+      "[START_DIR]\\gn\\out\\Default\\rust_unittests"
+    ],
+    "cwd": "[START_DIR]\\gn",
+    "env": {
+      "VSINSTALLDIR": "[CACHE]\\windows_sdk\\.\\"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]\\cipd\\bin",
+        "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
+      ]
+    },
+    "luci_context": {
+      "realm": {
+        "name": "gn:try"
+      },
+      "resultdb": {
+        "current_invocation": {
+          "name": "invocations/build:8945511751514863184",
+          "update_token": "token"
+        },
+        "hostname": "rdbhost"
+      }
+    },
+    "name": "debug.windows-amd64.test rust_unittests",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]\\cipd\\ninja",
       "-C",
       "[START_DIR]\\gn\\out\\Default",
@@ -456,6 +493,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -495,7 +533,8 @@
       "--use-lto",
       "--use-icf",
       "--out-path",
-      "[START_DIR]\\gn\\out\\Default"
+      "[START_DIR]\\gn\\out\\Default",
+      "--cipd-packages=[START_DIR]\\cipd"
     ],
     "cwd": "[START_DIR]\\gn",
     "env": {
@@ -503,6 +542,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -529,7 +569,8 @@
       "-C",
       "[START_DIR]\\gn\\out\\Default",
       "gn.exe",
-      "gn_unittests.exe"
+      "gn_unittests.exe",
+      "rust_unittests"
     ],
     "cwd": "[START_DIR]\\gn",
     "env": {
@@ -537,6 +578,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -567,6 +609,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -589,6 +632,38 @@
   },
   {
     "cmd": [
+      "python3",
+      "[START_DIR]\\gn\\out\\Default\\rust_unittests"
+    ],
+    "cwd": "[START_DIR]\\gn",
+    "env": {
+      "VSINSTALLDIR": "[CACHE]\\windows_sdk\\.\\"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]\\cipd\\bin",
+        "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
+      ]
+    },
+    "luci_context": {
+      "realm": {
+        "name": "gn:try"
+      },
+      "resultdb": {
+        "current_invocation": {
+          "name": "invocations/build:8945511751514863184",
+          "update_token": "token"
+        },
+        "hostname": "rdbhost"
+      }
+    },
+    "name": "release.windows-amd64.test rust_unittests",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]\\cipd\\ninja",
       "-C",
       "[START_DIR]\\gn\\out\\Default",
@@ -600,6 +675,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -644,6 +720,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -692,6 +769,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -732,6 +810,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },
@@ -783,6 +862,7 @@
     },
     "env_prefixes": {
       "PATH": [
+        "[START_DIR]\\cipd\\bin",
         "[CACHE]\\windows_sdk\\Windows Kits\\10\\bin\\10.0.19041.0\\x64"
       ]
     },

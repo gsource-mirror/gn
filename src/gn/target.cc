@@ -11,9 +11,11 @@
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
+#include "gn/build_settings.h"
 #include "gn/c_tool.h"
 #include "gn/config_values_extractors.h"
 #include "gn/deps_iterator.h"
+#include "gn/ffi/bridge.h"
 #include "gn/filesystem_utils.h"
 #include "gn/functions.h"
 #include "gn/rust_tool.h"
@@ -566,6 +568,8 @@ const char* Target::GetStringForOutputType(OutputType type) {
       return functions::kRustLibrary;
     case RUST_PROC_MACRO:
       return functions::kRustProcMacro;
+    case NOOP:
+      return "noop";
     default:
       return "";
   }
@@ -626,6 +630,20 @@ bool Target::OnResolvedWithoutChecks(Err* err) {
 
   if (!SwiftValues::OnTargetResolved(this, err))
     return false;
+
+  if (auto* rust = rust_target_.load(std::memory_order_acquire)) {
+    auto phony = rust->execute_rule_impl(
+        settings()->build_settings()->starlark_session(), *err);
+    if (err->has_error()) {
+      err->AppendSubErr(Err(
+          user_friendly_location(),
+          "when evaluating target '" + label().GetUserVisibleName(true) + "'"));
+      return false;
+    }
+    if (!phony.empty()) {
+      dependency_output_alias_ = OutputFile(std::string_view(phony));
+    }
+  }
 
   if (!write_runtime_deps_output_.value().empty())
     g_scheduler->AddWriteRuntimeDepsTarget(this);
@@ -722,6 +740,12 @@ std::string Target::GetComputedOutputName() const {
 bool Target::SetToolchain(const Toolchain* toolchain, Err* err) {
   DCHECK(!toolchain_);
   toolchain_ = toolchain;
+
+  // Pure starlark rules don't need a toolchain.
+  // Toolchains can be defined as just regular starlark rules.
+  // They do, however, need a toolchain label to distinguish them.
+  if (output_type_ == NOOP)
+    return true;
 
   const Tool* tool = toolchain->GetToolForTargetFinalOutput(this);
   if (tool)
@@ -967,6 +991,10 @@ bool Target::HasRealInputs() const {
 }
 
 bool Target::FillOutputFiles(Err* err) {
+  // Filled by the rule implementation
+  if (output_type_ == NOOP)
+    return true;
+
   const Tool* tool = toolchain_->GetToolForTargetFinalOutput(this);
   bool check_tool_outputs = false;
   switch (output_type_) {

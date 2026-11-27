@@ -432,7 +432,7 @@
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "CXXFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++ --sysroot=[START_DIR]/cipd/sysroot"
     },
     "luci_context": {
       "realm": {
@@ -465,7 +465,7 @@
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "CXXFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++ --sysroot=[START_DIR]/cipd/sysroot"
     },
     "luci_context": {
       "realm": {
@@ -534,7 +534,7 @@
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "CXXFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=aarch64-linux-gnu -static-libstdc++ --sysroot=[START_DIR]/cipd/sysroot"
     },
     "luci_context": {
       "realm": {
@@ -567,7 +567,7 @@
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "CXXFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -Wno-error",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=aarch64-linux-gnu -static-libstdc++ --sysroot=[START_DIR]/cipd/sysroot"
     },
     "luci_context": {
       "realm": {
@@ -635,7 +635,7 @@
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "CXXFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -Wno-error",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -static-libstdc++"
+      "LDFLAGS": "--target=riscv64-linux-gnu -static-libstdc++ --sysroot=[START_DIR]/cipd/sysroot-focal"
     },
     "luci_context": {
       "realm": {
@@ -668,7 +668,7 @@
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "CXXFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -Wno-error",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -static-libstdc++"
+      "LDFLAGS": "--target=riscv64-linux-gnu -static-libstdc++ --sysroot=[START_DIR]/cipd/sysroot-focal"
     },
     "luci_context": {
       "realm": {
@@ -707,16 +707,22 @@
       "--use-asan",
       "--use-ubsan",
       "--out-path",
-      "[START_DIR]/gn/out/Default"
+      "[START_DIR]/gn/out/Default",
+      "--cipd-packages=[START_DIR]/cipd"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -741,16 +747,22 @@
       "-C",
       "[START_DIR]/gn/out/Default",
       "gn",
-      "gn_unittests"
+      "gn_unittests",
+      "rust_unittests"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -777,10 +789,15 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -801,6 +818,42 @@
   },
   {
     "cmd": [
+      "python3",
+      "[START_DIR]/gn/out/Default/rust_unittests"
+    ],
+    "cwd": "[START_DIR]/gn",
+    "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
+      "CC": "[START_DIR]/cipd/bin/clang",
+      "CFLAGS": "--target=x86_64-linux-gnu",
+      "CXX": "[START_DIR]/cipd/bin/clang++",
+      "LD": "[START_DIR]/cipd/bin/clang++",
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
+    },
+    "luci_context": {
+      "realm": {
+        "name": "gn:try"
+      },
+      "resultdb": {
+        "current_invocation": {
+          "name": "invocations/build:8945511751514863184",
+          "update_token": "token"
+        },
+        "hostname": "rdbhost"
+      }
+    },
+    "name": "debug.linux-amd64.test rust_unittests",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]/cipd/ninja",
       "-C",
       "[START_DIR]/gn/out/Default",
@@ -810,10 +863,15 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -841,11 +899,16 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CLANG_FORMAT": "[START_DIR]/cipd/bin/clang-format",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -873,12 +936,17 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++",
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++",
       "NINJA_OUT_DIR": "[START_DIR]/gn/out/Default",
       "NOBUILD": "1"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -893,6 +961,44 @@
       }
     },
     "name": "debug.linux-amd64.Check tools/update_reference.sh",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninja",
+      "-C",
+      "[START_DIR]/gn/out/Default",
+      "check_linter"
+    ],
+    "cwd": "[START_DIR]/gn",
+    "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
+      "CC": "[START_DIR]/cipd/bin/clang",
+      "CFLAGS": "--target=x86_64-linux-gnu",
+      "CXX": "[START_DIR]/cipd/bin/clang++",
+      "LD": "[START_DIR]/cipd/bin/clang++",
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
+    },
+    "luci_context": {
+      "realm": {
+        "name": "gn:try"
+      },
+      "resultdb": {
+        "current_invocation": {
+          "name": "invocations/build:8945511751514863184",
+          "update_token": "token"
+        },
+        "hostname": "rdbhost"
+      }
+    },
+    "name": "debug.linux-amd64.build (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
     ]
@@ -917,16 +1023,22 @@
       "--use-icf",
       "--out-path",
       "[START_DIR]/gn/out/Default",
+      "--cipd-packages=[START_DIR]/cipd",
       "--link-lib=[START_DIR]/jemalloc/build-linux-amd64/lib/libjemalloc.a"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -951,16 +1063,22 @@
       "-C",
       "[START_DIR]/gn/out/Default",
       "gn",
-      "gn_unittests"
+      "gn_unittests",
+      "rust_unittests"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -987,10 +1105,15 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -1011,6 +1134,42 @@
   },
   {
     "cmd": [
+      "python3",
+      "[START_DIR]/gn/out/Default/rust_unittests"
+    ],
+    "cwd": "[START_DIR]/gn",
+    "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
+      "CC": "[START_DIR]/cipd/bin/clang",
+      "CFLAGS": "--target=x86_64-linux-gnu",
+      "CXX": "[START_DIR]/cipd/bin/clang++",
+      "LD": "[START_DIR]/cipd/bin/clang++",
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
+    },
+    "luci_context": {
+      "realm": {
+        "name": "gn:try"
+      },
+      "resultdb": {
+        "current_invocation": {
+          "name": "invocations/build:8945511751514863184",
+          "update_token": "token"
+        },
+        "hostname": "rdbhost"
+      }
+    },
+    "name": "release.linux-amd64.test rust_unittests",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]/cipd/ninja",
       "-C",
       "[START_DIR]/gn/out/Default",
@@ -1020,10 +1179,15 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -1051,11 +1215,16 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CLANG_FORMAT": "[START_DIR]/cipd/bin/clang-format",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -1083,12 +1252,17 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++",
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++",
       "NINJA_OUT_DIR": "[START_DIR]/gn/out/Default",
       "NOBUILD": "1"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -1103,6 +1277,44 @@
       }
     },
     "name": "release.linux-amd64.Check tools/update_reference.sh",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninja",
+      "-C",
+      "[START_DIR]/gn/out/Default",
+      "check_linter"
+    ],
+    "cwd": "[START_DIR]/gn",
+    "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
+      "CC": "[START_DIR]/cipd/bin/clang",
+      "CFLAGS": "--target=x86_64-linux-gnu",
+      "CXX": "[START_DIR]/cipd/bin/clang++",
+      "LD": "[START_DIR]/cipd/bin/clang++",
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
+    },
+    "luci_context": {
+      "realm": {
+        "name": "gn:try"
+      },
+      "resultdb": {
+        "current_invocation": {
+          "name": "invocations/build:8945511751514863184",
+          "update_token": "token"
+        },
+        "hostname": "rdbhost"
+      }
+    },
+    "name": "release.linux-amd64.build (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
     ]
@@ -1129,10 +1341,15 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "infra_step": true,
     "luci_context": {
@@ -1177,10 +1394,15 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "infra_step": true,
     "luci_context": {
@@ -1217,10 +1439,15 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "infra_step": true,
     "luci_context": {
@@ -1268,10 +1495,15 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=x86_64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=x86_64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "infra_step": true,
     "luci_context": {
@@ -1308,16 +1540,22 @@
       "--use-icf",
       "--out-path",
       "[START_DIR]/gn/out/Default",
+      "--cipd-packages=[START_DIR]/cipd",
       "--link-lib=[START_DIR]/jemalloc/build-linux-arm64/lib/libjemalloc.a"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=aarch64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=aarch64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -1342,16 +1580,22 @@
       "-C",
       "[START_DIR]/gn/out/Default",
       "gn",
-      "gn_unittests"
+      "gn_unittests",
+      "rust_unittests"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=aarch64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=aarch64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -1394,10 +1638,15 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CFLAGS": "--target=aarch64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=aarch64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot -static-libstdc++"
+      "LDFLAGS": "--target=aarch64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "infra_step": true,
     "luci_context": {
@@ -1434,16 +1683,22 @@
       "--use-icf",
       "--out-path",
       "[START_DIR]/gn/out/Default",
+      "--cipd-packages=[START_DIR]/cipd",
       "--link-lib=[START_DIR]/jemalloc/build-linux-riscv64/lib/libjemalloc.a"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal",
+      "CFLAGS": "--target=riscv64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -static-libstdc++"
+      "LDFLAGS": "--target=riscv64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -1468,16 +1723,22 @@
       "-C",
       "[START_DIR]/gn/out/Default",
       "gn",
-      "gn_unittests"
+      "gn_unittests",
+      "rust_unittests"
     ],
     "cwd": "[START_DIR]/gn",
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal",
+      "CFLAGS": "--target=riscv64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -static-libstdc++"
+      "LDFLAGS": "--target=riscv64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "luci_context": {
       "realm": {
@@ -1520,10 +1781,15 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/bin/clang",
-      "CFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal",
+      "CFLAGS": "--target=riscv64-linux-gnu",
       "CXX": "[START_DIR]/cipd/bin/clang++",
       "LD": "[START_DIR]/cipd/bin/clang++",
-      "LDFLAGS": "--target=riscv64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot-focal -static-libstdc++"
+      "LDFLAGS": "--target=riscv64-linux-gnu -static-libstdc++"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/bin"
+      ]
     },
     "infra_step": true,
     "luci_context": {

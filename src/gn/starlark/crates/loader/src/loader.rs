@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 use std::{
-    collections::{hash_map::Entry, HashMap},
+    collections::{HashMap, hash_map::Entry},
     fs,
     pin::Pin,
     sync::{Arc, Condvar, Mutex, RwLock},
@@ -16,7 +16,10 @@ use starlark::{
     syntax::{AstModule, Dialect},
     values::FrozenHeapName,
 };
-use types::{EvalContext, EvaluatorContextExt as _, LabelRef, PackageRef, PathResolver};
+use types::{
+    EvalContext, EvaluatorContextExt as _, Label, LabelRef, PackageRef, PathResolver,
+    util::extend_lifetime,
+};
 
 use crate::Error;
 
@@ -33,7 +36,7 @@ enum FileStatus {
         wait: Arc<Condvar>,
         // What needs to finish evaluating before this can be evaluated.
         // This is used purely for cycle detection.
-        needs: Option<String>,
+        needs: Option<Label>,
     },
     Loaded(starlark::Result<Pin<Box<FrozenModule>>>),
 }
@@ -51,19 +54,26 @@ impl Default for FileStatus {
 /// (`.bzl` files).
 #[derive(Default)]
 pub struct FileLoader {
-    files: RwLock<HashMap<String, Arc<Mutex<FileStatus>>>>,
+    files: RwLock<HashMap<Label, Arc<Mutex<FileStatus>>>>,
+    preloaded: Vec<Label>,
 }
 
 impl FileLoader {
     /// Preloads a frozen module into the loader's cache.
     /// This should be called once for each builtin module.
     /// By convention, builtin modules will be named "//builtins:$NAME.scl"
-    pub fn preload(&self, module: FrozenModule) {
+    pub fn preload(&mut self, label: Label, module: FrozenModule) -> &FrozenModule {
         let mut files = self.files.write().unwrap();
-        files.insert(
-            module.frozen_heap().name().unwrap().to_string(),
-            Arc::new(Mutex::new(FileStatus::Loaded(Ok(Box::pin(module))))),
-        );
+        self.preloaded.push(label.clone());
+        let pinned = Box::pin(module);
+        // Safety:
+        // * We don't allow overwriting entries in the map, so values last as long as the map
+        //   (though may move in memory).
+        // * The map value is Pin<Box<T>>, guaranteeing that the &T lives and remains valid as long
+        //   as the Pin<Box<T>> remains valid, even if the Pin<Box<T>> moves in memory.
+        let module_ref: &FrozenModule = unsafe { extend_lifetime(&*pinned) };
+        files.insert(label, Arc::new(Mutex::new(FileStatus::Loaded(Ok(pinned)))));
+        module_ref
     }
 
     fn wait_for_load(
@@ -114,11 +124,9 @@ impl FileLoader {
         globals: &Globals,
         make_eval_context: &F,
     ) -> starlark::Result<FrozenModule> {
-        // Starlark-rs requires module identifiers to be strings.
-        let label_str = label.to_string();
         let file_status = {
             let mut loader = self.files.write().unwrap();
-            match loader.entry(label_str.clone()) {
+            match loader.entry(label.to_owned()) {
                 Entry::Occupied(entry) => {
                     let file_status = entry.get().clone();
                     drop(loader);
@@ -131,7 +139,6 @@ impl FileLoader {
 
         let result = self.load_and_evaluate(
             label,
-            &label_str,
             &file_status,
             path_resolver,
             globals,
@@ -144,7 +151,6 @@ impl FileLoader {
     fn load_and_evaluate<'b, C: EvalContext, F: Fn(&PackageRef) -> C>(
         &self,
         label: LabelRef<'b>,
-        label_str: &str,
         file_status: &Arc<Mutex<FileStatus>>,
         path_resolver: &PathResolver,
         globals: &Globals,
@@ -152,17 +158,19 @@ impl FileLoader {
     ) -> starlark::Result<FrozenModule> {
         // Read and parse the file to get its dependencies.
         let absolute_path = path_resolver.absolute_path(label.package(), label.name());
-        let content = fs::read_to_string(&absolute_path)
-            .map_err(|_| Error::ReadFailed(label_str.to_owned()))?;
-        let ast = AstModule::parse(label_str, content, &BZL_FILE_DIALECT)?;
+        let content =
+            fs::read_to_string(&absolute_path).map_err(|_| Error::ReadFailed(label.to_string()))?;
+        let ast = AstModule::parse(&label.to_string(), content, &BZL_FILE_DIALECT)?;
 
         let mut deps: Vec<(String, FrozenModule)> = Default::default();
         if !ast.loads().is_empty() {
             for load in ast.loads() {
                 let dep_label = types::Label::parse(load.module_id, label.package())?;
-                let dep_label_str = dep_label.to_string();
-                if let Some(cycle) = self.find_cycle_path(file_status, &dep_label_str) {
-                    return Err(Error::CycleDetected(cycle).into());
+                if let Some(cycle) = self.find_cycle_path(file_status, &dep_label) {
+                    return Err(Error::CycleDetected(
+                        cycle.into_iter().map(|l| l.to_string()).collect(),
+                    )
+                    .into());
                 }
 
                 deps.push((
@@ -189,30 +197,30 @@ impl FileLoader {
                 eval.set_loader(&loader);
                 eval.eval_module(ast, globals)?;
             }
-            Ok(module.freeze_named(FrozenHeapName::User(Box::new(label_str.to_owned())))?)
+            Ok(module.freeze_named(FrozenHeapName::user(label.to_string()))?)
         })
     }
 
     fn find_cycle_path(
         &self,
         current: &Arc<Mutex<FileStatus>>,
-        target: &str,
-    ) -> Option<Vec<String>> {
+        target: &Label,
+    ) -> Option<Vec<Label>> {
         // Set the dependency before we start doing cycle detection.
         // This prevents multiple threads simultaneously calling find_cycle_path
         // not seeing a cycle on each other, then adding a dependency on each
         // other after the fact.
         {
             let mut status = current.lock().unwrap();
-            let FileStatus::Loading { ref mut needs, .. } = &mut *status else {
+            let FileStatus::Loading { needs, .. } = &mut *status else {
                 // find_cycle_path should only be called from the thing you're
                 // currently trying to load.
                 unreachable!();
             };
-            *needs = Some(target.to_owned());
+            *needs = Some(target.clone());
         }
         let loader = self.files.read().unwrap();
-        let mut cur = target.to_owned();
+        let mut cur = target.clone();
         let mut cycle = vec![cur.clone()];
         while let Some(status_mutex) = loader.get(&cur) {
             let status = status_mutex.lock().unwrap();
@@ -230,6 +238,16 @@ impl FileLoader {
             }
         }
         None
+    }
+
+    /// Returns a list of all labels explicitly loaded by the loader
+    pub fn loaded(&self) -> Vec<Label> {
+        let files = self.files.read().unwrap();
+        files
+            .keys()
+            .filter(|k| !self.preloaded.contains(k))
+            .cloned()
+            .collect()
     }
 }
 
@@ -253,7 +271,6 @@ mod tests {
     use std::rc::Rc;
 
     use testutils::{FakeEvalContext, FakeSession};
-    use types::Label;
 
     use super::*;
 
@@ -277,7 +294,12 @@ mod tests {
         let loader = FileLoader::default();
         let module = load(&loader, "//load:absolute.scl").unwrap();
         assert_eq!(
-            module.get("absolute").unwrap().unpack_str(),
+            module
+                .get("absolute")
+                .unwrap()
+                .as_ref()
+                .value()
+                .unpack_str(),
             Some("absolute")
         );
     }
@@ -287,17 +309,29 @@ mod tests {
         let loader = FileLoader::default();
         let module = load(&loader, "//load:root.scl").unwrap();
         assert_eq!(
-            module.get("absolute_value").unwrap().unpack_str(),
+            module
+                .get("absolute_value")
+                .unwrap()
+                .as_ref()
+                .value()
+                .unpack_str(),
             Some("absolute")
         );
         assert_eq!(
-            module.get("relative_value").unwrap().unpack_str(),
+            module
+                .get("relative_value")
+                .unwrap()
+                .as_ref()
+                .value()
+                .unpack_str(),
             Some("relative")
         );
         assert_eq!(
             module
                 .get("relative_as_absolute_value")
                 .unwrap()
+                .as_ref()
+                .value()
                 .unpack_str(),
             Some("relative")
         );

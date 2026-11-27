@@ -22,8 +22,41 @@ pub(crate) enum Error {
     /// The referenced file does not exist on disk.
     #[error("File {1} does not exist in {0}")]
     FileNotFound(Package, String),
+    /// The referenced source file path is invalid (e.g. contains `..`, `.`,
+    /// backslashes, or is absolute).
+    #[error(
+        "Invalid source file path {1:?} in {0}: source paths must be normalized relative paths \
+         within the package"
+    )]
+    InvalidSourcePath(Package, String),
+    /// The referenced source file is inside a subdirectory containing a
+    /// `BUILD.gn` file.
+    #[error(
+        "Source file {path:?} in {package} is inside subpackage {subpackage} (directory contains \
+         a BUILD.gn)"
+    )]
+    SourceInSubpackage {
+        package: Package,
+        path: String,
+        subpackage: String,
+    },
     #[error("Invalid package, must start with \"//\": \"{0}\"")]
     NotAPackage(String),
+    /// The output file was not declared by this target.
+    #[error("Output file '{0}' was not declared by this target")]
+    OutputNotDeclaredByTarget(crate::File),
+    /// The output file has already been generated.
+    #[error("Output file '{0}' has already been generated")]
+    OutputAlreadyGenerated(crate::File),
+    /// Declared file name is unsupported.
+    #[error("Invalid ctx.actions.declare_file filename: {0:?}")]
+    UnsupportedFilename(String),
+    /// The output file was already declared.
+    #[error("Output file '{0}' was already declared")]
+    DuplicateDeclaredOutput(crate::File),
+    /// Declared output file was never generated.
+    #[error("Declared output file '{0}' was never generated")]
+    DeclaredOutputNeverGenerated(crate::File),
 }
 
 impl From<Error> for starlark::Error {

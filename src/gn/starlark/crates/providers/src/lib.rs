@@ -4,14 +4,17 @@
 
 pub mod builtins;
 pub(crate) mod errors;
+pub mod file_target;
 pub mod globals;
 pub mod provider_instance;
 pub mod provider_type;
 pub mod providers;
 
-pub use builtins::BuiltinProviders;
+pub use builtins::{BuiltinProviders, builtin_providers_module};
 pub(crate) use errors::Error;
+pub use file_target::FileTarget;
 pub use globals::register_providers;
-pub use provider_instance::{FrozenProviderInstance, ProviderInstance};
+pub use provider_instance::ProviderInstance;
 pub use provider_type::ProviderType;
 pub use providers::Providers;
+pub use types::ProviderId;

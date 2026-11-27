@@ -30,6 +30,12 @@ class DescBuilder {
   static std::unique_ptr<base::DictionaryValue> DescriptionForConfig(
       const Config* config,
       const std::string& what);
+
+  // Creates Dictionary representation of resolved config values for a binary
+  // target.
+  static std::unique_ptr<base::DictionaryValue> CompileFlagsForTarget(
+      const Target* target,
+      ResolvedTargetData* resolved = nullptr);
 };
 
 #endif

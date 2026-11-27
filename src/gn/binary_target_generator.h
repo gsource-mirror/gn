@@ -33,6 +33,7 @@ class BinaryTargetGenerator : public TargetGenerator {
   bool ValidateSources();
   bool FillModuleName();
   bool FillModuleType();
+  bool FillWriteCompileFlags();
 
   BinaryTargetGenerator(const BinaryTargetGenerator&) = delete;
   BinaryTargetGenerator& operator=(const BinaryTargetGenerator&) = delete;

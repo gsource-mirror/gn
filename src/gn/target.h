@@ -271,6 +271,13 @@ class Target : public Item {
     write_runtime_deps_output_ = value;
   }
 
+  const OutputFile& write_compile_flags_output() const {
+    return write_compile_flags_output_;
+  }
+  void set_write_compile_flags_output(const OutputFile& value) {
+    write_compile_flags_output_ = value;
+  }
+
   // Runtime dependencies. These are "file-like things" that can either be
   // directories or files. They do not need to exist, these are just passed as
   // runtime dependencies to external test systems as necessary.
@@ -594,6 +601,7 @@ class Target : public Item {
   std::vector<std::string> data_;
   std::unique_ptr<BundleData> bundle_data_;
   OutputFile write_runtime_deps_output_;
+  OutputFile write_compile_flags_output_;
 
   LabelTargetVector private_deps_;
   LabelTargetVector public_deps_;

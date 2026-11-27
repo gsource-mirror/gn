@@ -107,6 +107,25 @@
       "parentUuid": "cbfae08c_be9979a9",
       "revId": "594df12d2c7e097d95a5a020049c8967d9706443",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b696bce3_a7955a77",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T02:43:59Z",
+      "side": 1,
+      "message": "SGTM to handle that in a follow-up CL. Optional nit: consider adding a brief `// TODO(b/528225104): ...` comment here (or in `Session::run_builtin_rule`) noting that multi-output builtin targets don\u0027t emit their generated phonies yet.",
+      "parentUuid": "c890c05b_d772f0c4",
+      "isAi": true,
+      "revId": "594df12d2c7e097d95a5a020049c8967d9706443",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }
   ]
 }

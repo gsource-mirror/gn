@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29ee36d3_27a01622",
+        "filename": "integration_tests/starlark/goldens/obj/dependencies/dependencies.txt",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T02:43:59Z",
+      "side": 1,
+      "message": "Since `deps` in `integration_tests/starlark/BUILD.gn` was sorted to `[\":custom_shared\", \":non_starlark\", \"first.txt\"]` in PS 4/5, and `attr.label_list` preserves the input order, this golden now appears to be out of date (expected order: `//:custom_shared`, `//:non_starlark`, `//:first.txt`).\n\nCould you regenerate the goldens and run CQ/tryjobs on the updated patchset?",
+      "isAi": true,
+      "revId": "730841f28ee179fadb629edbcde4d30d3757d7a9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b57690f_aed10c56",
+        "filename": "integration_tests/starlark/goldens/toolchain.ninja",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T02:43:59Z",
+      "side": 1,
+      "message": "Same here: because `deps` in `BUILD.gn` was reordered to `[\":custom_shared\", \":non_starlark\", \"first.txt\"]`, the `depset` phony expansion order will be `obj/dependencies/dependencies.txt libcustom_shared.so libnon_starlark.so ../first.txt`. Please regenerate this golden as well.",
+      "isAi": true,
+      "revId": "730841f28ee179fadb629edbcde4d30d3757d7a9",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

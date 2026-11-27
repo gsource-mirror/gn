@@ -53,6 +53,23 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f067e54c_76f1bedf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000067
+      },
+      "writtenOn": "2026-11-27T09:25:42Z",
+      "side": 1,
+      "message": "Please reformat the sources (and rebase on top of current origin/main too).",
+      "revId": "351fa829c316fa6a4aa629e3e62ac6b5680cf9ed",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d93c178e_4aba4c39",

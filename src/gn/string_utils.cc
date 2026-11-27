@@ -206,8 +206,7 @@ bool AppendStringInterpolation(Scope* scope,
 //
 // On failure, returns false and sets the error. On success, appends the
 // char with the given hex value to |*output|.
-bool AppendHexByte(Scope* scope,
-                   const Token& token,
+bool AppendHexByte(const Token& token,
                    const char* input,
                    size_t size,
                    size_t* i,
@@ -273,7 +272,7 @@ bool ExpandStringLiteral(Scope* scope,
         return false;
       }
       if (input[i] == '0') {
-        if (!AppendHexByte(scope, literal, input, size, &i, &output, err))
+        if (!AppendHexByte(literal, input, size, &i, &output, err))
           return false;
       } else if (!AppendStringInterpolation(scope, literal, input, size, &i,
                                             &output, err))

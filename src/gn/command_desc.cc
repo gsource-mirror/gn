@@ -147,7 +147,7 @@ void MetadataHandler(const std::string& name,
   OutputString("\n");
 }
 
-// Prints label and property value on one line, capitalizing the label.
+// Prints label and property value on one line.
 void LabelHandler(const std::string& name,
                   const base::Value* value,
                   bool value_only) {
@@ -155,8 +155,6 @@ void LabelHandler(const std::string& name,
     PrintValue(value, 0);
     return;
   }
-  std::string label = name;
-  label[0] = base::ToUpperASCII(label[0]);
   std::string string_value;
   if (value->GetAsString(&string_value)) {
     OutputString(name + ": ", DECORATION_YELLOW);
@@ -419,8 +417,6 @@ bool PrintTarget(const Target* target,
   HandleProperty(variables::kWeakLibraries, handler_map, v, dict);
   HandleProperty(variables::kWriteOutputConversion, handler_map, v, dict);
 
-#undef HandleProperty
-
   // Process the rest (if any)
   base::DictionaryValue::Iterator iter(*dict);
   while (!iter.IsAtEnd()) {
@@ -482,8 +478,6 @@ bool PrintConfig(const Config* config,
   HandleProperty(variables::kRustflags, handler_map, v, dict);
   HandleProperty(variables::kWeakFrameworks, handler_map, v, dict);
   HandleProperty(variables::kWeakLibraries, handler_map, v, dict);
-
-#undef HandleProperty
 
   return true;
 }

@@ -199,7 +199,6 @@ void NinjaRustBinaryTargetWriter::Run() {
                          classified_deps.extra_object_files.end());
   }
 
-  std::vector<OutputFile> rustdeps;
   std::vector<OutputFile> nonrustdeps;
   std::vector<OutputFile> swiftmodules;
   if (!is_rlib) {
@@ -218,14 +217,6 @@ void NinjaRustBinaryTargetWriter::Run() {
       order_only_deps.push_back(dep->swift_values().module_output_file());
     }
   }
-  for (const auto* non_linkable_dep : classified_deps.non_linkable_deps) {
-    if (non_linkable_dep->has_dependency_output()) {
-      if (non_linkable_dep->source_types_used().RustSourceUsed() &&
-          non_linkable_dep->output_type() != Target::SOURCE_SET) {
-        rustdeps.push_back(non_linkable_dep->dependency_output());
-      }
-    }
-  }
 
   if (is_rlib) {
     // See the comment on `is_rlib` above and on AppendRlibOrderOnlyDeps().
@@ -242,12 +233,11 @@ void NinjaRustBinaryTargetWriter::Run() {
         GetOrderOnlyDepsFromNonLinkableDeps(classified_deps.non_linkable_deps));
   }
   for (const auto* linkable_dep : classified_deps.linkable_deps) {
-    if (IsRustCrateDep(linkable_dep)) {
-      rustdeps.push_back(linkable_dep->link_output_file());
-    } else if (is_rlib) {
-      // Not needed to build an rlib. See the comment on `is_rlib` above.
-      continue;
-    } else {
+    if (!IsRustCrateDep(linkable_dep)) {
+      if (is_rlib) {
+        // Not needed to build an rlib. See the comment on `is_rlib` above.
+        continue;
+      }
       nonrustdeps.push_back(linkable_dep->link_output_file());
     }
     CHECK(linkable_dep->has_dependency_output_file());
@@ -345,14 +335,7 @@ void NinjaRustBinaryTargetWriter::Run() {
                          implicit_deps.vector(), order_only_deps.vector(),
                          tool_, tool_outputs);
 
-  std::vector<const Target*> extern_deps(
-      classified_deps.linkable_deps.vector());
-  std::copy(classified_deps.non_linkable_deps.begin(),
-            classified_deps.non_linkable_deps.end(),
-            std::back_inserter(extern_deps));
-
-  WriteExternsAndDeps(extern_deps, transitive_crates, rustdeps, nonrustdeps,
-                      swiftmodules);
+  WriteExternsAndDeps(transitive_crates, nonrustdeps, swiftmodules);
   WriteSourcesAndInputs();
   WritePool(out_);
 }
@@ -382,9 +365,7 @@ void NinjaRustBinaryTargetWriter::WriteSourcesAndInputs() {
 }
 
 void NinjaRustBinaryTargetWriter::WriteExternsAndDeps(
-    const std::vector<const Target*>& deps,
     const std::vector<ExternCrate>& transitive_rust_deps,
-    const std::vector<OutputFile>& rustdeps,
     const std::vector<OutputFile>& nonrustdeps,
     const std::vector<OutputFile>& swiftmodules) {
   // Writes a external LibFile which comes from user-specified externs, and may

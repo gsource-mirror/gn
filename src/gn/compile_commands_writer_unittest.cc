@@ -779,14 +779,12 @@ TEST_F(CompileCommandsTest, CollectTargets) {
       SourceDir(), source_root, Value(nullptr, "//*"), &err);
   ASSERT_SUCCESS(err);
   std::vector<const Target*> output = CompileCommandsWriter::CollectTargets(
-      build_settings(), targets, std::vector<LabelPattern>{wildcard_pattern},
-      std::nullopt, &err);
+      targets, std::vector<LabelPattern>{wildcard_pattern}, std::nullopt);
   EXPECT_TRUE(VectorsEqual(output, targets));
 
   // Collect nothing.
-  output = CompileCommandsWriter::CollectTargets(build_settings(), targets,
-                                                 std::vector<LabelPattern>(),
-                                                 std::nullopt, &err);
+  output = CompileCommandsWriter::CollectTargets(
+      targets, std::vector<LabelPattern>(), std::nullopt);
   EXPECT_TRUE(output.empty());
 
   // Collect all deps of "//foo/*".
@@ -794,8 +792,7 @@ TEST_F(CompileCommandsTest, CollectTargets) {
       SourceDir(), source_root, Value(nullptr, "//foo/*"), &err);
   ASSERT_SUCCESS(err);
   output = CompileCommandsWriter::CollectTargets(
-      build_settings(), targets, std::vector<LabelPattern>{foo_wildcard},
-      std::nullopt, &err);
+      targets, std::vector<LabelPattern>{foo_wildcard}, std::nullopt);
 
   // The result should be everything except "random".
   std::sort(output.begin(), output.end(), &CompareLabel);
@@ -807,15 +804,13 @@ TEST_F(CompileCommandsTest, CollectTargets) {
   EXPECT_EQ(&icu_target, output[4]);
 
   // Collect everything using the legacy filter (present string but empty).
-  output = CompileCommandsWriter::CollectTargets(build_settings(), targets,
-                                                 std::vector<LabelPattern>{},
-                                                 std::string(), &err);
+  output = CompileCommandsWriter::CollectTargets(
+      targets, std::vector<LabelPattern>{}, std::string());
   EXPECT_TRUE(VectorsEqual(output, targets));
 
   // Collect all deps of "bar2" using the legacy filter.
-  output = CompileCommandsWriter::CollectTargets(build_settings(), targets,
-                                                 std::vector<LabelPattern>{},
-                                                 std::string("bar2"), &err);
+  output = CompileCommandsWriter::CollectTargets(
+      targets, std::vector<LabelPattern>{}, std::string("bar2"));
   std::sort(output.begin(), output.end(), &CompareLabel);
   ASSERT_EQ(4u, output.size());
   EXPECT_EQ(&base_target, output[0]);
@@ -825,8 +820,7 @@ TEST_F(CompileCommandsTest, CollectTargets) {
 
   // Collect all deps of "bar1" and "bar2" using the legacy filter.
   output = CompileCommandsWriter::CollectTargets(
-      build_settings(), targets, std::vector<LabelPattern>{},
-      std::string("bar2,bar1"), &err);
+      targets, std::vector<LabelPattern>{}, std::string("bar2,bar1"));
   std::sort(output.begin(), output.end(), &CompareLabel);
   ASSERT_EQ(5u, output.size());
   EXPECT_EQ(&base_target, output[0]);
@@ -841,8 +835,7 @@ TEST_F(CompileCommandsTest, CollectTargets) {
       SourceDir(), source_root, Value(nullptr, "//foo:bar2"), &err);
   ASSERT_SUCCESS(err);
   output = CompileCommandsWriter::CollectTargets(
-      build_settings(), targets, std::vector<LabelPattern>{foo_bar2},
-      std::string("bar1"), &err);
+      targets, std::vector<LabelPattern>{foo_bar2}, std::string("bar1"));
   std::sort(output.begin(), output.end(), &CompareLabel);
   ASSERT_EQ(5u, output.size());
   EXPECT_EQ(&base_target, output[0]);

@@ -151,7 +151,6 @@ struct ExternConverter {
 };
 
 // Fills in a label.
-template <typename T>
 struct LabelResolver {
   LabelResolver(const BuildSettings* build_settings_in,
                 const SourceDir& current_dir_in,
@@ -267,7 +266,7 @@ bool ExtractListOfUniqueLabels(const BuildSettings* build_settings,
                                Err* err) {
   return ListValueUniqueExtractor(
       value, dest, err,
-      LabelResolver<Config>(build_settings, current_dir, current_toolchain));
+      LabelResolver(build_settings, current_dir, current_toolchain));
 }
 
 bool ExtractListOfUniqueLabels(const BuildSettings* build_settings,

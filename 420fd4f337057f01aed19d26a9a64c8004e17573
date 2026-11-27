@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c57dff71_d583e2c7",
+        "filename": "src/gn/test_with_scope.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T02:27:38Z",
+      "side": 1,
+      "message": "use move here?",
+      "range": {
+        "startLine": 24,
+        "startChar": 22,
+        "endLine": 24,
+        "endChar": 31
+      },
+      "revId": "420fd4f337057f01aed19d26a9a64c8004e17573",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

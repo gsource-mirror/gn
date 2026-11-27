@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28e60e0b_2adf295b",
+        "filename": "src/gn/item.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T01:59:15Z",
+      "side": 1,
+      "message": "The name `rust_target_mut()` sounds like a regular mutable getter for an already-initialized target, whereas it actually claims uninitialized storage once and eagerly sets `rust_target_initialized_ \u003d true` before the caller runs `std::ptr::write`. Calling it twice hits `DCHECK`, and any early return before `ptr::write` would cause `~Item()` to drop uninitialized memory.\n\nCould we rename it to something like `claim_rust_target_storage()` / `init_rust_target_storage()`, document the single-use initialization contract in `item.h`, and mark `rust_target_mut` as `unsafe fn` in `bridge.rs`?",
+      "isAi": true,
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9d5de7a_e77f77c6",
+        "filename": "src/gn/item.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T01:59:15Z",
+      "side": 1,
+      "message": "Nit: Consider also explicitly deleting `Item\u0026 operator\u003d(const Item\u0026) \u003d delete;` (and move assignment) for clarity/consistency with the style guide.",
+      "isAi": true,
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3bc38d0_306b4011",
+        "filename": "src/gn/item.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T01:59:15Z",
+      "side": 1,
+      "message": "Why does `rust_target_storage_` live on `Item` rather than `Target`?\n\nPutting 48 bytes + `bool` (+ padding \u003d 56 bytes) on `Item` increases the size of every `Config`, `Toolchain`, and `Pool` instance as well (large builds can have tens of thousands of `Config`s), and currently `bridge.rs` and the naming (`rust_target()`, `FfiTarget`, `kRustTargetSize`) are `Target`-specific. If this is intentionally on `Item` for upcoming `Config` support (e.g. depending on configs from Starlark), could we document that in a comment/commit message? Otherwise, moving it to `Target` would save memory and keep the API tighter.",
+      "isAi": true,
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "172fc90e_dadc4108",
+        "filename": "src/gn/starlark/crates/ffi/src/eval_context.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T01:59:15Z",
+      "side": 1,
+      "message": "Nit: There is no `storage` variable here (`cxx.as_mut().rust_target_mut()` is passed directly). It would also help to mention in the `// Safety:` comment that size and alignment are verified by `Session::from_resolver` / the compile-time align assert in `target.rs`.",
+      "isAi": true,
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe5b55c6_5c3edefa",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T01:59:15Z",
+      "side": 1,
+      "message": "Nit: Now that `LabelTargetPair::to_rust()` no longer takes `session`, `_session` is unused in both `ffi::TargetRef::builtin_attrs` and `FakeTargetRef::builtin_attrs`. We can drop the `session` parameter from `types::TargetRef::builtin_attrs` too (just like `TargetAttrExt::deps`).",
+      "isAi": true,
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9cb56b9_6edb504a",
+        "filename": "src/gn/target.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T01:59:15Z",
+      "side": 1,
+      "message": "Note that switching from `if (auto* rust \u003d rust_target_.load(...))` to `if (!is_builtin())` means builtin rules invoked from Starlark (`//builtins:rules.scl`, where `is_builtin()` is true) will no longer run `execute_rule_impl()` during `OnResolvedWithoutChecks()`, leaving their `evaluated` providers empty until child CL 29540 lands. That\u0027s fine if they\u0027re submitted together, just calling it out in case this CL is merged standalone (a brief note in the commit message might be helpful).",
+      "isAi": true,
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b6946a7_ffc85866",
+        "filename": "src/gn/target_generator.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1000030
+      },
+      "writtenOn": "2026-11-27T01:59:15Z",
+      "side": 1,
+      "message": "Two small edge-case suggestions here:\n1. Moving `if (init_rust)` after the `scope-\u003eGetItemCollector()` check avoids constructing and immediately dropping an `FfiTarget` on context error.\n2. In the `output_type \u003d\u003d \"noop\"` branch above (line 190), consider adding `DCHECK(!init_rust);`, since `Target::NOOP` (15) is outside Rust\u0027s `OutputType` range (1..\u003d14) and `session.builtin_rule(15)` would panic out-of-bounds if `init_rust` were ever true.",
+      "isAi": true,
+      "revId": "4d76ec1fa4e5ed9efae3f550c70af5f9039dfdf4",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    }
+  ]
+}

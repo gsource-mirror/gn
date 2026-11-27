@@ -19,6 +19,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "397807d2_18aef1a6",
+        "filename": "integration_tests/starlark/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T02:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2a88455_b9a5e2b3",
+      "revId": "594df12d2c7e097d95a5a020049c8967d9706443",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "03f56442_696526f2",
@@ -37,6 +55,24 @@
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2bf86cfd_f7bade6e",
+        "filename": "src/gn/item.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T02:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03f56442_696526f2",
+      "revId": "594df12d2c7e097d95a5a020049c8967d9706443",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cbfae08c_be9979a9",
@@ -51,6 +87,24 @@
       "side": 1,
       "message": "What happens when a Starlark target depends on a builtin target with **2 or more outputs** (e.g., a multi-file `copy`, multi-output `action`, or multi-output binary)?\n\n`Session::run_builtin_rule()` calls `Depset::new_file_depset(outputs, heap, state)`. When `outputs.len() \u003e\u003d 2`, `new_file_depset` creates a new phony (`state.new_phony(...)`, stored in `EvaluatedTarget::phonies`), and downstream `depset(transitive \u003d [dep[DefaultInfo].files])` emits that phony name into Ninja (`depset/src/globals.rs:118`). However, the builtin target\u0027s `build phony/...: phony ...` rule will never be written to Ninja because:\n1. `ninja_target_writer.cc:140` skips `write_phonies()` for `target-\u003eis_builtin()`.\n2. Even without that guard, the builtin target\u0027s own Ninja file can already be written (`Builder::FinalizeItem`) before a downstream Starlark target lazily evaluates it.\n\nThe new test passes only because `shared_library(\"non_starlark\")` happens to have a single output (`outputs.len() \u003d\u003d 1`), hitting the single-file fast path.\n\nTwo possible fixes:\n- Reuse the builtin target\u0027s existing GN `dependency_output()` (phony/stamp already emitted by GN) as the `Depset`\u0027s phony instead of creating a new `state.new_phony()`, or\n- Record lazily-created builtin phonies on `Session` (similar to `mnemonics`) and emit them after all targets are resolved in `NinjaBuildWriter`.\n\nCould we also add a multi-output builtin target (e.g., `copy` or multi-output `action`) to `integration_tests/starlark/` to cover this case?",
       "isAi": true,
+      "revId": "594df12d2c7e097d95a5a020049c8967d9706443",
+      "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c890c05b_d772f0c4",
+        "filename": "src/gn/starlark/crates/ffi/src/target_ref.rs",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3810482
+      },
+      "writtenOn": "2026-11-27T02:24:16Z",
+      "side": 1,
+      "message": "Good point, but that\u0027s nontrivial and unrelated to this CL so I\u0027ll do it in a follow-up CL",
+      "parentUuid": "cbfae08c_be9979a9",
       "revId": "594df12d2c7e097d95a5a020049c8967d9706443",
       "serverId": "c360c8e5-7aa8-3905-a7a0-810934766dac"
     }

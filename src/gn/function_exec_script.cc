@@ -178,7 +178,7 @@ Value RunExecScript(Scope* scope,
       build_settings->GetFullPath(build_settings->build_dir());
 
   // If an interpreter path is set, initialize it as the first entry and
-  // pass script_path as the first argument. Otherwise, set the
+  // pass any interpreter arguments followed by script_path. Otherwise, set the
   // program to script_path directly.
   base::FilePath interpreter_path = build_settings->python_path();
   if (!interpreter_path.empty()) {
@@ -186,6 +186,9 @@ Value RunExecScript(Scope* scope,
       interpreter_path = startup_dir.Append(interpreter_path);
     }
     cmdline.SetProgram(interpreter_path);
+    for (const auto& arg : build_settings->python_args()) {
+      cmdline.AppendArg(arg);
+    }
     cmdline.AppendArgPath(script_path);
   } else {
     cmdline.SetProgram(script_path);
@@ -233,9 +236,11 @@ Value RunExecScript(Scope* scope,
   {
     if (!internal::ExecProcess(cmdline, startup_dir, &output, &stderr_output,
                                &exit_code)) {
-      *err = Err(function->function(), "Could not execute interpreter.",
-                 "I was trying to execute \"" +
-                     FilePathToUTF8(interpreter_path) + "\".");
+      // Without an interpreter, the script itself was run.
+      *err = Err(function->function(),
+                 interpreter_path.empty() ? "Could not execute script."
+                                          : "Could not execute interpreter.",
+                 internal::DescribeStartFailure(cmdline, stderr_output));
       return Value();
     }
   }

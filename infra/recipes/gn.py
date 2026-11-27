@@ -95,9 +95,15 @@ def RunSteps(api, repository):
 
     with api.context(cwd=src_dir):
       build_input = api.buildbucket.build_input
+<<<<<<< HEAD   (0fe13e439a50ee2f901bb152a682e1002d63bc9d Move in test_with_scope)
       gitiles_ref = build_input.gitiles_commit.ref if build_input.gitiles_commit else ''
       branch_name = gitiles_ref.removeprefix('refs/heads/') if gitiles_ref else None
 
+||||||| BASE   (ed7fee04cb30b96ed40ef188acfad5417349e399 Do not backslash-escape non-ASCII UTF-8 bytes on POSIX)
+      ref = (
+          build_input.gitiles_commit.id
+=======
+>>>>>>> BRANCH (67f518ef229384ebc9ca5407299948866f73f3ed Remove legacy OutputType setter from Target.)
       ref = build_input.gitiles_commit.id or 'refs/heads/main'
       # Fetch tags so `git describe` works.
       api.step('fetch', ['git', 'fetch', '--tags', repository, ref])

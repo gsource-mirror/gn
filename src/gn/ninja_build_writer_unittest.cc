@@ -9,6 +9,8 @@
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
+#include "base/test/scoped_command_line.h"
+#include "gn/filesystem_utils.h"
 #include "gn/pool.h"
 #include "gn/scheduler.h"
 #include "gn/string_output_buffer.h"
@@ -16,6 +18,7 @@
 #include "gn/target.h"
 #include "gn/test_with_scheduler.h"
 #include "gn/test_with_scope.h"
+#include "util/build_config.h"
 #include "util/test/test.h"
 
 using NinjaBuildWriterTest = TestWithScheduler;
@@ -67,22 +70,74 @@ TEST_F(NinjaBuildWriterTest, GetSelfInvocationCommandLine) {
   EXPECT_EQ("../..", cmd_out.GetSwitchValueString(switches::kRoot));
   EXPECT_EQ("../../testdot.gn",
             cmd_out.GetSwitchValueString(switches::kDotfile));
+
+  // When outside of the source root, it's kept absolute.
+  setup.build_settings()->set_dotfile_name(
+      base::FilePath(FILE_PATH_LITERAL("/outside/.gn")));
+  cmd_out = GetSelfInvocationCommandLine(setup.build_settings());
+  EXPECT_EQ("/outside/.gn", cmd_out.GetSwitchValueString(switches::kDotfile));
+
+  // Paths are escaped for Ninja and the shell.
+  setup.build_settings()->set_dotfile_name(
+      root_realpath.Append(FILE_PATH_LITERAL("my dot$.gn")));
+  cmd_out = GetSelfInvocationCommandLine(setup.build_settings());
+  // Escaping is different between Windows and Posix.
+#if defined(OS_WIN)
+  EXPECT_EQ("../../my$ dot$$.gn",
+            cmd_out.GetSwitchValueString(switches::kDotfile));
+#else
+  EXPECT_EQ("../../my\\$ dot\\$$.gn",
+            cmd_out.GetSwitchValueString(switches::kDotfile));
+#endif
+
+  // Paths inside the build dir are written relative to it even when it's
+  // outside the source root.
+  base::FilePath outside_build_dir =
+      root_realpath.DirName().Append(FILE_PATH_LITERAL("out"));
+  setup.build_settings()->SetBuildDir(
+      SourceDirForPath(root_realpath, outside_build_dir));
+  setup.build_settings()->set_dotfile_name(
+      outside_build_dir.Append(FILE_PATH_LITERAL("dot.gn")));
+  cmd_out = GetSelfInvocationCommandLine(setup.build_settings());
+  EXPECT_EQ("./dot.gn", cmd_out.GetSwitchValueString(switches::kDotfile));
+}
+
+TEST_F(NinjaBuildWriterTest, GetSelfInvocationCommandLineSwitches) {
+  TestWithScope setup;
+  setup.build_settings()->SetRootPath(
+      base::MakeAbsoluteFilePath(base::FilePath(FILE_PATH_LITERAL("."))));
+
+  // The regeneration command copies the switches of the current process,
+  // except diagnostic ones.
+  base::test::ScopedCommandLine cmdline;
+  cmdline.GetProcessCommandLine()->AppendSwitch(switches::kThreads, "2");
+  cmdline.GetProcessCommandLine()->AppendSwitch(switches::kTime);
+  cmdline.GetProcessCommandLine()->AppendSwitch(switches::kTracelog,
+                                                "trace.json");
+  cmdline.GetProcessCommandLine()->AppendSwitch(switches::kVerbose);
+  base::CommandLine cmd_out =
+      GetSelfInvocationCommandLine(setup.build_settings());
+
+  EXPECT_EQ("2", cmd_out.GetSwitchValueString(switches::kThreads));
+  EXPECT_FALSE(cmd_out.HasSwitch(switches::kTime));
+  EXPECT_FALSE(cmd_out.HasSwitch(switches::kTracelog));
+  EXPECT_FALSE(cmd_out.HasSwitch(switches::kVerbose));
 }
 
 TEST_F(NinjaBuildWriterTest, TwoTargets) {
   TestWithScope setup;
   Err err;
 
-  Target target_foo(setup.settings(), Label(SourceDir("//foo/"), "bar"));
-  target_foo.set_output_type(Target::ACTION);
+  Target target_foo(setup.settings(), Label(SourceDir("//foo/"), "bar"),
+                    Target::ACTION);
   target_foo.action_values().set_script(SourceFile("//foo/script.py"));
   target_foo.action_values().outputs() = SubstitutionList::MakeForTest(
       "//out/Debug/out1.out", "//out/Debug/out2.out");
   target_foo.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target_foo.OnResolved(&err));
 
-  Target target_bar(setup.settings(), Label(SourceDir("//bar/"), "bar"));
-  target_bar.set_output_type(Target::ACTION);
+  Target target_bar(setup.settings(), Label(SourceDir("//bar/"), "bar"),
+                    Target::ACTION);
   target_bar.action_values().set_script(SourceFile("//bar/script.py"));
   target_bar.action_values().outputs() = SubstitutionList::MakeForTest(
       "//out/Debug/out3.out", "//out/Debug/out4.out");
@@ -110,8 +165,8 @@ TEST_F(NinjaBuildWriterTest, TwoTargets) {
             other_toolchain_label.name()));
   another_regular_pool.set_depth(7);
 
-  Target target_baz(setup.settings(), Label(SourceDir("//baz/"), "baz"));
-  target_baz.set_output_type(Target::ACTION);
+  Target target_baz(setup.settings(), Label(SourceDir("//baz/"), "baz"),
+                    Target::ACTION);
   target_baz.action_values().set_script(SourceFile("//baz/script.py"));
   target_baz.action_values().outputs() = SubstitutionList::MakeForTest(
       "//out/Debug/out5.out", "//out/Debug/out6.out");
@@ -194,8 +249,8 @@ TEST_F(NinjaBuildWriterTest, ExtractRegenerationCommands) {
   TestWithScope setup;
   Err err;
 
-  Target target_foo(setup.settings(), Label(SourceDir("//foo/"), "bar"));
-  target_foo.set_output_type(Target::ACTION);
+  Target target_foo(setup.settings(), Label(SourceDir("//foo/"), "bar"),
+                    Target::ACTION);
   target_foo.action_values().set_script(SourceFile("//foo/script.py"));
   target_foo.action_values().outputs() = SubstitutionList::MakeForTest(
       "//out/Debug/out1.out", "//out/Debug/out2.out");
@@ -304,16 +359,16 @@ TEST_F(NinjaBuildWriterTest, DuplicateOutputs) {
   TestWithScope setup;
   Err err;
 
-  Target target_foo(setup.settings(), Label(SourceDir("//foo/"), "bar"));
-  target_foo.set_output_type(Target::ACTION);
+  Target target_foo(setup.settings(), Label(SourceDir("//foo/"), "bar"),
+                    Target::ACTION);
   target_foo.action_values().set_script(SourceFile("//foo/script.py"));
   target_foo.action_values().outputs() = SubstitutionList::MakeForTest(
       "//out/Debug/out1.out", "//out/Debug/out2.out");
   target_foo.SetToolchain(setup.toolchain());
   ASSERT_TRUE(target_foo.OnResolved(&err));
 
-  Target target_bar(setup.settings(), Label(SourceDir("//bar/"), "bar"));
-  target_bar.set_output_type(Target::ACTION);
+  Target target_bar(setup.settings(), Label(SourceDir("//bar/"), "bar"),
+                    Target::ACTION);
   target_bar.action_values().set_script(SourceFile("//bar/script.py"));
   target_bar.action_values().outputs() = SubstitutionList::MakeForTest(
       "//out/Debug/out3.out", "//out/Debug/out2.out");

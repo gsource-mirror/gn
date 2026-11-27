@@ -129,6 +129,7 @@
     *   [data_deps: [label list] Non-linked dependencies.](#var_data_deps)
     *   [data_keys: [string list] Keys from which to collect metadata.](#var_data_keys)
     *   [defines: [string list] C preprocessor defines.](#var_defines)
+    *   [dep_keys: [string list] Metadata keys listing targets to depend on.](#var_dep_keys)
     *   [depfile: [string] File name for input dependencies for actions.](#var_depfile)
     *   [deps: [label list] Private linked dependencies.](#var_deps)
     *   [externs: [scope] Set of Rust crate-dependency pairs.](#var_externs)
@@ -176,6 +177,7 @@
     *   [transparent: [bool] True if the bundle is transparent.](#var_transparent)
     *   [validations: [label list] Validation dependencies.](#var_validations)
     *   [visibility: [label list] A list of labels that can depend on a target.](#var_visibility)
+    *   [walk_deps: [label list] Metadata walk roots that are not dependencies.](#var_walk_deps)
     *   [walk_keys: [string list] Key(s) for managing the metadata collection walk.](#var_walk_keys)
     *   [weak_frameworks: [name list] Name of frameworks that must be weak linked.](#var_weak_frameworks)
     *   [weak_libraries: [file list] File of libraries that must be weak linked.](#var_weak_libraries)
@@ -368,9 +370,10 @@
     given arguments set (which may affect the values of other
     arguments).
 ```
-### <a name="cmd_check"></a>**gn check &lt;out_dir&gt; [&lt;label_pattern&gt;] [\--force] [\--check-generated] [\--fix]**&nbsp;[Back to Top](#gn-reference)
-
+### <a name="cmd_check"></a>**gn check &lt;out_dir&gt; [&lt;label_pattern&gt;...] [\--force] [\--check-generated] [\--fix]**&nbsp;[Back to Top](#gn-reference)
 ```
+      [--with-transitive-deps]
+
   GN's include header checker validates that the includes for C-like source
   files match the build dependency graph.
 
@@ -378,9 +381,10 @@
   this command does not write out any build files. It's intended to be an easy
   way to manually trigger include file checking.
 
-  The <label_pattern> can take exact labels or patterns that match more than
-  one (although not general regular expressions). If specified, only those
-  matching targets will be checked. See "gn help label_pattern" for details.
+  Each <label_pattern> can be an exact label or a pattern that matches more
+  than one (although not general regular expressions). If specified, only
+  those matching targets will be checked. See "gn help label_pattern" for
+  details.
 ```
 
 #### **Command-specific switches**
@@ -411,6 +415,12 @@
   --force
       Ignores specifications of "check_includes = false" and checks all
       target's files that match the target label.
+
+  --with-transitive-deps
+      Also checks the transitive dependencies, including data_deps, of the
+      targets that match the label patterns. These are the targets that
+      building the matching targets builds. The lists in the .gn file are
+      applied (see "What gets checked").
 ```
 
 #### **What gets checked**
@@ -421,7 +431,8 @@
   specify a list of targets not to be checked in no_check_targets. It may also
   list targets whose generated files are not checked with --check-generated in
   no_check_generated_targets. If a label pattern is specified on the command
-  line, none of these lists is used.
+  line, none of these lists is used unless --with-transitive-deps is
+  given.
 
   Targets can opt-out from checking with "check_includes = false" (see
   "gn help check_includes").
@@ -511,6 +522,10 @@
 
   gn check out/Default "//foo/*
       Check only the files in targets in the //foo directory tree.
+
+  gn check out/Default --with-transitive-deps //foo:bar //foo:baz
+      Check the files in //foo:bar, //foo:baz and their transitive
+      dependencies, except targets excluded by the lists in the .gn file.
 ```
 ### <a name="cmd_clean"></a>**gn clean &lt;out_dir&gt;...**&nbsp;[Back to Top](#gn-reference)
 
@@ -567,6 +582,7 @@
   configs [--tree] (see below)
   data_keys
   defines [--blame]
+  dep_keys
   depfile
   deps [--all] [--tree] (see below)
   framework_dirs
@@ -588,6 +604,7 @@
   testonly
   validations
   visibility
+  walk_deps
   walk_keys
   weak_frameworks
   weak_libraries
@@ -889,6 +906,9 @@
   documentation on that mode.
 
   See "gn help switches" for the common command-line switches.
+
+  When the build files change, Ninja reruns "gn gen" with the same switches,
+  except --args and the diagnostic switches --time, --tracelog and -v.
 ```
 
 #### **General options**
@@ -2171,6 +2191,11 @@
 
   By default, validations dependencies are never visited by metadata collection,
   but setting `collect_validations_metadata = true` changes this behavior.
+
+  The metadata collection walk can also start from targets that are not
+  dependencies of the generated_file() target by listing them in `walk_deps`,
+  and the targets that produce the collected data can be made dependencies of
+  it with `dep_keys`. See `gn help walk_deps` and `gn help dep_keys`.
 ```
 
 #### **Variables**
@@ -2183,7 +2208,7 @@
            output_extension, output_name, public, sources, testonly,
            visibility
   Generated file: contents, data_keys, rebase, walk_keys, output_conversion,
-                  outputs, collect_validations_metadata
+                  outputs, collect_validations_metadata, walk_deps, dep_keys
 ```
 
 #### **Example (metadata collection)**
@@ -6111,6 +6136,52 @@
 ```
   defines = [ "AWESOME_FEATURE", "LOG_LEVEL=3" ]
 ```
+### <a name="var_dep_keys"></a>**dep_keys**: Metadata keys listing targets to depend on.&nbsp;[Back to Top](#gn-reference)
+
+```
+  Valid on generated_file() targets that collect metadata.
+
+  During the metadata walk, values of these keys are resolved as labels
+  relative to each walked target and added as Ninja dependencies of the
+  generated_file() target. Any resulting dependency cycles are reported by
+  Ninja.
+
+  Each resolved label must refer to the walked target itself or one of its
+  direct deps, public_deps, or data_deps (or direct validations when
+  collect_validations_metadata is true); otherwise GN fails with an error.
+  All resolved labels are therefore part of the transitive dependencies of the
+  generated_file() target's deps, public_deps, data_deps, and walk_deps (plus
+  transitive validations when collect_validations_metadata is true).
+
+  No "visibility", "testonly", or "assert_no_deps" checks are done for
+  collected targets, since they are found through targets that already depend
+  on them. They are not reported as dependencies by commands such as "gn desc"
+  and "gn refs".
+
+  See "gn help generated_file" and "gn help walk_deps".
+```
+
+#### **Example**
+
+```
+  action("foo_pickle") {
+    ...
+    outputs = [ "$target_gen_dir/foo.pickle" ]
+    metadata = {
+      pickle_files = [ "$target_gen_dir/foo.pickle" ]
+      pickle_deps = [ ":foo_pickle" ]
+    }
+  }
+
+  # Lists the pickle files of an app, and depends only on the targets that
+  # create them.
+  generated_file("app_pickles") {
+    outputs = [ "$target_gen_dir/app_pickles.txt" ]
+    data_keys = [ "pickle_files" ]
+    dep_keys = [ "pickle_deps" ]
+    walk_deps = [ ":app" ]
+  }
+```
 ### <a name="var_depfile"></a>**depfile**: [string] File name for input dependencies for actions.&nbsp;[Back to Top](#gn-reference)
 
 ```
@@ -7456,6 +7527,45 @@
   any targets in "//bar/" and any subdirectory thereof.
     visibility = [ "./*", "//bar/*" ]
 ```
+### <a name="var_walk_deps"></a>**walk_deps**: Metadata walk roots that are not dependencies.&nbsp;[Back to Top](#gn-reference)
+
+```
+  Valid on generated_file() targets that collect metadata.
+
+  The metadata walk starts from these targets in addition to deps and
+  data_deps, without making them Ninja dependencies of the generated_file()
+  target (allowing cycles with deps). Like "gen_deps", listed targets are
+  generated when the generated_file() target is generated. Like "deps", they
+  are subject to "visibility" and "testonly" checks. Often paired with
+  "dep_keys".
+
+  They are used only when writing the generated_file() target itself, and not
+  when the metadata walk of another target passes through it. The metadata of
+  the generated_file() target itself is never collected, even when the walk
+  leads back to it.
+
+  See "gn help generated_file".
+```
+
+#### **Example**
+
+```
+  # Lists the libraries of an app without depending on them, even though the
+  # app depends on the list.
+  generated_file("app_libs_list") {
+    outputs = [ "$target_gen_dir/app_libs.txt" ]
+    data_keys = [ "lib_names" ]
+    walk_deps = [ ":app" ]
+  }
+
+  action("app") {
+    ...
+    deps = [
+      ":app_libs_list",
+      ":some_lib",
+    ]
+  }
+```
 ### <a name="var_walk_keys"></a>**walk_keys**: Key(s) for managing the metadata collection walk.&nbsp;[Back to Top](#gn-reference)
 
 ```
@@ -7727,7 +7837,8 @@
       no_check_targets (see below) is specified, all targets will be checked.
       It is an error to specify both check_targets and no_check_targets. If it
       is the empty list, no targets will be checked. To bypass this list,
-      request an explicit check of targets, like "//*".
+      request an explicit check of targets, like "//*", without
+      --with-transitive-deps.
 
       The format of this list is identical to that of "visibility" so see "gn
       help visibility" for examples.
@@ -7749,7 +7860,7 @@
       Generated files are the target's files in the output directory, such as
       action outputs listed in its sources. This list can be combined with
       check_targets or no_check_targets. To bypass it, request an explicit
-      check of targets, like "//*".
+      check of targets, like "//*", without --with-transitive-deps.
 
       The format of this list is identical to that of "visibility" so see "gn
       help visibility" for examples.
@@ -7859,11 +7970,17 @@
       calls using the Python interpreter found in PATH. This value specifies the
       Python executable or other interpreter to use instead.
 
-      If set to a path starting with "//", it will be interpreted as relative
-      to the source root directory and converted to a build-directory-relative
-      path in the generated Ninja files.
+      This may be a string specifying the executable path, or a list of strings
+      where the first element is the executable path and the remaining elements
+      are command-line arguments passed to the executable before the script
+      (for example, ["python3", "-s"]).
 
-      If set to the empty string, the scripts will be executed directly.
+      If the executable path starts with "//", it will be interpreted as
+      relative to the source root directory and converted to a
+      build-directory-relative path in the generated Ninja files.
+
+      If set to the empty string or empty list, the scripts will be executed
+      directly.
 
       The command-line switch --script-executable will override this value (see
       "gn help --script-executable")
@@ -8553,7 +8670,9 @@
   A generated_file target can declare either 'contents' to write statically
   known contents to a file or 'data_keys' to aggregate metadata and write the
   result to a file. It can also specify 'walk_keys' (to restrict the metadata
-  collection), 'output_conversion', and 'rebase'.
+  collection), 'walk_deps' (to collect metadata from targets that are not
+  dependencies), 'dep_keys' (to depend on targets listed in metadata),
+  'output_conversion', and 'rebase'.
 ```
 
 #### **Collection and Aggregation**

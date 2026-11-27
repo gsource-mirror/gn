@@ -28,6 +28,7 @@ std::string ComputeSourceRootRel(const SourceDir& build_dir,
 
 BuildSettings::BuildSettings() = default;
 
+<<<<<<< HEAD   (0fe13e439a50ee2f901bb152a682e1002d63bc9d Move in test_with_scope)
 BuildSettings::BuildSettings(SourceDir build_dir)
     : build_dir_(std::move(build_dir)) {}
 
@@ -36,6 +37,36 @@ BuildSettings::~BuildSettings() {
     rust::Box<Session>::from_raw(starlark_session_);
   }
 }
+||||||| BASE   (ed7fee04cb30b96ed40ef188acfad5417349e399 Do not backslash-escape non-ASCII UTF-8 bytes on POSIX)
+BuildSettings::BuildSettings(const BuildSettings& other)
+    : dotfile_name_(other.dotfile_name_),
+      root_path_(other.root_path_),
+      root_path_utf8_(other.root_path_utf8_),
+      secondary_source_path_(other.secondary_source_path_),
+      python_path_(other.python_path_),
+      python_path_is_relative_to_build_dir_(
+          other.python_path_is_relative_to_build_dir_),
+      ninja_required_version_(other.ninja_required_version_),
+      build_config_file_(other.build_config_file_),
+      arg_file_template_path_(other.arg_file_template_path_),
+      build_dir_(other.build_dir_),
+      build_args_(other.build_args_) {}
+=======
+BuildSettings::BuildSettings(const BuildSettings& other)
+    : dotfile_name_(other.dotfile_name_),
+      root_path_(other.root_path_),
+      root_path_utf8_(other.root_path_utf8_),
+      secondary_source_path_(other.secondary_source_path_),
+      python_path_(other.python_path_),
+      python_args_(other.python_args_),
+      python_path_is_relative_to_build_dir_(
+          other.python_path_is_relative_to_build_dir_),
+      ninja_required_version_(other.ninja_required_version_),
+      build_config_file_(other.build_config_file_),
+      arg_file_template_path_(other.arg_file_template_path_),
+      build_dir_(other.build_dir_),
+      build_args_(other.build_args_) {}
+>>>>>>> BRANCH (67f518ef229384ebc9ca5407299948866f73f3ed Remove legacy OutputType setter from Target.)
 
 void BuildSettings::SetRootTargetLabel(const Label& r) {
   root_target_label_ = r;
@@ -55,8 +86,10 @@ void BuildSettings::SetSecondarySourcePath(const SourceDir& d) {
   secondary_source_path_ = GetFullPath(d).NormalizePathSeparatorsTo('/');
 }
 
-void BuildSettings::SetPythonPath(base::FilePath p) {
+void BuildSettings::SetPythonPath(base::FilePath p,
+                                  std::vector<std::string> args) {
   python_path_ = std::move(p);
+  python_args_ = std::move(args);
   python_path_is_relative_to_build_dir_ = false;
 
   // If the provided python path is absolute and is within the root source tree,
@@ -65,7 +98,9 @@ void BuildSettings::SetPythonPath(base::FilePath p) {
   if (python_path_.IsAbsolute() && root_path_.IsParent(python_path_)) {
     python_path_ = UTF8ToFilePath(
         RebasePath(FilePathToUTF8(python_path_), build_dir_, root_path_utf8_));
-    python_path_is_relative_to_build_dir_ = true;
+    // Rebasing across Windows drives leaves the path absolute. Do not prepend
+    // the build directory when invoking the interpreter in that case.
+    python_path_is_relative_to_build_dir_ = !python_path_.IsAbsolute();
   }
 }
 
